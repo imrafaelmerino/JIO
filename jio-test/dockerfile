@@ -1,0 +1,8 @@
+FROM maven:3.8.1-openjdk-17-slim
+COPY pom.xml /tmp/jio-test/pom.xml
+COPY src /tmp/jio-test/src/
+COPY .mvn /tmp/jio-test/.mvn/
+
+
+WORKDIR /tmp/jio-test/
+ENV CLASSPATH=/tmp/jio/jio-test/target/*

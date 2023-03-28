@@ -1,0 +1,31 @@
+package jio.api;
+
+import fun.tuple.Pair;
+import jio.IO;
+import jio.PairExp;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
+public class TestPairExp {
+
+
+    @Test
+    public void sequential_constructor() {
+
+        PairExp<String, String> pair = PairExp.seq(IO.succeed("a"),
+                                                   IO.succeed("b")
+                                                  );
+
+        Assertions.assertEquals(Pair.of("a",
+                                        "b"
+                                       ),
+                                pair.join()
+                               );
+    }
+
+
+
+}
