@@ -46,12 +46,12 @@ class HistoryCommand extends Command {
             if (nArgs == 0) {
                 int n = state.historyResults.size();
                 return n == 0 ?
-                        IO.succeed("stack is empty!") :
-                        IO.succeed(
+                        IO.fromValue("stack is empty!") :
+                        IO.fromValue(
                                 IntStream.range(0, n)
                                          .mapToObj(i -> i + " -> " + state.historyResults.get(i))
                                          .collect(Collectors.joining("\n"))
-                                  );
+                                    );
             } else {
                 int size = state.historyCommands.size();
                 String token = tokens[1];
@@ -60,21 +60,21 @@ class HistoryCommand extends Command {
                     String[] ns = token.split(",");
                     for (String s : ns) {
                         int n = Integer.parseInt(s);
-                        if (n > size - 1) return IO.fail(new IllegalArgumentException("history size " + size));
+                        if (n > size - 1) return IO.fromFailure(new IllegalArgumentException("history size " + size));
                         list = list.append(state.getHistoryCommand(n));
                     }
                     return list.map(it -> String.join("\n", it));
                 } else if (interval.matcher(token).matches()) {
                     String[] bounds = tokens[1].split("\\.\\.");
-                    if (bounds.length != 2) return IO.fail(new IllegalArgumentException("n..m n<m expected"));
+                    if (bounds.length != 2) return IO.fromFailure(new IllegalArgumentException("n..m n<m expected"));
                     int min = Integer.parseInt(bounds[0]);
                     int max = Integer.parseInt(bounds[1]);
-                    if (min > max) return IO.fail(new IllegalArgumentException("n..m n<m expected"));
+                    if (min > max) return IO.fromFailure(new IllegalArgumentException("n..m n<m expected"));
                     ListExp<String> list = ListExp.seq();
                     for (int i = min; i <= max; i++) list = list.append(state.getHistoryCommand(i));
                     return list.map(it -> String.join("\n", it));
                 } else
-                    return IO.fail(new InvalidCommand(this, "argument doesnt follow the allowed patterns: " + intervalRegex + ", " + someRegex));
+                    return IO.fromFailure(new InvalidCommand(this, "argument doesnt follow the allowed patterns: " + intervalRegex + ", " + someRegex));
 
             }
 

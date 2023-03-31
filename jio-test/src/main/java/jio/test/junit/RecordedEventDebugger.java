@@ -70,7 +70,7 @@ final class RecordedEventDebugger {
 
     private static void printStubEvent(RecordedEvent e) {
 
-            var str = String.format("stub; %s; %s; %s; %s ms; %s; counter=%s",
+            var str = String.format("stub; %s; %s; %s; %s ms; counter=%s; %s",
                                     e.getThread().getJavaName(),
                                     e.getValue("result"),
                                     "".equals(e.getValue("exception")) ?

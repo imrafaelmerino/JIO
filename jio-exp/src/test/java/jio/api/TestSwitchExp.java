@@ -14,7 +14,7 @@ public class TestSwitchExp {
 
 
         IO<String> a =
-                SwitchExp.<String, String>eval(IO.succeed("a"))
+                SwitchExp.<String, String>eval(IO.fromValue("a"))
                          .match("a", x -> Constants.A,
                                 "b", x -> Constants.B,
                                 x -> Constants.C
@@ -88,7 +88,7 @@ public class TestSwitchExp {
                                 "d", x -> Constants.D,
                                 "e", x -> Constants.A,
                                 "f", x -> Constants.B,
-                                IO::succeed
+                                IO::fromValue
                                )
                          .debugEach("6")
                          .map(String::toUpperCase);
@@ -170,7 +170,7 @@ public class TestSwitchExp {
                                 List.of("d"), x -> Constants.D,
                                 List.of("e"), x -> Constants.A,
                                 List.of("f"), x -> Constants.B,
-                                IO::succeed
+                                IO::fromValue
                                )
                          .map(String::toUpperCase);
 
@@ -251,7 +251,7 @@ public class TestSwitchExp {
                                 x -> x.equals("d"), x -> Constants.D,
                                 x -> x.equals("e"), x -> Constants.A,
                                 x -> x.equals("f"), x -> Constants.B,
-                                x -> IO.succeed(x)
+                                x -> IO.fromValue(x)
                                )
                          .map(String::toUpperCase);
 
@@ -264,10 +264,10 @@ public class TestSwitchExp {
 
     @Test
     public void test_debug_each() {
-        var exp = SwitchExp.<Integer, String>eval(IO.succeed(2))
-                           .match(1, i -> IO.succeed("one"),
-                                  2, i -> IO.succeed("two"),
-                                  i -> IO.succeed("default")
+        var exp = SwitchExp.<Integer, String>eval(IO.fromValue(2))
+                           .match(1, i -> IO.fromValue("one"),
+                                  2, i -> IO.fromValue("two"),
+                                  i -> IO.fromValue("default")
                                  )
                            .debugEach("context")
                            .join();

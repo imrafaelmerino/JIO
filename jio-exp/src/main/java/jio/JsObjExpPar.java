@@ -22,7 +22,8 @@ import static java.util.Objects.requireNonNull;
 final class JsObjExpPar extends JsObjExp {
 
     public JsObjExpPar(Map<String, IO<? extends JsValue>> bindings,
-                       Function<ExpEvent,BiConsumer<JsObj, Throwable>> logger) {
+                       Function<ExpEvent, BiConsumer<JsObj, Throwable>> logger
+                      ) {
         super(bindings, logger);
     }
 

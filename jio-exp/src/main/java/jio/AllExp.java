@@ -39,8 +39,8 @@ public sealed abstract class AllExp extends Exp<Boolean> permits AllExpPar, AllE
      *     Lambda<Integer,Boolean> isDivisibleByTwoAndThree =
      *              n -> {
      *
-     *                  IO<Boolean> isDivisibleByTwo = IO.compute(() -> n % 2 == 0);
-     *                  IO<Boolean> isDivisibleByThree = IO.compute(() -> n % 3 == 0);
+     *                  IO<Boolean> isDivisibleByTwo = IO.fromSupplier(() -> n % 2 == 0);
+     *                  IO<Boolean> isDivisibleByThree = IO.fromSupplier(() -> n % 3 == 0);
      *                  return AllExp.par(isDivisibleByTwo,
      *                                    isDivisibleByThree
      *                                    );
@@ -61,12 +61,10 @@ public sealed abstract class AllExp extends Exp<Boolean> permits AllExpPar, AllE
      *     Lambda<Integer,Boolean> isDivisibleByTwoAndThree =
      *              n -> {
      *
-     *                  IO<Boolean> isDivisibleByTwo = IO.computeOn(()-> n % 2 == 0,
-     *                                                              executor
-     *                                                             );
-     *                  IO<Boolean> isDivisibleByThree = IO.computeOn(()-> n % 3 == 0,
-     *                                                                executor
-     *                                                                );
+     *                  IO<Boolean> isDivisibleByTwo = IO.fromSupplier(()-> n % 2 == 0, executor);
+     *
+     *                  IO<Boolean> isDivisibleByThree = IO.fromSupplier(()-> n % 3 == 0, executor);
+     *
      *                  return AllExp.par(isDivisibleByTwo,
      *                                    isDivisibleByThree
      *                                    );

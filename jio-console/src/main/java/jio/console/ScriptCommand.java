@@ -51,7 +51,7 @@ class ScriptCommand extends Command {
             Path path = Paths.get(Functions.joinTail(tokens));
             File file = path.toFile();
             if (!file.exists())
-                return IO.fail(new FileNotFoundException("The file '" + file + "' doesnt exist"));
+                return IO.fromFailure(new FileNotFoundException("The file '" + file + "' doesnt exist"));
             return execScript(conf, path);
 
 
@@ -67,20 +67,20 @@ class ScriptCommand extends Command {
                          .map(line -> {
                                   Optional<Pair<Command, IO<String>>> opt = console.parse(conf, line.trim());
                                   if (opt.isPresent()) return opt.get().second();
-                                  return IO.succeed(String.format("The line %s is not a supported command",
-                                                                  line
-                                                                 )
-                                                   );
+                                  return IO.fromValue(String.format("The line %s is not a supported command",
+                                                                    line
+                                                                   )
+                                                     );
                               }
                              )
                          .toList();
 
             return list.stream()
-                       .reduce(IO.succeed(""),
+                       .reduce(IO.fromValue(""),
                                (a, b) -> a.then(as -> b.map(bs -> as + "\n" + bs))
                               );
         } catch (IOException e) {
-            return IO.fail(new InvalidCommand(this, e.getMessage()));
+            return IO.fromFailure(new InvalidCommand(this, e.getMessage()));
         }
 
     }

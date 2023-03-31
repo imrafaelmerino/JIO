@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-console</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
     <name>jio-console</name>
     <description>Java Input-Output Monad</description>
     <url>https://github.com/imrafaelmerino/jio</url>
@@ -37,9 +37,9 @@
         <MAVEN-SUREFIRE-PLUGIN.VERSION>3.0.0-M6</MAVEN-SUREFIRE-PLUGIN.VERSION>
         <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
         <MAVEN-JAVADOC-PLUGIN.VERSION>3.3.2</MAVEN-JAVADOC-PLUGIN.VERSION>
-        <JIO.EXP.VERSION>0.6.0</JIO.EXP.VERSION>
-        <JIO.TEST.VERSION>0.6.0</JIO.TEST.VERSION>
-        <JUNIT-JUPITER-ENGINE.VERSION>5.7.0</JUNIT-JUPITER-ENGINE.VERSION>
+        <JIO-EXP-VERSION>0.6.0</JIO-EXP-VERSION>
+        <JIO-TEST-VERSION>0.6.0</JIO-TEST-VERSION>
+        <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
     </properties>
 
     <build>
@@ -87,12 +87,12 @@
         <dependency>
             <groupId>com.github.imrafaelmerino</groupId>
             <artifactId>jio-exp</artifactId>
-            <version>${JIO.EXP.VERSION}</version>
+            <version>${JIO-EXP-VERSION}</version>
         </dependency>
         <dependency>
             <groupId>com.github.imrafaelmerino</groupId>
             <artifactId>jio-test</artifactId>
-            <version>${JIO.TEST.VERSION}</version>
+            <version>${JIO-TEST-VERSION}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

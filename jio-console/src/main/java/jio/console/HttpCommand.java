@@ -61,7 +61,7 @@ public class HttpCommand extends Command {
     public Function<String[], IO<String>> apply(final JsObj conf,
                                                 final State state
                                                ) {
-        return tokens -> IO.supply(Clock.realTime)
+        return tokens -> IO.fromSupplier(Clock.realTime)
                            .then(tic -> request.apply(conf, tokens)
                                                .map(resp ->
                                                             JsObj.of("status_code",

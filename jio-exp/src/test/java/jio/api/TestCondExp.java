@@ -155,9 +155,9 @@ public class TestCondExp {
 
     @Test
     public void test_debugeach() {
-        var exp = CondExp.par(IO.FALSE, () -> IO.succeed("a"),
-                              IO.FALSE, () -> IO.succeed("b"),
-                              () -> IO.succeed("default")
+        var exp = CondExp.par(IO.FALSE, () -> IO.fromValue("a"),
+                              IO.FALSE, () -> IO.fromValue("b"),
+                              () -> IO.fromValue("default")
                              )
                          .debugEach("context")
                          .join();

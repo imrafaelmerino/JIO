@@ -27,13 +27,13 @@ class HelpCommand extends Command {
                                                ) {
         return tokens -> {
             int nArgs = tokens.length - 1;
-            if (nArgs == 0) return IO.succeed("Type the name of a command or list to see al the possible commands");
+            if (nArgs == 0) return IO.fromValue("Type the name of a command or list to see al the possible commands");
             String commandName = Functions.joinTail(tokens);
             return commands.stream()
                            .filter(it -> it.name.equalsIgnoreCase(commandName))
                            .findFirst()
-                           .map(command -> IO.succeed(command.description))
-                           .orElse(IO.fail(new CommandNotFoundException(commandName)));
+                           .map(command -> IO.fromValue(command.description))
+                           .orElse(IO.fromFailure(new CommandNotFoundException(commandName)));
         };
     }
 }

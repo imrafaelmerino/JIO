@@ -27,9 +27,9 @@ class EchoCommand extends Command {
             int nArgs = tokens.length - 1;
             if (nArgs == 0)
                 return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type the name of variable"))
-                               .then(var -> IO.succeed(state.variables.get(var)));
+                               .then(var -> IO.fromValue(state.variables.get(var)));
 
-            return IO.succeed(Functions.joinTail(tokens));
+            return IO.fromValue(Functions.joinTail(tokens));
         };
     }
 }

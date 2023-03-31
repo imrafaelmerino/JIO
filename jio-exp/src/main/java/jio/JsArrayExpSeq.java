@@ -25,7 +25,7 @@ final class JsArrayExpSeq extends JsArrayExp {
 
 
     public JsArrayExpSeq(final List<IO<? extends JsValue>> list,
-                         final Function<ExpEvent,BiConsumer<JsArray, Throwable>> logger
+                         final Function<ExpEvent, BiConsumer<JsArray, Throwable>> logger
                         ) {
         super(list, logger);
     }

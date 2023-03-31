@@ -45,11 +45,11 @@ class MyHttpClientImpl implements MyHttpClient {
         if (reqRetryPolicy != null && reqRetryPredicate != null) {
             return builder -> {
                 requireNonNull(builder);
-                return IO.effect(() -> requestWrapper(this,
-                                                      builder.build(),
-                                                      handler
-                                                     )
-                                )
+                return IO.fromEffect(() -> requestWrapper(this,
+                                                          builder.build(),
+                                                          handler
+                                                         )
+                                    )
                          .retry(reqRetryPredicate,
                                 reqRetryPolicy
                                );
@@ -58,21 +58,21 @@ class MyHttpClientImpl implements MyHttpClient {
         if (reqRetryPolicy != null) {
             return builder -> {
                 requireNonNull(builder);
-                return IO.effect(() -> requestWrapper(this,
-                                                      builder.build(),
-                                                      handler
-                                                     )
-                                )
+                return IO.fromEffect(() -> requestWrapper(this,
+                                                          builder.build(),
+                                                          handler
+                                                         )
+                                    )
                          .retry(reqRetryPolicy);
             };
         }
         return builder -> {
             requireNonNull(builder);
-            return IO.effect(() -> requestWrapper(this,
-                                                  builder.build(),
-                                                  handler
-                                                 )
-                            );
+            return IO.fromEffect(() -> requestWrapper(this,
+                                                      builder.build(),
+                                                      handler
+                                                     )
+                                );
         };
     }
 

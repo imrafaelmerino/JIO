@@ -36,17 +36,17 @@ public final class GetAccessToken implements Lambda<HttpResponse<String>, String
             var json = JsObj.parse(body);
             var token = json.getStr(ACCESS_TOKEN_PATH);
             if (token == null || token.isBlank())
-                return IO.fail(new AccessTokenNotFound(String.format("Response: %s. Expected a string located at the path: %s.",
-                                                                     body,
-                                                                     ACCESS_TOKEN_PATH
-                                                                    )
+                return IO.fromFailure(new AccessTokenNotFound(String.format("Response: %s. Expected a string located at the path: %s.",
+                                                                            body,
+                                                                            ACCESS_TOKEN_PATH
+                                                                           )
                                )
-                              );
-            return IO.succeed(token);
+                                     );
+            return IO.fromValue(token);
         } catch (JsParserException malformedJson) {
-            return IO.fail(new AccessTokenNotFound("A JsObj body response was expected. Received: " + body));
+            return IO.fromFailure(new AccessTokenNotFound("A JsObj body response was expected. Received: " + body));
         } catch (Exception e) {
-            return IO.fail(new AccessTokenNotFound("Exception while reading access token from response.", e));
+            return IO.fromFailure(new AccessTokenNotFound("Exception while reading access token from response.", e));
         }
 
     }

@@ -34,7 +34,7 @@ public class TestManagedBlocker {
 
         for (int i = 0; i < MAX; i++) {
 
-            exp = exp.append(IO.blockingSupply(() -> computation()).debug());
+            exp = exp.append(IO.fromManagedSupplier(() -> computation()).debug());
 
         }
 

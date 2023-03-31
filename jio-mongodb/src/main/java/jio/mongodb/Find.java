@@ -83,10 +83,10 @@ sealed public class Find<O> implements Lambda<FindOptions, O> permits FindOne, F
                                     FIND
                                    );
         return executor == null ?
-                IO.blockingSupply(supplier) :
-                IO.supplyOn(supplier,
-                            executor
-                           );
+                IO.fromManagedSupplier(supplier) :
+                IO.fromSupplier(supplier,
+                                executor
+                               );
     }
 
 }

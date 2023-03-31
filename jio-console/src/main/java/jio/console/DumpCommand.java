@@ -2,10 +2,8 @@ package jio.console;
 
 import jio.IO;
 import jio.RetryPolicies;
-import jio.RetryPolicy;
 import jsonvalues.JsObj;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,7 +52,7 @@ class DumpCommand extends Command {
         try {
             Path file = Paths.get(path);
             if (!file.getParent().toFile().isDirectory())
-                return IO.fail(new InvalidCommand(this, "Folder " + file.getParent() + " not found"));
+                return IO.fromFailure(new InvalidCommand(this, "Folder " + file.getParent() + " not found"));
 
             Files.writeString(file,
                               state.variables.getOrDefault("output", "") + "\n",
@@ -62,7 +60,7 @@ class DumpCommand extends Command {
                               StandardOpenOption.APPEND
                              );
         } catch (IOException e) {
-            return IO.fail(e);
+            return IO.fromFailure(e);
         }
         return IO.NULL();
     }

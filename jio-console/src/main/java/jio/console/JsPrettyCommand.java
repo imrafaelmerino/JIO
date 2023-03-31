@@ -19,10 +19,10 @@ class JsPrettyCommand extends Command {
     public Function<String[], IO<String>> apply(final JsObj conf,
                                                 final State state
                                                ) {
-        return tokens -> IO.supply(() ->
+        return tokens -> IO.fromSupplier(() ->
                                            Functions.toJson
                                                    .apply(state.variables.get("output"))
                                                    .toPrettyString()
-                                  );
+                                        );
     }
 }

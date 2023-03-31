@@ -39,7 +39,7 @@ final class FailureStub<O> extends IOStub<O> implements Supplier<IO<O>> {
         this.getError = requireNonNull(getError);
         this.delay = requireNonNull(delay);
         this.value = value;
-        this.effect = IO.effect(() -> {
+        this.effect = IO.fromEffect(() -> {
             counter += 1;
             long millis = delay.apply(counter)
                                .toMillis();

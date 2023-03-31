@@ -59,10 +59,10 @@ public final class Count implements Lambda<JsObj, Long> {
                           }, COUNT
                                    );
         return executor == null ?
-                IO.blockingSupply(supplier) :
-                IO.supplyOn(supplier,
-                            executor
-                           );
+                IO.fromManagedSupplier(supplier) :
+                IO.fromSupplier(supplier,
+                                executor
+                               );
 
     }
 }

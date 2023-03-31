@@ -78,10 +78,10 @@ public final class InsertMany<R> implements Lambda<JsArray, R> {
                                     INSERT_MANY
                                    );
         return executor == null ?
-                IO.blockingSupply(supplier) :
-                IO.supplyOn(supplier,
-                            executor
-                           );
+                IO.fromManagedSupplier(supplier) :
+                IO.fromSupplier(supplier,
+                                executor
+                               );
 
     }
 }

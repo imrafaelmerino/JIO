@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-exp</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
     <name>jio-exp</name>
     <description>Java Input-Output Monad</description>
     <url>https://github.com/imrafaelmerino/jio</url>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -41,8 +41,8 @@
         <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
         <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
         <JSON-VALUES.VERSION>12.1.0</JSON-VALUES.VERSION>
-        <JAVA.FUN.VERSION>0.9.4</JAVA.FUN.VERSION>
-        <JUNIT-JUPITER-ENGINE.VERSION>5.7.0</JUNIT-JUPITER-ENGINE.VERSION>
+        <JAVA.FUN.VERSION>0.9.5</JAVA.FUN.VERSION>
+        <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
     </properties>
 
     <build>

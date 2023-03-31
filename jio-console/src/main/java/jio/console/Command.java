@@ -110,7 +110,7 @@ public abstract class Command implements BiFunction<JsObj, State, Function<Strin
                         Optional.of(apply(conf, state).apply(tokens)) :
                         Optional.empty();
             } catch (Exception e) {
-                return Optional.of(IO.fail(e));
+                return Optional.of(IO.fromFailure(e));
             }
         };
     }

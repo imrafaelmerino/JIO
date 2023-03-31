@@ -150,7 +150,7 @@ public class HttpServerBuilder {
         if (port <= 0) throw new IllegalArgumentException("port <= 0");
         Objects.requireNonNull(host);
 
-        return IO.effect(() -> {
+        return IO.fromEffect(() -> {
             try {
                 var server =
                         HttpServer.create(new InetSocketAddress(host, port), backlog);

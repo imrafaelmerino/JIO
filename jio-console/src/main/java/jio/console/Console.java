@@ -81,7 +81,7 @@ public final class Console {
 
 
                             state.historyCommands.add(command);
-                            return IO.supply(Clock.realTime)
+                            return IO.fromSupplier(Clock.realTime)
                                      .then(tic -> command.map(result -> Pair.of(tic, result)))
                                      .peek(pair ->
                                                    state.historyResults
@@ -100,7 +100,7 @@ public final class Console {
                                           )
                                      .map(Pair::second);
                         }
-                        return IO.fail(new CommandNotFoundException(line));
+                        return IO.fromFailure(new CommandNotFoundException(line));
                     })
                     .then(it -> it != null ? Programs.PRINT_NEW_LINE(it + "\n") : IO.NULL(),
                           e -> Programs.PRINT_NEW_LINE(e.getMessage() + "\n")
@@ -138,7 +138,7 @@ public final class Console {
                                                                     ));
                 if (opt.isPresent()) return Optional.of(Pair.of(command, opt.get()));
             } catch (Exception e) {
-                return Optional.of(Pair.of(command, IO.fail(e)));
+                return Optional.of(Pair.of(command, IO.fromFailure(e)));
             }
         }
         return Optional.empty();

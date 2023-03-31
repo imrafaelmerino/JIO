@@ -72,8 +72,8 @@ public final class UpdateMany<O> implements BiLambda<JsObj, JsObj, O> {
                                     UPDATE_MANY
                                    );
         return executor == null ?
-                IO.blockingSupply(supplier) :
-                IO.supplyOn(supplier, executor);
+                IO.fromManagedSupplier(supplier) :
+                IO.fromSupplier(supplier, executor);
 
     }
 }

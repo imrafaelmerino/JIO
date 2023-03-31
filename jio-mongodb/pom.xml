@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-mongodb</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
     <name>jio-mongodb</name>
     <description>Functional and reactive MongoDB client in Java</description>
     <url>https://github.com/imrafaelmerino/jio</url>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -41,8 +41,9 @@
         <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
         <MONGO-VALUES-VERSION>0.9.6</MONGO-VALUES-VERSION>
         <MAVEN-JAVADOC-PLUGIN.VERSION>3.3.2</MAVEN-JAVADOC-PLUGIN.VERSION>
-        <JIO.VERSION>0.6.0</JIO.VERSION>
-        <JUNIT-JUPITER-ENGINE.VERSION>5.7.0</JUNIT-JUPITER-ENGINE.VERSION>
+        <JIO-EXP-VERSION>0.7.0</JIO-EXP-VERSION>
+        <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
+        <MONGO-DRIVER-SYNC>4.9.0</MONGO-DRIVER-SYNC>
     </properties>
 
     <build>
@@ -116,13 +117,13 @@
         <dependency>
             <groupId>com.github.imrafaelmerino</groupId>
             <artifactId>jio-exp</artifactId>
-            <version>${JIO.VERSION}</version>
+            <version>${JIO-EXP-VERSION}</version>
         </dependency>
 
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
-            <version>4.7.1</version>
+            <version>${MONGO-DRIVER-SYNC}</version>
         </dependency>
 
         <dependency>

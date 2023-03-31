@@ -32,7 +32,6 @@ public sealed interface Clock extends Supplier<Long> permits Monotonic, MyClock,
     /**
      *
      * Function that takes a long supplier as the clock tick generator and returns a Clock.
-     * You can create any custom clock to test your applications.
      *
      */
     Function<Supplier<Long>, Clock> custom = MyClock::new;

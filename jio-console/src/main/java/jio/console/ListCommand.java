@@ -38,11 +38,11 @@ class ListCommand extends Command {
                             .sorted(Comparator.naturalOrder())
                             .collect(Collectors.toList());
             return tokens.length == 1 ?
-                    IO.succeed(String.join("\n", list)) :
-                    IO.succeed(list.stream()
-                                   .filter(it -> it.startsWith(tokens[1]))
-                                   .collect(Collectors.joining("\n"))
-                              );
+                    IO.fromValue(String.join("\n", list)) :
+                    IO.fromValue(list.stream()
+                                     .filter(it -> it.startsWith(tokens[1]))
+                                     .collect(Collectors.joining("\n"))
+                                );
         };
     }
 }

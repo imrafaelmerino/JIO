@@ -24,7 +24,7 @@ final class ValStub<O> extends IOStub<O> implements Supplier<IO<O>> {
         this.executor = executor;
         this.getValue = requireNonNull(getValue);
         this.delay = requireNonNull(delay);
-        this.effect = IO.effect(() -> {
+        this.effect = IO.fromEffect(() -> {
             counter += 1;
             return delayValue(delay.apply(counter).toMillis(),
                               getValue.apply(counter)

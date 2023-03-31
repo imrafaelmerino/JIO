@@ -39,12 +39,12 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     /**
      * Effect that always succeed with true
      */
-    public static final IO<Boolean> TRUE = succeed(true);
+    public static final IO<Boolean> TRUE = fromValue(true);
 
     /**
      * Effect that always succeed with false
      */
-    public static final IO<Boolean> FALSE = succeed(false);
+    public static final IO<Boolean> FALSE = fromValue(false);
 
     /**
      * Creates an effect that is always reduced to null. We need a static generic method to capture the type
@@ -62,7 +62,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @return the null effect
      */
     public static <O> IO<O> NULL() {
-        return IO.succeed(null);
+        return IO.fromValue(null);
     }
 
     /**
@@ -72,7 +72,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <O>    the type of the effect
      * @return an IO effect
      */
-    public static <O> IO<O> effect(final Supplier<CompletableFuture<O>> effect) {
+    public static <O> IO<O> fromEffect(final Supplier<CompletableFuture<O>> effect) {
         return new Val<>(requireNonNull(effect));
     }
 
@@ -80,7 +80,6 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     /**
      * Creates an effect from a callable that returns a closable resource and maps it into a value.
      * <strong>It closes the resource to avoid any memory leak.</strong>
-     *
      *
      * @param resource the resource supplier
      * @param map      the map function
@@ -90,10 +89,10 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      */
 
 
-    public static <O, I extends AutoCloseable> IO<O> resource(final Callable<I> resource,
-                                                              final Function<I, O> map
-                                                             ) {
-        return IO.effect(() -> {
+    public static <O, I extends AutoCloseable> IO<O> fromResource(final Callable<I> resource,
+                                                                  final Function<I, O> map
+                                                                 ) {
+        return IO.fromEffect(() -> {
 
             try (var r = resource.call()) {
                 return CompletableFuture.completedFuture(r)
@@ -113,20 +112,20 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <O> the type of the value
      * @return an effect
      */
-    public static <O> IO<O> succeed(final O val) {
+    public static <O> IO<O> fromValue(final O val) {
         return new Val<>(() -> CompletableFuture.completedFuture(val));
     }
 
     /**
      * Creates an effect from a lazy computation. Since a supplier can't throw an exception,
-     * it also exists the constructor {@link #task(Callable)} that takes a {@link Callable callabe}
+     * it also exists the constructor {@link #fromTask(Callable)} that takes a {@link Callable callabe}
      * instead of a {@link Supplier supplier}
      *
      * @param supplier the supplier
      * @param <O>      the type of the effect
      * @return an effect
      */
-    public static <O> IO<O> supply(final Supplier<O> supplier) {
+    public static <O> IO<O> fromSupplier(final Supplier<O> supplier) {
         requireNonNull(supplier);
         return
                 new Val<>(() -> {
@@ -145,7 +144,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <O>      the type of the effect
      * @return an effect
      */
-    public static <O> IO<O> task(final Callable<O> callable) {
+    public static <O> IO<O> fromTask(final Callable<O> callable) {
         requireNonNull(callable);
         return
                 new Val<>(() -> {
@@ -166,11 +165,11 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <O>      the type of the effect
      * @return an effect
      */
-    public static <O> IO<O> taskOn(final Callable<O> callable,
-                                   final Executor executor
-                                  ) {
+    public static <O> IO<O> fromTask(final Callable<O> callable,
+                                     final Executor executor
+                                    ) {
         requireNonNull(callable);
-        return IO.effect(() -> {
+        return IO.fromEffect(() -> {
             try {
                 return CompletableFuture.supplyAsync(() -> {
                                                          try {
@@ -195,7 +194,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <O> the type captured by this method and NOT the type of the exception
      * @return an effect
      */
-    public static <O> IO<O> fail(final Throwable exc) {
+    public static <O> IO<O> fromFailure(final Throwable exc) {
         requireNonNull(exc);
         return new Val<>(() -> CompletableFuture.failedFuture(exc));
 
@@ -204,7 +203,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     /**
      * Creates an effect from a lazy computation that is performed by a thread from
      * the specified executor pool.Since a supplier can't throw an exception,
-     * it also exists the constructor {@link #task(Callable)} that takes a {@link Callable callabe}
+     * it also exists the constructor {@link #fromTask(Callable)} that takes a {@link Callable callabe}
      * instead of a {@link Supplier supplier}
      *
      * @param supplier the supplier
@@ -212,9 +211,9 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <O>      the type of the effect
      * @return an effect
      */
-    public static <O> IO<O> supplyOn(final Supplier<O> supplier,
-                                     final Executor executor
-                                    ) {
+    public static <O> IO<O> fromSupplier(final Supplier<O> supplier,
+                                         final Executor executor
+                                        ) {
         requireNonNull(supplier);
         requireNonNull(executor);
         return new Val<>(
@@ -226,20 +225,21 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     }
 
     /**
-     * Creates an effect from a lazy <strong>blocking</strong>computation. It uses internally the Java interface
-     * {@link ForkJoinPool.ManagedBlocker ManagedBlocker} to use efficiently the common Java fork/join thread pool.
+     * Creates an effect from a supplier with the Java interface {@link ForkJoinPool.ManagedBlocker ManagedBlocker}
+     * to use efficiently the common Java fork/join thread pool.
      * <p>
      * Take it account that the maximum default level of parallisem you can reach with the ForkJoin pool is by
      * default {@link ForkJoinPool#DEFAULT_COMMON_MAX_SPARES} and can be overwritten
      * using the "java.util.concurrent.ForkJoinPool.common.maximumSpares" system property.
-     * In this case a {@link RejectedExecutionException} exception with the message "Thread limit exceeded replacing blocked worker"
+     * In this case a {@link RejectedExecutionException} exception with the message "Thread limit exceeded
+     * replacing blocked worker"
      * is the result of the computation.
      *
      * @param supplier the supplier
      * @param <O>      the type of the effect
      * @return an effect
      */
-    public static <O> IO<O> blockingSupply(final Supplier<O> supplier) {
+    public static <O> IO<O> fromManagedSupplier(final Supplier<O> supplier) {
         requireNonNull(supplier);
         return new Val<>(() ->
                                  Thread.currentThread() instanceof ForkJoinWorkerThread ?
@@ -250,10 +250,10 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     }
 
     /**
-     * Creates an effect from a lazy <strong>blocking</strong>computation. It uses internally the Java interface
-     * {@link ForkJoinPool.ManagedBlocker ManagedBlocker} to use efficiently the common Java fork/join thread pool.
+     * Creates an effect from a task with the Java interface {@link ForkJoinPool.ManagedBlocker ManagedBlocker}
+     * to use efficiently the common Java fork/join thread pool.
      * <p>
-     * Take it account that the maximum default level of parallisem you can reach with the ForkJoin pool is by
+     * Take it account that the maximum default level of parallelism you can reach with the ForkJoin pool is by
      * default {@link ForkJoinPool#DEFAULT_COMMON_MAX_SPARES} and can be overwritten
      * using the "java.util.concurrent.ForkJoinPool.common.maximumSpares" system property.
      * In this case a {@link RejectedExecutionException} exception with the message "Thread limit exceeded replacing blocked worker"
@@ -263,7 +263,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <O>  the type of the effect
      * @return an effect
      */
-    public static <O> IO<O> blockingTask(final Callable<O> task) {
+    public static <O> IO<O> fromManagedTask(final Callable<O> task) {
         requireNonNull(task);
         return new Val<>(() ->
                                  Thread.currentThread() instanceof ForkJoinWorkerThread ?
@@ -282,7 +282,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      */
     public <P> IO<P> map(final Function<O, P> fn) {
         requireNonNull(fn);
-        return IO.effect(() -> requireNonNull(get()).thenApply(fn));
+        return IO.fromEffect(() -> requireNonNull(get()).thenApply(fn));
     }
 
 
@@ -299,10 +299,10 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      */
     public <Q> IO<Q> then(final Lambda<O, Q> fn) {
         requireNonNull(fn);
-        return effect(() -> requireNonNull(get()).thenCompose(it -> fn.apply(it)
-                                                                      .get()
-                                                             )
-                     );
+        return fromEffect(() -> requireNonNull(get()).thenCompose(it -> fn.apply(it)
+                                                                          .get()
+                                                                 )
+                         );
     }
 
     /**
@@ -322,11 +322,11 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                            ) {
         requireNonNull(fn);
         requireNonNull(executor);
-        return effect(() -> requireNonNull(get()).thenComposeAsync(it -> fn.apply(it)
-                                                                           .get(),
-                                                                   executor
-                                                                  )
-                     );
+        return fromEffect(() -> requireNonNull(get()).thenComposeAsync(it -> fn.apply(it)
+                                                                               .get(),
+                                                                       executor
+                                                                      )
+                         );
 
 
     }
@@ -348,13 +348,13 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
         requireNonNull(successLambda);
         requireNonNull(failureLambda);
 
-        return effect(() -> requireNonNull(get()).thenCompose(it -> successLambda.apply(it)
-                                                                                 .get()
-                                                             )
-                                                 .exceptionallyCompose(exc -> failureLambda.apply(exc.getCause())
+        return fromEffect(() -> requireNonNull(get()).thenCompose(it -> successLambda.apply(it)
+                                                                                     .get()
+                                                                 )
+                                                     .exceptionallyCompose(exc -> failureLambda.apply(exc.getCause())
                                                                                            .get()
                                                                       )
-                     );
+                         );
     }
 
     /**
@@ -378,15 +378,15 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
         requireNonNull(failureLambda);
         requireNonNull(executor);
 
-        return effect(() -> requireNonNull(get()).thenComposeAsync(it -> successLambda.apply(it)
-                                                                                      .get(),
-                                                                   executor
-                                                                  )
-                                                 .exceptionallyComposeAsync(exc -> failureLambda.apply(exc.getCause())
+        return fromEffect(() -> requireNonNull(get()).thenComposeAsync(it -> successLambda.apply(it)
+                                                                                          .get(),
+                                                                       executor
+                                                                      )
+                                                     .exceptionallyComposeAsync(exc -> failureLambda.apply(exc.getCause())
                                                                                                 .get(),
                                                                             executor
                                                                            )
-                     );
+                         );
 
     }
 
@@ -400,7 +400,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      */
     public IO<O> recover(final Function<Throwable, O> fn) {
         requireNonNull(fn);
-        return then(IO::succeed, exc -> succeed(fn.apply(exc)));
+        return then(IO::fromValue, exc -> fromValue(fn.apply(exc)));
     }
 
 
@@ -413,7 +413,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      */
     public IO<O> recoverWith(final Lambda<Throwable, O> lambda) {
         requireNonNull(lambda);
-        return then(IO::succeed,
+        return then(IO::fromValue,
                     lambda
                    );
     }
@@ -433,7 +433,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                               ) {
         requireNonNull(fn);
         requireNonNull(executor);
-        return thenOn(IO::succeed,
+        return thenOn(IO::fromValue,
                       fn,
                       executor
                      );
@@ -453,10 +453,10 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     public IO<O> fallbackTo(final Lambda<Throwable, O> lambda) {
         requireNonNull(lambda);
 
-        return then(IO::succeed,
+        return then(IO::fromValue,
                     exc -> lambda.apply(exc)
-                                 .then(IO::succeed,
-                                       exc1 -> fail(exc)
+                                 .then(IO::fromValue,
+                                       exc1 -> fromFailure(exc)
                                       )
                    );
 
@@ -480,10 +480,10 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
         requireNonNull(lambda);
         requireNonNull(executor);
 
-        return thenOn(IO::succeed,
+        return thenOn(IO::fromValue,
                       exc -> lambda.apply(exc)
-                                   .thenOn(IO::succeed,
-                                           exc1 -> fail(exc),
+                                   .thenOn(IO::fromValue,
+                                           exc1 -> fromFailure(exc),
                                            executor
                                           ),
                       executor
@@ -541,14 +541,14 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
             } catch (Exception exception) {
                 Fun.publishException("peek","Exception thrown by a consumer provided by the API client",exception);
             }
-            return succeed(it);
+            return fromValue(it);
         }, exc -> {
             try {
                 failureConsumer.accept(exc);
             } catch (Exception exception) {
                 Fun.publishException("peek","Exception thrown by a consumer provided by the API client",exception);
             }
-            return fail(exc);
+            return fromFailure(exc);
         });
     }
 
@@ -577,14 +577,14 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
             } catch (Exception exception) {
                 Fun.publishException("peekOn","Exception thrown by the consumer provided by the API client",exception);
             }
-            return succeed(it);
+            return fromValue(it);
         }, exc -> {
             try {
                 failureConsumer.accept(exc);
             } catch (Exception exception) {
                 Fun.publishException("peekOn","Exception thrown by the consumer provided by the API client",exception);
             }
-            return fail(exc);
+            return fromFailure(exc);
         }, executor);
     }
 
@@ -602,7 +602,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                         ) {
         if (time <= 0) throw new IllegalArgumentException("time <= 0");
         requireNonNull(unit);
-        return IO.effect(() -> requireNonNull(get()).orTimeout(time, unit));
+        return IO.fromEffect(() -> requireNonNull(get()).orTimeout(time, unit));
 
     }
 
@@ -624,11 +624,11 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
         if (time <= 0) throw new IllegalArgumentException("time <= 0");
         requireNonNull(unit);
         requireNonNull(defaultVal);
-        return IO.effect(() -> requireNonNull(get()).completeOnTimeout(defaultVal.get(),
-                                                                       time,
-                                                                       unit
-                                                                      )
-                        );
+        return IO.fromEffect(() -> requireNonNull(get()).completeOnTimeout(defaultVal.get(),
+                                                                           time,
+                                                                           unit
+                                                                          )
+                            );
 
     }
 
@@ -736,11 +736,11 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                         Predicate<Throwable> predicate
                        ) {
 
-        return exp.then(IO::succeed,
+        return exp.then(IO::fromValue,
                         exc -> {
                             if (predicate.test(exc)) {
                                 Optional<Duration> delayOpt = policy.apply(rs);
-                                if (delayOpt.isEmpty()) return fail(exc);
+                                if (delayOpt.isEmpty()) return fromFailure(exc);
                                 Duration duration = delayOpt.get();
 
                                 if (duration.isZero())
@@ -765,7 +765,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                                                             )
                                                  );
                             }
-                            return fail(exc);
+                            return fromFailure(exc);
                         }
                        );
 
@@ -779,11 +779,11 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                           Executor executor
                          ) {
 
-        return exp.then(IO::succeed,
+        return exp.then(IO::fromValue,
                         exc -> {
                             if (predicate.test(exc)) {
                                 Optional<Duration> delayOpt = policy.apply(rs);
-                                if (delayOpt.isEmpty()) return fail(exc);
+                                if (delayOpt.isEmpty()) return fromFailure(exc);
                                 Duration duration = delayOpt.get();
 
                                 if (duration.isZero())
@@ -810,7 +810,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                                                               )
                                                  );
                             }
-                            return fail(exc);
+                            return fromFailure(exc);
                         }
                        );
 
@@ -867,7 +867,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
         return exp.then(o -> {
             if (predicate.test(o)) {
                 Optional<Duration> delayOpt = policy.apply(rs);
-                if (delayOpt.isEmpty()) return succeed(o);
+                if (delayOpt.isEmpty()) return fromValue(o);
                 Duration duration = delayOpt.get();
                 if (duration.isZero())
                     return repeat(exp,
@@ -891,7 +891,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                                              )
                                  );
             }
-            return succeed(o);
+            return fromValue(o);
         });
 
     }
@@ -906,7 +906,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
         return exp.then(o -> {
             if (predicate.test(o)) {
                 Optional<Duration> delayOpt = policy.apply(rs);
-                if (delayOpt.isEmpty()) return succeed(o);
+                if (delayOpt.isEmpty()) return fromValue(o);
                 Duration duration = delayOpt.get();
                 if (duration.isZero())
                     return repeatOn(exp,
@@ -933,7 +933,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
 
                                  );
             }
-            return succeed(o);
+            return fromValue(o);
         });
 
     }
@@ -962,14 +962,14 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                                   .toList();
             list.addAll(c);
         }
-        return IO.effect(() -> {
+        return IO.fromEffect(() -> {
                              var cfs = list.stream()
                                            .map(Supplier::get)
                                            .toArray(CompletableFuture[]::new);
                              return CompletableFuture.anyOf(cfs)
                                                      .thenApply(it -> ((O) it));
                          }
-                        );
+                            );
 
     }
 
@@ -993,7 +993,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     public IO<O> debug(final EventBuilder<O> builder) {
         requireNonNull(builder);
         builder.exp = this.getClass().getSimpleName();
-        return IO.supply(ExpEvent::new)
+        return IO.fromSupplier(ExpEvent::new)
                  .then(event -> this.peek(val -> builder.updateAndCommit(val, event),
                                           exc -> builder.updateAndCommit(exc, event)
                                          )

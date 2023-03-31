@@ -1104,7 +1104,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
     @Override
     public IO<JsObj> apply(final JsPath path) {
         requireNonNull(path);
-        return IO.effect(() ->
+        return IO.fromEffect(() ->
                          {
                              var result = CompletableFuture.completedFuture(JsObj.empty());
                              for (var entry : bindings.entrySet()) {

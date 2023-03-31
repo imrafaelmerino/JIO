@@ -5,7 +5,6 @@ import jsonvalues.JsObj;
 
 import java.util.Arrays;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 class SetVarCommand extends Command {
 
@@ -54,10 +53,10 @@ class SetVarCommand extends Command {
     private static IO<String> setVarValue(State state, String varName, String newValue) {
         String oldValue = state.variables.get(varName);
         state.variables.put(varName, newValue);
-        return IO.succeed(String.format("%s from %s to %s",
-                                        varName,
-                                        oldValue,
-                                        newValue
-                                       ));
+        return IO.fromValue(String.format("%s from %s to %s",
+                                          varName,
+                                          oldValue,
+                                          newValue
+                                         ));
     }
 }

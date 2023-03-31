@@ -19,7 +19,7 @@ import java.util.List;
 import static jio.api.exp.Stubs.*;
 
 @ExtendWith(JioDebugger.class)
-@DebuggerDuration(millis = 1000)
+@DebuggerDuration(millis = 2000)
 public class StubTests {
 
     @Test

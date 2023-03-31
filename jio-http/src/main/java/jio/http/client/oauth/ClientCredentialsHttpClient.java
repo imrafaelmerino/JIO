@@ -113,13 +113,13 @@ public final class ClientCredentialsHttpClient implements MyOauthHttpClient {
                                                  final boolean refreshToken,
                                                  final int deep
                                                 ) {
-        if (deep == MAX_REFRESH_TOKEN_LOOP_SIZE) return IO.fail(new RefreshTokenLoop(deep));
+        if (deep == MAX_REFRESH_TOKEN_LOOP_SIZE) return IO.fromFailure(new RefreshTokenLoop(deep));
 
         IO<String> getToken = (refreshToken || this.accessToken == null) ?
                 accessTokenReq.apply(this)
                               .then(getAccessToken)
                               .peekSuccess(newToken -> this.accessToken = newToken) :
-                IO.succeed(this.accessToken);
+                IO.fromValue(this.accessToken);
 
 
         return getToken.then(token ->
@@ -134,7 +134,7 @@ public final class ClientCredentialsHttpClient implements MyOauthHttpClient {
                                                                                   true,
                                                                                   deep + 1
                                                                                  ) :
-                                                                     IO.succeed(resp)
+                                                                     IO.fromValue(resp)
                                                     )
                             );
     }

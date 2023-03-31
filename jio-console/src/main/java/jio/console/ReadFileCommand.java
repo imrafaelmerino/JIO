@@ -48,15 +48,15 @@ class ReadFileCommand extends Command {
     private IO<String> readFile(String path) {
         Path file = Paths.get(path);
         if (!file.toFile().isFile())
-            return IO.fail(new InvalidCommand(this, "File " + path + " not found"));
+            return IO.fromFailure(new InvalidCommand(this, "File " + path + " not found"));
         try {
             List<String> lines = Files.readAllLines(file);
-            return IO.succeed(String.join("\n", lines));
+            return IO.fromValue(String.join("\n", lines));
         } catch (IOException e) {
-            return IO.fail(new InvalidCommand(this,
-                                              e.getMessage()
+            return IO.fromFailure(new InvalidCommand(this,
+                                                     e.getMessage()
                            )
-                          );
+                                 );
         }
 
     }

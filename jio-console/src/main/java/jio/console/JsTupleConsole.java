@@ -58,7 +58,7 @@ public class JsTupleConsole implements JsConsole<JsArray> {
     @Override
     public IO<JsArray> apply(final JsPath path) {
         requireNonNull(path);
-        return IO.effect(() ->
+        return IO.fromEffect(() ->
                          {
                              var result = CompletableFuture.completedFuture(JsArray.empty());
                              for (int i = 0; i < seq.size(); i++) {

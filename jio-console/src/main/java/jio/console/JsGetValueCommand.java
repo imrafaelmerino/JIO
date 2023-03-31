@@ -50,7 +50,7 @@ class JsGetValueCommand extends Command {
 
     private static IO<String> getValue(State state, String path) {
         JsPath jsPath = JsPath.path(path);
-        return IO.supply(() ->
+        return IO.fromSupplier(() ->
                                       Functions.toJson
                                               .apply(state.variables.get("output"))
                                               .get(jsPath)

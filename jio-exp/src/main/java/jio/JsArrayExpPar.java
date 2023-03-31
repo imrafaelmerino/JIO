@@ -17,7 +17,7 @@ final class JsArrayExpPar extends JsArrayExp {
 
 
     public JsArrayExpPar(List<IO<? extends JsValue>> list,
-                         Function<ExpEvent,BiConsumer<JsArray, Throwable>> logger
+                         Function<ExpEvent, BiConsumer<JsArray, Throwable>> logger
                         ) {
         super(list, logger);
     }

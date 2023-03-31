@@ -43,7 +43,7 @@ public final class SwitchExp<I, O> extends Exp<O> {
      * @param <O> the type of the expression result
      */
     public static <I, O> SwitchMatcher<I, O> eval(final I input) {
-        return new SwitchMatcher<>(IO.succeed(requireNonNull(input)));
+        return new SwitchMatcher<>(IO.fromValue(requireNonNull(input)));
     }
 
     /**

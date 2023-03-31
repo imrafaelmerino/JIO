@@ -42,7 +42,7 @@ class LastCommand extends Command {
                                                 final State state
                                                ) {
         return tokens -> {
-            if (state.historyCommands.isEmpty()) return IO.succeed("The history stack is empty!");
+            if (state.historyCommands.isEmpty()) return IO.fromValue("The history stack is empty!");
             IO<String> lastCommand = state.getHistoryCommand(state.historyCommands.size() - 1);
 
             if (tokens.length == 1)
@@ -69,7 +69,7 @@ class LastCommand extends Command {
                                           RetryPolicies.constantDelay(ofMillis(parseInt(tokens[2])))
                                                        .limitRetriesByCumulativeDelay(ofMillis(parseInt(tokens[4])))
                                          );
-            return IO.fail(new InvalidCommand(this, "Not a expected pattern"));
+            return IO.fromFailure(new InvalidCommand(this, "Not a expected pattern"));
 
         };
     }

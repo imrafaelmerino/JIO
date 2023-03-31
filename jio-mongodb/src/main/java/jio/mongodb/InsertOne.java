@@ -77,10 +77,10 @@ public final class InsertOne<R> implements Lambda<JsObj, R> {
                                     INSERT_ONE
                                    );
         return executor == null ?
-                IO.blockingSupply(supplier) :
-                IO.supplyOn(supplier,
-                            executor
-                           );
+                IO.fromManagedSupplier(supplier) :
+                IO.fromSupplier(supplier,
+                                executor
+                               );
 
 
     }

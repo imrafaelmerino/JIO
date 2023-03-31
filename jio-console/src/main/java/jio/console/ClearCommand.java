@@ -21,7 +21,7 @@ class ClearCommand extends Command {
         return tokens -> {
             int nArgs = tokens.length - 1;
             if (nArgs > 1) return Errors.TOO_MANY_ARGUMENTS.apply(nArgs, this);
-            return IO.succeed(ControlChars.CLEAR.code + ControlChars.RESET.code);
+            return IO.fromValue(ControlChars.CLEAR.code + ControlChars.RESET.code);
         };
     }
 }

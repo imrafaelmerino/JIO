@@ -24,7 +24,7 @@ import static java.util.Objects.requireNonNull;
 final class JsObjExpSeq extends JsObjExp {
 
     public JsObjExpSeq(final Map<String, IO<? extends JsValue>> bindings,
-                       final Function<ExpEvent,BiConsumer<JsObj, Throwable>> logger
+                       final Function<ExpEvent, BiConsumer<JsObj, Throwable>> logger
                       ) {
         super(bindings, logger);
     }

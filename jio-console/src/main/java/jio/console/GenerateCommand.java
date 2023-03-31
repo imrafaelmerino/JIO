@@ -57,7 +57,7 @@ public class GenerateCommand extends Command {
     public Function<String[], IO<String>> apply(final JsObj conf,
                                                 final State state
                                                ) {
-        return tokens -> IO.supply(gen);
+        return tokens -> IO.fromSupplier(gen);
 
     }
 }

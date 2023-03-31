@@ -4,7 +4,6 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
 import jio.IO;
 import jio.mongodb.*;
 import jsonvalues.JsInt;
@@ -15,8 +14,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import java.util.function.Supplier;
 
 @Disabled
 public class TestErrors {
@@ -59,8 +56,8 @@ public class TestErrors {
         //"java.util.concurrent.CompletionException: jio.JioFailure: Timeout while receiving message"
         Assertions.assertTrue(findOne.apply(FindOptions.ofFilter(obj))
                                      .then(o -> IO.FALSE,
-                                           e -> IO.succeed(Failures.READ_TIMEOUT.test(e.getCause())
-                                                          )
+                                           e -> IO.fromValue(Failures.READ_TIMEOUT.test(e.getCause())
+                                                            )
                                           )
                                      .join()
                              );
@@ -88,7 +85,7 @@ public class TestErrors {
 //                "Timeout while receiving message}, caused by {java.net.SocketTimeoutException: Read timed out}}]
         Assertions.assertTrue(findOne.apply(FindOptions.ofFilter(obj))
                                      .then(o -> IO.TRUE,
-                                           e -> IO.succeed(Failures.CONNECTION_TIMEOUT
+                                           e -> IO.fromValue(Failures.CONNECTION_TIMEOUT
                                                                    .test(e.getCause()))
                                           )
                                      .join());

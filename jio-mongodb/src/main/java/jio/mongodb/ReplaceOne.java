@@ -79,10 +79,10 @@ public final class ReplaceOne<O> implements BiLambda<JsObj, JsObj, O> {
                                     REPLACE_ONE
                                    );
         return executor == null ?
-                IO.blockingSupply(supplier) :
-                IO.supplyOn(supplier,
-                            executor
-                           );
+                IO.fromManagedSupplier(supplier) :
+                IO.fromSupplier(supplier,
+                                executor
+                               );
 
     }
 }

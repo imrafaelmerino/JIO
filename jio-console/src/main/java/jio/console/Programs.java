@@ -19,7 +19,7 @@ public final class Programs {
     /**
      * effect that reads a line from the console
      */
-    public static IO<String> READ_LINE = IO.effect(() -> {
+    public static IO<String> READ_LINE = IO.fromEffect(() -> {
         try {
             Scanner in = new Scanner(System.in,
                                      StandardCharsets.UTF_8
@@ -32,7 +32,7 @@ public final class Programs {
     /**
      * effect that reads an integer from the console
      */
-    public static IO<Integer> READ_INT = IO.effect(() -> {
+    public static IO<Integer> READ_INT = IO.fromEffect(() -> {
         try {
             Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
             return CompletableFuture.completedFuture(in.nextInt());
@@ -43,7 +43,7 @@ public final class Programs {
     /**
      * effecdt that reads a boolean from the console
      */
-    public static IO<Boolean> READ_BOOLEAN = IO.effect(() -> {
+    public static IO<Boolean> READ_BOOLEAN = IO.fromEffect(() -> {
         try {
             Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
             return CompletableFuture.completedFuture(in.nextBoolean());
@@ -59,7 +59,7 @@ public final class Programs {
      * @return a JIO effect
      */
     public static IO<Void> PRINT_LINE(final String line) {
-        return IO.effect(() -> {
+        return IO.fromEffect(() -> {
             try {
                 System.out.print(line);
                 return CompletableFuture.completedFuture(null);
@@ -82,7 +82,7 @@ public final class Programs {
                                       final ControlChars color
                                      ) {
         requireNonNull(color);
-        return IO.effect(() -> {
+        return IO.fromEffect(() -> {
                              try {
                                  System.out.print(color.code + line + ControlChars.RESET);
                                  return CompletableFuture.completedFuture(null);
@@ -90,7 +90,7 @@ public final class Programs {
                                  return CompletableFuture.failedFuture(exception);
                              }
                          }
-                        );
+                            );
     }
 
     /**
@@ -100,7 +100,7 @@ public final class Programs {
      * @return a JIO effect
      */
     public static IO<Void> PRINT_NEW_LINE(final String line) {
-        return IO.effect(() -> {
+        return IO.fromEffect(() -> {
             try {
                 System.out.println(line);
                 return CompletableFuture.completedFuture(null);
@@ -122,7 +122,7 @@ public final class Programs {
                                           final ControlChars color
                                          ) {
         requireNonNull(color);
-        return IO.effect(() -> {
+        return IO.fromEffect(() -> {
             try {
                 System.out.println(color.code + line + ControlChars.RESET);
                 return CompletableFuture.completedFuture(null);
@@ -142,8 +142,8 @@ public final class Programs {
     public static IO<String> ASK_FOR_INPUT(AskForInputParams params) {
         return PRINT_NEW_LINE(params.promptMessage)
                 .then($ -> READ_LINE.then(input -> params.inputValidator.test(input) ?
-                        IO.succeed(input) :
-                        IO.fail(new IllegalArgumentException(params.errorMessage)))
+                        IO.fromValue(input) :
+                        IO.fromFailure(new IllegalArgumentException(params.errorMessage)))
                      )
                 .retry(params.policy);
     }

@@ -48,10 +48,10 @@ public final class Aggregate<O> implements Lambda<JsArray, O> {
                                    );
 
         return executor == null ?
-                IO.blockingSupply(supplier) :
-                IO.supplyOn(supplier,
-                            executor
-                           );
+                IO.fromManagedSupplier(supplier) :
+                IO.fromSupplier(supplier,
+                                executor
+                               );
 
     }
 }

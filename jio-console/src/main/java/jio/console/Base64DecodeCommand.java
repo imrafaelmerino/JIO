@@ -34,12 +34,12 @@ class Base64DecodeCommand extends Command {
                                                                              e -> e.length() == 1,
                                                                              "Space blank is not a valid base64 scheme",
                                                                              RetryPolicies.limitRetries(3)
-                )).then(encoded -> IO.succeed(new String(decoder.decode(encoded))));
+                )).then(encoded -> IO.fromValue(new String(decoder.decode(encoded))));
 
             if (nTokens == 2)
-                return IO.succeed(new String(decoder.decode(tokens[1])));
+                return IO.fromValue(new String(decoder.decode(tokens[1])));
 
-            return IO.fail(new InvalidCommand(this, "Space blank is not a valid base64 character"));
+            return IO.fromFailure(new InvalidCommand(this, "Space blank is not a valid base64 character"));
 
 
         };

@@ -83,10 +83,10 @@ public final class DeleteMany<O> implements Lambda<JsObj, O> {
                                     DELETE_MANY
                                    );
         return executor == null ?
-                IO.blockingSupply(supplier) :
-                IO.supplyOn(supplier,
-                            executor
-                           );
+                IO.fromManagedSupplier(supplier) :
+                IO.fromSupplier(supplier,
+                                executor
+                               );
 
     }
 }

@@ -205,7 +205,7 @@ public abstract sealed class IOStub<O> implements Supplier<IO<O>> permits ValStu
     }
 
     static <O> IO<O> wrapStub(IO<O> effect,Supplier<Integer> counter) {
-        return IO.supply(() -> {
+        return IO.fromSupplier(() -> {
             StubEvent event = new StubEvent();
             event.begin();
             return event;

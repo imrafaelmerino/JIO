@@ -38,6 +38,6 @@ class Base64EncodeCommand extends Command {
     }
 
     private static IO<String> encode(String text) {
-        return IO.succeed(encoder.encodeToString(text.getBytes(StandardCharsets.UTF_8)));
+        return IO.fromValue(encoder.encodeToString(text.getBytes(StandardCharsets.UTF_8)));
     }
 }

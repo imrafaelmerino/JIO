@@ -92,11 +92,11 @@ public abstract sealed class ListExp<O> extends Exp<List<O>> permits ListExpPar,
      */
     @SuppressWarnings("unchecked")
     public IO<O> race() {
-        return IO.effect(() -> CompletableFuture.anyOf(list.stream()
-                                                           .map(Supplier::get)
-                                                           .toArray(CompletableFuture[]::new))
-                                                .thenApply(it -> ((O) it))
-                        );
+        return IO.fromEffect(() -> CompletableFuture.anyOf(list.stream()
+                                                               .map(Supplier::get)
+                                                               .toArray(CompletableFuture[]::new))
+                                                    .thenApply(it -> ((O) it))
+                            );
     }
 
     /**

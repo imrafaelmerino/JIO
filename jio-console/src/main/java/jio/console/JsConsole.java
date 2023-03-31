@@ -47,12 +47,12 @@ public interface JsConsole<T extends JsValue> extends Lambda<JsPath, T> {
                                .then(s ->
                                      {
                                          try {
-                                             if (s.isEmpty()) return IO.succeed(JsNothing.NOTHING);
+                                             if (s.isEmpty()) return IO.fromValue(JsNothing.NOTHING);
                                              JsReader reader = JsIO.INSTANCE.createReader(s.getBytes());
-                                             return IO.succeed(spec.readNextValue(reader)
-                                                              );
+                                             return IO.fromValue(spec.readNextValue(reader)
+                                                                );
                                          } catch (JsParserException e) {
-                                             return IO.fail(e);
+                                             return IO.fromFailure(e);
                                          }
                                      }
                                     )

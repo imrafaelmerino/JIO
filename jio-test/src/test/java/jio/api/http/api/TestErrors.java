@@ -57,8 +57,8 @@ public class TestErrors {
                                                                       .GET()
                                                                       .uri(URI.create("https://www.google.com")))
                                          .then(response -> IO.FALSE,
-                                               failure -> IO.succeed(HttpExceptions.CONNECTION_TIMEOUT.test(failure)
-                                                                    )
+                                               failure -> IO.fromValue(HttpExceptions.CONNECTION_TIMEOUT.test(failure)
+                                                                      )
                                               )
                                          .join();
         Assertions.assertTrue(isConnectTimeout);
@@ -76,9 +76,9 @@ public class TestErrors {
                                                                   .GET()
                                                                   .uri(URI.create("https://www.google.foo")))
                                      .then(response -> IO.FALSE,
-                                           failure -> IO.succeed(HttpExceptions.UNRESOLVED_SOCKET_ADDRESS
+                                           failure -> IO.fromValue(HttpExceptions.UNRESOLVED_SOCKET_ADDRESS
                                                                          .test(failure)
-                                                                )
+                                                                  )
                                           )
                                      .join();
 
@@ -110,9 +110,9 @@ public class TestErrors {
                                                    .uri(uri)
                                        )
                       .then(response -> IO.FALSE,
-                            failure -> IO.succeed(HttpExceptions.CONNECTION_TIMEOUT
+                            failure -> IO.fromValue(HttpExceptions.CONNECTION_TIMEOUT
                                                           .test(failure)
-                                                 )
+                                                   )
                            )
                       .join();
 

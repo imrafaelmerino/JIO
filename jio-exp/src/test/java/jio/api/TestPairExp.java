@@ -6,17 +6,14 @@ import jio.PairExp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-
 public class TestPairExp {
 
 
     @Test
     public void sequential_constructor() {
 
-        PairExp<String, String> pair = PairExp.seq(IO.succeed("a"),
-                                                   IO.succeed("b")
+        PairExp<String, String> pair = PairExp.seq(IO.fromValue("a"),
+                                                   IO.fromValue("b")
                                                   );
 
         Assertions.assertEquals(Pair.of("a",

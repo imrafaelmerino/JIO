@@ -30,7 +30,7 @@ class JsPairsCommand extends Command {
             int nArgs = tokens.length - 1;
 
             return nArgs > 0 ?
-                    IO.supply(
+                    IO.fromSupplier(
                             () -> Functions.toJson.apply(state.variables.get("output"))
                                                   .stream()
                                                   .filter(it -> it.path()
@@ -41,8 +41,8 @@ class JsPairsCommand extends Command {
                                                                            it.value()
                                                                           ))
                                                   .collect(Collectors.joining("\n"))
-                             ) :
-                    IO.supply(
+                                   ) :
+                    IO.fromSupplier(
                             () -> Functions.toJson.apply(state.variables.get("output"))
                                                   .stream()
                                                   .map(it -> String.format("%s -> %s",
@@ -51,7 +51,7 @@ class JsPairsCommand extends Command {
                                                                           )
                                                       )
                                                   .collect(Collectors.joining("\n"))
-                             );
+                                   );
         };
     }
 }

@@ -5,9 +5,6 @@ import jio.IfElseExp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-
 public class TestIfElseExp {
 
     @Test
@@ -16,7 +13,7 @@ public class TestIfElseExp {
 
         // the consequence is never executed!
         IfElseExp<Integer> a = IfElseExp.<Integer>predicate(IO.FALSE)
-                                        .consequence(() -> IO.succeed(1 / 0))
+                                        .consequence(() -> IO.fromValue(1 / 0))
                                         .alternative(() -> Constants.ONE);
 
         Assertions.assertEquals(1,
@@ -26,7 +23,7 @@ public class TestIfElseExp {
         // the alternative is never executed!
         IfElseExp<Integer> unused =
                 IfElseExp.<Integer>predicate(IO.TRUE)
-                         .alternative(() -> IO.succeed(1 / 0))
+                         .alternative(() -> IO.fromValue(1 / 0))
                          .consequence(() -> Constants.ONE);
 
         Assertions.assertEquals(1, a.join());
