@@ -115,8 +115,4 @@ public abstract class Command implements BiFunction<JsObj, State, Function<Strin
         };
     }
 
-    @Override
-    public Function<String[], IO<String>> apply(JsObj tuple2s, State state) {
-        return null;
-    }
 }

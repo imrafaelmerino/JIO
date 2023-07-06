@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class HttpCommand extends Command {
 
     private final BiFunction<JsObj, String[], IO<HttpResponse<String>>> request;
-    private static final String PREFIX_COMMAND = "req";
+    private static final String PREFIX_COMMAND = "http";
 
     /**
      * Constructor to create a GenerateCommand

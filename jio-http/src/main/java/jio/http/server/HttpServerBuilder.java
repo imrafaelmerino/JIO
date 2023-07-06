@@ -172,6 +172,7 @@ public class HttpServerBuilder {
                                                  handlers.get(key).handle(exchange);
                                                  event.statusCode = exchange.getResponseCode();
                                                  event.result = ServerReqEvent.RESULT.SUCCESS.name();
+                                                 System.out.println(port+":"+counter);
                                              } catch (IOException e) {
                                                  event.exception = String.format("%s:%s",
                                                                                  e.getClass().getName(),

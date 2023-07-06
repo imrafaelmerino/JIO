@@ -2,7 +2,6 @@ package jio.console;
 
 import jio.IO;
 import jio.pbt.Property;
-import jio.pbt.Report;
 import jsonvalues.JsObj;
 
 import java.util.Arrays;
@@ -60,22 +59,19 @@ public class PropertyCommand extends Command {
                                                 final State state
                                                ) {
         return tokens -> {
-            /*String command = String.join(" ", Arrays.stream(tokens).toList());
+            String command = String.join(" ", Arrays.stream(tokens).toList());
             if (parPattern.matcher(command).matches()) {
                 int n = Integer.parseInt(tokens[3]);
-                return prop.repeatPar(n)
-                           .(Report::toString);
+                return IO.fromValue(prop.repeatPar(n).toString());
 
             }
             if (seqPattern.matcher(command).matches()) {
                 int n = Integer.parseInt(tokens[3]);
-                return prop.repeatSeq(n)
-                           .map(Report::toString);
+                return IO.fromValue(prop.repeatSeq(n).toString());
             }
-            return prop.get()
-                       .map(Report::toString);*/
+            return IO.fromFailure( new CommandNotFoundException(command));
 
-            return null;
+
         };
     }
 }

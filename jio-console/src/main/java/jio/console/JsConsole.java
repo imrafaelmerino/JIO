@@ -11,6 +11,7 @@ import jsonvalues.JsPath;
 import jsonvalues.JsValue;
 import jsonvalues.spec.JsSpec;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 
@@ -48,7 +49,7 @@ public interface JsConsole<T extends JsValue> extends Lambda<JsPath, T> {
                                      {
                                          try {
                                              if (s.isEmpty()) return IO.fromValue(JsNothing.NOTHING);
-                                             JsReader reader = JsIO.INSTANCE.createReader(s.getBytes());
+                                             JsReader reader = JsIO.INSTANCE.createReader(s.getBytes(StandardCharsets.UTF_8));
                                              return IO.fromValue(spec.readNextValue(reader)
                                                                 );
                                          } catch (JsParserException e) {

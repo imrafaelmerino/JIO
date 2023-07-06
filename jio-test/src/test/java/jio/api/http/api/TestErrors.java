@@ -44,6 +44,42 @@ public class TestErrors {
                                                  );
 
     @Test
+    public void test_http() throws InterruptedException {
+        var a = new HttpServerBuilder().addContext("/marca",
+                                                   GetStub.of(BodyStub.cons("marca"),
+                                                              StatusCodeStub.cons(200),
+                                                              HeadersStub.EMPTY
+                                                             )
+                                                  )
+                                       .start("localhost",
+                                              8888
+                                             ).get().join();
+
+        var b = new HttpServerBuilder().addContext("/as",
+                                                   GetStub.of(BodyStub.cons("as"),
+                                                              StatusCodeStub.cons(200),
+                                                              HeadersStub.EMPTY
+                                                             )
+                                                  )
+                                       .start("localhost",
+                                              8889
+                                             ).get().join();
+
+        var c = new HttpServerBuilder().addContext("/google",
+                                                   GetStub.of(BodyStub.cons("as"),
+                                                              StatusCodeStub.cons(200),
+                                                              HeadersStub.EMPTY
+                                                             )
+                                                  )
+                                       .start("localhost",
+                                              8890
+                                             ).get().join();
+
+
+        Thread.sleep(Integer.MAX_VALUE);
+    }
+
+    @Test
     public void test_http_connect_timeout() {
 
         MyHttpClient client = new MyHttpClientBuilder(HttpClient.newBuilder()
@@ -77,7 +113,7 @@ public class TestErrors {
                                                                   .uri(URI.create("https://www.google.foo")))
                                      .then(response -> IO.FALSE,
                                            failure -> IO.fromValue(HttpExceptions.UNRESOLVED_SOCKET_ADDRESS
-                                                                         .test(failure)
+                                                                           .test(failure)
                                                                   )
                                           )
                                      .join();
@@ -111,7 +147,7 @@ public class TestErrors {
                                        )
                       .then(response -> IO.FALSE,
                             failure -> IO.fromValue(HttpExceptions.CONNECTION_TIMEOUT
-                                                          .test(failure)
+                                                            .test(failure)
                                                    )
                            )
                       .join();

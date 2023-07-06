@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 class SetVarCommand extends Command {
 
-    private static final String COMMAND_NAME = "set";
+    private static final String COMMAND_NAME = "var-set";
 
     public SetVarCommand() {
         super(COMMAND_NAME,
@@ -51,12 +51,16 @@ class SetVarCommand extends Command {
     }
 
     private static IO<String> setVarValue(State state, String varName, String newValue) {
-        String oldValue = state.variables.get(varName);
-        state.variables.put(varName, newValue);
-        return IO.fromValue(String.format("%s from %s to %s",
-                                          varName,
-                                          oldValue,
-                                          newValue
-                                         ));
+
+        return IO.fromSupplier(() -> {
+                                   String oldValue = state.stringVariables.get(varName);
+                                   state.stringVariables.put(varName, newValue);
+                                   return String.format("%s from %s to %s",
+                                                        varName,
+                                                        oldValue,
+                                                        newValue
+                                                       );
+                               }
+                              );
     }
 }

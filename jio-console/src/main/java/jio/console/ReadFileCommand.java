@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 class ReadFileCommand extends Command {
 
-    private static final String COMMAND_NAME = "read";
+    private static final String COMMAND_NAME = "file-read";
 
     public ReadFileCommand() {
         super(COMMAND_NAME,

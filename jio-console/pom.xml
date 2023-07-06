@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-console</artifactId>
-    <version>0.7.0</version>
+    <version>0.7.6</version>
     <name>jio-console</name>
     <description>Java Input-Output Monad</description>
     <url>https://github.com/imrafaelmerino/jio</url>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -28,34 +28,55 @@
     </scm>
 
     <properties>
+        <error-prone.version>2.18.0</error-prone.version>
         <NEXUS-STAGING-MAVEN-PLUGIN.VERSION>1.6.12</NEXUS-STAGING-MAVEN-PLUGIN.VERSION>
         <MAVEN-GPG-PLUGIN.VERSION>1.6</MAVEN-GPG-PLUGIN.VERSION>
         <MAVEN-SOURCE-PLUGIN.VERSION>3.0.1</MAVEN-SOURCE-PLUGIN.VERSION>
         <JACOCO-MAVEN-PLUGIN.VERSION>0.8.8</JACOCO-MAVEN-PLUGIN.VERSION>
         <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
         <MAVEN-COMPILER-PLUGIN.VERSION>3.10.1</MAVEN-COMPILER-PLUGIN.VERSION>
+        <MAVEN-COMPILER-PLUGIN.SOURCE>17</MAVEN-COMPILER-PLUGIN.SOURCE>
+        <MAVEN-COMPILER-PLUGIN.TARGET>17</MAVEN-COMPILER-PLUGIN.TARGET>
         <MAVEN-SUREFIRE-PLUGIN.VERSION>3.0.0-M6</MAVEN-SUREFIRE-PLUGIN.VERSION>
         <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
-        <MAVEN-JAVADOC-PLUGIN.VERSION>3.3.2</MAVEN-JAVADOC-PLUGIN.VERSION>
-        <JIO-EXP-VERSION>0.6.0</JIO-EXP-VERSION>
-        <JIO-TEST-VERSION>0.6.0</JIO-TEST-VERSION>
+        <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
+        <JIO-EXP-VERSION>0.7.0</JIO-EXP-VERSION>
+        <JIO-TEST-VERSION>0.7.0</JIO-TEST-VERSION>
         <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
     </properties>
 
     <build>
         <plugins>
             <plugin>
-                <version>${MAVEN-COMPILER-PLUGIN.VERSION}</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${MAVEN-JAVADOC-PLUGIN.VERSION}</version>
+                <configuration>
+                    <source>17</source>
+                    <sourcepath>src/main/java</sourcepath>
+                    <additionalOptions>--enable-preview</additionalOptions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
                 <configuration>
                     <release>17</release>
                     <showWarnings>true</showWarnings>
-                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <encoding>UTF-8</encoding>
                     <compilerArgs>
-                        <arg>-Xlint:all</arg>
-                        <arg>--enable-preview</arg>
                         <arg>-XDcompilePolicy=simple</arg>
+                        <arg>--enable-preview</arg>
+                        <arg>-Xlint:all</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>

@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 class JsPrettyCommand extends Command {
 
-    private static final String COMMAND_NAME = "prettyjs";
+    private static final String COMMAND_NAME = "json-pretty";
 
     public JsPrettyCommand() {
         super(COMMAND_NAME,
@@ -21,7 +21,7 @@ class JsPrettyCommand extends Command {
                                                ) {
         return tokens -> IO.fromSupplier(() ->
                                            Functions.toJson
-                                                   .apply(state.variables.get("output"))
+                                                   .apply(state.stringVariables.get("output"))
                                                    .toPrettyString()
                                         );
     }

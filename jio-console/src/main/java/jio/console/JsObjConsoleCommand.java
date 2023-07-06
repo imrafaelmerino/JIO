@@ -24,7 +24,7 @@ import java.util.function.Function;
  */
 public class JsObjConsoleCommand extends Command {
     private final JsConsole<? extends Json<?>> program;
-    private static final String COMMAND_NAME = "json";
+    private static final String COMMAND_NAME = "json-console";
 
 
     /**

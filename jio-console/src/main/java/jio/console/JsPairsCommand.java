@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 class JsPairsCommand extends Command {
 
-    private static final String COMMAND_NAME = "jspairs";
+    private static final String COMMAND_NAME = "json-pairs";
 
     public JsPairsCommand() {
         super(COMMAND_NAME,
@@ -31,7 +31,7 @@ class JsPairsCommand extends Command {
 
             return nArgs > 0 ?
                     IO.fromSupplier(
-                            () -> Functions.toJson.apply(state.variables.get("output"))
+                            () -> Functions.toJson.apply(state.stringVariables.get("output"))
                                                   .stream()
                                                   .filter(it -> it.path()
                                                                   .toString()
@@ -43,7 +43,7 @@ class JsPairsCommand extends Command {
                                                   .collect(Collectors.joining("\n"))
                                    ) :
                     IO.fromSupplier(
-                            () -> Functions.toJson.apply(state.variables.get("output"))
+                            () -> Functions.toJson.apply(state.stringVariables.get("output"))
                                                   .stream()
                                                   .map(it -> String.format("%s -> %s",
                                                                            it.path(),

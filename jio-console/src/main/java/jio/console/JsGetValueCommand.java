@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 class JsGetValueCommand extends Command {
 
-    private static final String COMMAND_NAME = "jsget";
+    private static final String COMMAND_NAME = "json-get";
 
     public JsGetValueCommand() {
         super(COMMAND_NAME,
@@ -52,7 +52,7 @@ class JsGetValueCommand extends Command {
         JsPath jsPath = JsPath.path(path);
         return IO.fromSupplier(() ->
                                       Functions.toJson
-                                              .apply(state.variables.get("output"))
+                                              .apply(state.stringVariables.get("output"))
                                               .get(jsPath)
                                               .toString());
     }

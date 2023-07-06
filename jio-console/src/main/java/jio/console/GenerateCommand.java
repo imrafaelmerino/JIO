@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Class to create different commands to execute interactive programs that generates random date
+ * Class to create different commands to execute interactive programs that generates random data
  * given a provided generator. The constructor takes three arguments: the command name and description,
  * and the generator. To execute the command:
  *

@@ -2,6 +2,7 @@ package jio.console;
 
 import jio.IO;
 import jio.RetryPolicies;
+import jio.console.Programs.AskForInputParams;
 import jsonvalues.JsObj;
 
 import java.io.IOException;
@@ -13,12 +14,13 @@ import java.util.function.Function;
 
 class DumpCommand extends Command {
 
-    private static final String COMMAND_NAME = "dump";
+    private static final String COMMAND_NAME = "file-dump";
 
     public DumpCommand() {
         super(COMMAND_NAME,
               """
                       Write the content of the output variable into the specified file (appending if the file exists).
+                      Usage: $command {path_file}
                       Examples:
                           $command /Users/rmerinogarcia/dump.txt
                           $command $var""".replace("$command", COMMAND_NAME)
@@ -33,10 +35,10 @@ class DumpCommand extends Command {
         return tokens -> {
             int nArgs = tokens.length - 1;
             if (nArgs == 0)
-                return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type de absolute path of the file",
-                                                                             path -> Paths.get(path).getParent().toFile().isDirectory(),
-                                                                             "Folder not found",
-                                                                             RetryPolicies.limitRetries(3)
+                return Programs.ASK_FOR_INPUT(new AskForInputParams("Type de absolute path of the file",
+                                                                    path -> Paths.get(path).getParent().toFile().isDirectory(),
+                                                                    "Folder not found",
+                                                                    RetryPolicies.limitRetries(3)
                                               )
                                              )
                                .then(path -> dumpToFile(state, path));
@@ -55,7 +57,7 @@ class DumpCommand extends Command {
                 return IO.fromFailure(new InvalidCommand(this, "Folder " + file.getParent() + " not found"));
 
             Files.writeString(file,
-                              state.variables.getOrDefault("output", "") + "\n",
+                              state.stringVariables.getOrDefault("output", "") + "\n",
                               StandardOpenOption.CREATE,
                               StandardOpenOption.APPEND
                              );

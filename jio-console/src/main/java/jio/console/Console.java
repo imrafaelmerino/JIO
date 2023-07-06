@@ -35,7 +35,9 @@ public final class Console {
     private List<Command> getPredefinedCommands() {
         List<Command> commands = new ArrayList<>();
         commands.add(new ListCommand(commands).setSaveOutput(false));
+        commands.add(new ReadVarCommand().setSaveOutput(false));
         commands.add(new SetVarCommand().setSaveOutput(false));
+        commands.add(new AddToListCommand().setSaveOutput(false));
         commands.add(new LastCommand());
         commands.add(new HistoryCommand().setSaveOutput(false));
         commands.add(new HelpCommand(commands).setSaveOutput(false));
@@ -73,9 +75,9 @@ public final class Console {
                             IO<String> command = opt.get().second()
                                                     .peekSuccess(output -> {
                                                                      if (output != null && opt.get().first().isSaveOutput)
-                                                                         state.variables.put("output",
-                                                                                             output
-                                                                                            );
+                                                                         state.stringVariables.put("output",
+                                                                                                   output
+                                                                                                  );
                                                                  }
                                                                 );
 
@@ -118,7 +120,7 @@ public final class Console {
             if (token.startsWith("$")) {
                 String varName = token.substring(1);
                 if (!varName.isEmpty()) {
-                    tokens[i] = state.variables.get(varName);
+                    tokens[i] = state.stringVariables.get(varName);
                 }
             }
         }
@@ -130,12 +132,8 @@ public final class Console {
                                              ) {
         for (Command command : commands) {
             try {
-                Optional<IO<String>> opt = command.executeIfMatch(conf,
-                                                                  state
-                                                                 )
-                                                  .apply(replaceVars(state,
-                                                                     line.split("\s")
-                                                                    ));
+                Optional<IO<String>> opt = command.executeIfMatch(conf, state)
+                                                  .apply(replaceVars(state, line.split("\s")));
                 if (opt.isPresent()) return Optional.of(Pair.of(command, opt.get()));
             } catch (Exception e) {
                 return Optional.of(Pair.of(command, IO.fromFailure(e)));

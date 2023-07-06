@@ -11,12 +11,13 @@ class Base64EncodeCommand extends Command {
 
     private final static Base64.Encoder encoder = Base64.getEncoder();
 
-    private static final String COMMAND_NAME = "encode64";
+    private static final String COMMAND_NAME = "base64-encode";
 
     public Base64EncodeCommand() {
-        super("encode64",
+        super(COMMAND_NAME,
               """
                       Encodes the specified string into a new string using the Base64 encoding scheme.
+                      Usage: $command {string}
                       Examples:
                           $command hi! i'll be encoded into base 64
                           $command $var""".replace("$command", COMMAND_NAME)
@@ -32,7 +33,7 @@ class Base64EncodeCommand extends Command {
             int nTokens = tokens.length;
             if (nTokens == 1)
                 return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type the text"))
-                               .then(text -> encode(text));
+                               .then(Base64EncodeCommand::encode);
             return encode(Functions.joinTail(tokens));
         };
     }

@@ -4,6 +4,7 @@ import jio.IO;
 import jsonvalues.JsObj;
 
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 class EchoCommand extends Command {
 
@@ -13,6 +14,7 @@ class EchoCommand extends Command {
         super(COMMAND_NAME,
               """
                       Prints out the message into the console.
+                      Usage: echo {text}
                       Example:
                           $command hi, how are you doing?
                           $command $var""".replace("$command", COMMAND_NAME)
@@ -25,11 +27,7 @@ class EchoCommand extends Command {
                                                ) {
         return tokens -> {
             int nArgs = tokens.length - 1;
-            if (nArgs == 0)
-                return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type the name of variable"))
-                               .then(var -> IO.fromValue(state.variables.get(var)));
-
-            return IO.fromValue(Functions.joinTail(tokens));
+            return nArgs == 0 ? IO.fromValue("") : IO.fromValue(Functions.joinTail(tokens));
         };
     }
 }

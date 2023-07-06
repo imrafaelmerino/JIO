@@ -9,12 +9,13 @@ import java.util.function.Function;
 
 class EncodeURLCommand extends Command {
 
-    private static final String COMMAND_NAME = "encodeurl";
+    private static final String COMMAND_NAME = "url-encode";
 
     public EncodeURLCommand() {
         super(COMMAND_NAME,
               """
                       Translates a string into application/x-www-form-urlencoded format using.
+                      Usage: $command {text}
                       Examples:
                           $command hi, how are you doing
                           $command $var""".replace("$command", COMMAND_NAME)

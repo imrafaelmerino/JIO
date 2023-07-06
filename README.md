@@ -26,15 +26,14 @@ Haskell use laziness and the **IO monad** to  turn side effects into
 functional effects. Functional effects, not like side effects, are 
 pure composable values.
 
-JIO stands for Java Input Output. I got some ideas from ZIO, a great 
-Scala library. Imitation is the best way of flattering. However, a lot 
-of features are unique of JIO.
-
 We are going to define what an effect is, then we'll model it using
-a supplier of a future or, in other words, **a lazy computation that
-can fail**. This way we'll be able to define a powerful API and a set
-of expressions that we will use to create http and database clients,
-interactive programs, you name it...
+a supplier of a future or, in other words, **a lazy computation with
+some latency that can fail**. This way we'll be able to define a 
+powerful API and a set of expressions that we will use to create http 
+and database clients, interactive programs, you name it...
+
+**JIO doesn't transliterate any functional API from other languages.
+Any standard Java programmer will find JIO quite easy and familiar.**
 
 ## <a name="effects"><a/> Effects 
 
@@ -110,22 +109,28 @@ We'll be referring to an IO type.
 
 // from a value
 
-IO<String> effect = IO.succeed("hi");
+IO<String> effect = IO.fromValue("hi");
 
 // from a failure 
 
-IO<Throwable> effect1 = IO.fail(new RuntimeException("something went wrong :("));
+IO<Throwable> effect1 = IO.fromFailure(new RuntimeException("something went wrong :("));
 
-// from a lazy computation
+// from a lazy computation or a supplier
 
 Suplier<Long> computation = () -> {...};       
-IO<Long> effect2 = IO.computation(computation);
+IO<Long> effect2 = IO.fromSupplier(computation);
 
-// from an effect represented with a completable future
+// from a lazy computation than can fail or a callable
 
-CompletableFuture<JsObj> httpGetClient(String id){...}
+Suplier<Long> callable = () -> {...};       
+IO<Long> effect2 = IO.fromCallable(callable);
 
-IO<JsObj> effect3 = IO.effect(() -> httpGetClient(id)); 
+// from any IO call represented with a supplier
+// that produces a completable future
+
+CompletableFuture<JsObj> get(String id){...}
+
+IO<JsObj> effect3 = IO.fromEffect(() -> get(id)); 
 
 ``` 
 
@@ -142,22 +147,22 @@ interface, or you can even get benefit from the Loom project and use fibers!
 
 Suplier<Long> computation = () -> {...};    
 
-IO<Long> effect = IO.computationOn(computation,
-                                   Executors.newCachedThreadPool()
-                                   );
+IO<Long> effect = IO.fromSupplier(computation,
+                                  Executors.newCachedThreadPool()
+                                  );
 
 //from a blocking operation that has to be executed on the ForkJoin Pool
 //by the ManagedBlocker
 
 Supplier<JsObj> blockingTask = () -> {...};
 
-IO<JsObj> effect1 = IO.blocking(blockingTask);
+IO<JsObj> effect1 = IO.fromManagedSupplier(blockingTask);
 
-//from a fiber!
+//using fibers!
 
-IO<JsObj> effect2 = IO.computationOn(blockingTask,
-                                     Executors.newVirtualThreadPerTaskExecutor()
-                                     );
+IO<JsObj> effect2 = IO.fromSupplier(blockingTask,
+                                    Executors.newVirtualThreadPerTaskExecutor()
+                                    );
 
 ``` 
 
@@ -231,12 +236,12 @@ IO<O> exp =
 
 IO<O> exp = 
   SwitchExp<String>.eval(3)
-                   .match(1, () -> IO.succeed("Monday"),
-                          2, () -> IO.succeed("Tuesday"),
-                          3, () -> IO.succeed("Wednesday"),
-                          4, () -> IO.succeed("Thursday"),
-                          5, () -> IO.succeed("Friday"),
-                          () -> IO.succeed("weekend")
+                   .match(1, () -> IO.fromValue("Monday"),
+                          2, () -> IO.fromValue("Tuesday"),
+                          3, () -> IO.fromValue("Wednesday"),
+                          4, () -> IO.fromValue("Thursday"),
+                          5, () -> IO.fromValue("Friday"),
+                          () -> IO.fromValue("weekend")
                          );
 ```
 
@@ -254,11 +259,11 @@ IO<O> exp = SwitchExp<I,O>.eval(I value)
 // For example, the following expression reduces to "third week"
 IO<O> exp = 
   SwitchExp<Integer,String>.eval(20)
-                           .match(List.of(1, 2, 3, 4, 5, 6, 7), () -> IO.succeed("first week"),
-                                  List.of(8, 9, 10, 11, 12, 13, 14), () -> IO.succeed("second week"),
-                                  List.of(15, 16, 17, 18, 19, 20, 10), () -> IO.succeed("third week"),
-                                  List.of(21, 12, 23, 24, 25, 26, 27), () -> IO.succeed("forth week"),
-                                  () -> IO.succeed("last days of the month")
+                           .match(List.of(1, 2, 3, 4, 5, 6, 7), () -> IO.fromValue("first week"),
+                                  List.of(8, 9, 10, 11, 12, 13, 14), () -> IO.fromValue("second week"),
+                                  List.of(15, 16, 17, 18, 19, 20, 10), () -> IO.fromValue("third week"),
+                                  List.of(21, 12, 23, 24, 25, 26, 27), () -> IO.fromValue("forth week"),
+                                  () -> IO.fromValue("last days of the month")
                                  );
 ```
 
@@ -277,11 +282,11 @@ IO<O> exp =
 // For example, the following expression reduces to the default value
 
 IO<O> exp = 
-  SwitchExp<Integer,String>.eval(IO.succeed(20))
-                           .match(i -> i < 5 , () -> IO.succeed("lower than five"),
-                                  i -> i < 10 , () -> IO.succeed("lower than ten"),
-                                  i -> i < 20 , () -> IO.succeed("lower than twenty"),
-                                  () -> IO.succeed("greater or equal to twenty")
+  SwitchExp<Integer,String>.eval(IO.fromValue(20))
+                           .match(i -> i < 5 , () -> IO.fromValue("lower than five"),
+                                  i -> i < 10 , () -> IO.fromValue("lower than ten"),
+                                  i -> i < 20 , () -> IO.fromValue("lower than twenty"),
+                                  () -> IO.fromValue("greater or equal to twenty")
                                  );
 ```
 
@@ -524,21 +529,19 @@ all that stuff.
 
 public final class IOMock<O> implements Supplier<IO<O>>  {
 
-    public static <O> IOMock<O> succeed(IntFunction<O> value)
+    public static <O> IOMock<O> fromValue(IntFunction<O> value)
     
-    public static <O> IOMock<O> succeed(IntFunction<O> value,
-                                        IntFunction<Duration> delay);
+    public static <O> IOMock<O> fromValue(IntFunction<O> value,
+                                          IntFunction<Duration> delay);
                                         
-    public static <O> IOMock<O> failThenSucceed(
-                                      IntFunction<Throwable> failure,
-                                      O value
-                                      );                                          
+    public static <O> IOMock<O> failThenSucceed(IntFunction<Throwable> failure,
+                                                O value
+                                               );                                          
                                     
-    public static <O> IOMock<O> failThenSucceed(
-                                      IntFunction<Throwable> failure,
-                                      IntFunction<Duration> delay,
-                                      O value
-                                      );                                    
+    public static <O> IOMock<O> failThenSucceed(IntFunction<Throwable> failure,
+                                                IntFunction<Duration> delay,
+                                                O value
+                                                );                                    
 
 }
 
@@ -552,7 +555,7 @@ For example:
 
 ```java   
 
-IOMock<String> valMock = IOMock.succeed(ncall -> ncall < 3 ? "a" : "b")
+IOMock<String> valMock = IOMock.fromValue(ncall -> ncall < 3 ? "a" : "b")
 IO<String> ioMock = valMock.get();
 
 Assertions.assertEquals("a", ioMock.get().block());
@@ -567,9 +570,10 @@ Assertions.assertEquals("b", ioMock.get().block());
 //following times after no time
 
 IOMock<String> valMock = 
-  IOMock.succeed(ncall -> ncall < 3 ? "a" : "b",
-                 ncall -> ncall == 0 ? Duration.ofSeconds(1) : Duration.ofSeconds(0));
-
+  IOMock.fromValue(ncall -> ncall < 3 ? "a" : "b",
+                   ncall -> ncall == 0 ? Duration.ofSeconds(1) : 
+                                         Duration.ofSeconds(0)
+                  );
 
 ```
 
@@ -577,12 +581,30 @@ The failThenSucceed method adds a third function to mock failures. If this funct
 instead of an exception, the specified value is returned and the computation succeed:
 
 ## <a name="installation"><a/> Installation
-Add the following dependency to your building tool:
 
-```xml
+```code   
+
 <dependency>
   <groupId>com.github.imrafaelmerino</groupId>
-  <artifactId>jio</artifactId>
+  <artifactId>jio-exp</artifactId>
+  <version>1.0.0</version>
+</dependency>
+
+<dependency>
+  <groupId>com.github.imrafaelmerino</groupId>
+  <artifactId>jio-http</artifactId>
+  <version>1.0.0</version>
+</dependency>
+
+<dependency>
+  <groupId>com.github.imrafaelmerino</groupId>
+  <artifactId>jio-mongodb</artifactId>
+  <version>1.0.0</version>
+</dependency>
+
+<dependency>
+  <groupId>com.github.imrafaelmerino</groupId>
+  <artifactId>jio-test</artifactId>
   <version>1.0.0</version>
 </dependency>
 ```
