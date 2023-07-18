@@ -15,7 +15,8 @@ public class Examples {
     public static void main(String[] args) throws IOException {
 
         try {
-            String secret = "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";
+
+            String secret = "";
 
             MyHttpClient client =
                     new MyHttpClientBuilder(HttpClient.newHttpClient())
