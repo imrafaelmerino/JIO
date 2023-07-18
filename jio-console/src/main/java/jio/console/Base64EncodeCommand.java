@@ -18,7 +18,7 @@ class Base64EncodeCommand extends Command {
               """
                       Encodes the specified string into a new string using the Base64 encoding scheme.
                       Usage: $command {string}
-                      Examples:
+                      jio.chatgpt.Examples:
                           $command hi! i'll be encoded into base 64
                           $command $var""".replace("$command", COMMAND_NAME)
              );

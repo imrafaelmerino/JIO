@@ -29,7 +29,7 @@ class LastCommand extends Command {
               """
                       Executes the last command one or the specified number of times.
                       It's also possible to repeat the command for a specified period in ms.
-                      Examples:
+                      jio.chatgpt.Examples:
                           $command
                           $command 3
                           $command every 100

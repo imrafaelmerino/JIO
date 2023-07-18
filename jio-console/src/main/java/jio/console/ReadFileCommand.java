@@ -19,7 +19,7 @@ class ReadFileCommand extends Command {
         super(COMMAND_NAME,
               """
                       Reads the content from a file.
-                      Examples:
+                      jio.chatgpt.Examples:
                           $command /Users/username/json.txt
                           $command $var""".replace("$command", COMMAND_NAME)
              );

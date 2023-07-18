@@ -19,7 +19,7 @@ class ClearVarCommand extends Command {
               """
                       Remove the specified variable.
                       Usage: $command {name}
-                      Examples:
+                      jio.chatgpt.Examples:
                           $command age
                           $command $var""".replace("$command", COMMAND_NAME)
              );

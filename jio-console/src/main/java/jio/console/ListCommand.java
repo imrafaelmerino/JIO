@@ -16,7 +16,7 @@ class ListCommand extends Command {
         super(COMMAND_NAME,
               """
                  List all possible commands. A prefix can be specified to filter out the results.
-                 Examples:
+                 jio.chatgpt.Examples:
                      $command
                      $command js""".replace("$command",
                                                COMMAND_NAME));

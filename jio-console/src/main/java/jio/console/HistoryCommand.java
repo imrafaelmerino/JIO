@@ -18,7 +18,7 @@ class HistoryCommand extends Command {
               """
                  Lists all the executed commands and their position. It's possible to execute them
                  again passing in a list of positions or a interval.
-                 Examples:
+                 jio.chatgpt.Examples:
                      $command
                      $command 1
                      $command 1,2

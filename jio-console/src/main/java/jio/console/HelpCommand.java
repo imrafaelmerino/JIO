@@ -15,7 +15,7 @@ class HelpCommand extends Command {
         super(COMMAND_NAME,
               """
                  Prints out the description of the specified command.
-                 Examples:
+                 jio.chatgpt.Examples:
                      help list
                      help dump""");
         this.commands = commands;

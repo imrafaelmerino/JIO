@@ -17,7 +17,7 @@ class AddToListCommand extends Command {
                       Add the given value into the the specified list. You can read
                       the content of the list with the command var-get {name}.
                       Usage: var-add {name} {value}
-                      Examples:
+                      jio.chatgpt.Examples:
                           $command names Rafa
                           $command numbers $counter""".replace("$command", COMMAND_NAME)
              );

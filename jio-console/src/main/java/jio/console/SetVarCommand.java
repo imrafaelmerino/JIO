@@ -15,7 +15,7 @@ class SetVarCommand extends Command {
               """
                       Stores the specified value into the the specified variable.
                       set var value
-                      Examples:
+                      jio.chatgpt.Examples:
                           $command age 40
                           $command counter $var""".replace("$command", COMMAND_NAME)
              );

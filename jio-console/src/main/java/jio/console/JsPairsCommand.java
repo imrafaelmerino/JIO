@@ -15,7 +15,7 @@ class JsPairsCommand extends Command {
               """
                  Returns the list of the path/value pairs of the json placed at the output variable.
                  It's possible to filter out the list of pairs passing in a substring
-                 Examples:
+                 jio.chatgpt.Examples:
                      $command
                      $command email""".replace("$command", COMMAND_NAME)
              );

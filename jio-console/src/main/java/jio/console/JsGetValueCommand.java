@@ -16,7 +16,7 @@ class JsGetValueCommand extends Command {
         super(COMMAND_NAME,
               """
                       Returns the value of the specified path from the json placed at the output variable.
-                      Examples:
+                      jio.chatgpt.Examples:
                                $command /phones/0/number""".replace("$command",
                                                                     COMMAND_NAME
                                                                    )

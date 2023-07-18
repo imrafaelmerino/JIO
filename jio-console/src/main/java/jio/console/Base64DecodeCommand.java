@@ -18,7 +18,7 @@ class Base64DecodeCommand extends Command {
               """
                       Decodes a base64 encoded string into a new string using the Base64 encoding scheme.
                       Usage: $command {encoded}
-                      Examples:
+                      jio.chatgpt.Examples:
                           $command aGkhIGknbGwgYmUgZW5jb2RlZCBpbnRvIGJhc2UgNjQ=
                           $command $var""".replace("$command", COMMAND_NAME)
              );
