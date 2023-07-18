@@ -38,3 +38,4 @@ jio-http/deploy.sh
 jio-http/settings.xml
 
 jio-chatgpt/conf.json
+jio-chatgpt/target

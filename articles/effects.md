@@ -16,7 +16,7 @@ En lo sucesivo hablaremos indistintamente de métodos o funciones
 salvo que indiquemos de forma explícita lo contrario.
 No obstante, cabe destacar que existe una diferencia fundamental
 en Java (no así en otros lenguajes). Los métodos no se pueden 
-utilizar como parámetros de entrada de otros métodos o funciones, 
+utilizar como argumentos de entrada de otros métodos o funciones, 
 mientras que las funciones sí. Es más, aquellas funciones que 
 tienen como parámetros de entrada otras funciones se les conoce 
 en la jerga funcional como **High Order Functions**.
