@@ -11,7 +11,8 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * It's an immutable expression that implements multiple predicate-value branches like the
- * Cond expression. However, it evaluates a type I value and allows multiple value clauses based on evaluating that value.
+ * Cond expression. However, it evaluates a type I value and allows multiple value clauses
+ * based on evaluating that value.
  *
  * @param <O> the type of the value this expression will be reduced
  */
@@ -43,7 +44,7 @@ public final class SwitchExp<I, O> extends Exp<O> {
      * @param <O> the type of the expression result
      */
     public static <I, O> SwitchMatcher<I, O> eval(final I input) {
-        return new SwitchMatcher<>(IO.fromValue(requireNonNull(input)));
+        return new SwitchMatcher<>(IO.value(requireNonNull(input)));
     }
 
     /**

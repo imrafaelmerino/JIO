@@ -93,7 +93,7 @@ public class TestErrors {
                                                                       .GET()
                                                                       .uri(URI.create("https://www.google.com")))
                                          .then(response -> IO.FALSE,
-                                               failure -> IO.fromValue(HttpExceptions.CONNECTION_TIMEOUT.test(failure)
+                                               failure -> IO.value(HttpExceptions.CONNECTION_TIMEOUT.test(failure)
                                                                       )
                                               )
                                          .join();
@@ -112,7 +112,7 @@ public class TestErrors {
                                                                   .GET()
                                                                   .uri(URI.create("https://www.google.foo")))
                                      .then(response -> IO.FALSE,
-                                           failure -> IO.fromValue(HttpExceptions.UNRESOLVED_SOCKET_ADDRESS
+                                           failure -> IO.value(HttpExceptions.UNRESOLVED_SOCKET_ADDRESS
                                                                            .test(failure)
                                                                   )
                                           )
@@ -146,7 +146,7 @@ public class TestErrors {
                                                    .uri(uri)
                                        )
                       .then(response -> IO.FALSE,
-                            failure -> IO.fromValue(HttpExceptions.CONNECTION_TIMEOUT
+                            failure -> IO.value(HttpExceptions.CONNECTION_TIMEOUT
                                                             .test(failure)
                                                    )
                            )

@@ -72,7 +72,7 @@ class AbstractService {
     }
 
     static IO<JsObj> errorHandler(HttpResponse<String> resp) {
-        if (resp.statusCode() < 300) return IO.fromValue(JsObj.parse(resp.body()));
-        return IO.fromFailure(new APIError(resp));
+        if (resp.statusCode() < 300) return IO.value(JsObj.parse(resp.body()));
+        return IO.failure(new APIError(resp));
     }
 }

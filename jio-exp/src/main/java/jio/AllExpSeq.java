@@ -19,17 +19,17 @@ final class AllExpSeq extends AllExp {
     @Override
     public AllExp retryEach(final Predicate<Throwable> predicate,
                             final RetryPolicy policy
-                           ) {
+    ) {
         requireNonNull(predicate);
         requireNonNull(policy);
 
         return new AllExpSeq(exps.stream()
-                                 .map(it -> it.retry(predicate,
-                                                     policy
-                                                    )
-                                     )
-                                 .toList(),
-                             jfrPublisher
+                .map(it -> it.retry(predicate,
+                                policy
+                        )
+                )
+                .toList(),
+                jfrPublisher
         );
     }
 
@@ -44,26 +44,25 @@ final class AllExpSeq extends AllExp {
         return exps.size() == 1 ?
                 exps.get(0).get() :
                 exps.get(0)
-                    .get()
-                    .thenCompose(bool -> bool ?
-                                         get(exps.subList(1,
-                                                          exps.size()
-                                                         )
-                                            ) :
-                                         CompletableFuture.completedFuture(false)
-                                );
+                        .get()
+                        .thenCompose(bool -> bool ?
+                                get(exps.subList(1,
+                                                exps.size()
+                                        )
+                                ) :
+                                CompletableFuture.completedFuture(false)
+                        );
     }
 
     @Override
-    public AllExp debugEach(
-            final EventBuilder<Boolean> builder
-                           ) {
+    public AllExp debugEach(final EventBuilder<Boolean> builder) {
         Objects.requireNonNull(builder);
-        return new AllExpSeq(LoggerHelper.debugConditions(exps,
-                                                          this.getClass().getSimpleName(),
-                                                          builder.context
-                                                         ),
-                             getJFRPublisher(builder)
+        return new AllExpSeq(
+                LoggerHelper.debugConditions(
+                        exps,
+                        this.getClass().getSimpleName(),
+                        builder.context),
+                getJFRPublisher(builder)
         );
     }
 
@@ -71,7 +70,7 @@ final class AllExpSeq extends AllExp {
     @Override
     public AllExp debugEach(final String context) {
         return debugEach(EventBuilder.<Boolean>ofExp(this.getClass().getSimpleName())
-                                     .setContext(context));
+                .setContext(context));
 
     }
 }

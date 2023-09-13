@@ -78,8 +78,8 @@ public final class InsertMany<R> implements Lambda<JsArray, R> {
                                     INSERT_MANY
                                    );
         return executor == null ?
-                IO.fromManagedSupplier(supplier) :
-                IO.fromSupplier(supplier,
+                IO.managedLazy(supplier) :
+                IO.lazy(supplier,
                                 executor
                                );
 

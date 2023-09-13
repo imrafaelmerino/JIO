@@ -14,7 +14,6 @@ import java.time.format.DateTimeFormatter;
 
 final class RecordedEventDebugger {
 
-
     static final String HTTPCLIENT_EVENT_NAME = "jio.httpclient";
     static final String MONGODB_EVENT_NAME = "jio.mongodb";
     static final String EXP_EVENT_NAME = "jio.exp";

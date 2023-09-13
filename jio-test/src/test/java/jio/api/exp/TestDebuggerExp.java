@@ -133,33 +133,33 @@ public class TestDebuggerExp {
 
 
         Assertions.assertEquals("b",
-                                CondExp.seq(IO.FALSE, () -> IO.fromValue("a"),
-                                            IO.TRUE, () -> IO.fromValue("b"),
-                                            () -> IO.fromValue("default")
+                                CondExp.seq(IO.FALSE, () -> IO.value("a"),
+                                            IO.TRUE, () -> IO.value("b"),
+                                            () -> IO.value("default")
                                            )
                                        .debugEach("test").join()
                                );
 
         Assertions.assertEquals("b",
-                                CondExp.par(IO.FALSE, () -> IO.fromValue("a"),
-                                            IO.TRUE, () -> IO.fromValue("b"),
-                                            () -> IO.fromValue("default")
+                                CondExp.par(IO.FALSE, () -> IO.value("a"),
+                                            IO.TRUE, () -> IO.value("b"),
+                                            () -> IO.value("default")
                                            )
                                        .debugEach("test").join()
                                );
 
         Assertions.assertEquals("a",
-                                CondExp.seq(IO.TRUE, () -> IO.fromValue("a"),
-                                            IO.TRUE, () -> IO.fromValue("b"),
-                                            () -> IO.fromValue("default")
+                                CondExp.seq(IO.TRUE, () -> IO.value("a"),
+                                            IO.TRUE, () -> IO.value("b"),
+                                            () -> IO.value("default")
                                            )
                                        .debugEach("test1").join()
                                );
 
         Assertions.assertEquals("a",
-                                CondExp.par(IO.TRUE, () -> IO.fromValue("a"),
-                                            IO.TRUE, () -> IO.fromValue("b"),
-                                            () -> IO.fromValue("default")
+                                CondExp.par(IO.TRUE, () -> IO.value("a"),
+                                            IO.TRUE, () -> IO.value("b"),
+                                            () -> IO.value("default")
                                            )
                                        .debugEach("test2").join()
                                );
@@ -170,15 +170,15 @@ public class TestDebuggerExp {
     public void testIfElse() {
         Assertions.assertEquals("a",
                                 IfElseExp.predicate(IO.FALSE)
-                                         .consequence(() -> IO.fromValue("b"))
-                                         .alternative(() -> IO.fromValue("a"))
+                                         .consequence(() -> IO.value("b"))
+                                         .alternative(() -> IO.value("a"))
                                          .debugEach("test1")
                                          .join()
                                );
         Assertions.assertEquals("b",
                                 IfElseExp.predicate(IO.TRUE)
-                                         .consequence(() -> IO.fromValue("b"))
-                                         .alternative(() -> IO.fromValue("a"))
+                                         .consequence(() -> IO.value("b"))
+                                         .alternative(() -> IO.value("a"))
                                          .debugEach("test2")
                                          .join()
                                );
@@ -189,16 +189,16 @@ public class TestDebuggerExp {
     public void testJsArrayExp() {
 
         Assertions.assertEquals(JsArray.of("a", "b"),
-                                JsArrayExp.seq(IO.fromValue("a").map(JsStr::of),
-                                               IO.fromValue("b").map(JsStr::of)
+                                JsArrayExp.seq(IO.value("a").map(JsStr::of),
+                                               IO.value("b").map(JsStr::of)
                                               )
                                           .debugEach("test")
                                           .join()
                                );
 
         Assertions.assertEquals(JsArray.of("a", "b"),
-                                JsArrayExp.par(IO.fromValue("a").map(JsStr::of),
-                                               IO.fromValue("b").map(JsStr::of)
+                                JsArrayExp.par(IO.value("a").map(JsStr::of),
+                                               IO.value("b").map(JsStr::of)
                                               )
                                           .debugEach("test")
                                           .join()
@@ -213,11 +213,11 @@ public class TestDebuggerExp {
                                                       ),
                                          "b", JsArray.of("a", "b")
                                         ),
-                                JsObjExp.seq("a", JsObjExp.seq("a", IO.fromValue(1).map(JsInt::of),
-                                                               "b", IO.fromValue(2).map(JsInt::of)
+                                JsObjExp.seq("a", JsObjExp.seq("a", IO.value(1).map(JsInt::of),
+                                                               "b", IO.value(2).map(JsInt::of)
                                                               ),
-                                             "b", JsArrayExp.seq(IO.fromValue("a").map(JsStr::of),
-                                                                 IO.fromValue("b").map(JsStr::of)
+                                             "b", JsArrayExp.seq(IO.value("a").map(JsStr::of),
+                                                                 IO.value("b").map(JsStr::of)
                                                                 )
 
                                             ).debugEach("test")
@@ -229,11 +229,11 @@ public class TestDebuggerExp {
                                                       ),
                                          "b", JsArray.of("a", "b")
                                         ),
-                                JsObjExp.par("a", JsObjExp.par("a", IO.fromValue(1).map(JsInt::of),
-                                                               "b", IO.fromValue(2).map(JsInt::of)
+                                JsObjExp.par("a", JsObjExp.par("a", IO.value(1).map(JsInt::of),
+                                                               "b", IO.value(2).map(JsInt::of)
                                                               ),
-                                             "b", JsArrayExp.par(IO.fromValue("a").map(JsStr::of),
-                                                                 IO.fromValue("b").map(JsStr::of)
+                                             "b", JsArrayExp.par(IO.value("a").map(JsStr::of),
+                                                                 IO.value("b").map(JsStr::of)
                                                                 )
 
                                             ).debugEach("test")
@@ -246,18 +246,18 @@ public class TestDebuggerExp {
     public void testListExp() {
 
         Assertions.assertEquals(List.of(1, 2, 3),
-                                ListExp.seq(IO.fromValue(1),
-                                            IO.fromValue(2),
-                                            IO.fromValue(3)
+                                ListExp.seq(IO.value(1),
+                                            IO.value(2),
+                                            IO.value(3)
                                            )
                                        .debugEach("test")
                                        .join()
                                );
 
         Assertions.assertEquals(List.of(1, 2, 3),
-                                ListExp.par(IO.fromValue(1),
-                                            IO.fromValue(2),
-                                            IO.fromValue(3)
+                                ListExp.par(IO.value(1),
+                                            IO.value(2),
+                                            IO.value(3)
                                            )
                                        .debugEach("test1")
                                        .join()
@@ -269,16 +269,16 @@ public class TestDebuggerExp {
     public void testPairExp() {
 
         Assertions.assertEquals(Pair.of(1, 2),
-                                PairExp.seq(IO.fromValue(1),
-                                            IO.fromValue(2)
+                                PairExp.seq(IO.value(1),
+                                            IO.value(2)
                                            )
                                        .debugEach("test1")
                                        .join()
                                );
 
         Assertions.assertEquals(Pair.of(1, 2),
-                                PairExp.par(IO.fromValue(1),
-                                            IO.fromValue(2)
+                                PairExp.par(IO.value(1),
+                                            IO.value(2)
                                            )
                                        .debugEach("test2")
                                        .join()
@@ -289,18 +289,18 @@ public class TestDebuggerExp {
     @Test
     public void testTripleExp() {
         Assertions.assertEquals(Triple.of(1, 2, 3),
-                                TripleExp.seq(IO.fromValue(1),
-                                              IO.fromValue(2),
-                                              IO.fromValue(3)
+                                TripleExp.seq(IO.value(1),
+                                              IO.value(2),
+                                              IO.value(3)
                                              )
                                          .debugEach("context")
                                          .join()
                                );
 
         Assertions.assertEquals(Triple.of(1, 2, 3),
-                                TripleExp.par(IO.fromValue(1),
-                                              IO.fromValue(2),
-                                              IO.fromValue(3)
+                                TripleExp.par(IO.value(1),
+                                              IO.value(2),
+                                              IO.value(3)
                                              )
                                          .debugEach("test2")
                                          .join()
@@ -312,10 +312,10 @@ public class TestDebuggerExp {
     public void testSwitchExp() {
 
         Assertions.assertEquals("two",
-                                SwitchExp.<Integer, String>eval(IO.fromValue(2))
-                                         .match(1, i -> IO.fromValue("one"),
-                                                2, i -> IO.fromValue("two"),
-                                                i -> IO.fromValue("default")
+                                SwitchExp.<Integer, String>eval(IO.value(2))
+                                         .match(1, i -> IO.value("one"),
+                                                2, i -> IO.value("two"),
+                                                i -> IO.value("default")
                                                )
                                          .debugEach("testSwitchExp")
                                          .join()

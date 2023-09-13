@@ -58,8 +58,8 @@ public final class FindOneAndDelete implements Lambda<JsObj, JsObj> {
                                     FIND_ONE_AND_DELETE
                                    );
         return executor == null ?
-                IO.fromManagedSupplier(supplier) :
-                IO.fromSupplier(supplier, executor);
+                IO.managedLazy(supplier) :
+                IO.lazy(supplier, executor);
 
     }
 }

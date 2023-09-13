@@ -35,8 +35,8 @@ public class TestRepeat {
     public void testRepeatLimits() {
 
         int max = 10;
-        IO<Pair<Integer, Integer>> pair = PairExp.par(IO.fromManagedSupplier(() -> sleepRandom(max)),
-                                                      IO.fromManagedSupplier(() -> sleepRandom(max))
+        IO<Pair<Integer, Integer>> pair = PairExp.par(IO.managedLazy(() -> sleepRandom(max)),
+                                                      IO.managedLazy(() -> sleepRandom(max))
                                                      ).debugEach("pair").repeat(e -> true,
                                                                                 RetryPolicies.constantDelay(Duration.ofMillis(100)).limitRetriesByCumulativeDelay(Duration.ofSeconds(1))
                                                                                );

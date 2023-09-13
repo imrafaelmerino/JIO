@@ -25,12 +25,12 @@ public class TestConstructors {
     @Test
     public void succeed_constructor() {
 
-        IO<String> foo = IO.fromValue("foo");
+        IO<String> foo = IO.value("foo");
 
         Assertions.assertEquals("foo", foo.join());
 
         Instant before = Instant.now();
-        IO<Instant> now = IO.fromSupplier(Instant::now);
+        IO<Instant> now = IO.lazy(Instant::now);
 
         Assertions.assertTrue(before.isBefore(now.join()));
 
@@ -40,7 +40,7 @@ public class TestConstructors {
     @Test
     public void computation_constructor() {
 
-        String forkJoinPoolThreadName = IO.fromSupplier(
+        String forkJoinPoolThreadName = IO.lazy(
                 () -> Thread.currentThread().getName(),
                 ForkJoinPool.commonPool()
                                                        ).join();
@@ -48,7 +48,7 @@ public class TestConstructors {
         Assertions.assertTrue(forkJoinPoolThreadName.startsWith("ForkJoinPool.commonPool-worker-"));
 
         String executorThreadName =
-                IO.fromSupplier(
+                IO.lazy(
                         () -> Thread.currentThread().getName(),
                         Executors.newSingleThreadExecutor()
                                ).join();
@@ -67,7 +67,7 @@ public class TestConstructors {
             throw new RuntimeException();
         };
 
-        IO<String> b = IO.fromSupplier(a, Executors.newSingleThreadExecutor());
+        IO<String> b = IO.lazy(a, Executors.newSingleThreadExecutor());
 
         CompletableFuture<String> fut = b.get();
 
@@ -94,8 +94,8 @@ public class TestConstructors {
     public void testIfElse() {
         Assertions.assertEquals("alternative",
                                 IfElseExp.<String>predicate(IO.FALSE)
-                                         .consequence(() -> IO.fromValue("consequence"))
-                                         .alternative(() -> IO.fromValue("alternative"))
+                                         .consequence(() -> IO.value("consequence"))
+                                         .alternative(() -> IO.value("alternative"))
                                          .debugEach("my-op")
                                          .join()
                                );
@@ -111,11 +111,11 @@ public class TestConstructors {
                                                        "g", JsArray.of(true, false)
                                                       )
                                         ),
-                                JsObjExp.par("a", IO.fromValue(1).map(JsInt::of),
-                                             "b", IO.fromValue(2).map(JsInt::of),
-                                             "c", IO.fromValue(3).map(JsInt::of),
-                                             "d", JsObjExp.seq("e", IO.fromValue(4).map(JsInt::of),
-                                                               "f", IO.fromValue(5).map(JsInt::of),
+                                JsObjExp.par("a", IO.value(1).map(JsInt::of),
+                                             "b", IO.value(2).map(JsInt::of),
+                                             "c", IO.value(3).map(JsInt::of),
+                                             "d", JsObjExp.seq("e", IO.value(4).map(JsInt::of),
+                                                               "f", IO.value(5).map(JsInt::of),
                                                                "g", JsArrayExp.seq(IO.TRUE.map(JsBool::of),
                                                                                    IO.FALSE.map(JsBool::of)
                                                                                   )
@@ -131,7 +131,7 @@ public class TestConstructors {
     public void testResource() {
 
 
-        String a = IO.fromResource(() -> {
+        String a = IO.resource(() -> {
                                    File file = File.createTempFile("example", "text");
                                    Files.writeString(file.toPath(), "hola");
                                    return new BufferedReader(new FileReader(file,StandardCharsets.UTF_8));
@@ -148,7 +148,7 @@ public class TestConstructors {
     public void testOn() {
 
         try {
-            IO.fromTask(() -> {
+            IO.task(() -> {
                   throw new IllegalArgumentException("hola");
               })
               .debug()
@@ -158,7 +158,7 @@ public class TestConstructors {
         }
 
         try {
-            IO.fromTask(() -> {
+            IO.task(() -> {
                           throw new IllegalArgumentException("hola");
                       },
                         Executors.newCachedThreadPool()

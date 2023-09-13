@@ -6,11 +6,9 @@ import java.util.function.*;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an immutable expression made up of a predicate and two effects, the consequence and the alternative.
- * If the predicate succeed and is evaluated to true, the expression is reduced to the consequence, and if it's
- * evaluated to false, the expression is reduced to the alternative. The predicate can be either
- * a boolean or an effect.
- *
+ * Represents an expression made up of a predicate effect and two effect suppliers, the consequence and the alternative.
+ * If the predicate succeed and is evaluated to true, the expression is reduced to the effect supplied by the consequence,
+ * and if it's evaluated to false, the expression is reduced to the effect supplied by the alternative.
  * @param <O> the type of the value that the expression will be reduced to
  */
 public final class IfElseExp<O> extends Exp<O> {

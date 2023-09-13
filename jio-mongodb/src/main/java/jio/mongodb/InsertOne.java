@@ -77,8 +77,8 @@ public final class InsertOne<R> implements Lambda<JsObj, R> {
                                     INSERT_ONE
                                    );
         return executor == null ?
-                IO.fromManagedSupplier(supplier) :
-                IO.fromSupplier(supplier,
+                IO.managedLazy(supplier) :
+                IO.lazy(supplier,
                                 executor
                                );
 

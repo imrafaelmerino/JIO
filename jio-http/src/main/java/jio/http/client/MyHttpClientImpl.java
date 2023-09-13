@@ -45,7 +45,7 @@ class MyHttpClientImpl implements MyHttpClient {
         if (reqRetryPolicy != null && reqRetryPredicate != null) {
             return builder -> {
                 requireNonNull(builder);
-                return IO.fromEffect(() -> requestWrapper(this,
+                return IO.effect(() -> requestWrapper(this,
                                                           builder.build(),
                                                           handler
                                                          )
@@ -58,7 +58,7 @@ class MyHttpClientImpl implements MyHttpClient {
         if (reqRetryPolicy != null) {
             return builder -> {
                 requireNonNull(builder);
-                return IO.fromEffect(() -> requestWrapper(this,
+                return IO.effect(() -> requestWrapper(this,
                                                           builder.build(),
                                                           handler
                                                          )
@@ -68,7 +68,7 @@ class MyHttpClientImpl implements MyHttpClient {
         }
         return builder -> {
             requireNonNull(builder);
-            return IO.fromEffect(() -> requestWrapper(this,
+            return IO.effect(() -> requestWrapper(this,
                                                       builder.build(),
                                                       handler
                                                      )

@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Immutable expression that represents a tuple of two computations. Their elements can be evaluated either in
+ * Represents an expression that that is reduced to a pair. Their elements can be evaluated either in
  * parallel or sequentially. In both cases, if one fails, the whole expression fails.
  *
  * @param <A> the type of the first computation

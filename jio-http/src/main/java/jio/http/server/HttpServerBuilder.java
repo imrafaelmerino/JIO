@@ -28,10 +28,21 @@ import static java.util.Objects.requireNonNull;
 public class HttpServerBuilder {
 
     private final AtomicLong counter = new AtomicLong(0);
-
+    private final Map<String, HttpHandler> handlers = new HashMap<>();
     private Executor executor;
     private int backlog = 0;
-    private final Map<String, HttpHandler> handlers = new HashMap<>();
+
+    private static String headersToString(Map<String, List<String>> headers) {
+        return
+                headers.entrySet()
+                        .stream()
+                        .map(e -> String.format("%s:%s",
+                                        e.getKey(),
+                                        e.getValue()
+                                )
+                        )
+                        .collect(Collectors.joining(", "));
+    }
 
     /**
      * Sets this server's Executor object.
@@ -45,7 +56,6 @@ public class HttpServerBuilder {
         return this;
     }
 
-
     /**
      * A HttpContext represents a mapping from a URI path to a handler on this HttpServer.
      * Once created, all requests received by the server for the path will be handled by
@@ -58,10 +68,10 @@ public class HttpServerBuilder {
      */
     public HttpServerBuilder addContext(final String path,
                                         final HttpHandler handler
-                                       ) {
+    ) {
         this.handlers.put(requireNonNull(path),
-                          requireNonNull(handler)
-                         );
+                requireNonNull(handler)
+        );
         return this;
     }
 
@@ -90,11 +100,11 @@ public class HttpServerBuilder {
      */
     public IO<HttpServer> startAtRandom(final int start,
                                         final int end
-                                       ) {
+    ) {
         return startAtRandom("localhost",
-                             start,
-                             end
-                            );
+                start,
+                end
+        );
     }
 
     /**
@@ -112,24 +122,23 @@ public class HttpServerBuilder {
     public IO<HttpServer> startAtRandom(final String host,
                                         final int start,
                                         final int end
-                                       ) {
+    ) {
         if (start <= 0) throw new IllegalArgumentException("start <= 0");
         if (start > end) throw new IllegalArgumentException("start greater than end");
         return startAtRandomRec(host,
-                                start,
-                                end
-                               );
+                start,
+                end
+        );
     }
-
 
     private IO<HttpServer> startAtRandomRec(final String host,
                                             final int start,
                                             final int end
-                                           ) {
+    ) {
         if (start == end) throw new IllegalArgumentException("range of ports exhausted");
         return start(requireNonNull(host),
-                     start
-                    )
+                start
+        )
                 .recoverWith(error -> startAtRandomRec(host, start + 1, end));
     }
 
@@ -146,11 +155,11 @@ public class HttpServerBuilder {
      */
     public IO<HttpServer> start(final String host,
                                 final int port
-                               ) {
+    ) {
         if (port <= 0) throw new IllegalArgumentException("port <= 0");
         Objects.requireNonNull(host);
 
-        return IO.fromEffect(() -> {
+        return IO.effect(() -> {
             try {
                 var server =
                         HttpServer.create(new InetSocketAddress(host, port), backlog);
@@ -158,34 +167,34 @@ public class HttpServerBuilder {
                 var keySet = handlers.keySet();
                 for (final String key : keySet) {
                     server.createContext(key,
-                                         exchange -> {
-                                             ServerReqEvent event = new ServerReqEvent();
-                                             event.reqCounter = counter.incrementAndGet();
-                                             event.remoteHostAddress = exchange.getRemoteAddress().getHostName();
-                                             event.remoteHostPort = exchange.getRemoteAddress().getPort();
-                                             event.protocol = exchange.getProtocol();
-                                             event.method = exchange.getRequestMethod();
-                                             event.uri = exchange.getRequestURI().toString();
-                                             event.reqHeaders = headersToString(exchange.getRequestHeaders());
-                                             event.begin();
-                                             try {
-                                                 handlers.get(key).handle(exchange);
-                                                 event.statusCode = exchange.getResponseCode();
-                                                 event.result = ServerReqEvent.RESULT.SUCCESS.name();
-                                                 System.out.println(port+":"+counter);
-                                             } catch (IOException e) {
-                                                 event.exception = String.format("%s:%s",
-                                                                                 e.getClass().getName(),
-                                                                                 e.getMessage()
-                                                                                );
-                                                 event.result = ServerReqEvent.RESULT.FAILURE.name();
-                                             } finally {
-                                                 event.commit();
-                                             }
+                            exchange -> {
+                                ServerReqEvent event = new ServerReqEvent();
+                                event.reqCounter = counter.incrementAndGet();
+                                event.remoteHostAddress = exchange.getRemoteAddress().getHostName();
+                                event.remoteHostPort = exchange.getRemoteAddress().getPort();
+                                event.protocol = exchange.getProtocol();
+                                event.method = exchange.getRequestMethod();
+                                event.uri = exchange.getRequestURI().toString();
+                                event.reqHeaders = headersToString(exchange.getRequestHeaders());
+                                event.begin();
+                                try {
+                                    handlers.get(key).handle(exchange);
+                                    event.statusCode = exchange.getResponseCode();
+                                    event.result = ServerReqEvent.RESULT.SUCCESS.name();
+                                    System.out.println(port + ":" + counter);
+                                } catch (IOException e) {
+                                    event.exception = String.format("%s:%s",
+                                            e.getClass().getName(),
+                                            e.getMessage()
+                                    );
+                                    event.result = ServerReqEvent.RESULT.FAILURE.name();
+                                } finally {
+                                    event.commit();
+                                }
 
 
-                                         }
-                                        );
+                            }
+                    );
                 }
                 server.start();
                 return CompletableFuture.completedFuture(server);
@@ -193,18 +202,6 @@ public class HttpServerBuilder {
                 return CompletableFuture.failedFuture(e);
             }
         });
-    }
-
-    private static String headersToString(Map<String, List<String>> headers) {
-        return
-                headers.entrySet()
-                       .stream()
-                       .map(e -> String.format("%s:%s",
-                                               e.getKey(),
-                                               e.getValue()
-                                              )
-                           )
-                       .collect(Collectors.joining(", "));
     }
 
     /**
@@ -219,8 +216,8 @@ public class HttpServerBuilder {
      */
     public IO<HttpServer> start(final int port) {
         return start("localhost",
-                     port
-                    );
+                port
+        );
     }
 
 

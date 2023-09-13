@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Immutable expression that represents a tuple of three values
+ * Represents an expression that that is reduced to a triple (tuple of three elements)
  *
  * @param <A> the type the first element will be reduced
  * @param <B> the type the second element will be reduced

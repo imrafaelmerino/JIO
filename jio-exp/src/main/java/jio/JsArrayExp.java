@@ -15,9 +15,9 @@ import java.util.stream.IntStream;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an immutable sequence of effects of type {@link JsValue}. It's possible to evaluate
- * all the effects either in parallel or sequentially. If one fails, the whole
- * expression fails.
+ * Represents a sequence of effects of type {@link JsValue} that is reduced to a Json array.
+ * It's possible to evaluate all the effects either in parallel or sequentially. If one fails,
+ * the whole expression fails.
  */
 public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpPar, JsArrayExpSeq {
 

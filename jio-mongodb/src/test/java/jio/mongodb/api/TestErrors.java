@@ -56,7 +56,7 @@ public class TestErrors {
         //"java.util.concurrent.CompletionException: jio.JioFailure: Timeout while receiving message"
         Assertions.assertTrue(findOne.apply(FindOptions.ofFilter(obj))
                                      .then(o -> IO.FALSE,
-                                           e -> IO.fromValue(Failures.READ_TIMEOUT.test(e.getCause())
+                                           e -> IO.value(Failures.READ_TIMEOUT.test(e.getCause())
                                                             )
                                           )
                                      .join()
@@ -85,7 +85,7 @@ public class TestErrors {
 //                "Timeout while receiving message}, caused by {java.net.SocketTimeoutException: Read timed out}}]
         Assertions.assertTrue(findOne.apply(FindOptions.ofFilter(obj))
                                      .then(o -> IO.TRUE,
-                                           e -> IO.fromValue(Failures.CONNECTION_TIMEOUT
+                                           e -> IO.value(Failures.CONNECTION_TIMEOUT
                                                                    .test(e.getCause()))
                                           )
                                      .join());

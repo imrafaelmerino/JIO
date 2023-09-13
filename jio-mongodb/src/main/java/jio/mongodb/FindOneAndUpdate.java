@@ -63,8 +63,8 @@ public final class FindOneAndUpdate implements BiLambda<JsObj, JsObj, JsObj> {
                                     FIND_ONE_AND_UPDATE
                                    );
         return executor == null ?
-                IO.fromManagedSupplier(supplier) :
-                IO.fromSupplier(supplier,
+                IO.managedLazy(supplier) :
+                IO.lazy(supplier,
                                 executor
                                );
 

@@ -78,7 +78,7 @@ public class GptConsole {
                     String purpose = tokens[2];
                     File file = new File(path);
                     return !file.exists() || !file.isFile() ?
-                            IO.fromFailure(new IllegalArgumentException(path + " is not a file")) :
+                            IO.failure(new IllegalArgumentException(path + " is not a file")) :
                             services.fileService.upload(file, purpose).map(JsObj::toString);
                 };
             }
@@ -290,7 +290,7 @@ public class GptConsole {
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
-                        return IO.fromValue("loades messages from " + path);
+                        return IO.value("loades messages from " + path);
                     };
 
                     if (tokens.length == 1)
@@ -333,7 +333,7 @@ public class GptConsole {
                                                             .build()
                                                             .toString()
                                                     );
-                                            return IO.fromValue("Added a new message to the chat!");
+                                            return IO.value("Added a new message to the chat!");
                                         }
                                 );
 
@@ -344,7 +344,7 @@ public class GptConsole {
                                     .build()
                                     .toString()
                             );
-                    return IO.fromValue("Added a new message to the chat!");
+                    return IO.value("Added a new message to the chat!");
 
                 };
             }
@@ -353,7 +353,7 @@ public class GptConsole {
         commands.add(new Command("gpt-chat-echo", "List all the messages of the chat conversation") {
             @Override
             public Function<String[], IO<String>> apply(JsObj obj, State state) {
-                return tokens -> IO.fromSupplier(() -> {
+                return tokens -> IO.lazy(() -> {
                     List<String> chat = state.listsVariables.get("#chat#");
                     if (chat == null || chat.isEmpty()) return "chat is empty!";
                     return String.join("\n", chat);
@@ -393,7 +393,7 @@ public class GptConsole {
         commands.add(new Command("gpt-chat-clear", "Clear the chat conversation.") {
             @Override
             public Function<String[], IO<String>> apply(JsObj obj, State state) {
-                return tokens -> IO.fromSupplier(() -> {
+                return tokens -> IO.lazy(() -> {
                     state.listsVariables.get("#chat#").clear();
                     return "Chat cleared!";
                 });

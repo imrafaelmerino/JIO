@@ -13,7 +13,7 @@ public class TestIfElseExp {
 
         // the consequence is never executed!
         IfElseExp<Integer> a = IfElseExp.<Integer>predicate(IO.FALSE)
-                                        .consequence(() -> IO.fromValue(1 / 0))
+                                        .consequence(() -> IO.value(1 / 0))
                                         .alternative(() -> Constants.ONE);
 
         Assertions.assertEquals(1,
@@ -23,7 +23,7 @@ public class TestIfElseExp {
         // the alternative is never executed!
         IfElseExp<Integer> unused =
                 IfElseExp.<Integer>predicate(IO.TRUE)
-                         .alternative(() -> IO.fromValue(1 / 0))
+                         .alternative(() -> IO.value(1 / 0))
                          .consequence(() -> Constants.ONE);
 
         Assertions.assertEquals(1, a.join());

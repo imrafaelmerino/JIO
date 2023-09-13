@@ -6,11 +6,11 @@ import java.util.function.*;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an expression made up of different test-value branches and a default
- * effect. Each branch consists of a predicate (concretely a boolean effect) and an associated
- * effect. The expression is reduced to the effect of the first predicate that is evaluated
- * true. If no predicate is evaluated to true, then the expression is reduced to the default
- * effect.
+ * Represents a expression made up of different test-effect branches and a default
+ * effect. Each branch consists of a predicate (concretely a boolean effect) and an
+ * associated effect. The expression is reduced to the effect of the first predicate
+ * that succeeds and is evaluated to true. If no predicate is evaluated to true, then
+ * the expression is reduced to the default effect.
  * <p>
  * Predicates can be evaluated either in parallel with the static factory method <code>CondExp.par</code>
  * or sequentially with <code>CondExp.seq</code>

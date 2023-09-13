@@ -59,8 +59,8 @@ public final class Count implements Lambda<JsObj, Long> {
                           }, COUNT
                                    );
         return executor == null ?
-                IO.fromManagedSupplier(supplier) :
-                IO.fromSupplier(supplier,
+                IO.managedLazy(supplier) :
+                IO.lazy(supplier,
                                 executor
                                );
 

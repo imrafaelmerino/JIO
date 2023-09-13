@@ -12,8 +12,8 @@ public class TestPairExp {
     @Test
     public void sequential_constructor() {
 
-        PairExp<String, String> pair = PairExp.seq(IO.fromValue("a"),
-                                                   IO.fromValue("b")
+        PairExp<String, String> pair = PairExp.seq(IO.value("a"),
+                                                   IO.value("b")
                                                   );
 
         Assertions.assertEquals(Pair.of("a",

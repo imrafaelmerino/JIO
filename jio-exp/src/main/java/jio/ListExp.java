@@ -8,7 +8,7 @@ import java.util.function.*;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an immutable expression which result is a list of values
+ * Represents an expression that is reduced to a list of values
  *
  * @param <O> the type of the values
  */
@@ -92,7 +92,7 @@ public abstract sealed class ListExp<O> extends Exp<List<O>> permits ListExpPar,
      */
     @SuppressWarnings("unchecked")
     public IO<O> race() {
-        return IO.fromEffect(() -> CompletableFuture.anyOf(list.stream()
+        return IO.effect(() -> CompletableFuture.anyOf(list.stream()
                                                                .map(Supplier::get)
                                                                .toArray(CompletableFuture[]::new))
                                                     .thenApply(it -> ((O) it))

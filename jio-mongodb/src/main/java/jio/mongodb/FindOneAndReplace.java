@@ -62,8 +62,8 @@ public final class FindOneAndReplace implements BiLambda<JsObj, JsObj, JsObj> {
                                     FIND_ONE_AND_REPLACE
                                    );
         return executor == null ?
-                IO.fromManagedSupplier(supplier) :
-                IO.fromSupplier(supplier, executor);
+                IO.managedLazy(supplier) :
+                IO.lazy(supplier, executor);
 
     }
 }

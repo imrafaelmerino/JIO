@@ -15,8 +15,8 @@ public class TestJsArrayExp {
         Assertions.assertEquals(JsArray.of(JsStr.of("a"),
                                            JsStr.of("b")
                                           ),
-                                JsArrayExp.par(IO.fromValue("a").map(JsStr::of),
-                                               IO.fromValue("b").map(JsStr::of)
+                                JsArrayExp.par(IO.value("a").map(JsStr::of),
+                                               IO.value("b").map(JsStr::of)
                                               )
                                           .debugEach("array")
                                           .join()

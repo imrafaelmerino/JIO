@@ -27,9 +27,9 @@ public interface BiLambda<A, B, O> extends BiFunction<A, B, IO<O>> {
         requireNonNull(predicate);
         return (a, b) -> {
             try {
-                return IO.fromValue(predicate.test(a, b));
+                return IO.value(predicate.test(a, b));
             } catch (Exception e) {
-                return IO.fromFailure(e);
+                return IO.failure(e);
             }
         };
     }
@@ -46,9 +46,9 @@ public interface BiLambda<A, B, O> extends BiFunction<A, B, IO<O>> {
         requireNonNull(fn);
         return (a, b) -> {
             try {
-                return IO.fromValue(fn.apply(a, b));
+                return IO.value(fn.apply(a, b));
             } catch (Exception e) {
-                return IO.fromFailure(e);
+                return IO.failure(e);
             }
         };
     }

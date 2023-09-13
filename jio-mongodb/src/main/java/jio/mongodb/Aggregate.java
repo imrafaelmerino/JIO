@@ -48,8 +48,8 @@ public final class Aggregate<O> implements Lambda<JsArray, O> {
                                    );
 
         return executor == null ?
-                IO.fromManagedSupplier(supplier) :
-                IO.fromSupplier(supplier,
+                IO.managedLazy(supplier) :
+                IO.lazy(supplier,
                                 executor
                                );
 

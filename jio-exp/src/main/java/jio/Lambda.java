@@ -23,9 +23,9 @@ public interface Lambda<I, O> extends Function<I, IO<O>> {
         requireNonNull(predicate);
         return o -> {
             try {
-                return IO.fromValue(predicate.test(o));
+                return IO.value(predicate.test(o));
             } catch (Exception e) {
-                return IO.fromFailure(e);
+                return IO.failure(e);
             }
         };
     }
@@ -40,9 +40,9 @@ public interface Lambda<I, O> extends Function<I, IO<O>> {
         requireNonNull(fn);
         return o -> {
             try {
-                return IO.fromValue(fn.apply(o));
+                return IO.value(fn.apply(o));
             } catch (Exception e) {
-                return IO.fromFailure(e);
+                return IO.failure(e);
             }
         };
     }

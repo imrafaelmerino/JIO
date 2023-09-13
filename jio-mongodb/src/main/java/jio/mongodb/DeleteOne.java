@@ -74,8 +74,8 @@ public final class DeleteOne<O> implements Lambda<JsObj, O> {
                           }, DELETE_ONE
                                    );
         return executor == null ?
-                IO.fromManagedSupplier(supplier) :
-                IO.fromSupplier(supplier,
+                IO.managedLazy(supplier) :
+                IO.lazy(supplier,
                                 executor
                                );
 

@@ -78,8 +78,8 @@ public final class UpdateOne<O> implements BiLambda<JsObj, JsObj, O> {
                                     UPDATE_ONE
                                    );
         return executor == null ?
-                IO.fromManagedSupplier(supplier) :
-                IO.fromSupplier(supplier,
+                IO.managedLazy(supplier) :
+                IO.lazy(supplier,
                                 executor
                                );
 

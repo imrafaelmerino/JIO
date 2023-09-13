@@ -27,7 +27,7 @@ import static java.util.Objects.requireNonNull;
  * generates a {@link Report}.
  * <p>
  * The tests will be executed by a thread from the common FromJoinPool since
- * the JIO effect is created with the {@link IO#fromManagedSupplier(Supplier)} constructor.
+ * the JIO effect is created with the {@link IO#managedLazy(Supplier)} constructor.
  * To run the tests with a thread from a different pool,
  * an executor can be specified with the method {@link #on(ExecutorService)}.
  * <p>
@@ -85,9 +85,9 @@ public final class Property<O> implements Function<JsObj, Report> {
         if (name == null || name.isBlank() || name.isEmpty())
             throw new IllegalArgumentException("property name missing");
         this.lambda = (conf, o) -> switch (fn.apply(conf, o)) {
-            case TestSuccess r -> IO.fromValue(r);
-            case TestFailure f -> IO.fromFailure(f);
-            case TestException e -> IO.fromFailure(e);
+            case TestSuccess r -> IO.value(r);
+            case TestFailure f -> IO.failure(f);
+            case TestException e -> IO.failure(e);
         };
         this.name = requireNonNull(name);
     }
@@ -264,7 +264,7 @@ public final class Property<O> implements Function<JsObj, Report> {
             for (int i = 1; i <= times; i++) {
                 report.incTest();
                 TestResult result =
-                        IO.fromValue(i)
+                        IO.value(i)
                           .then(n -> {
                                     var tic = Instant.now();
                                     var generated = rg.get();
@@ -300,8 +300,8 @@ public final class Property<O> implements Function<JsObj, Report> {
             return report;
         };
         IO<Report> io = executor == null ?
-                IO.fromManagedSupplier(task) :
-                IO.fromSupplier(task, executor);
+                IO.managedLazy(task) :
+                IO.lazy(task, executor);
 
         return io;
 
@@ -334,7 +334,7 @@ public final class Property<O> implements Function<JsObj, Report> {
                                                      tf
                                   )
                                  );
-                yield IO.fromValue(tf);
+                yield IO.value(tf);
             }
 
 
@@ -343,7 +343,7 @@ public final class Property<O> implements Function<JsObj, Report> {
                                                          error
                                     )
                                    );
-                yield IO.fromValue(new TestException(error));
+                yield IO.value(new TestException(error));
             }
 
         };
@@ -356,7 +356,7 @@ public final class Property<O> implements Function<JsObj, Report> {
                                                      tf
                                   )
                                  );
-                yield IO.fromValue(tf);
+                yield IO.value(tf);
             }
 
             case TestException tf -> {
@@ -364,11 +364,11 @@ public final class Property<O> implements Function<JsObj, Report> {
                                                          tf.getCause()
                                     )
                                    );
-                yield IO.fromValue(tf);
+                yield IO.value(tf);
             }
 
 
-            case TestSuccess ts -> IO.fromValue(ts);
+            case TestSuccess ts -> IO.value(ts);
 
         };
     }

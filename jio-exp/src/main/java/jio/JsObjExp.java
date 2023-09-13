@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an immutable expression which result is a json object. It has the same
- * recursive structure as a json object. Each key has a value associated.
+ * Represents a expression that is reduced to a Json object. It has the same
+ * recursive structure as a Json object. Each key has an associated effect.
  */
 public abstract sealed class JsObjExp extends Exp<JsObj>
         permits JsObjExpPar, JsObjExpSeq {
