@@ -22,7 +22,7 @@ public sealed abstract class AllExp extends Exp<Boolean> permits AllExpPar, AllE
      */
     protected final List<IO<Boolean>> exps;
 
-    AllExp(Function<ExpEvent,BiConsumer<Boolean, Throwable>> logger,
+    AllExp(Function<ExpEvent, BiConsumer<Boolean, Throwable>> logger,
            List<IO<Boolean>> exps
           ) {
         super(logger);
@@ -32,8 +32,9 @@ public sealed abstract class AllExp extends Exp<Boolean> permits AllExpPar, AllE
     /**
      * Creates an AllExp expression where all the subexpressions are evaluated in parallel,
      * <strong>as long as they are computed by a different thread</strong>. In the following example,
-     * isDivisibleByTwo and isDivisibleByThree will be computed by the same thread (the caller thread),
-     * despite the fact that the par constructor is used:
+     * `isDivisibleByTwo` and `isDivisibleByThree` will be computed by the same thread (the caller thread),
+     * despite the fact that the `par` constructor is used:
+     *
      * <pre>
      * {@code
      *     Lambda<Integer,Boolean> isDivisibleByTwoAndThree =
@@ -51,10 +52,11 @@ public sealed abstract class AllExp extends Exp<Boolean> permits AllExpPar, AllE
      *
      * }
      * </pre>
+     *
      * <p>
      * On the other hand, isDivisibleByTwo and isDivisibleByThree will be computed in parallel by
      * different threads in the following example (if the executor pool is bigger than one and at least
-     * two threads are free) :
+     * two threads are free):
      *
      * <pre>
      * {@code
@@ -99,7 +101,7 @@ public sealed abstract class AllExp extends Exp<Boolean> permits AllExpPar, AllE
     /**
      * Creates an AllExp expression where all the subexpression are <strong>always</strong> evaluated
      * sequentially. If one subexpression terminates with an exception or is evaluated to false,
-     * the whole expression ends immediately and the rest of subexpressions (if any) are not evaluated.
+     * the whole expression ends immediately, and the rest of subexpressions (if any) are not evaluated.
      *
      * @param bool   the first subexpression
      * @param others the others subexpressions
@@ -166,10 +168,10 @@ public sealed abstract class AllExp extends Exp<Boolean> permits AllExpPar, AllE
      *
      * }
      * </pre>
-     *
-     *2023-02-04T18:04:21.459985+01:00 main DEBUGGER [context] 7712125 success AllExpPar[0] true
-     *2023-02-04T18:04:21.468211+01:00 main DEBUGGER [context] 73834 success AllExpPar[1] true
-     *2023-02-04T18:04:21.469131+01:00 main DEBUGGER [context] 12266834 success AllExpPar true
+     * <p>
+     * 2023-02-04T18:04:21.459985+01:00 main DEBUGGER [context] 7712125 success AllExpPar[0] true
+     * 2023-02-04T18:04:21.468211+01:00 main DEBUGGER [context] 73834 success AllExpPar[1] true
+     * 2023-02-04T18:04:21.469131+01:00 main DEBUGGER [context] 12266834 success AllExpPar true
      *
      * @param context the context shared by all the subexpressions that will be printed out
      * @return a new AllExp

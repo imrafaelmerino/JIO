@@ -16,13 +16,20 @@ import static java.util.Objects.requireNonNull;
 import static jio.mongodb.MongoDBEvent.OP.INSERT_ONE;
 
 public final class InsertOne<R> implements Lambda<JsObj, R> {
+    private static final InsertOneOptions DEFAULT_OPTIONS = new InsertOneOptions();
     private final CollectionSupplier collection;
     private final InsertOneOptions options;
     private final Function<InsertOneResult, R> resultConverter;
-    private static final InsertOneOptions DEFAULT_OPTIONS = new InsertOneOptions();
-
-
     private Executor executor;
+
+    public InsertOne(final CollectionSupplier collection,
+                     final Function<InsertOneResult, R> resultConverter,
+                     final InsertOneOptions options
+                    ) {
+        this.collection = requireNonNull(collection);
+        this.options = requireNonNull(options);
+        this.resultConverter = requireNonNull(resultConverter);
+    }
 
     public static <R> InsertOne<R> of(final CollectionSupplier collection,
                                       final Function<InsertOneResult, R> resultConverter,
@@ -48,19 +55,9 @@ public final class InsertOne<R> implements Lambda<JsObj, R> {
         );
     }
 
-
     public InsertOne<R> on(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
-    }
-
-    public InsertOne(final CollectionSupplier collection,
-                     final Function<InsertOneResult, R> resultConverter,
-                     final InsertOneOptions options
-                    ) {
-        this.collection = requireNonNull(collection);
-        this.options = requireNonNull(options);
-        this.resultConverter = requireNonNull(resultConverter);
     }
 
     @Override
@@ -79,8 +76,8 @@ public final class InsertOne<R> implements Lambda<JsObj, R> {
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
-                                executor
-                               );
+                        executor
+                       );
 
 
     }

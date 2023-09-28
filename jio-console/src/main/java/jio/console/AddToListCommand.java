@@ -17,10 +17,25 @@ class AddToListCommand extends Command {
                       Add the given value into the the specified list. You can read
                       the content of the list with the command var-get {name}.
                       Usage: var-add {name} {value}
-                      jio.chatgpt.Examples:
+                      Examples:
                           $command names Rafa
                           $command numbers $counter""".replace("$command", COMMAND_NAME)
              );
+    }
+
+    private static IO<String> addValueToList(State state,
+                                             String varName,
+                                             String newValue
+                                            ) {
+
+
+        return IO.fromSupplier(() -> {
+            if (!state.listsVariables.containsKey(varName))
+                state.listsVariables.put(varName, new ArrayList<>());
+
+            state.listsVariables.get(varName).add(newValue);
+            return "added! Size of " + varName + " is " + state.listsVariables.get(varName).size();
+        });
     }
 
     @Override
@@ -50,20 +65,5 @@ class AddToListCommand extends Command {
 
 
         };
-    }
-
-    private static IO<String> addValueToList(State state,
-                                             String varName,
-                                             String newValue
-                                            ) {
-
-
-        return IO.fromSupplier(() -> {
-            if (!state.listsVariables.containsKey(varName))
-                state.listsVariables.put(varName, new ArrayList<>());
-
-            state.listsVariables.get(varName).add(newValue);
-            return "added! Size of " + varName + " is " + state.listsVariables.get(varName).size();
-        });
     }
 }

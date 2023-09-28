@@ -12,7 +12,9 @@ public class AccessTokenNotFound extends Exception {
         super(Objects.requireNonNull(message));
     }
 
-    AccessTokenNotFound(String message, Throwable cause) {
+    AccessTokenNotFound(String message,
+                        Throwable cause
+                       ) {
         super(Objects.requireNonNull(message),
               Objects.requireNonNull(cause)
              );

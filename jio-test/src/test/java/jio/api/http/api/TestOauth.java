@@ -8,8 +8,10 @@ import jio.http.client.oauth.ClientCredentialsHttpClient;
 import jio.http.client.oauth.ClientCredentialsHttpClientBuilder;
 import jio.http.client.oauth.GetAccessToken;
 import jio.http.server.HttpServerBuilder;
-import jio.test.junit.JioDebugger;
-import jio.test.junit.DebuggerDuration;
+import jio.test.junit.DebugHttpClient;
+import jio.test.junit.DebugHttpServer;
+import jio.test.junit.Debugger;
+import jio.test.junit.DebugExp;
 import jio.test.stub.httpserver.GetStub;
 import jio.test.stub.httpserver.PostStub;
 import jio.test.stub.httpserver.StatusCodeStub;
@@ -23,17 +25,22 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-@ExtendWith(JioDebugger.class)
-@DebuggerDuration(millis = 1000)
+@ExtendWith(Debugger.class)
+@DebugExp
+@DebugHttpClient
+@DebugHttpServer
 public class TestOauth {
 
 
     IO<HttpServer> io = new HttpServerBuilder()
-            .addContext("/token", PostStub.of(n -> body -> uri -> headers -> JsObj.of("access_token", JsStr.of(n + "")).toString(),
+            .addContext("/token", PostStub.of(n -> body -> uri -> headers -> JsObj.of("access_token",
+                                                                                      JsStr.of(String.valueOf(n))
+                                                                                     )
+                                                                                  .toString(),
                                               StatusCodeStub.cons(200)
                                              )
                        )
-            .addContext("/service", GetStub.of(n -> body -> uri -> headers -> n == 2 ? "" : n + "",
+            .addContext("/service", GetStub.of(n -> body -> uri -> headers -> n == 2 ? "" : String.valueOf(n),
                                                n -> body -> uri -> headers -> n == 2 ? 401 : 200
                                               ))
             .start(7777);
@@ -42,16 +49,10 @@ public class TestOauth {
     @Test
     public void test() {
 
-        HttpServer server = io.join();
-
-        System.out.println(server.getAddress().getPort());
-
-        System.out.println(server.getAddress().getHostName());
-
+        HttpServer server = io.result();
 
         ClientCredentialsHttpClientBuilder builder =
-                new ClientCredentialsHttpClientBuilder(new MyHttpClientBuilder(HttpClient.newHttpClient())
-                                                               .create(),
+                new ClientCredentialsHttpClientBuilder(new MyHttpClientBuilder(HttpClient.newHttpClient()).create(),
                                                        new AccessTokenRequest("client_id",
                                                                               "client_secret",
                                                                               "localhost",
@@ -70,10 +71,8 @@ public class TestOauth {
                                           .apply(HttpRequest.newBuilder()
                                                             .GET()
                                                             .uri(URI.create("http://localhost:7777/service"))
-                                                ).join();
+                                                ).result();
 
-
-        System.out.println(resp.body());
 
     }
 

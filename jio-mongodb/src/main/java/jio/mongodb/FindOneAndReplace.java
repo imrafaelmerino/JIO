@@ -15,11 +15,17 @@ import static jio.mongodb.MongoDBEvent.OP.FIND_ONE_AND_REPLACE;
 
 public final class FindOneAndReplace implements BiLambda<JsObj, JsObj, JsObj> {
 
+    private static final FindOneAndReplaceOptions DEFAULT_OPTIONS = new FindOneAndReplaceOptions();
     private final FindOneAndReplaceOptions options;
     private final CollectionSupplier collection;
-    private static final FindOneAndReplaceOptions DEFAULT_OPTIONS = new FindOneAndReplaceOptions();
-
     private Executor executor;
+
+    private FindOneAndReplace(final CollectionSupplier collection,
+                              final FindOneAndReplaceOptions options
+                             ) {
+        this.collection = requireNonNull(collection);
+        this.options = requireNonNull(options);
+    }
 
     public static FindOneAndReplace of(final CollectionSupplier collection,
                                        final FindOneAndReplaceOptions options
@@ -36,14 +42,6 @@ public final class FindOneAndReplace implements BiLambda<JsObj, JsObj, JsObj> {
         return this;
     }
 
-    private FindOneAndReplace(final CollectionSupplier collection,
-                              final FindOneAndReplaceOptions options
-                             ) {
-        this.collection = requireNonNull(collection);
-        this.options = requireNonNull(options);
-    }
-
-
     @Override
     public IO<JsObj> apply(final JsObj filter,
                            final JsObj update
@@ -52,13 +50,13 @@ public final class FindOneAndReplace implements BiLambda<JsObj, JsObj, JsObj> {
         Objects.requireNonNull(update);
         Supplier<JsObj> supplier =
                 Fun.jfrEventWrapper(() -> {
-                              var collection = requireNonNull(this.collection.get());
-                              return collection
-                                      .findOneAndReplace(Converters.jsObj2Bson.apply(filter),
-                                                         update,
-                                                         options
-                                                        );
-                          },
+                                        var collection = requireNonNull(this.collection.get());
+                                        return collection
+                                                .findOneAndReplace(Converters.jsObj2Bson.apply(filter),
+                                                                   update,
+                                                                   options
+                                                                  );
+                                    },
                                     FIND_ONE_AND_REPLACE
                                    );
         return executor == null ?

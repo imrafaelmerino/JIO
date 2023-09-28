@@ -24,6 +24,10 @@ class AbstractService {
 
     }
 
+    static IO<JsObj> errorHandler(HttpResponse<String> resp) {
+        if (resp.statusCode() < 300) return IO.succeed(JsObj.parse(resp.body()));
+        return IO.fail(new APIError(resp));
+    }
 
     IO<JsObj> post(URI uri, JsObj body) {
         return post(uri, body.toString(), "application/json");
@@ -69,10 +73,5 @@ class AbstractService {
                                        .GET()
                            )
                      .then(AbstractService::errorHandler);
-    }
-
-    static IO<JsObj> errorHandler(HttpResponse<String> resp) {
-        if (resp.statusCode() < 300) return IO.value(JsObj.parse(resp.body()));
-        return IO.failure(new APIError(resp));
     }
 }

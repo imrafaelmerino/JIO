@@ -14,7 +14,7 @@ import static java.util.Objects.requireNonNull;
 final class ListExpSeq<O> extends ListExp<O> {
 
     public ListExpSeq(final List<IO<O>> list,
-                      final Function<ExpEvent,BiConsumer<List<O>, Throwable>> logger
+                      final Function<ExpEvent, BiConsumer<List<O>, Throwable>> logger
                      ) {
         super(list, logger);
     }

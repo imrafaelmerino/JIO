@@ -5,8 +5,8 @@ import jio.IO;
 import jio.http.client.MyHttpClient;
 import jio.http.client.MyHttpClientBuilder;
 import jio.http.server.HttpServerBuilder;
-import jio.test.junit.JioDebugger;
-import jio.test.junit.DebuggerDuration;
+import jio.test.junit.Debugger;
+import jio.test.junit.DebugExp;
 import jio.test.stub.httpserver.BodyStub;
 import jio.test.stub.httpserver.GetStub;
 import jio.test.stub.httpserver.HeadersStub;
@@ -23,8 +23,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-@ExtendWith(JioDebugger.class)
-@DebuggerDuration(millis = 1000)
+@ExtendWith(Debugger.class)
+@DebugExp(duration = 1000)
 public class TestRespHandlers {
 
     static int port;
@@ -57,7 +57,7 @@ public class TestRespHandlers {
                                                       9000
                                                      );
 
-        port = server.join()
+        port = server.result()
                      .getAddress()
                      .getPort();
 

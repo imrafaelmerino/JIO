@@ -19,9 +19,20 @@ public class ImageBuilder {
     Data.IMAGE_SIZE size;
 
 
+    /**
+     * @param prompt A text description of the desired image(s). The maximum length is 1000 characters.
+     */
+    public ImageBuilder(String prompt) {
+        this.prompt = Objects.requireNonNull(prompt);
+        if (prompt.length() > 1000) throw new IllegalArgumentException("prompt > 1000");
+        this.size = DEFAULT_VALUES.DEFAULT_IMAGE_SIZE;
+        this.responseFormat = DEFAULT_VALUES.DEFAULT_IMAGE_RESPONSE_FORMAT;
+        this.n = DEFAULT_VALUES.DEFAULT_N_IMAGES;
+    }
 
     /**
      * size parameter setter
+     *
      * @param size The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
      * @return this builder
      */
@@ -32,6 +43,7 @@ public class ImageBuilder {
 
     /**
      * response_format parameter setter
+     *
      * @param format The format in which the generated images are returned. Must be one of url or b64_json.
      * @return this builder
      */
@@ -42,6 +54,7 @@ public class ImageBuilder {
 
     /**
      * n parameter setter
+     *
      * @param n The number of images to generate. Must be between 1 and 10.
      * @return this builder
      */
@@ -54,25 +67,13 @@ public class ImageBuilder {
 
     /**
      * user parameter setter
+     *
      * @param user A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse
      * @return this builder
      */
-    public ImageBuilder setUser(String user){
+    public ImageBuilder setUser(String user) {
         this.user = Objects.requireNonNull(user);
         return this;
-    }
-
-
-
-    /**
-     * @param prompt A text description of the desired image(s). The maximum length is 1000 characters.
-     */
-    public ImageBuilder(String prompt) {
-        this.prompt = Objects.requireNonNull(prompt);
-        if (prompt.length() > 1000) throw new IllegalArgumentException("prompt > 1000");
-        this.size = DEFAULT_VALUES.DEFAULT_IMAGE_SIZE;
-        this.responseFormat = DEFAULT_VALUES.DEFAULT_IMAGE_RESPONSE_FORMAT;
-        this.n = DEFAULT_VALUES.DEFAULT_N_IMAGES;
     }
 
     public JsObj build() {
@@ -85,7 +86,7 @@ public class ImageBuilder {
             obj = obj.set(JSON_FIELDS.USER_FIELD, JsStr.of(user));
         if (n != DEFAULT_VALUES.DEFAULT_N_IMAGES)
             obj = obj.set(JSON_FIELDS.N_FIELD, JsInt.of(n));
-        if (size!= DEFAULT_VALUES.DEFAULT_IMAGE_SIZE)
+        if (size != DEFAULT_VALUES.DEFAULT_IMAGE_SIZE)
             obj = obj.set(JSON_FIELDS.SIZE_FIELD, JsStr.of(size.size));
         return obj;
     }

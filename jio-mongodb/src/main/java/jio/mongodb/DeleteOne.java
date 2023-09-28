@@ -19,10 +19,11 @@ import static jio.mongodb.MongoDBEvent.OP.DELETE_ONE;
 
 
 public final class DeleteOne<O> implements Lambda<JsObj, O> {
+    private static final DeleteOptions DEFAULT_OPTIONS = new DeleteOptions();
     private final CollectionSupplier collection;
     private final Function<DeleteResult, O> resultConverter;
     private final DeleteOptions options;
-    private static final DeleteOptions DEFAULT_OPTIONS = new DeleteOptions();
+    private Executor executor;
 
 
     private DeleteOne(final CollectionSupplier collection,
@@ -33,9 +34,6 @@ public final class DeleteOne<O> implements Lambda<JsObj, O> {
         this.resultConverter = requireNonNull(resultConverter);
         this.options = requireNonNull(options);
     }
-
-
-    private Executor executor;
 
     public static <O> DeleteOne<O> of(final CollectionSupplier collection,
                                       final Function<DeleteResult, O> resultConverter,
@@ -64,20 +62,20 @@ public final class DeleteOne<O> implements Lambda<JsObj, O> {
         Objects.requireNonNull(query);
         Supplier<O> supplier =
                 Fun.jfrEventWrapper(() -> {
-                              var collection = requireNonNull(this.collection.get());
-                              final Bson result = jsObj2Bson.apply(requireNonNull(query));
-                              return resultConverter.apply(
-                                      collection.deleteOne(result,
-                                                           options
-                                                          )
-                                                          );
-                          }, DELETE_ONE
+                                        var collection = requireNonNull(this.collection.get());
+                                        final Bson result = jsObj2Bson.apply(requireNonNull(query));
+                                        return resultConverter.apply(
+                                                collection.deleteOne(result,
+                                                                     options
+                                                                    )
+                                                                    );
+                                    }, DELETE_ONE
                                    );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
-                                executor
-                               );
+                        executor
+                       );
 
     }
 }

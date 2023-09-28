@@ -17,12 +17,27 @@ final class CondExpSeq<O> extends CondExp<O> {
     public CondExpSeq(List<IO<Boolean>> tests,
                       List<Supplier<IO<O>>> consequences,
                       Supplier<IO<O>> otherwise,
-                      Function<ExpEvent,BiConsumer<O, Throwable>> logger
+                      Function<ExpEvent, BiConsumer<O, Throwable>> logger
                      ) {
         super(logger);
         this.tests = tests;
         this.consequences = consequences;
         this.otherwise = otherwise;
+    }
+
+    private static <O> CompletableFuture<O> get(List<IO<Boolean>> tests,
+                                                List<Supplier<IO<O>>> consequences,
+                                                Supplier<IO<O>> otherwise,
+                                                int condTestedSoFar
+                                               ) {
+        return condTestedSoFar == tests.size() ?
+                otherwise.get().get() :
+                tests.get(condTestedSoFar).get()
+                     .thenCompose(result -> result ?
+                                          consequences.get(condTestedSoFar).get().get() :
+                                          get(tests, consequences, otherwise, condTestedSoFar + 1)
+                                 );
+
     }
 
     @Override
@@ -33,7 +48,6 @@ final class CondExpSeq<O> extends CondExp<O> {
                    0
                   );
     }
-
 
     @Override
     public CondExp<O> retryEach(final Predicate<Throwable> predicate,
@@ -54,44 +68,28 @@ final class CondExpSeq<O> extends CondExp<O> {
         );
     }
 
-
-    private static <O> CompletableFuture<O> get(List<IO<Boolean>> tests,
-                                                List<Supplier<IO<O>>> consequences,
-                                                Supplier<IO<O>> otherwise,
-                                                int condTestedSoFar
-                                               ) {
-        return condTestedSoFar == tests.size() ?
-                otherwise.get().get() :
-                tests.get(condTestedSoFar).get()
-                     .thenCompose(result -> result ?
-                                          consequences.get(condTestedSoFar).get().get() :
-                                          get(tests, consequences, otherwise, condTestedSoFar + 1)
-                                 );
-
-    }
-
     @Override
     public CondExp<O> debugEach(
-                              final EventBuilder<O> messageBuilder
+            final EventBuilder<O> messageBuilder
                                ) {
         Objects.requireNonNull(messageBuilder);
         return new CondExpSeq<>(LoggerHelper.debugConditions(
-                                                             tests,
-                                                             this.getClass().getSimpleName() + "-test",
-                                                             messageBuilder.context
+                tests,
+                this.getClass().getSimpleName() + "-test",
+                messageBuilder.context
                                                             ),
                                 LoggerHelper.debugSuppliers(
-                                                            consequences,
-                                                            this.getClass().getSimpleName() + "-consequence",
-                                                            messageBuilder.context
+                                        consequences,
+                                        this.getClass().getSimpleName() + "-consequence",
+                                        messageBuilder.context
                                                            ),
                                 LoggerHelper.debugSupplier(
-                                                           otherwise,
-                                                           this.getClass().getSimpleName() + "-otherwise",
-                                                           messageBuilder.context
+                                        otherwise,
+                                        this.getClass().getSimpleName() + "-otherwise",
+                                        messageBuilder.context
                                                           ),
                                 getJFRPublisher(
-                                               messageBuilder
+                                        messageBuilder
                                                )
         );
     }

@@ -98,8 +98,10 @@ public class CompletionBuilder {
      * @return this builder
      */
     public CompletionBuilder setTemperature(double value) {
-        if (value > MAX_COMPLETION_TEMPERATURE) throw new IllegalArgumentException("temperature > "+MAX_COMPLETION_TEMPERATURE);
-        if (value < MIN_COMPLETION_TEMPERATURE) throw new IllegalArgumentException("temperature < "+MIN_COMPLETION_TEMPERATURE);
+        if (value > MAX_COMPLETION_TEMPERATURE)
+            throw new IllegalArgumentException("temperature > " + MAX_COMPLETION_TEMPERATURE);
+        if (value < MIN_COMPLETION_TEMPERATURE)
+            throw new IllegalArgumentException("temperature < " + MIN_COMPLETION_TEMPERATURE);
         this.temperature = value;
         return this;
     }
@@ -116,8 +118,8 @@ public class CompletionBuilder {
      * @return this builder
      */
     public CompletionBuilder setTopP(double value) {
-        if (value > MAX_COMPLETION_TOP_P) throw new IllegalArgumentException("topP > "+ MAX_COMPLETION_TOP_P);
-        if (value < MIN_COMPLETION_TOP_P) throw new IllegalArgumentException("topP < "+ MIN_COMPLETION_TOP_P);
+        if (value > MAX_COMPLETION_TOP_P) throw new IllegalArgumentException("topP > " + MAX_COMPLETION_TOP_P);
+        if (value < MIN_COMPLETION_TOP_P) throw new IllegalArgumentException("topP < " + MIN_COMPLETION_TOP_P);
         this.topP = value;
         return this;
     }
@@ -129,7 +131,7 @@ public class CompletionBuilder {
      * @return this builder
      */
     public CompletionBuilder setNChoices(int n) {
-        if (n < MIN_COMPLETION_CHOICES) throw new IllegalArgumentException("n < "+ MIN_COMPLETION_CHOICES);
+        if (n < MIN_COMPLETION_CHOICES) throw new IllegalArgumentException("n < " + MIN_COMPLETION_CHOICES);
         this.n = n;
         return this;
     }
@@ -158,8 +160,8 @@ public class CompletionBuilder {
      * @return this builder
      */
     public CompletionBuilder setLogprobs(int logprobs) {
-        if (logprobs < MIN_COMPLETION_LOGPROBS) throw new IllegalArgumentException("n <= "+MIN_COMPLETION_LOGPROBS);
-        if (logprobs > MAX_COMPLETION_LOGPROBS) throw new IllegalArgumentException("n > "+MAX_COMPLETION_LOGPROBS);
+        if (logprobs < MIN_COMPLETION_LOGPROBS) throw new IllegalArgumentException("n <= " + MIN_COMPLETION_LOGPROBS);
+        if (logprobs > MAX_COMPLETION_LOGPROBS) throw new IllegalArgumentException("n > " + MAX_COMPLETION_LOGPROBS);
         this.logprobs = OptionalInt.of(logprobs);
         return this;
     }
@@ -184,7 +186,8 @@ public class CompletionBuilder {
      */
     public CompletionBuilder setStop(JsArray stop) {
         this.stop = Objects.requireNonNull(stop);
-        if (stop.size() > MAX_COMPLETION_SIZE_STOP) throw new IllegalArgumentException("stop size > "+MAX_COMPLETION_SIZE_STOP);
+        if (stop.size() > MAX_COMPLETION_SIZE_STOP)
+            throw new IllegalArgumentException("stop size > " + MAX_COMPLETION_SIZE_STOP);
         if (stop.size() == 0) throw new IllegalArgumentException("stop empty");
         return this;
     }
@@ -208,8 +211,10 @@ public class CompletionBuilder {
      * @return this builder
      */
     public CompletionBuilder setPresencePenalty(double value) {
-        if (value < MIN_COMPLETION_PRESENCE_PENALTY) throw new IllegalArgumentException("presencePenalty < "+ MIN_COMPLETION_PRESENCE_PENALTY);
-        if (value > MAX_COMPLETION_PRESENCE_PENALTY) throw new IllegalArgumentException("presencePenalty > "+MAX_COMPLETION_PRESENCE_PENALTY);
+        if (value < MIN_COMPLETION_PRESENCE_PENALTY)
+            throw new IllegalArgumentException("presencePenalty < " + MIN_COMPLETION_PRESENCE_PENALTY);
+        if (value > MAX_COMPLETION_PRESENCE_PENALTY)
+            throw new IllegalArgumentException("presencePenalty > " + MAX_COMPLETION_PRESENCE_PENALTY);
         this.presencePenalty = value;
         return this;
     }
@@ -222,8 +227,10 @@ public class CompletionBuilder {
      * @return this builder
      */
     public CompletionBuilder setFrequencyPenalty(double value) {
-        if (value < MIN_COMPLETION_FREQ_PENALTY) throw new IllegalArgumentException("frequencyPenalty < "+MIN_COMPLETION_FREQ_PENALTY);
-        if (value > MAX_COMPLETION_FREQ_PENALTY) throw new IllegalArgumentException("frequencyPenalty > "+MAX_COMPLETION_FREQ_PENALTY);
+        if (value < MIN_COMPLETION_FREQ_PENALTY)
+            throw new IllegalArgumentException("frequencyPenalty < " + MIN_COMPLETION_FREQ_PENALTY);
+        if (value > MAX_COMPLETION_FREQ_PENALTY)
+            throw new IllegalArgumentException("frequencyPenalty > " + MAX_COMPLETION_FREQ_PENALTY);
         this.frequencyPenalty = value;
         return this;
     }
@@ -247,6 +254,7 @@ public class CompletionBuilder {
 
     /**
      * user parameter builder
+     *
      * @param user A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
      * @return this builder
      */

@@ -6,8 +6,8 @@ import jio.http.HttpExceptions;
 import jio.http.client.MyHttpClient;
 import jio.http.client.MyHttpClientBuilder;
 import jio.http.server.HttpServerBuilder;
-import jio.test.junit.JioDebugger;
-import jio.test.junit.DebuggerDuration;
+import jio.test.junit.Debugger;
+import jio.test.junit.DebugExp;
 import jio.test.stub.httpserver.BodyStub;
 import jio.test.stub.httpserver.GetStub;
 import jio.test.stub.httpserver.HeadersStub;
@@ -22,8 +22,8 @@ import java.net.http.HttpRequest;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-@ExtendWith(JioDebugger.class)
-@DebuggerDuration(millis = 1000)
+@ExtendWith(Debugger.class)
+@DebugExp(duration = 1000)
 public class TestErrors {
 
 
@@ -63,7 +63,7 @@ public class TestErrors {
                                                   )
                                        .start("localhost",
                                               8889
-                                             ).get().join();
+                                             ).result();
 
         var c = new HttpServerBuilder().addContext("/google",
                                                    GetStub.of(BodyStub.cons("as"),
@@ -73,7 +73,7 @@ public class TestErrors {
                                                   )
                                        .start("localhost",
                                               8890
-                                             ).get().join();
+                                             ).result();
 
 
         Thread.sleep(Integer.MAX_VALUE);
@@ -82,21 +82,23 @@ public class TestErrors {
     @Test
     public void test_http_connect_timeout() {
 
-        MyHttpClient client = new MyHttpClientBuilder(HttpClient.newBuilder()
-                                                                .connectTimeout(
-                                                                        Duration.of(1,
-                                                                                    ChronoUnit.NANOS
-                                                                                   )
-                                                                               ).build()).create();
+        MyHttpClient client =
+                new MyHttpClientBuilder(HttpClient.newBuilder()
+                                                  .connectTimeout(
+                                                          Duration.of(1,
+                                                                      ChronoUnit.NANOS
+                                                                     )
+                                                                 ).build()).create();
 
-        boolean isConnectTimeout = client.ofString().apply(HttpRequest.newBuilder()
-                                                                      .GET()
-                                                                      .uri(URI.create("https://www.google.com")))
-                                         .then(response -> IO.FALSE,
-                                               failure -> IO.value(HttpExceptions.CONNECTION_TIMEOUT.test(failure)
-                                                                      )
-                                              )
-                                         .join();
+        boolean isConnectTimeout =
+                client.ofString().apply(HttpRequest.newBuilder()
+                                                   .GET()
+                                                   .uri(URI.create("https://www.google.com")))
+                      .then(response -> IO.FALSE,
+                            failure -> IO.succeed(HttpExceptions.CONNECTION_TIMEOUT.test(failure)
+                                                 )
+                           )
+                      .result();
         Assertions.assertTrue(isConnectTimeout);
     }
 
@@ -106,17 +108,19 @@ public class TestErrors {
     @Test
     public void test_domain_doesnt_exists() {
 
-        MyHttpClient client = new MyHttpClientBuilder(HttpClient.newHttpClient()).create();
+        MyHttpClient client =
+                new MyHttpClientBuilder(HttpClient.newHttpClient()).create();
 
-        boolean isUnresolved = client.ofString().apply(HttpRequest.newBuilder()
-                                                                  .GET()
-                                                                  .uri(URI.create("https://www.google.foo")))
-                                     .then(response -> IO.FALSE,
-                                           failure -> IO.value(HttpExceptions.UNRESOLVED_SOCKET_ADDRESS
-                                                                           .test(failure)
-                                                                  )
-                                          )
-                                     .join();
+        boolean isUnresolved =
+                client.ofString().apply(HttpRequest.newBuilder()
+                                                   .GET()
+                                                   .uri(URI.create("https://www.google.foo")))
+                      .then(response -> IO.FALSE,
+                            failure -> IO.succeed(HttpExceptions.UNRESOLVED_SOCKET_ADDRESS
+                                                          .test(failure)
+                                                 )
+                           )
+                      .result();
 
         Assertions.assertTrue(isUnresolved);
 
@@ -126,16 +130,17 @@ public class TestErrors {
     public void test_http_timeout() {
 
 
-        HttpServer join = server.join();
+        HttpServer join = server.result();
 
-        MyHttpClient client = new MyHttpClientBuilder(HttpClient.newBuilder()
-                                                                .connectTimeout(Duration.of(1,
-                                                                                            ChronoUnit.NANOS
-                                                                                           )
-                                                                               )
-                                                                .build()
-        )
-                .create();
+        MyHttpClient client =
+                new MyHttpClientBuilder(HttpClient.newBuilder()
+                                                  .connectTimeout(Duration.of(1,
+                                                                              ChronoUnit.NANOS
+                                                                             )
+                                                                 )
+                                                  .build()
+                )
+                        .create();
 
 
         URI uri = URI.create("http://localhost:" + join.getAddress()
@@ -146,16 +151,14 @@ public class TestErrors {
                                                    .uri(uri)
                                        )
                       .then(response -> IO.FALSE,
-                            failure -> IO.value(HttpExceptions.CONNECTION_TIMEOUT
-                                                            .test(failure)
-                                                   )
+                            failure -> IO.succeed(HttpExceptions.CONNECTION_TIMEOUT
+                                                          .test(failure)
+                                                 )
                            )
-                      .join();
+                      .result();
 
         Assertions.assertTrue(isTimeout);
 
-
     }
-
 
 }

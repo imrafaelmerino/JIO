@@ -19,10 +19,11 @@ import static jio.mongodb.MongoDBEvent.OP.DELETE_MANY;
 
 public final class DeleteMany<O> implements Lambda<JsObj, O> {
 
+    private static final DeleteOptions DEFAULT_OPTIONS = new DeleteOptions();
     private final CollectionSupplier collection;
     private final Function<DeleteResult, O> resultConverter;
     private final DeleteOptions options;
-    private static final DeleteOptions DEFAULT_OPTIONS = new DeleteOptions();
+    private Executor executor;
 
 
     private DeleteMany(final CollectionSupplier collection,
@@ -33,9 +34,6 @@ public final class DeleteMany<O> implements Lambda<JsObj, O> {
         this.resultConverter = requireNonNull(resultConverter);
         this.options = requireNonNull(options);
     }
-
-
-    private Executor executor;
 
     public static <O> DeleteMany<O> of(final CollectionSupplier collection,
                                        final Function<DeleteResult, O> resultConverter,
@@ -73,20 +71,20 @@ public final class DeleteMany<O> implements Lambda<JsObj, O> {
         Objects.requireNonNull(query);
         Supplier<O> supplier =
                 Fun.jfrEventWrapper(() -> {
-                              var collection = requireNonNull(this.collection.get());
-                              final DeleteResult result =
-                                      collection.deleteMany(jsObj2Bson.apply(query),
-                                                            options
-                                                           );
-                              return resultConverter.apply(result);
-                          },
+                                        var collection = requireNonNull(this.collection.get());
+                                        final DeleteResult result =
+                                                collection.deleteMany(jsObj2Bson.apply(query),
+                                                                      options
+                                                                     );
+                                        return resultConverter.apply(result);
+                                    },
                                     DELETE_MANY
                                    );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
-                                executor
-                               );
+                        executor
+                       );
 
     }
 }

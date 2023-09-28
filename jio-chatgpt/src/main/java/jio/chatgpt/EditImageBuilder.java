@@ -18,7 +18,22 @@ public class EditImageBuilder {
 
 
     /**
+     * @param prompt A text description of the desired image(s). The maximum length is 1000 characters.
+     * @param image  The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided,
+     *               image must have transparency, which will be used as the mask.
+     */
+    public EditImageBuilder(String prompt, String image) {
+        this.image = Objects.requireNonNull(image);
+        this.prompt = Objects.requireNonNull(prompt);
+        if (prompt.length() > 1000) throw new IllegalArgumentException("prompt > 1000");
+        this.size = DEFAULT_VALUES.DEFAULT_EDIT_IMAGE_SIZE;
+        this.responseFormat = DEFAULT_VALUES.DEFAULT_EDIT_IMAGE_RESPONSE_FORMAT;
+        this.n = DEFAULT_VALUES.DEFAULT_N_EDIT_IMAGES;
+    }
+
+    /**
      * size parameter setter
+     *
      * @param size The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
      * @return this builder
      */
@@ -28,18 +43,18 @@ public class EditImageBuilder {
     }
 
     /**
-     *
      * @param mask An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where image
      *             should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as image.
      * @return this builder
      */
-    public EditImageBuilder setMask(String mask){
+    public EditImageBuilder setMask(String mask) {
         this.mask = Objects.requireNonNull(mask);
         return this;
     }
 
     /**
      * response_format parameter setter
+     *
      * @param format The format in which the generated images are returned. Must be one of url or b64_json.
      * @return this builder
      */
@@ -50,6 +65,7 @@ public class EditImageBuilder {
 
     /**
      * n parameter setter
+     *
      * @param n The number of images to generate. Must be between 1 and 10.
      * @return this builder
      */
@@ -62,28 +78,13 @@ public class EditImageBuilder {
 
     /**
      * user parameter setter
+     *
      * @param user A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse
      * @return this builder
      */
-    public EditImageBuilder setUser(String user){
+    public EditImageBuilder setUser(String user) {
         this.user = Objects.requireNonNull(user);
         return this;
-    }
-
-
-
-    /**
-     * @param prompt A text description of the desired image(s). The maximum length is 1000 characters.
-     * @param image The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided,
-     *              image must have transparency, which will be used as the mask.
-     */
-    public EditImageBuilder(String prompt, String image) {
-        this.image = Objects.requireNonNull(image);
-        this.prompt = Objects.requireNonNull(prompt);
-        if (prompt.length() > 1000) throw new IllegalArgumentException("prompt > 1000");
-        this.size = DEFAULT_VALUES.DEFAULT_EDIT_IMAGE_SIZE;
-        this.responseFormat = DEFAULT_VALUES.DEFAULT_EDIT_IMAGE_RESPONSE_FORMAT;
-        this.n = DEFAULT_VALUES.DEFAULT_N_EDIT_IMAGES;
     }
 
     public JsObj build() {

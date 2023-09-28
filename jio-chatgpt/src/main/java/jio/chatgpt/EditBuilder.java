@@ -41,8 +41,10 @@ public class EditBuilder {
      * @return this builder
      */
     public EditBuilder setTemperature(double value) {
-        if (value > Constraints.MAX_EDIT_TEMPERATURE) throw new IllegalArgumentException("temperature > "+ Constraints.MAX_EDIT_TEMPERATURE);
-        if (value < Constraints.MIN_EDIT_TEMPERATURE) throw new IllegalArgumentException("temperature < "+ Constraints.MIN_EDIT_TEMPERATURE);
+        if (value > Constraints.MAX_EDIT_TEMPERATURE)
+            throw new IllegalArgumentException("temperature > " + Constraints.MAX_EDIT_TEMPERATURE);
+        if (value < Constraints.MIN_EDIT_TEMPERATURE)
+            throw new IllegalArgumentException("temperature < " + Constraints.MIN_EDIT_TEMPERATURE);
         this.temperature = value;
         return this;
     }
@@ -79,7 +81,8 @@ public class EditBuilder {
         JsObj obj = JsObj.of(JSON_FIELDS.MODEL_FIELD, JsStr.of(model),
                              JSON_FIELDS.INSTRUCTION_FIELD, JsStr.of(instruction)
                             );
-        if (temperature == DEFAULT_VALUES.DEFAULT_TEMPERATURE) obj = obj.set(JSON_FIELDS.TEMPERATURE_FIELD, JsDouble.of(temperature));
+        if (temperature == DEFAULT_VALUES.DEFAULT_TEMPERATURE)
+            obj = obj.set(JSON_FIELDS.TEMPERATURE_FIELD, JsDouble.of(temperature));
         if (topP == DEFAULT_VALUES.DEFAULT_TOP_P) obj = obj.set(JSON_FIELDS.TOP_P_FIELD, JsDouble.of(topP));
         if (n == DEFAULT_VALUES.DEFAULT_N_EDITS) obj = obj.set(JSON_FIELDS.N_FIELD, JsInt.of(n));
         return obj;

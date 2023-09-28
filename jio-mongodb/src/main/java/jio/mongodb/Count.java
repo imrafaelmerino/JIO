@@ -16,9 +16,11 @@ import static jio.mongodb.MongoDBEvent.OP.COUNT;
 
 public final class Count implements Lambda<JsObj, Long> {
 
+    private static final CountOptions DEFAULT_OPTIONS = new CountOptions();
     private final CountOptions options;
     private final CollectionSupplier collection;
-    private static final CountOptions DEFAULT_OPTIONS = new CountOptions();
+    private Executor executor;
+
 
     private Count(final CollectionSupplier collection,
                   final CountOptions options
@@ -26,9 +28,6 @@ public final class Count implements Lambda<JsObj, Long> {
         this.options = requireNonNull(options);
         this.collection = requireNonNull(collection);
     }
-
-
-    private Executor executor;
 
     public static Count of(final CollectionSupplier collection,
                            final CountOptions options
@@ -51,18 +50,18 @@ public final class Count implements Lambda<JsObj, Long> {
         Objects.requireNonNull(query);
         Supplier<Long> supplier =
                 Fun.jfrEventWrapper(() -> {
-                              var queryBson = jsObj2Bson.apply(requireNonNull(query));
-                              var collection = requireNonNull(this.collection.get());
-                              return collection.countDocuments(queryBson,
-                                                               options
-                                                              );
-                          }, COUNT
+                                        var queryBson = jsObj2Bson.apply(requireNonNull(query));
+                                        var collection = requireNonNull(this.collection.get());
+                                        return collection.countDocuments(queryBson,
+                                                                         options
+                                                                        );
+                                    }, COUNT
                                    );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
-                                executor
-                               );
+                        executor
+                       );
 
     }
 }

@@ -17,11 +17,9 @@ public class ChatBuilder {
 
 
     private final int DEFAULT_MAX_TOKENS = Integer.MAX_VALUE;
-
-
+    private final String model;
     private double frequencyPenalty = DEFAULT_FREQ_PENALTY;
     private double presencePenalty = DEFAULT_PRESENCE_PENALTY;
-    private final String model;
     private JsArray messages;
     private JsArray stop;
     private String user;
@@ -74,8 +72,10 @@ public class ChatBuilder {
      * @return this builder
      */
     public ChatBuilder setTemperature(double value) {
-        if (value > MAX_CHAT_COMPLETION_TEMPERATURE) throw new IllegalArgumentException("temperature > "+ MAX_CHAT_COMPLETION_TEMPERATURE);
-        if (value < MIN_CHAT_COMPLETION_TEMPERATURE) throw new IllegalArgumentException("temperature < "+ MIN_CHAT_COMPLETION_TEMPERATURE);
+        if (value > MAX_CHAT_COMPLETION_TEMPERATURE)
+            throw new IllegalArgumentException("temperature > " + MAX_CHAT_COMPLETION_TEMPERATURE);
+        if (value < MIN_CHAT_COMPLETION_TEMPERATURE)
+            throw new IllegalArgumentException("temperature < " + MIN_CHAT_COMPLETION_TEMPERATURE);
         this.temperature = value;
         return this;
     }
@@ -106,7 +106,7 @@ public class ChatBuilder {
      * @return this builder
      */
     public ChatBuilder setNChoices(int n) {
-        if (n < MIN_CHAT_COMPLETION_CHOICES) throw new IllegalArgumentException("n < "+ MIN_CHAT_COMPLETION_CHOICES);
+        if (n < MIN_CHAT_COMPLETION_CHOICES) throw new IllegalArgumentException("n < " + MIN_CHAT_COMPLETION_CHOICES);
         this.n = n;
         return this;
     }
@@ -132,7 +132,8 @@ public class ChatBuilder {
     public ChatBuilder setStop(JsArray stop) {
         this.stop = Objects.requireNonNull(stop);
         if (stop.size() == 0) throw new IllegalArgumentException("stop empty");
-        if (stop.size() > MAX_CHAT_COMPLETION_SIZE_STOP) throw new IllegalArgumentException("stop size > "+ MAX_CHAT_COMPLETION_SIZE_STOP);
+        if (stop.size() > MAX_CHAT_COMPLETION_SIZE_STOP)
+            throw new IllegalArgumentException("stop size > " + MAX_CHAT_COMPLETION_SIZE_STOP);
         return this;
     }
 
@@ -168,8 +169,10 @@ public class ChatBuilder {
      * @return this builder
      */
     public ChatBuilder setPresencePenalty(double value) {
-        if (value < MIN_CHAT_COMPLETION_PRESENCE_PENALTY) throw new IllegalArgumentException("presencePenalty < "+ MIN_CHAT_COMPLETION_PRESENCE_PENALTY);
-        if (value > MAX_CHAT_COMPLETION_PRESENCE_PENALTY) throw new IllegalArgumentException("presencePenalty > "+ MAX_CHAT_COMPLETION_PRESENCE_PENALTY);
+        if (value < MIN_CHAT_COMPLETION_PRESENCE_PENALTY)
+            throw new IllegalArgumentException("presencePenalty < " + MIN_CHAT_COMPLETION_PRESENCE_PENALTY);
+        if (value > MAX_CHAT_COMPLETION_PRESENCE_PENALTY)
+            throw new IllegalArgumentException("presencePenalty > " + MAX_CHAT_COMPLETION_PRESENCE_PENALTY);
         this.presencePenalty = value;
         return this;
     }
@@ -182,8 +185,10 @@ public class ChatBuilder {
      * @return this builder
      */
     public ChatBuilder setFrequencyPenalty(double value) {
-        if (value < MIN_CHAT_COMPLETION_FREQ_PENALTY) throw new IllegalArgumentException("frequencyPenalty < "+ MIN_CHAT_COMPLETION_FREQ_PENALTY);
-        if (value > MAX_CHAT_COMPLETION_FREQ_PENALTY) throw new IllegalArgumentException("frequencyPenalty > "+ MAX_CHAT_COMPLETION_FREQ_PENALTY);
+        if (value < MIN_CHAT_COMPLETION_FREQ_PENALTY)
+            throw new IllegalArgumentException("frequencyPenalty < " + MIN_CHAT_COMPLETION_FREQ_PENALTY);
+        if (value > MAX_CHAT_COMPLETION_FREQ_PENALTY)
+            throw new IllegalArgumentException("frequencyPenalty > " + MAX_CHAT_COMPLETION_FREQ_PENALTY);
         this.frequencyPenalty = value;
         return this;
     }

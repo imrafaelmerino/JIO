@@ -2,6 +2,7 @@ package jio;
 
 import jsonvalues.JsObj;
 import jsonvalues.JsValue;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -12,8 +13,10 @@ import java.util.stream.Collectors;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents a expression that is reduced to a Json object. It has the same
- * recursive structure as a Json object. Each key has an associated effect.
+ * Represents an expression that is reduced to a JSON object. It follows the same recursive
+ * structure as a JSON object, where each key is associated with an effect.
+ * This class provides two constructors: 'seq' and 'par', for creating expressions
+ * that evaluate effects sequentially or in parallel, respectively.
  */
 public abstract sealed class JsObjExp extends Exp<JsObj>
         permits JsObjExpPar, JsObjExpSeq {
@@ -28,20 +31,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * creates a brand-new JsObjExp putting the given effect into the specified key
+     * Creates a expression that is evaluated to the empty JsObj
      *
-     * @param key    the key
-     * @param effect the effect
-     * @return a new JsObjExp
-     */
-    public abstract JsObjExp set(final String key,
-                                 final IO<? extends JsValue> effect
-                                );
-
-    /**
-     * Creates a JsObjExp that is evaluated to the empty JsObj
-     *
-     * @return a JsObjExp
      */
     public static JsObjExp seq() {
         var obj = new JsObjExpSeq();
@@ -50,11 +41,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of one mapping
-     *
-     * @param key    the first key
-     * @param effect the mapping associated to the first key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key,
                                final IO<? extends JsValue> effect
@@ -66,15 +54,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
         return obj;
     }
 
-
     /**
-     * static factory method to create a JsObjExp of two mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -93,15 +75,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of three mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @param key3    the third key
-     * @param effect3 the mapping associated to the third key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
 
     public static JsObjExp seq(final String key1,
@@ -125,19 +100,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of four mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @param key3    the third key
-     * @param effect3 the mapping associated to the third key
-     * @param key4    the fourth key
-     * @param effect4 the mapping associated to the fourth key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -165,21 +130,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of five mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @param key3    the third key
-     * @param effect3 the mapping associated to the third key
-     * @param key4    the fourth key
-     * @param effect4 the mapping associated to the fourth key
-     * @param key5    the fifth key
-     * @param effect5 the mapping associated to the fifth key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -211,23 +164,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of six mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @param key3    the third key
-     * @param effect3 the mapping associated to the third key
-     * @param key4    the fourth key
-     * @param effect4 the mapping associated to the fourth key
-     * @param key5    the fifth key
-     * @param effect5 the mapping associated to the fifth key
-     * @param key6    the sixth key
-     * @param effect6 the mapping associated to the sixth key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -264,25 +203,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of seven mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @param key3    the third key
-     * @param effect3 the mapping associated to the third key
-     * @param key4    the fourth key
-     * @param effect4 the mapping associated to the fourth key
-     * @param key5    the fifth key
-     * @param effect5 the mapping associated to the fifth key
-     * @param key6    the sixth key
-     * @param effect6 the mapping associated to the sixth key
-     * @param key7    the seventh key
-     * @param effect7 the mapping associated to the seventh key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -324,27 +247,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of eight mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @param key3    the third key
-     * @param effect3 the mapping associated to the third key
-     * @param key4    the fourth key
-     * @param effect4 the mapping associated to the fourth key
-     * @param key5    the fifth key
-     * @param effect5 the mapping associated to the fifth key
-     * @param key6    the sixth key
-     * @param effect6 the mapping associated to the sixth key
-     * @param key7    the seventh key
-     * @param effect7 the mapping associated to the seventh key
-     * @param key8    the eighth key
-     * @param effect8 the mapping associated to the eighth key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -392,29 +297,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of nine mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @param key3    the third key
-     * @param effect3 the mapping associated to the third key
-     * @param key4    the fourth key
-     * @param effect4 the mapping associated to the fourth key
-     * @param key5    the fifth key
-     * @param effect5 the mapping associated to the fifth key
-     * @param key6    the sixth key
-     * @param effect6 the mapping associated to the sixth key
-     * @param key7    the seventh key
-     * @param effect7 the mapping associated to the seventh key
-     * @param key8    the eighth key
-     * @param effect8 the mapping associated to the eighth key
-     * @param key9    the ninth key
-     * @param effect9 the mapping associated to the ninth key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -467,31 +352,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of ten mappings
-     *
-     * @param key1     the first key
-     * @param effect1  the mapping associated to the first key
-     * @param key2     the second key
-     * @param effect2  the mapping associated to the second key
-     * @param key3     the third key
-     * @param effect3  the mapping associated to the third key
-     * @param key4     the fourth key
-     * @param effect4  the mapping associated to the fourth key
-     * @param key5     the fifth key
-     * @param effect5  the mapping associated to the fifth key
-     * @param key6     the sixth key
-     * @param effect6  the mapping associated to the sixth key
-     * @param key7     the seventh key
-     * @param effect7  the mapping associated to the seventh key
-     * @param key8     the eighth key
-     * @param effect8  the mapping associated to the eighth key
-     * @param key9     the ninth key
-     * @param effect9  the mapping associated to the ninth key
-     * @param key10    the tenth key
-     * @param effect10 the mapping associated to the tenth key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -548,33 +411,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of eleven mappings
-     *
-     * @param key1     the first key
-     * @param effect1  the mapping associated to the first key
-     * @param key2     the second key
-     * @param effect2  the mapping associated to the second key
-     * @param key3     the third key
-     * @param effect3  the mapping associated to the third key
-     * @param key4     the fourth key
-     * @param effect4  the mapping associated to the fourth key
-     * @param key5     the fifth key
-     * @param effect5  the mapping associated to the fifth key
-     * @param key6     the sixth key
-     * @param effect6  the mapping associated to the sixth key
-     * @param key7     the seventh key
-     * @param effect7  the mapping associated to the seventh key
-     * @param key8     the eighth key
-     * @param effect8  the mapping associated to the eighth key
-     * @param key9     the ninth key
-     * @param effect9  the mapping associated to the ninth key
-     * @param key10    the tenth key
-     * @param effect10 the mapping associated to the eleventh key
-     * @param key11    the tenth key
-     * @param effect11 the mapping associated to the eleventh key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -636,35 +475,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of twelve mappings
-     *
-     * @param key1     the first key
-     * @param effect1  the mapping associated to the first key
-     * @param key2     the second key
-     * @param effect2  the mapping associated to the second key
-     * @param key3     the third key
-     * @param effect3  the mapping associated to the third key
-     * @param key4     the fourth key
-     * @param effect4  the mapping associated to the fourth key
-     * @param key5     the fifth key
-     * @param effect5  the mapping associated to the fifth key
-     * @param key6     the sixth key
-     * @param effect6  the mapping associated to the sixth key
-     * @param key7     the seventh key
-     * @param effect7  the mapping associated to the seventh key
-     * @param key8     the eighth key
-     * @param effect8  the mapping associated to the eighth key
-     * @param key9     the ninth key
-     * @param effect9  the mapping associated to the ninth key
-     * @param key10    the tenth key
-     * @param effect10 the mapping associated to the eleventh key
-     * @param key11    the eleventh key
-     * @param effect11 the mapping associated to the eleventh key
-     * @param key12    the twelfth key
-     * @param effect12 the mapping associated to the twelfth key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -731,37 +544,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of thirteen mappings
-     *
-     * @param key1     the first key
-     * @param effect1  the mapping associated to the first key
-     * @param key2     the second key
-     * @param effect2  the mapping associated to the second key
-     * @param key3     the third key
-     * @param effect3  the mapping associated to the third key
-     * @param key4     the fourth key
-     * @param effect4  the mapping associated to the fourth key
-     * @param key5     the fifth key
-     * @param effect5  the mapping associated to the fifth key
-     * @param key6     the sixth key
-     * @param effect6  the mapping associated to the sixth key
-     * @param key7     the seventh key
-     * @param effect7  the mapping associated to the seventh key
-     * @param key8     the eighth key
-     * @param effect8  the mapping associated to the eighth key
-     * @param key9     the ninth key
-     * @param effect9  the mapping associated to the ninth key
-     * @param key10    the tenth key
-     * @param effect10 the mapping associated to the eleventh key
-     * @param key11    the eleventh key
-     * @param effect11 the mapping associated to the eleventh key
-     * @param key12    the twelfth key
-     * @param effect12 the mapping associated to the twelfth key,
-     * @param key13    the thirteenth key
-     * @param effect13 the mapping associated to the thirteenth key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -833,39 +618,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of fourteen mappings
-     *
-     * @param key1     the first key
-     * @param effect1  the mapping associated to the first key
-     * @param key2     the second key
-     * @param effect2  the mapping associated to the second key
-     * @param key3     the third key
-     * @param effect3  the mapping associated to the third key
-     * @param key4     the fourth key
-     * @param effect4  the mapping associated to the fourth key
-     * @param key5     the fifth key
-     * @param effect5  the mapping associated to the fifth key
-     * @param key6     the sixth key
-     * @param effect6  the mapping associated to the sixth key
-     * @param key7     the seventh key
-     * @param effect7  the mapping associated to the seventh key
-     * @param key8     the eighth key
-     * @param effect8  the mapping associated to the eighth key
-     * @param key9     the ninth key
-     * @param effect9  the mapping associated to the ninth key
-     * @param key10    the tenth key
-     * @param effect10 the mapping associated to the eleventh key
-     * @param key11    the eleventh key
-     * @param effect11 the mapping associated to the eleventh key
-     * @param key12    the twelfth key
-     * @param effect12 the mapping associated to the twelfth key,
-     * @param key13    the thirteenth key
-     * @param effect13 the mapping associated to the thirteenth key
-     * @param key14    the fourteenth key
-     * @param effect14 the mapping associated to the fourteenth key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -943,41 +698,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of fifteen mappings
-     *
-     * @param key1     the first key
-     * @param effect1  the mapping associated to the first key
-     * @param key2     the second key
-     * @param effect2  the mapping associated to the second key
-     * @param key3     the third key
-     * @param effect3  the mapping associated to the third key
-     * @param key4     the fourth key
-     * @param effect4  the mapping associated to the fourth key
-     * @param key5     the fifth key
-     * @param effect5  the mapping associated to the fifth key
-     * @param key6     the sixth key
-     * @param effect6  the mapping associated to the sixth key
-     * @param key7     the seventh key
-     * @param effect7  the mapping associated to the seventh key
-     * @param key8     the eighth key
-     * @param effect8  the mapping associated to the eighth key
-     * @param key9     the ninth key
-     * @param effect9  the mapping associated to the ninth key
-     * @param key10    the tenth key
-     * @param effect10 the mapping associated to the eleventh key
-     * @param key11    the eleventh key
-     * @param effect11 the mapping associated to the eleventh key
-     * @param key12    the twelfth key
-     * @param effect12 the mapping associated to the twelfth key,
-     * @param key13    the thirteenth key
-     * @param effect13 the mapping associated to the thirteenth key
-     * @param key14    the fourteenth key
-     * @param effect14 the mapping associated to the fourteenth key
-     * @param key15    the fifteenth key
-     * @param effect15 the mapping associated to the fifteenth key
-     * @return a JsObjExp
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
+     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -1090,7 +813,6 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
 
     }
 
-
     /**
      * static factory method to create a JsObjExp of two mapping
      *
@@ -1193,19 +915,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of five mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @param key3    the third key
-     * @param effect3 the mapping associated to the third key
-     * @param key4    the fourth key
-     * @param effect4 the mapping associated to the fourth key
-     * @param key5    the fifth key
-     * @param effect5 the mapping associated to the fifth key
-     * @return a JsObjExp
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
+     * If any of the effects fail, the entire expression fails.
      */
 
     public static JsObjExp par(final String key1,
@@ -1241,21 +952,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of six mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @param key3    the third key
-     * @param effect3 the mapping associated to the third key
-     * @param key4    the fourth key
-     * @param effect4 the mapping associated to the fourth key
-     * @param key5    the fifth key
-     * @param effect5 the mapping associated to the fifth key
-     * @param key6    the sixth key
-     * @param effect6 the mapping associated to the sixth key
-     * @return a JsObjExp
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
+     * If any of the effects fail, the entire expression fails.
      */
 
     public static JsObjExp par(final String key1,
@@ -1296,23 +994,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of seven mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @param key3    the third key
-     * @param effect3 the mapping associated to the third key
-     * @param key4    the fourth key
-     * @param effect4 the mapping associated to the fourth key
-     * @param key5    the fifth key
-     * @param effect5 the mapping associated to the fifth key
-     * @param key6    the sixth key
-     * @param effect6 the mapping associated to the sixth key
-     * @param key7    the seventh key
-     * @param effect7 the mapping associated to the seventh key
-     * @return a JsObjExp
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
+     * If any of the effects fail, the entire expression fails.
      */
 
     public static JsObjExp par(final String key1,
@@ -1358,27 +1041,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of eight mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @param key3    the third key
-     * @param effect3 the mapping associated to the third key
-     * @param key4    the fourth key
-     * @param effect4 the mapping associated to the fourth key
-     * @param key5    the fifth key
-     * @param effect5 the mapping associated to the fifth key
-     * @param key6    the sixth key
-     * @param effect6 the mapping associated to the sixth key
-     * @param key7    the seventh key
-     * @param effect7 the mapping associated to the seventh key
-     * @param key8    the eighth key
-     * @param effect8 the mapping associated to the eighth key
-     * @return a JsObjExp
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
+     * If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -1426,27 +1091,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of nine mappings
-     *
-     * @param key1    the first key
-     * @param effect1 the mapping associated to the first key
-     * @param key2    the second key
-     * @param effect2 the mapping associated to the second key
-     * @param key3    the third key
-     * @param effect3 the mapping associated to the third key
-     * @param key4    the fourth key
-     * @param effect4 the mapping associated to the fourth key
-     * @param key5    the fifth key
-     * @param effect5 the mapping associated to the fifth key
-     * @param key6    the sixth key
-     * @param effect6 the mapping associated to the sixth key
-     * @param key7    the seventh key
-     * @param effect7 the mapping associated to the seventh key
-     * @param key8    the eighth key
-     * @param effect8 the mapping associated to the eighth key
-     * @param key9    the ninth key
-     * @param effect9 the mapping associated to the ninth key
-     * @return a JsObjExp
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
+     * If any of the effects fail, the entire expression fails.
      */
 
     public static JsObjExp par(final String key1,
@@ -1502,31 +1148,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of ten mappings
-     *
-     * @param key1     the first key
-     * @param effect1  the mapping associated to the first key
-     * @param key2     the second key
-     * @param effect2  the mapping associated to the second key
-     * @param key3     the third key
-     * @param effect3  the mapping associated to the third key
-     * @param key4     the fourth key
-     * @param effect4  the mapping associated to the fourth key
-     * @param key5     the fifth key
-     * @param effect5  the mapping associated to the fifth key
-     * @param key6     the sixth key
-     * @param effect6  the mapping associated to the sixth key
-     * @param key7     the seventh key
-     * @param effect7  the mapping associated to the seventh key
-     * @param key8     the eighth key
-     * @param effect8  the mapping associated to the eighth key
-     * @param key9     the ninth key
-     * @param effect9  the mapping associated to the ninth key
-     * @param key10    the tenth key
-     * @param effect10 the mapping associated to the tenth key
-     * @return a JsObjExp
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
+     * If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -1584,33 +1208,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of eleven mappings
-     *
-     * @param key1     the first key
-     * @param effect1  the mapping associated to the first key
-     * @param key2     the second key
-     * @param effect2  the mapping associated to the second key
-     * @param key3     the third key
-     * @param effect3  the mapping associated to the third key
-     * @param key4     the fourth key
-     * @param effect4  the mapping associated to the fourth key
-     * @param key5     the fifth key
-     * @param effect5  the mapping associated to the fifth key
-     * @param key6     the sixth key
-     * @param effect6  the mapping associated to the sixth key
-     * @param key7     the seventh key
-     * @param effect7  the mapping associated to the seventh key
-     * @param key8     the eighth key
-     * @param effect8  the mapping associated to the eighth key
-     * @param key9     the ninth key
-     * @param effect9  the mapping associated to the ninth key
-     * @param key10    the tenth key
-     * @param effect10 the mapping associated to the eleventh key
-     * @param key11    the tenth key
-     * @param effect11 the mapping associated to the eleventh key
-     * @return a JsObjExp
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
+     * If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -1674,35 +1274,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of twelve mappings
-     *
-     * @param key1     the first key
-     * @param effect1  the mapping associated to the first key
-     * @param key2     the second key
-     * @param effect2  the mapping associated to the second key
-     * @param key3     the third key
-     * @param effect3  the mapping associated to the third key
-     * @param key4     the fourth key
-     * @param effect4  the mapping associated to the fourth key
-     * @param key5     the fifth key
-     * @param effect5  the mapping associated to the fifth key
-     * @param key6     the sixth key
-     * @param effect6  the mapping associated to the sixth key
-     * @param key7     the seventh key
-     * @param effect7  the mapping associated to the seventh key
-     * @param key8     the eighth key
-     * @param effect8  the mapping associated to the eighth key
-     * @param key9     the ninth key
-     * @param effect9  the mapping associated to the ninth key
-     * @param key10    the tenth key
-     * @param effect10 the mapping associated to the eleventh key
-     * @param key11    the eleventh key
-     * @param effect11 the mapping associated to the eleventh key
-     * @param key12    the twelfth key
-     * @param effect12 the mapping associated to the twelfth key
-     * @return a JsObjExp
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
+     * If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -1770,37 +1344,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of thirteen mappings
-     *
-     * @param key1     the first key
-     * @param effect1  the mapping associated to the first key
-     * @param key2     the second key
-     * @param effect2  the mapping associated to the second key
-     * @param key3     the third key
-     * @param effect3  the mapping associated to the third key
-     * @param key4     the fourth key
-     * @param effect4  the mapping associated to the fourth key
-     * @param key5     the fifth key
-     * @param effect5  the mapping associated to the fifth key
-     * @param key6     the sixth key
-     * @param effect6  the mapping associated to the sixth key
-     * @param key7     the seventh key
-     * @param effect7  the mapping associated to the seventh key
-     * @param key8     the eighth key
-     * @param effect8  the mapping associated to the eighth key
-     * @param key9     the ninth key
-     * @param effect9  the mapping associated to the ninth key
-     * @param key10    the tenth key
-     * @param effect10 the mapping associated to the eleventh key
-     * @param key11    the eleventh key
-     * @param effect11 the mapping associated to the eleventh key
-     * @param key12    the twelfth key
-     * @param effect12 the mapping associated to the twelfth key,
-     * @param key13    the thirteenth key
-     * @param effect13 the mapping associated to the thirteenth key
-     * @return a JsObjExp
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
+     * If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -1872,39 +1418,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of fourteen mappings
-     *
-     * @param key1     the first key
-     * @param effect1  the mapping associated to the first key
-     * @param key2     the second key
-     * @param effect2  the mapping associated to the second key
-     * @param key3     the third key
-     * @param effect3  the mapping associated to the third key
-     * @param key4     the fourth key
-     * @param effect4  the mapping associated to the fourth key
-     * @param key5     the fifth key
-     * @param effect5  the mapping associated to the fifth key
-     * @param key6     the sixth key
-     * @param effect6  the mapping associated to the sixth key
-     * @param key7     the seventh key
-     * @param effect7  the mapping associated to the seventh key
-     * @param key8     the eighth key
-     * @param effect8  the mapping associated to the eighth key
-     * @param key9     the ninth key
-     * @param effect9  the mapping associated to the ninth key
-     * @param key10    the tenth key
-     * @param effect10 the mapping associated to the eleventh key
-     * @param key11    the eleventh key
-     * @param effect11 the mapping associated to the eleventh key
-     * @param key12    the twelfth key
-     * @param effect12 the mapping associated to the twelfth key,
-     * @param key13    the thirteenth key
-     * @param effect13 the mapping associated to the thirteenth key
-     * @param key14    the fourteenth key
-     * @param effect14 the mapping associated to the fourteenth key
-     * @return a JsObjExp
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
+     * If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -1982,41 +1498,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * static factory method to create a JsObjExp of fifteen mappings
-     *
-     * @param key1     the first key
-     * @param effect1  the mapping associated to the first key
-     * @param key2     the second key
-     * @param effect2  the mapping associated to the second key
-     * @param key3     the third key
-     * @param effect3  the mapping associated to the third key
-     * @param key4     the fourth key
-     * @param effect4  the mapping associated to the fourth key
-     * @param key5     the fifth key
-     * @param effect5  the mapping associated to the fifth key
-     * @param key6     the sixth key
-     * @param effect6  the mapping associated to the sixth key
-     * @param key7     the seventh key
-     * @param effect7  the mapping associated to the seventh key
-     * @param key8     the eighth key
-     * @param effect8  the mapping associated to the eighth key
-     * @param key9     the ninth key
-     * @param effect9  the mapping associated to the ninth key
-     * @param key10    the tenth key
-     * @param effect10 the mapping associated to the eleventh key
-     * @param key11    the eleventh key
-     * @param effect11 the mapping associated to the eleventh key
-     * @param key12    the twelfth key
-     * @param effect12 the mapping associated to the twelfth key,
-     * @param key13    the thirteenth key
-     * @param effect13 the mapping associated to the thirteenth key
-     * @param key14    the fourteenth key
-     * @param effect14 the mapping associated to the fourteenth key
-     * @param key15    the fifteenth key
-     * @param effect15 the mapping associated to the fifteenth key
-     * @return a JsObjExp
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
+     * If any of the effects fail, the entire expression fails.
      */
-
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
                                final String key2,
@@ -2099,6 +1583,17 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
 
     }
 
+    /**
+     * Creates a new JsObjExp with the given effect associated with the specified key.
+     *
+     * @param key    the key for the JSON object entry
+     * @param effect the effect to associate with the key
+     * @return a new JsObjExp with the specified key-value pair
+     */
+    public abstract JsObjExp set(final String key,
+                                 final IO<? extends JsValue> effect
+                                );
+
     Map<String, IO<? extends JsValue>> debugJsObj(Map<String, IO<? extends JsValue>> bindings,
                                                   String context
                                                  ) {
@@ -2116,83 +1611,23 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
                                );
     }
 
-    /**
-     * Creates a new JsObjExp expression where the given retry policy is applied recursively
-     * to every subexpression when an exception is tested true against the specified predicate.
-     *
-     * @param predicate the predicate to test exceptions
-     * @param policy    the retry policy
-     * @return a new JsObjExp
-     */
+
     @Override
     public abstract JsObjExp retryEach(final Predicate<Throwable> predicate,
                                        final RetryPolicy policy
                                       );
 
-    /**
-     * Creates a new JsObjExp expression where the given retry policy is applied recursively
-     * to every subexpression when an exception happens.
-     *
-     * @param policy the retry policy
-     * @return a new JsObjExp
-     */
+
     @Override
     public JsObjExp retryEach(final RetryPolicy policy) {
         return retryEach(e -> true, policy);
     }
 
 
-    /**
-     * Creates a new JsObjExp that will write to the given logger information about every
-     * computation evaluated to reduce this expression (like {@link #debugEach(String)} does).
-     * A final log message created with the specified messageBuilder is written after reducing
-     * the whole expression
-     *
-     * @param messageBuilder the builder to create the log message from the result of the expression
-     * @return a new JsObjExp
-     * @see #debugEach(String) debugEach
-     */
     @Override
     public abstract JsObjExp debugEach(final EventBuilder<JsObj> messageBuilder
                                       );
 
-    /**
-     * Creates a new JsObjExp that will print out on the console information about every
-     * computation evaluated to reduce this expression. The given context will be associated
-     * to every subexpression and printed out to correlate all the evaluations (contextual
-     * logging).
-     * <p>
-     * The line format is the following:
-     * <p>
-     * datetime thread logger [context] elapsed_time success|exception expression|subexpression result?
-     * <p>
-     * Find bellow an example:
-     *
-     * <pre>
-     * {@code
-     * JsObjExp.par("a", JsObjExp.par("a",A_AFTER_1_SEC.get().map(JsStr::of),
-     *                                 "b", B_AFTER_1_SEC.get().map(JsStr::of)),
-     *               "b", JsArrayExp.par(A_AFTER_1_SEC.get().map(JsStr::of),
-     *                                   B_AFTER_1_SEC.get().map(JsStr::of)
-     *                                   )
-     *              )
-     *            .debugEach("context")
-     *            .join();
-     * }
-     * </pre>
-     * <p>
-     * 2023-02-04T16:06:43.72255+01:00 pool-1-thread-1 DEBUGGER [context] 1021998500 success JsObjExpPar[a]
-     * 2023-02-04T16:06:43.722561+01:00 pool-2-thread-1 DEBUGGER [context] 1020132625 success JsObjExpPar[b]
-     * 2023-02-04T16:06:43.723208+01:00 pool-2-thread-2 DEBUGGER [stub, call_counter=1] 1005051375 success b
-     * 2023-02-04T16:06:43.723376+01:00 pool-1-thread-2 DEBUGGER [context] 1005418041 success JsArrayExpPar[0]
-     * 2023-02-04T16:06:43.723599+01:00 pool-2-thread-2 DEBUGGER [context] 1005364333 success JsArrayExpPar[1]
-     * 2023-02-04T16:06:43.732701+01:00 pool-1-thread-2 DEBUGGER [context] 1029336958 success JsObjExpPar[b]
-     * 2023-02-04T16:06:43.737463+01:00 pool-2-thread-1 DEBUGGER [context] 1036923958 success JsObjExpPar[a]
-     * 2023-02-04T16:06:43.737682+01:00 pool-2-thread-1 DEBUGGER [context] 1049685834 success JsObjExpPar {"a":{"a":"a","b":"b"},"b":["a","b"]}
-     *
-     * @param context the context shared by all the subexpressions that will be printed out
-     * @return a new JsObjExp
-     */
     @Override
     public abstract JsObjExp debugEach(final String context);
 }

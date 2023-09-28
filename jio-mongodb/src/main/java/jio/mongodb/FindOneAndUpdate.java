@@ -15,9 +15,11 @@ import static jio.mongodb.MongoDBEvent.OP.FIND_ONE_AND_UPDATE;
 
 public final class FindOneAndUpdate implements BiLambda<JsObj, JsObj, JsObj> {
 
+    private static final FindOneAndUpdateOptions DEFAULT_OPTIONS = new FindOneAndUpdateOptions();
     private final FindOneAndUpdateOptions options;
     private final CollectionSupplier collectionSupplier;
-    private static final FindOneAndUpdateOptions DEFAULT_OPTIONS = new FindOneAndUpdateOptions();
+    private Executor executor;
+
 
     private FindOneAndUpdate(final CollectionSupplier collectionSupplier,
                              final FindOneAndUpdateOptions options
@@ -25,9 +27,6 @@ public final class FindOneAndUpdate implements BiLambda<JsObj, JsObj, JsObj> {
         this.collectionSupplier = requireNonNull(collectionSupplier);
         this.options = requireNonNull(options);
     }
-
-
-    private Executor executor;
 
     public static FindOneAndUpdate of(final CollectionSupplier collectionSupplier,
                                       final FindOneAndUpdateOptions options
@@ -53,20 +52,20 @@ public final class FindOneAndUpdate implements BiLambda<JsObj, JsObj, JsObj> {
 
         Supplier<JsObj> supplier =
                 Fun.jfrEventWrapper(() -> {
-                              var collection = requireNonNull(this.collectionSupplier.get());
-                              return collection
-                                      .findOneAndUpdate(jsObj2Bson.apply(filter),
-                                                        jsObj2Bson.apply(update),
-                                                        options
-                                                       );
-                          },
+                                        var collection = requireNonNull(this.collectionSupplier.get());
+                                        return collection
+                                                .findOneAndUpdate(jsObj2Bson.apply(filter),
+                                                                  jsObj2Bson.apply(update),
+                                                                  options
+                                                                 );
+                                    },
                                     FIND_ONE_AND_UPDATE
                                    );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
-                                executor
-                               );
+                        executor
+                       );
 
     }
 

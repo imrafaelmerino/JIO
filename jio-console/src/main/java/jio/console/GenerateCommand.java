@@ -23,9 +23,8 @@ import java.util.function.Supplier;
  * </pre>
  */
 public class GenerateCommand extends Command {
-    private final Supplier<String> gen;
-
     private static final String PREFIX_COMMAND = "gen";
+    private final Supplier<String> gen;
 
 
     /**

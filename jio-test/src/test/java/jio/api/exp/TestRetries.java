@@ -3,8 +3,9 @@ package jio.api.exp;
 import jio.IO;
 import jio.RetryPolicies;
 import jio.RetryPolicy;
-import jio.test.junit.JioDebugger;
-import jio.test.junit.DebuggerDuration;
+import jio.test.junit.DebugStub;
+import jio.test.junit.Debugger;
+import jio.test.junit.DebugExp;
 import jio.test.stub.value.IOStub;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -18,8 +19,9 @@ import java.util.concurrent.CompletionException;
 
 import static jio.RetryPolicies.incrementalDelay;
 
-@ExtendWith(JioDebugger.class)
-@DebuggerDuration(millis = 1000)
+@ExtendWith(Debugger.class)
+@DebugExp(duration = 5000)
+@DebugStub(duration = 5000)
 public class TestRetries {
 
 
@@ -38,7 +40,7 @@ public class TestRetries {
             Integer integer = future.get();
             System.out.println(integer);
         } catch (Exception e) {
-            System.out.println(e.getCause());
+            e.getCause().printStackTrace();
         }
 
 
@@ -53,11 +55,10 @@ public class TestRetries {
                                                             null,
                                                     "a"
                                                    );
-
         Assertions.assertEquals("a",
                                 val.get()
                                    .retry(RetryPolicies.limitRetries(3))
-                                   .join()
+                                   .result()
                                );
 
         Assertions.assertEquals("a",
@@ -65,22 +66,21 @@ public class TestRetries {
                                    .retry(e -> e instanceof RuntimeException,
                                           RetryPolicies.limitRetries(3)
                                          )
-                                   .join()
+                                   .result()
                                );
     }
 
     @Test
     public void test_retry_failure() {
 
-        IOStub<String> val = IOStub.failThenSucceed(
-                i -> i <= 3 ? new RuntimeException() : null,
-                "a"
+        IOStub<String> val = IOStub.failThenSucceed(i -> i <= 3 ? new RuntimeException() : null,
+                                                    "a"
                                                    );
 
         Assertions.assertThrows(CompletionException.class,
                                 () -> val.get()
                                          .retry(RetryPolicies.limitRetries(2))
-                                         .join()
+                                         .result()
                                );
     }
 
@@ -98,7 +98,7 @@ public class TestRetries {
                                                .append(incrementalDelay(Duration.ofSeconds(1)));
 
         String result = val.retry(retryPolicy)
-                           .join();
+                           .result();
         long duration = Duration.of(System.nanoTime() - start,
                                     ChronoUnit.NANOS
                                    )
@@ -124,7 +124,7 @@ public class TestRetries {
 
         Assertions.assertThrows(CompletionException.class,
                                 () -> val.retry(retryPolicy)
-                                         .join()
+                                         .result()
                                );
         long duration = Duration.of(System.nanoTime() - start,
                                     ChronoUnit.NANOS

@@ -23,7 +23,8 @@ public class MultipartFormDataBuilder {
      */
     public static String build(Map<String, String> fields,
                                Map<String, File> files,
-                               String boundary) {
+                               String boundary
+                              ) {
         try {
 
             StringBuilder builder = new StringBuilder();
@@ -31,23 +32,23 @@ public class MultipartFormDataBuilder {
             // Add fields to body
             for (Map.Entry<String, String> field : fields.entrySet()) {
                 builder.append("--").append(boundary).append("\r\n")
-                        .append("Content-Disposition: form-data; name=\"").append(field.getKey()).append("\"\r\n")
-                        .append("\r\n")
-                        .append(field.getValue()).append("\r\n");
+                       .append("Content-Disposition: form-data; name=\"").append(field.getKey()).append("\"\r\n")
+                       .append("\r\n")
+                       .append(field.getValue()).append("\r\n");
             }
 
             // Add files to body (content type not added)
             for (Map.Entry<String, File> file : files.entrySet()) {
                 builder.append("--").append(boundary).append("\r\n")
-                        .append("Content-Disposition: form-data; name=\"").append(file.getKey()).append("\"; filename=\"")
-                        .append(file.getValue().getName()).append("\"\r\n")
-                        .append("\r\n")
-                        .append(new String(Files.readAllBytes(file.getValue().toPath()))).append("\r\n");
+                       .append("Content-Disposition: form-data; name=\"").append(file.getKey()).append("\"; filename=\"")
+                       .append(file.getValue().getName()).append("\"\r\n")
+                       .append("\r\n")
+                       .append(new String(Files.readAllBytes(file.getValue().toPath()))).append("\r\n");
             }
 
             builder.append("--")
-                    .append(boundary)
-                    .append("--");
+                   .append(boundary)
+                   .append("--");
 
             return builder.toString();
         } catch (IOException e) {

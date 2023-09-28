@@ -7,6 +7,17 @@ import jdk.jfr.*;
 @Category({"JIO", "DATABASE", "MONGODB"})
 @Description("MongoDB CRUD operations like find, replace, delete, insert...")
 final class MongoDBEvent extends Event {
+    @Label("operation")
+    public final String operation;
+    @Label("result")
+    public String result;
+    @Label("exception")
+    public String exception;
+
+    public MongoDBEvent(OP operation) {
+        this.operation = operation.name();
+    }
+
     enum OP {
         AGGREGATE,
         COUNT,
@@ -23,20 +34,7 @@ final class MongoDBEvent extends Event {
         UPDATE_ONE
     }
 
-    public MongoDBEvent(OP operation) {
-        this.operation = operation.name();
-    }
-
     enum RESULT {SUCCESS, FAILURE}
-
-    @Label("operation")
-    public final String operation;
-
-    @Label("result")
-    public String result;
-
-    @Label("exception")
-    public String exception;
 
 
 }

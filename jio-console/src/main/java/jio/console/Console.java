@@ -17,6 +17,8 @@ import java.util.*;
  */
 public final class Console {
 
+    final State state;
+    final List<Command> commands;
     /**
      * Constructor to create a Console from a list of user commands
      *
@@ -28,9 +30,6 @@ public final class Console {
         this.commands = getPredefinedCommands();
         this.commands.addAll(userCommands);
     }
-
-    final State state;
-    final List<Command> commands;
 
     private List<Command> getPredefinedCommands() {
         List<Command> commands = new ArrayList<>();

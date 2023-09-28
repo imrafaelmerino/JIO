@@ -124,27 +124,27 @@ public final class AccessTokenRequest implements Lambda<MyOauthHttpClient, HttpR
     public IO<HttpResponse<String>> apply(final MyOauthHttpClient client) {
         var body = "grant_type=client_credentials";
         return Objects.requireNonNull(client).ofString()
-                     .apply(HttpRequest.newBuilder()
-                                       .header("Accept",
-                                               "application/json"
-                                              )
-                                       .header("Authorization",
-                                               String.format("Basic %s",
-                                                             authorizationHeader
-                                                            )
-                                              )
-                                       .header("Content-Type",
-                                               "application/x-www-form-urlencoded"
-                                              )
-                                       .uri(URI.create(String.format("%s://%s:%s/%s",
-                                                                     ssl ? "https" : "http",
-                                                                     host,
-                                                                     port,
-                                                                     uri
-                                                                    )
-                                                      )
-                                           )
-                                       .POST(HttpRequest.BodyPublishers.ofString(body)));
+                      .apply(HttpRequest.newBuilder()
+                                        .header("Accept",
+                                                "application/json"
+                                               )
+                                        .header("Authorization",
+                                                String.format("Basic %s",
+                                                              authorizationHeader
+                                                             )
+                                               )
+                                        .header("Content-Type",
+                                                "application/x-www-form-urlencoded"
+                                               )
+                                        .uri(URI.create(String.format("%s://%s:%s/%s",
+                                                                      ssl ? "https" : "http",
+                                                                      host,
+                                                                      port,
+                                                                      uri
+                                                                     )
+                                                       )
+                                            )
+                                        .POST(HttpRequest.BodyPublishers.ofString(body)));
 
     }
 

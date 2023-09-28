@@ -43,10 +43,11 @@ public final class SwitchMatcher<I, O> {
      * Matcher made up of two branches and a default effect. Each branch consists of a value
      * that will be used to match the result with the <code>equals</code> method, and an associated lambda
      * that will be computed in case of success. Branches predicates are evaluated sequentially.
-     * @param pattern1 the first value
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second value
-     * @param lambda2 the lambda associated to the second value
+     *
+     * @param pattern1  the first value
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second value
+     * @param lambda2   the lambda associated to the second value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -73,10 +74,11 @@ public final class SwitchMatcher<I, O> {
      * that will be used to test the result, and an associated lambda
      * that will be computed in case of the predicate returns true. Branches predicates are
      * evaluated sequentially in the order they are passed in the method.
-     * @param pattern1 the first value
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second value
-     * @param lambda2 the lambda associated to the second value
+     *
+     * @param pattern1  the first value
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second value
+     * @param lambda2   the lambda associated to the second value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -101,10 +103,11 @@ public final class SwitchMatcher<I, O> {
      * Matcher made up of four branches and a default effect. Each branch consists of a list of values
      * that will be used to match the result with the <code>contains</code> method, and an associated lambda
      * that will be computed in case of success. Branches predicates are evaluated sequentially.
-     * @param pattern1 the first list
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second list
-     * @param lambda2 the lambda associated to the second value
+     *
+     * @param pattern1  the first list
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second list
+     * @param lambda2   the lambda associated to the second value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -130,12 +133,13 @@ public final class SwitchMatcher<I, O> {
      * Matcher made up of four branches and a default effect. Each branch consists of a list of values
      * that will be used to match the result with the <code>contains</code> method, and an associated lambda
      * that will be computed in case of success. Branches predicates are evaluated sequentially.
-     * @param pattern1 the first list
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second list
-     * @param lambda2 the lambda associated to the second value
-     * @param pattern3 the third list
-     * @param lambda3 the lambda associated to the third value
+     *
+     * @param pattern1  the first list
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second list
+     * @param lambda2   the lambda associated to the second value
+     * @param pattern3  the third list
+     * @param lambda3   the lambda associated to the third value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -168,12 +172,13 @@ public final class SwitchMatcher<I, O> {
      * Matcher made up of three branches and a default effect. Each branch consists of a value
      * that will be used to match the result with the <code>equals</code> method, and an associated lambda
      * that will be computed in case of success. Branches predicates are evaluated sequentially.
-     * @param pattern1 the first value
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second value
-     * @param lambda2 the lambda associated to the second value
-     * @param pattern3 the third value
-     * @param lambda3 the lambda associated to the third value
+     *
+     * @param pattern1  the first value
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second value
+     * @param lambda2   the lambda associated to the second value
+     * @param pattern3  the third value
+     * @param lambda3   the lambda associated to the third value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -208,12 +213,13 @@ public final class SwitchMatcher<I, O> {
      * that will be used to test the result, and an associated lambda
      * that will be computed in case of the predicate returns true. Branches predicates are
      * evaluated sequentially in the order they are passed in the method.
-     * @param pattern1 the first value
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second value
-     * @param lambda2 the lambda associated to the second value
-     * @param pattern3 the third value
-     * @param lambda3 the lambda associated to the third value
+     *
+     * @param pattern1  the first value
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second value
+     * @param lambda2   the lambda associated to the second value
+     * @param pattern3  the third value
+     * @param lambda3   the lambda associated to the third value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -245,14 +251,15 @@ public final class SwitchMatcher<I, O> {
      * Matcher made up of four branches and a default effect. Each branch consists of a value
      * that will be used to match the result with the <code>equals</code> method, and an associated lambda
      * that will be computed in case of success. Branches predicates are evaluated sequentially.
-     * @param pattern1 the first value
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second value
-     * @param lambda2 the lambda associated to the second value
-     * @param pattern3 the third value
-     * @param lambda3 the lambda associated to the third value
-     * @param pattern4 the forth value
-     * @param lambda4 the lambda associated to the forth value
+     *
+     * @param pattern1  the first value
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second value
+     * @param lambda2   the lambda associated to the second value
+     * @param pattern3  the third value
+     * @param lambda3   the lambda associated to the third value
+     * @param pattern4  the forth value
+     * @param lambda4   the lambda associated to the forth value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -290,16 +297,17 @@ public final class SwitchMatcher<I, O> {
     /**
      * Matcher made up of four branches and a default effect. Each branch consists of a predicate
      * that will be used to test the result, and an associated lambda
-     * that will be computed in case of the predicate returns true. Branches predicates are 
+     * that will be computed in case of the predicate returns true. Branches predicates are
      * evaluated sequentially in the order they are passed in the method.
-     * @param pattern1 the first value
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second value
-     * @param lambda2 the lambda associated to the second value
-     * @param pattern3 the third value
-     * @param lambda3 the lambda associated to the third value
-     * @param pattern4 the forth value
-     * @param lambda4 the lambda associated to the forth value
+     *
+     * @param pattern1  the first value
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second value
+     * @param lambda2   the lambda associated to the second value
+     * @param pattern3  the third value
+     * @param lambda3   the lambda associated to the third value
+     * @param pattern4  the forth value
+     * @param lambda4   the lambda associated to the forth value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -337,14 +345,15 @@ public final class SwitchMatcher<I, O> {
      * Matcher made up of four branches and a default effect. Each branch consists of a list of values
      * that will be used to match the result with the <code>contains</code> method, and an associated lambda
      * that will be computed in case of success. Branches predicates are evaluated sequentially.
-     * @param pattern1 the first list
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second list
-     * @param lambda2 the lambda associated to the second value
-     * @param pattern3 the third list
-     * @param lambda3 the lambda associated to the third value
-     * @param pattern4 the forth list
-     * @param lambda4 the lambda associated to the forth value
+     *
+     * @param pattern1  the first list
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second list
+     * @param lambda2   the lambda associated to the second value
+     * @param pattern3  the third list
+     * @param lambda3   the lambda associated to the third value
+     * @param pattern4  the forth list
+     * @param lambda4   the lambda associated to the forth value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -382,16 +391,17 @@ public final class SwitchMatcher<I, O> {
      * Matcher made up of four branches and a default effect. Each branch consists of a list of values
      * that will be used to match the result with the <code>contains</code> method, and an associated lambda
      * that will be computed in case of success. Branches predicates are evaluated sequentially.
-     * @param pattern1 the first list
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second list
-     * @param lambda2 the lambda associated to the second value
-     * @param pattern3 the third list
-     * @param lambda3 the lambda associated to the third value
-     * @param pattern4 the forth list
-     * @param lambda4 the lambda associated to the forth value
-     * @param pattern5 the fifth list
-     * @param lambda5 the lambda associated to the fifth value
+     *
+     * @param pattern1  the first list
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second list
+     * @param lambda2   the lambda associated to the second value
+     * @param pattern3  the third list
+     * @param lambda3   the lambda associated to the third value
+     * @param pattern4  the forth list
+     * @param lambda4   the lambda associated to the forth value
+     * @param pattern5  the fifth list
+     * @param lambda5   the lambda associated to the fifth value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -435,18 +445,19 @@ public final class SwitchMatcher<I, O> {
      * Matcher made up of four branches and a default effect. Each branch consists of a list of values
      * that will be used to match the result with the <code>contains</code> method, and an associated lambda
      * that will be computed in case of success. Branches predicates are evaluated sequentially.
-     * @param pattern1 the first list
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second list
-     * @param lambda2 the lambda associated to the second value
-     * @param pattern3 the third list
-     * @param lambda3 the lambda associated to the third value
-     * @param pattern4 the forth list
-     * @param lambda4 the lambda associated to the forth value
-     * @param pattern5 the fifth list
-     * @param lambda5 the lambda associated to the fifth value
-     * @param pattern6 the sixth list
-     * @param lambda6 the lambda associated to the sixth value
+     *
+     * @param pattern1  the first list
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second list
+     * @param lambda2   the lambda associated to the second value
+     * @param pattern3  the third list
+     * @param lambda3   the lambda associated to the third value
+     * @param pattern4  the forth list
+     * @param lambda4   the lambda associated to the forth value
+     * @param pattern5  the fifth list
+     * @param lambda5   the lambda associated to the fifth value
+     * @param pattern6  the sixth list
+     * @param lambda6   the lambda associated to the sixth value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -495,16 +506,17 @@ public final class SwitchMatcher<I, O> {
      * Matcher made up of five branches and a default effect. Each branch consists of a value
      * that will be used to match the result with the <code>equals</code> method, and an associated lambda
      * that will be computed in case of success. Branches predicates are evaluated sequentially.
-     * @param pattern1 the first value
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second value
-     * @param lambda2 the lambda associated to the second value
-     * @param pattern3 the third value
-     * @param lambda3 the lambda associated to the third value
-     * @param pattern4 the forth value
-     * @param lambda4 the lambda associated to the forth value
-     * @param pattern5 the fifth value
-     * @param lambda5 the lambda associated to the fifth value
+     *
+     * @param pattern1  the first value
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second value
+     * @param lambda2   the lambda associated to the second value
+     * @param pattern3  the third value
+     * @param lambda3   the lambda associated to the third value
+     * @param pattern4  the forth value
+     * @param lambda4   the lambda associated to the forth value
+     * @param pattern5  the fifth value
+     * @param lambda5   the lambda associated to the fifth value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -546,18 +558,19 @@ public final class SwitchMatcher<I, O> {
      * Matcher made up of six branches and a default effect. Each branch consists of a value
      * that will be used to match the result with the <code>equals</code> method, and an associated lambda
      * that will be computed in case of success. Branches predicates are evaluated sequentially.
-     * @param pattern1 the first value
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second value
-     * @param lambda2 the lambda associated to the second value
-     * @param pattern3 the third value
-     * @param lambda3 the lambda associated to the third value
-     * @param pattern4 the forth value
-     * @param lambda4 the lambda associated to the forth value
-     * @param pattern5 the fifth value
-     * @param lambda5 the lambda associated to the fifth value
-     * @param pattern6 the sixth value
-     * @param lambda6 the lambda associated to the sixth value
+     *
+     * @param pattern1  the first value
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second value
+     * @param lambda2   the lambda associated to the second value
+     * @param pattern3  the third value
+     * @param lambda3   the lambda associated to the third value
+     * @param pattern4  the forth value
+     * @param lambda4   the lambda associated to the forth value
+     * @param pattern5  the fifth value
+     * @param lambda5   the lambda associated to the fifth value
+     * @param pattern6  the sixth value
+     * @param lambda6   the lambda associated to the sixth value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -599,21 +612,23 @@ public final class SwitchMatcher<I, O> {
                                null
         );
     }
+
     /**
      * Matcher made up of six branches and a default effect. Each branch consists of a predicate
      * that will be used to test the result, and an associated lambda
      * that will be computed in case of the predicate returns true. Branches predicates are
      * evaluated sequentially in the order they are passed in the method.
-     * @param pattern1 the first value
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second value
-     * @param lambda2 the lambda associated to the second value
-     * @param pattern3 the third value
-     * @param lambda3 the lambda associated to the third value
-     * @param pattern4 the forth value
-     * @param lambda4 the lambda associated to the forth value
-     * @param pattern5 the fifth value
-     * @param lambda5 the lambda associated to the fifth value
+     *
+     * @param pattern1  the first value
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second value
+     * @param lambda2   the lambda associated to the second value
+     * @param pattern3  the third value
+     * @param lambda3   the lambda associated to the third value
+     * @param pattern4  the forth value
+     * @param lambda4   the lambda associated to the forth value
+     * @param pattern5  the fifth value
+     * @param lambda5   the lambda associated to the fifth value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */
@@ -650,20 +665,21 @@ public final class SwitchMatcher<I, O> {
     /**
      * Matcher made up of six branches and a default effect. Each branch consists of a predicate
      * that will be used to test the result, and an associated lambda
-     * that will be computed in case of the predicate returns true. Branches predicates are 
+     * that will be computed in case of the predicate returns true. Branches predicates are
      * evaluated sequentially in the order they are passed in the method.
-     * @param pattern1 the first value
-     * @param lambda1 the lambda associated to the first value
-     * @param pattern2 the second value
-     * @param lambda2 the lambda associated to the second value
-     * @param pattern3 the third value
-     * @param lambda3 the lambda associated to the third value
-     * @param pattern4 the forth value
-     * @param lambda4 the lambda associated to the forth value
-     * @param pattern5 the fifth value
-     * @param lambda5 the lambda associated to the fifth value
-     * @param pattern6 the sixth value
-     * @param lambda6 the lambda associated to the sixth value
+     *
+     * @param pattern1  the first value
+     * @param lambda1   the lambda associated to the first value
+     * @param pattern2  the second value
+     * @param lambda2   the lambda associated to the second value
+     * @param pattern3  the third value
+     * @param lambda3   the lambda associated to the third value
+     * @param pattern4  the forth value
+     * @param lambda4   the lambda associated to the forth value
+     * @param pattern5  the fifth value
+     * @param lambda5   the lambda associated to the fifth value
+     * @param pattern6  the sixth value
+     * @param lambda6   the lambda associated to the sixth value
      * @param otherwise the default lambda, evaluated if no branch is matched
      * @return a SwitchExp
      */

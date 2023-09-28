@@ -13,7 +13,6 @@ import java.util.function.Predicate;
  * You can also define a retry policy and a retry condition that will be applied to every request
  * with the builder options {@link MyHttpClientBuilder#setRetryPolicy(RetryPolicy)} and
  * {@link MyHttpClientBuilder#setRetryPredicate(Predicate)}
- *
  */
 public interface MyHttpClient {
 
@@ -55,7 +54,6 @@ public interface MyHttpClient {
      * @param <T>     the response body type
      * @return a new HttpLambda
      * @see HttpResponse.BodyHandlers for more body handlers implementations
-     *
      */
     <T> HttpLambda<T> bodyHandler(final HttpResponse.BodyHandler<T> handler);
 

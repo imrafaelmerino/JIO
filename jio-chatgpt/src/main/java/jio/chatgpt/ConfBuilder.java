@@ -14,6 +14,7 @@ public class ConfBuilder {
 
     /**
      * The version of the API. Defaults to v1
+     *
      * @param version the version of the API
      * @return this builder
      */
@@ -24,6 +25,7 @@ public class ConfBuilder {
 
     /**
      * The host of the API. Defaults to api.openai.com
+     *
      * @param host the host of the API
      * @return this builder
      */

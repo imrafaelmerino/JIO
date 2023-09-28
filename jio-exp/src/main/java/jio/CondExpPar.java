@@ -18,7 +18,7 @@ final class CondExpPar<O> extends CondExp<O> {
 
     public CondExpPar(final List<IO<Boolean>> tests, List<Supplier<IO<O>>> consequences,
                       final Supplier<IO<O>> otherwise,
-                      final Function<ExpEvent,BiConsumer<O, Throwable>> logger
+                      final Function<ExpEvent, BiConsumer<O, Throwable>> logger
                      ) {
         super(logger);
         this.tests = tests;
@@ -73,22 +73,22 @@ final class CondExpPar<O> extends CondExp<O> {
                                ) {
         Objects.requireNonNull(messageBuilder);
         return new CondExpPar<>(LoggerHelper.debugConditions(
-                                                             tests,
-                                                             this.getClass().getSimpleName() + "-test",
-                                                             messageBuilder.context
+                tests,
+                this.getClass().getSimpleName() + "-test",
+                messageBuilder.context
                                                             ),
                                 LoggerHelper.debugSuppliers(
-                                                            consequences,
-                                                            this.getClass().getSimpleName() + "-consequence",
-                                                            messageBuilder.context
+                                        consequences,
+                                        this.getClass().getSimpleName() + "-consequence",
+                                        messageBuilder.context
                                                            ),
                                 LoggerHelper.debugSupplier(
-                                                           otherwise,
-                                                           this.getClass().getSimpleName() + "-otherwise",
-                                                           messageBuilder.context
+                                        otherwise,
+                                        this.getClass().getSimpleName() + "-otherwise",
+                                        messageBuilder.context
                                                           ),
                                 getJFRPublisher(
-                                               messageBuilder
+                                        messageBuilder
                                                )
         );
     }

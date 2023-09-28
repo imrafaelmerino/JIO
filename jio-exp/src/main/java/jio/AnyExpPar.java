@@ -11,7 +11,7 @@ final class AnyExpPar extends AnyExp {
 
 
     public AnyExpPar(final List<IO<Boolean>> exps,
-                     final Function<ExpEvent,BiConsumer<Boolean, Throwable>> logger
+                     final Function<ExpEvent, BiConsumer<Boolean, Throwable>> logger
                     ) {
         super(logger, exps);
     }
@@ -45,16 +45,16 @@ final class AnyExpPar extends AnyExp {
 
     @Override
     public AnyExp debugEach(
-                          final EventBuilder<Boolean> messageBuilder
+            final EventBuilder<Boolean> messageBuilder
                            ) {
         Objects.requireNonNull(messageBuilder);
         return new AnyExpPar(LoggerHelper.debugConditions(
-                                                          exps,
-                                                          this.getClass().getSimpleName(),
-                                                          messageBuilder.context
+                exps,
+                this.getClass().getSimpleName(),
+                messageBuilder.context
                                                          ),
                              getJFRPublisher(
-                                            messageBuilder
+                                     messageBuilder
                                             )
         );
     }

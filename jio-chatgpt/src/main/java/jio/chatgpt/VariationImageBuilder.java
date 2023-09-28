@@ -9,9 +9,11 @@ import java.util.Objects;
 public class VariationImageBuilder {
 
     final String image;
-
+    Data.IMAGE_FORMAT responseFormat;
+    String user;
+    int n;
+    Data.IMAGE_SIZE size;
     /**
-     *
      * @param image The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and square.
      */
     public VariationImageBuilder(String image) {
@@ -21,15 +23,9 @@ public class VariationImageBuilder {
         this.n = DEFAULT_VALUES.DEFAULT_N_VARIATION_IMAGES;
     }
 
-    Data.IMAGE_FORMAT responseFormat;
-    String user;
-    int n;
-    Data.IMAGE_SIZE size;
-
-
-
     /**
      * size parameter setter
+     *
      * @param size The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
      * @return this builder
      */
@@ -41,6 +37,7 @@ public class VariationImageBuilder {
 
     /**
      * response_format parameter setter
+     *
      * @param format The format in which the generated images are returned. Must be one of url or b64_json.
      * @return this builder
      */
@@ -51,6 +48,7 @@ public class VariationImageBuilder {
 
     /**
      * n parameter setter
+     *
      * @param n The number of images to generate. Must be between 1 and 10.
      * @return this builder
      */
@@ -63,16 +61,14 @@ public class VariationImageBuilder {
 
     /**
      * user parameter setter
+     *
      * @param user A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse
      * @return this builder
      */
-    public VariationImageBuilder setUser(String user){
+    public VariationImageBuilder setUser(String user) {
         this.user = Objects.requireNonNull(user);
         return this;
     }
-
-
-
 
 
     public JsObj build() {

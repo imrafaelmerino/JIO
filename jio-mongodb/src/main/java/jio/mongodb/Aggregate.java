@@ -20,6 +20,7 @@ public final class Aggregate<O> implements Lambda<JsArray, O> {
 
     public final Function<AggregateIterable<JsObj>, O> resultConverter;
     public final CollectionSupplier collection;
+    private Executor executor;
 
     public Aggregate(final CollectionSupplier collection,
                      final Function<AggregateIterable<JsObj>, O> resultConverter
@@ -27,8 +28,6 @@ public final class Aggregate<O> implements Lambda<JsArray, O> {
         this.resultConverter = requireNonNull(resultConverter);
         this.collection = requireNonNull(collection);
     }
-    
-    private Executor executor;
 
     public Aggregate<O> on(final Executor executor) {
         this.executor = requireNonNull(executor);
@@ -50,8 +49,8 @@ public final class Aggregate<O> implements Lambda<JsArray, O> {
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
-                                executor
-                               );
+                        executor
+                       );
 
     }
 }

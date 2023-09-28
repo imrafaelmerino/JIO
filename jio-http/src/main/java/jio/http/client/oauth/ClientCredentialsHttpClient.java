@@ -15,7 +15,6 @@ import java.util.function.Predicate;
  */
 public final class ClientCredentialsHttpClient implements MyOauthHttpClient {
     private static final int MAX_REFRESH_TOKEN_LOOP_SIZE = 3;
-    private volatile String accessToken;
     private final MyHttpClient httpClient;
     private final Function<MyOauthHttpClient, IO<HttpResponse<String>>> accessTokenReq;
     private final String authorizationHeaderName;
@@ -28,6 +27,7 @@ public final class ClientCredentialsHttpClient implements MyOauthHttpClient {
     private final HttpLambda<byte[]> ofBytesLambda;
     private final HttpLambda<Void> discardingLambda;
     private final HttpLambda<Void> oauthDiscardingLambda;
+    private volatile String accessToken;
 
     ClientCredentialsHttpClient(final MyHttpClient client,
                                 final Function<MyOauthHttpClient, IO<HttpResponse<String>>> accessTokenReq,
@@ -113,13 +113,13 @@ public final class ClientCredentialsHttpClient implements MyOauthHttpClient {
                                                  final boolean refreshToken,
                                                  final int deep
                                                 ) {
-        if (deep == MAX_REFRESH_TOKEN_LOOP_SIZE) return IO.failure(new RefreshTokenLoop(deep));
+        if (deep == MAX_REFRESH_TOKEN_LOOP_SIZE) return IO.fail(new RefreshTokenLoop(deep));
 
         IO<String> getToken = (refreshToken || this.accessToken == null) ?
                 accessTokenReq.apply(this)
                               .then(getAccessToken)
                               .peekSuccess(newToken -> this.accessToken = newToken) :
-                IO.value(this.accessToken);
+                IO.succeed(this.accessToken);
 
 
         return getToken.then(token ->
@@ -134,7 +134,7 @@ public final class ClientCredentialsHttpClient implements MyOauthHttpClient {
                                                                                   true,
                                                                                   deep + 1
                                                                                  ) :
-                                                                     IO.value(resp)
+                                                                     IO.succeed(resp)
                                                     )
                             );
     }

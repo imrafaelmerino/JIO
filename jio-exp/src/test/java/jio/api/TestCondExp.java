@@ -17,7 +17,7 @@ public class TestCondExp {
                             () -> Constants.C
                            )
                        .map(String::toUpperCase)
-                       .join());
+                       .result());
 
 
         Assertions.assertEquals(
@@ -28,7 +28,7 @@ public class TestCondExp {
                             () -> Constants.C
                            )
                        .map(String::toUpperCase)
-                       .join());
+                       .result());
 
         Assertions.assertEquals(
                 "D",
@@ -39,7 +39,7 @@ public class TestCondExp {
                             () -> Constants.C
                            )
                        .map(String::toUpperCase)
-                       .join());
+                       .result());
 
         Assertions.assertEquals(
                 "A",
@@ -51,7 +51,7 @@ public class TestCondExp {
                             () -> Constants.C
                            )
                        .map(String::toUpperCase)
-                       .join());
+                       .result());
 
         Assertions.assertEquals(
                 "B",
@@ -64,7 +64,7 @@ public class TestCondExp {
                             () -> Constants.C
                            )
                        .map(String::toUpperCase)
-                       .join());
+                       .result());
 
         Assertions.assertEquals(
                 "C",
@@ -77,7 +77,7 @@ public class TestCondExp {
                             () -> Constants.C
                            )
                        .map(String::toUpperCase)
-                       .join());
+                       .result());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class TestCondExp {
                             () -> Constants.C
                            )
                        .map(String::toUpperCase)
-                       .join());
+                       .result());
 
 
         Assertions.assertEquals(
@@ -101,7 +101,7 @@ public class TestCondExp {
                             () -> Constants.C
                            )
                        .map(String::toUpperCase)
-                       .join());
+                       .result());
 
         Assertions.assertEquals(
                 "D",
@@ -112,7 +112,7 @@ public class TestCondExp {
                             () -> Constants.C
                            )
                        .map(String::toUpperCase)
-                       .join());
+                       .result());
 
         Assertions.assertEquals(
                 "A",
@@ -124,7 +124,7 @@ public class TestCondExp {
                             () -> Constants.C
                            )
                        .map(String::toUpperCase)
-                       .join());
+                       .result());
 
         Assertions.assertEquals(
                 "B",
@@ -137,7 +137,7 @@ public class TestCondExp {
                             () -> Constants.C
                            )
                        .map(String::toUpperCase)
-                       .join());
+                       .result());
 
         Assertions.assertEquals(
                 "C",
@@ -150,17 +150,17 @@ public class TestCondExp {
                             () -> Constants.C
                            )
                        .map(String::toUpperCase)
-                       .join());
+                       .result());
     }
 
     @Test
     public void test_debugeach() {
-        var exp = CondExp.par(IO.FALSE, () -> IO.value("a"),
-                              IO.FALSE, () -> IO.value("b"),
-                              () -> IO.value("default")
+        var exp = CondExp.par(IO.FALSE, () -> IO.succeed("a"),
+                              IO.FALSE, () -> IO.succeed("b"),
+                              () -> IO.succeed("default")
                              )
                          .debugEach("context")
-                         .join();
+                         .result();
 
         Assertions.assertEquals("default",
                                 exp

@@ -47,7 +47,6 @@ public interface MyOauthHttpClient extends MyHttpClient {
      * @param <T>     the response body type
      * @return a new HttpLambda
      * @see HttpResponse.BodyHandlers for more body handlers implementations
-     *
      */
     <T> HttpLambda<T> oauthBodyHandler(final HttpResponse.BodyHandler<T> handler);
 

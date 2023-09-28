@@ -17,7 +17,7 @@ public class ModerationService extends AbstractService {
                     JsObj.of("model", JsStr.of(model),
                              "input", JsStr.of(input)
                             )
-                    );
+                   );
     }
 
 }

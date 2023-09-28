@@ -39,5 +39,4 @@ public class JSON_FIELDS {
     static final String RESPONSE_FORMAT_FIELD = "response_format";
 
 
-
 }

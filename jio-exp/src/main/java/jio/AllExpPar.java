@@ -12,7 +12,7 @@ final class AllExpPar extends AllExp {
 
 
     public AllExpPar(final List<IO<Boolean>> exps,
-                     final Function<ExpEvent,BiConsumer<Boolean, Throwable>> logger
+                     final Function<ExpEvent, BiConsumer<Boolean, Throwable>> logger
                     ) {
         super(logger,
               exps

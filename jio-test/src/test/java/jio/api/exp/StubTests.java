@@ -3,8 +3,9 @@ package jio.api.exp;
 import fun.tuple.Pair;
 import fun.tuple.Triple;
 import jio.*;
-import jio.test.junit.JioDebugger;
-import jio.test.junit.DebuggerDuration;
+import jio.test.junit.DebugStub;
+import jio.test.junit.Debugger;
+import jio.test.junit.DebugExp;
 import jsonvalues.JsArray;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
@@ -18,18 +19,19 @@ import java.util.List;
 
 import static jio.api.exp.Stubs.*;
 
-@ExtendWith(JioDebugger.class)
-@DebuggerDuration(millis = 2000)
+@ExtendWith(Debugger.class)
+@DebugExp(duration = 5000)
+@DebugStub(duration = 5000)
 public class StubTests {
 
     @Test
     public void ifelse_exp_measuring_time() {
         long start = System.nanoTime();
         var x = IfElseExp.<String>predicate(IO.FALSE)
-                         .consequence(A_AFTER_1_SEC::get)
-                         .alternative(B_AFTER_1_SEC::get)
+                         .consequence(A_AFTER_1_SEC)
+                         .alternative(B_AFTER_1_SEC)
                          .debugEach("context")
-                         .join();
+                         .result();
 
 
         long duration = Duration.of(System.nanoTime() - start,
@@ -54,7 +56,7 @@ public class StubTests {
                               B_AFTER_1_SEC.get(),
                               C_AFTER_1_SEC.get()
                              )
-                         .join();
+                         .result();
 
 
         long duration = Duration.of(System.nanoTime() - start,
@@ -81,7 +83,7 @@ public class StubTests {
                               C_AFTER_1_SEC.get()
                              )
                          .debugEach("context")
-                         .join();
+                         .result();
 
 
         long duration = Duration.of(System.nanoTime() - start,
@@ -111,7 +113,7 @@ public class StubTests {
                                                   )
                               )
                           .debugEach("context")
-                          .join();
+                          .result();
 
 
         long duration = Duration.of(System.nanoTime() - start,
@@ -132,6 +134,7 @@ public class StubTests {
 
 
     }
+
     @Test
     public void pair_exp_sequential_measuring_time() {
         long start = System.nanoTime();
@@ -139,7 +142,7 @@ public class StubTests {
         Pair<String, String> pair =
                 PairExp.seq(A_AFTER_1_SEC.get(),
                             B_AFTER_1_SEC.get())
-                       .join();
+                       .result();
 
 
         long duration = Duration.of(System.nanoTime() - start,
@@ -165,7 +168,7 @@ public class StubTests {
                 PairExp.par(A_AFTER_1_SEC.get(),
                             B_AFTER_1_SEC.get())
                        .debugEach("context")
-                       .join();
+                       .result();
 
 
         long duration = Duration.of(System.nanoTime() - start,
@@ -191,7 +194,7 @@ public class StubTests {
                                  B_AFTER_1_SEC.get().map(JsStr::of)
                                 )
                             .debugEach("context")
-                            .join();
+                            .result();
 
 
         long duration = Duration.of(System.nanoTime() - start,
@@ -219,7 +222,7 @@ public class StubTests {
                             C_AFTER_1_SEC.get()
                            )
                        .debugEach("context")
-                       .join();
+                       .result();
 
 
         long duration = Duration.of(System.nanoTime() - start,

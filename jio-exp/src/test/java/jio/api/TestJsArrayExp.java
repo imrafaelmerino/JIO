@@ -15,11 +15,11 @@ public class TestJsArrayExp {
         Assertions.assertEquals(JsArray.of(JsStr.of("a"),
                                            JsStr.of("b")
                                           ),
-                                JsArrayExp.par(IO.value("a").map(JsStr::of),
-                                               IO.value("b").map(JsStr::of)
+                                JsArrayExp.par(IO.succeed("a").map(JsStr::of),
+                                               IO.succeed("b").map(JsStr::of)
                                               )
                                           .debugEach("array")
-                                          .join()
+                                          .result()
                                );
     }
 

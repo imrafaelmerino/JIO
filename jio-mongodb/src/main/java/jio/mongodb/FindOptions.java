@@ -9,6 +9,24 @@ import static java.util.Objects.requireNonNull;
 public final class FindOptions {
 
 
+    public final JsObj filter;
+    public final JsObj sort;
+    public final JsObj projection;
+    public final JsObj hint;
+    public final JsObj max;
+    public final JsObj min;
+    public final String hintString;
+    public final int skip;
+    public final int limit;
+    public final boolean showRecordId;
+    public final boolean returnKey;
+    public final String comment;
+    public final boolean noCursorTimeout;
+    public final boolean partial;
+    public final int batchSize;
+    public final long maxAwaitTime;
+    public final long maxTime;
+
     @SuppressWarnings({"squid:S107"})
         //it's private, needed to create a builder. End user will never have to deal with it
     FindOptions(final JsObj filter,
@@ -48,41 +66,6 @@ public final class FindOptions {
         this.maxTime = maxTime;
     }
 
-
-    public final JsObj filter;
-
-    public final JsObj sort;
-
-    public final JsObj projection;
-
-    public final JsObj hint;
-
-    public final JsObj max;
-
-    public final JsObj min;
-
-    public final String hintString;
-
-    public final int skip;
-
-    public final int limit;
-
-    public final boolean showRecordId;
-
-    public final boolean returnKey;
-
-    public final String comment;
-
-    public final boolean noCursorTimeout;
-
-    public final boolean partial;
-
-    public final int batchSize;
-
-    public final long maxAwaitTime;
-
-    public final long maxTime;
-
     public static FindOptions ofFilter(final JsObj filter) {
         return new FindOptionsBuilder().filter(requireNonNull(filter))
                                        .create();
@@ -93,6 +76,16 @@ public final class FindOptions {
                                       ) {
         return new FindOptionsBuilder().filter(requireNonNull(filter))
                                        .projection(requireNonNull(projection))
+                                       .create();
+    }
+
+    public static FindOptions ofFilter(final JsObj filter,
+                                       final JsObj projection,
+                                       final JsObj sort
+                                      ) {
+        return new FindOptionsBuilder().filter(requireNonNull(filter))
+                                       .projection(requireNonNull(projection))
+                                       .sort(requireNonNull(sort))
                                        .create();
     }
 
@@ -154,16 +147,6 @@ public final class FindOptions {
                             maxAwaitTime,
                             maxTime
                            );
-    }
-
-    public static FindOptions ofFilter(final JsObj filter,
-                                       final JsObj projection,
-                                       final JsObj sort
-                                      ) {
-        return new FindOptionsBuilder().filter(requireNonNull(filter))
-                                       .projection(requireNonNull(projection))
-                                       .sort(requireNonNull(sort))
-                                       .create();
     }
 
 

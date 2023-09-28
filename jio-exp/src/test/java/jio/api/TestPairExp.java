@@ -12,14 +12,14 @@ public class TestPairExp {
     @Test
     public void sequential_constructor() {
 
-        PairExp<String, String> pair = PairExp.seq(IO.value("a"),
-                                                   IO.value("b")
+        PairExp<String, String> pair = PairExp.seq(IO.succeed("a"),
+                                                   IO.succeed("b")
                                                   );
 
         Assertions.assertEquals(Pair.of("a",
                                         "b"
                                        ),
-                                pair.join()
+                                pair.result()
                                );
     }
 

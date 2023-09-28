@@ -14,47 +14,51 @@ import static java.util.Objects.requireNonNull;
 public interface Lambda<I, O> extends Function<I, IO<O>> {
 
     /**
-     * transforms a Predicate into a Lambda
-     * @param predicate the predicate
+     * Transforms a Predicate into a Lambda, producing boolean effects.
+     *
+     * @param <O>       the type of the parameter of the predicate
+     * @param predicate the predicate to be transformed
      * @return a Lambda that produces boolean effects
-     * @param <O> the type of the parameter of the predicate
      */
     static <O> Lambda<O, Boolean> lift(final Predicate<O> predicate) {
         requireNonNull(predicate);
         return o -> {
             try {
-                return IO.value(predicate.test(o));
+                return IO.succeed(predicate.test(o));
             } catch (Exception e) {
-                return IO.failure(e);
-            }
-        };
-    }
-    /**
-     * transforms a Function into a Lambda
-     * @param fn the function
-     * @return a Lambda that produces effects of type O
-     * @param <I> the type of the function parameter
-     * @param <O> the type of the function output
-     */
-    static <I, O> Lambda<I, O> lift(final Function<I, O> fn) {
-        requireNonNull(fn);
-        return o -> {
-            try {
-                return IO.value(fn.apply(o));
-            } catch (Exception e) {
-                return IO.failure(e);
+                return IO.fail(e);
             }
         };
     }
 
     /**
-     * map this effect into another one using the given map function
-     * @param map the map function
-     * @return a new effect
-     * @param <Q> the type of new effect
+     * Transforms a Function into a Lambda, producing effects of type O.
+     *
+     * @param <I> the type of the function's input parameter
+     * @param <O> the type of the function's output
+     * @param fn  the function to be transformed
+     * @return a Lambda that produces effects of type O
      */
-    default <Q> Lambda<I,Q> map(Function<IO<O>,IO<Q>> map){
-        return i-> map.apply(this.apply(i));
+    static <I, O> Lambda<I, O> lift(final Function<I, O> fn) {
+        requireNonNull(fn);
+        return o -> {
+            try {
+                return IO.succeed(fn.apply(o));
+            } catch (Exception e) {
+                return IO.fail(e);
+            }
+        };
+    }
+
+    /**
+     * Maps this effect into another one using the given map function.
+     *
+     * @param <Q> the type of the new effect
+     * @param map the map function to transform this effect
+     * @return a new Lambda representing the mapped effect
+     */
+    default <Q> Lambda<I, Q> map(Function<IO<O>, IO<Q>> map) {
+        return i -> map.apply(this.apply(i));
     }
 
 }

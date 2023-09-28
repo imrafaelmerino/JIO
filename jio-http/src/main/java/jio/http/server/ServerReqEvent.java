@@ -8,9 +8,6 @@ import jdk.jfr.*;
 @Category("JIO")
 @Description("Http request received by the JIO http server and it's response.")
 class ServerReqEvent extends Event {
-    enum RESULT {
-        SUCCESS, FAILURE
-    }
     @Label("remoteHostAddress")
     String remoteHostAddress;
     @Label("remoteHostPort")
@@ -22,7 +19,7 @@ class ServerReqEvent extends Event {
     @Label("uri")
     String uri;
     @Label("reqHeaders")
-    String reqHeaders="";
+    String reqHeaders = "";
     @Label("statusCode")
     int statusCode;
     @Label("result")
@@ -31,5 +28,8 @@ class ServerReqEvent extends Event {
     String exception;
     @Label("reqCounter")
     long reqCounter;
+    enum RESULT {
+        SUCCESS, FAILURE
+    }
 
 }

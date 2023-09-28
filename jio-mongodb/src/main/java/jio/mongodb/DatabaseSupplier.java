@@ -13,7 +13,9 @@ public class DatabaseSupplier implements Supplier<MongoDatabase> {
     volatile MongoDatabase database;
 
 
-    public DatabaseSupplier(final MongoClient client, final String name) {
+    public DatabaseSupplier(final MongoClient client,
+                            final String name
+                           ) {
         this.client = Objects.requireNonNull(client);
         this.name = Objects.requireNonNull(name);
     }

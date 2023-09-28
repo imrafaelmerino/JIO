@@ -12,6 +12,14 @@ import static java.util.Objects.requireNonNull;
 
 final class TripleExpSeq<A, B, C> extends TripleExp<A, B, C> {
 
+    public TripleExpSeq(final IO<A> _1,
+                        final IO<B> _2,
+                        final IO<C> _3,
+                        final Function<ExpEvent, BiConsumer<Triple<A, B, C>, Throwable>> logger
+                       ) {
+        super(_1, _2, _3, logger);
+    }
+
     @Override
     public TripleExp<A, B, C> retryEach(final Predicate<Throwable> predicate,
                                         final RetryPolicy policy
@@ -43,14 +51,6 @@ final class TripleExpSeq<A, B, C> extends TripleExp<A, B, C> {
                                                                             )
                                                      )
                              );
-    }
-
-    public TripleExpSeq(final IO<A> _1,
-                        final IO<B> _2,
-                        final IO<C> _3,
-                        final Function<ExpEvent, BiConsumer<Triple<A, B, C>, Throwable>> logger
-                       ) {
-        super(_1, _2, _3, logger);
     }
 
     @Override

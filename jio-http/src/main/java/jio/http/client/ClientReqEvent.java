@@ -16,6 +16,34 @@ import static java.util.Objects.requireNonNull;
 @Description("Http request sent by the JIO http client and it's response.")
 final class ClientReqEvent extends Event {
 
+    /**
+     * the method of the request
+     */
+    @Label("method")
+    public final String method;
+    /**
+     * the uri of the request
+     */
+    @Label("uri")
+    public final String uri;
+    /**
+     * the status code of the response
+     */
+    @Label("statusCode")
+    public int statusCode;
+    /**
+     * the result of the exchange: a success if a response is received or an exception
+     */
+    @Label("result")
+    public String result;
+    /**
+     * the exception in case of one happens during the exchange
+     */
+    @Label("exception")
+    public String exception = "";
+    @Label("reqCounter")
+    public long reqCounter;
+
     ClientReqEvent(final String method,
                    final URI uri
                   ) {
@@ -26,41 +54,6 @@ final class ClientReqEvent extends Event {
     enum RESULT {
         SUCCESS, FAILURE
     }
-
-    /**
-     * the method of the request
-     */
-    @Label("method")
-    public final String method;
-
-    /**
-     * the uri of the request
-     */
-    @Label("uri")
-    public final String uri;
-
-    /**
-     * the status code of the response
-     */
-    @Label("statusCode")
-    public int statusCode;
-
-    /**
-     * the result of the exchange: a success if a response is received or an exception
-     */
-    @Label("result")
-    public String result;
-
-    /**
-     * the exception in case of one happens during the exchange
-     */
-    @Label("exception")
-    public String exception="";
-
-    @Label("reqCounter")
-    public long reqCounter;
-
-
 
 
 }

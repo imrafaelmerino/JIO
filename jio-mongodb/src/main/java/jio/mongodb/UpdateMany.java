@@ -18,11 +18,11 @@ import static jio.mongodb.MongoDBEvent.OP.UPDATE_MANY;
 
 public final class UpdateMany<O> implements BiLambda<JsObj, JsObj, O> {
 
+    private static final UpdateOptions DEFAULT_OPTIONS = new UpdateOptions();
     private final UpdateOptions options;
     private final CollectionSupplier collection;
     private final Function<UpdateResult, O> resultConverter;
-    private static final UpdateOptions DEFAULT_OPTIONS = new UpdateOptions();
-
+    private Executor executor;
 
     private UpdateMany(final CollectionSupplier collection,
                        final Function<UpdateResult, O> resultConverter,
@@ -32,8 +32,6 @@ public final class UpdateMany<O> implements BiLambda<JsObj, JsObj, O> {
         this.collection = requireNonNull(collection);
         this.resultConverter = requireNonNull(resultConverter);
     }
-
-    private Executor executor;
 
     public static <O> UpdateMany<O> of(final CollectionSupplier collection,
                                        final Function<UpdateResult, O> resultConverter
@@ -62,13 +60,13 @@ public final class UpdateMany<O> implements BiLambda<JsObj, JsObj, O> {
 
         Supplier<O> supplier =
                 Fun.jfrEventWrapper(() -> {
-                              var collection = requireNonNull(this.collection.get());
-                              return resultConverter.apply(collection.updateMany(jsObj2Bson.apply(filter),
-                                                                                 jsObj2Bson.apply(update),
-                                                                                 options
-                                                                                )
-                                                          );
-                          },
+                                        var collection = requireNonNull(this.collection.get());
+                                        return resultConverter.apply(collection.updateMany(jsObj2Bson.apply(filter),
+                                                                                           jsObj2Bson.apply(update),
+                                                                                           options
+                                                                                          )
+                                                                    );
+                                    },
                                     UPDATE_MANY
                                    );
         return executor == null ?

@@ -25,7 +25,7 @@ class ScriptCommand extends Command {
         super(COMMAND_NAME,
               """
                       Reads the specified file and executes all the commands.
-                      jio.chatgpt.Examples:
+                      Examples:
                           $command /Users/username/myscript.txt""".replace("$command",
                                                                            COMMAND_NAME
                                                                           )

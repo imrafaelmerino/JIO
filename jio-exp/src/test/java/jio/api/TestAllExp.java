@@ -12,11 +12,11 @@ public class TestAllExp {
 
         var a = AllExp.seq(AllExp.seq(IO.TRUE, IO.TRUE), IO.TRUE).debug();
 
-        Assertions.assertTrue(a.join());
+        Assertions.assertTrue(a.result());
 
         var b = AllExp.seq(AllExp.seq(IO.TRUE, IO.TRUE), IO.FALSE);
 
-        Assertions.assertFalse(b.join());
+        Assertions.assertFalse(b.result());
 
 
     }
@@ -26,11 +26,11 @@ public class TestAllExp {
 
         var a = AllExp.par(AllExp.par(IO.TRUE, IO.TRUE), IO.TRUE);
 
-        Assertions.assertTrue(a.join());
+        Assertions.assertTrue(a.result());
 
         var b = AllExp.seq(AllExp.par(IO.TRUE, IO.TRUE), IO.FALSE);
 
-        Assertions.assertFalse(b.join());
+        Assertions.assertFalse(b.result());
     }
 
     @Test
@@ -39,7 +39,7 @@ public class TestAllExp {
                              IO.TRUE
                             )
                         .debugEach("context")
-                        .join();
+                        .result();
 
         Assertions.assertEquals(true,
                                 exp

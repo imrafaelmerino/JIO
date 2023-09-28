@@ -12,7 +12,9 @@ public class CollectionSupplier implements Supplier<MongoCollection<JsObj>> {
     final String name;
     volatile MongoCollection<JsObj> collection;
 
-    public CollectionSupplier(final DatabaseSupplier database, final String name) {
+    public CollectionSupplier(final DatabaseSupplier database,
+                              final String name
+                             ) {
         this.database = Objects.requireNonNull(database);
         this.name = Objects.requireNonNull(name);
     }
@@ -26,10 +28,7 @@ public class CollectionSupplier implements Supplier<MongoCollection<JsObj>> {
             synchronized (this) {
                 localRef = collection;
                 if (localRef == null) {
-                    collection = localRef = database.get()
-                                                    .getCollection(name,
-                                                                   JsObj.class
-                                                                  );
+                    collection = localRef = database.get().getCollection(name, JsObj.class);
                 }
             }
         }

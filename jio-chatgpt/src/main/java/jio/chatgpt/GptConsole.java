@@ -49,7 +49,7 @@ public class GptConsole {
         List<Command> commands = new ArrayList<>();
 
         commands.add(new SupplierCommand("gpt-file-list", "Returns a list of files that belong to the user's organization.",
-                        () -> services.fileService.list().map(JsObj::toString).join()
+                        () -> services.fileService.list().map(JsObj::toString).result()
                 )
         );
         commands.add(new Command("gpt-file-upload", "Upload a file that contains document(s) to be used across various endpoints/features. Currently, the size of all the files uploaded by one organization can be up to 1 GB. Please contact us if you need to increase the storage limit.") {
@@ -78,7 +78,7 @@ public class GptConsole {
                     String purpose = tokens[2];
                     File file = new File(path);
                     return !file.exists() || !file.isFile() ?
-                            IO.failure(new IllegalArgumentException(path + " is not a file")) :
+                            IO.fail(new IllegalArgumentException(path + " is not a file")) :
                             services.fileService.upload(file, purpose).map(JsObj::toString);
                 };
             }
@@ -185,7 +185,7 @@ public class GptConsole {
 
         commands.add(new SupplierCommand("gpt-models",
                         "Lists the currently available models, and provides basic information about each one such as the owner and availability.",
-                        () -> services.modelService.list().join().toString()
+                        () -> services.modelService.list().result().toString()
                 )
         );
 
@@ -290,7 +290,7 @@ public class GptConsole {
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
-                        return IO.value("loades messages from " + path);
+                        return IO.succeed("loades messages from " + path);
                     };
 
                     if (tokens.length == 1)
@@ -333,7 +333,7 @@ public class GptConsole {
                                                             .build()
                                                             .toString()
                                                     );
-                                            return IO.value("Added a new message to the chat!");
+                                            return IO.succeed("Added a new message to the chat!");
                                         }
                                 );
 
@@ -344,7 +344,7 @@ public class GptConsole {
                                     .build()
                                     .toString()
                             );
-                    return IO.value("Added a new message to the chat!");
+                    return IO.succeed("Added a new message to the chat!");
 
                 };
             }
@@ -401,9 +401,10 @@ public class GptConsole {
         });
 
 
-        commands.add(new Command("gpt-chat-send", "Creates a model response for the given chat conversation." +
-                "\nAdd new chat messages with the command addMessageChat.\nThe first message choice of the response " +
-                "is appended to the chat conversation") {
+        commands.add(new Command("gpt-chat-send", """
+                Creates a model response for the given chat conversation.
+                Add new chat messages with the command addMessageChat.
+                The first message choice of the response is appended to the chat conversation""") {
             @Override
             public Function<String[], IO<String>> apply(JsObj obj, State state) {
                 return tokens -> {

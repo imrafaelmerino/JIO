@@ -33,12 +33,11 @@ import java.util.function.Predicate;
  * and the refreshTokenPredicates only checks the status code to see if the access token need to be refreshed:
  *
  *    {@code Predicate<HttpResponse<?>> pred = resp -> resp.statusCode() == 401; }
- *</pre>
+ * </pre>
  * In this scenario you'll get this exception if the BACKEND returns the status code 401. The problem is that
  * the refreshTokenPredicates only checks the status code and cant distinguish a regular 401 from the backend
  * from a 401 from the API gateway asking you to refresh the token. You need to be more specific and also
  * take into account a header or a body
- *
  */
 @SuppressWarnings("serial")
 public final class RefreshTokenLoop extends Exception {

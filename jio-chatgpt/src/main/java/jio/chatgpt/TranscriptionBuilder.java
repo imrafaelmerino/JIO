@@ -3,6 +3,7 @@ package jio.chatgpt;
 import jsonvalues.JsDouble;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
+
 import static jio.chatgpt.JSON_FIELDS.*;
 
 import java.util.Objects;
@@ -29,7 +30,6 @@ public class TranscriptionBuilder {
     }
 
     /**
-     *
      * @param prompt An optional text to guide the model's style or continue a previous audio segment. The prompt should match the audio language.
      * @return this builder
      */
@@ -39,7 +39,6 @@ public class TranscriptionBuilder {
     }
 
     /**
-     *
      * @param responseFormat The format of the transcript output, in one of these options: json, text, srt, verbose_json, or vtt.
      *                       Defaults to json
      * @return this builder
@@ -75,11 +74,11 @@ public class TranscriptionBuilder {
                             );
         if (responseFormat != DEFAULT_VALUES.DEFAULT_TRANSCRIPTION_FORMAT)
             obj = obj.set(RESPONSE_FORMAT_FIELD, JsStr.of(responseFormat.name()));
-        if (temperature!= DEFAULT_VALUES.DEFAULT_TRANSCRIPTION_TEMPERATURE)
+        if (temperature != DEFAULT_VALUES.DEFAULT_TRANSCRIPTION_TEMPERATURE)
             obj = obj.set(TEMPERATURE_FIELD, JsDouble.of(temperature));
-        if (language!=null && !language.isBlank())
+        if (language != null && !language.isBlank())
             obj = obj.set(LANGUAGE_FIELD, JsStr.of(language));
-        if (prompt!=null && !prompt.isBlank())
+        if (prompt != null && !prompt.isBlank())
             obj = obj.set(PROMPT_FIELD, JsStr.of(prompt));
         return obj;
     }

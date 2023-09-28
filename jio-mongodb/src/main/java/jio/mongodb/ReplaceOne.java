@@ -17,11 +17,12 @@ import static jio.mongodb.MongoDBEvent.OP.REPLACE_ONE;
 
 
 public final class ReplaceOne<O> implements BiLambda<JsObj, JsObj, O> {
+    public static final ReplaceOptions DEFAULT_OPTIONS = new ReplaceOptions();
     private final Function<UpdateResult, O> resultConverter;
     private final CollectionSupplier collection;
     private final ReplaceOptions options;
+    private Executor executor;
 
-    public static final ReplaceOptions DEFAULT_OPTIONS = new ReplaceOptions();
 
     private ReplaceOne(final CollectionSupplier collection,
                        final Function<UpdateResult, O> resultConverter,
@@ -31,9 +32,6 @@ public final class ReplaceOne<O> implements BiLambda<JsObj, JsObj, O> {
         this.collection = requireNonNull(collection);
         this.options = requireNonNull(options);
     }
-
-
-    private Executor executor;
 
     public static <O> ReplaceOne<O> of(final CollectionSupplier collection,
                                        final Function<UpdateResult, O> resultConverter,
@@ -67,22 +65,22 @@ public final class ReplaceOne<O> implements BiLambda<JsObj, JsObj, O> {
 
         Supplier<O> supplier =
                 Fun.jfrEventWrapper(() -> {
-                              var collection = requireNonNull(this.collection.get());
-                              return resultConverter
-                                      .apply(collection.replaceOne(jsObj2Bson.apply(filter),
-                                                                   update,
-                                                                   options
-                                                                  )
-                                            );
+                                        var collection = requireNonNull(this.collection.get());
+                                        return resultConverter
+                                                .apply(collection.replaceOne(jsObj2Bson.apply(filter),
+                                                                             update,
+                                                                             options
+                                                                            )
+                                                      );
 
-                          },
+                                    },
                                     REPLACE_ONE
                                    );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
-                                executor
-                               );
+                        executor
+                       );
 
     }
 }

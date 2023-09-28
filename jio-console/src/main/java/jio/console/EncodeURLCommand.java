@@ -16,7 +16,7 @@ class EncodeURLCommand extends Command {
               """
                       Translates a string into application/x-www-form-urlencoded format using.
                       Usage: $command {text}
-                      jio.chatgpt.Examples:
+                      Examples:
                           $command hi, how are you doing
                           $command $var""".replace("$command", COMMAND_NAME)
              );

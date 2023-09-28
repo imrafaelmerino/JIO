@@ -17,8 +17,7 @@ public class ChatMessageBuilder {
 
 
     /**
-     *
-     * @param role The role of the author of this message
+     * @param role    The role of the author of this message
      * @param content The contents of the message.
      */
     public ChatMessageBuilder(Data.ROLE role, String content) {
@@ -27,7 +26,6 @@ public class ChatMessageBuilder {
     }
 
     /**
-     *
      * @param name The name of the author of this message. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
      * @return this builder
      */

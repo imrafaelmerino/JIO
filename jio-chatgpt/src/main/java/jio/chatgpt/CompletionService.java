@@ -15,7 +15,7 @@ public class CompletionService extends AbstractService {
 
     public IO<JsObj> create(CompletionBuilder builder) {
 
-        return post(uri,builder.build());
+        return post(uri, builder.build());
 
 
     }

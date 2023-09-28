@@ -18,12 +18,15 @@ class Base64EncodeCommand extends Command {
               """
                       Encodes the specified string into a new string using the Base64 encoding scheme.
                       Usage: $command {string}
-                      jio.chatgpt.Examples:
+                      Examples:
                           $command hi! i'll be encoded into base 64
                           $command $var""".replace("$command", COMMAND_NAME)
              );
     }
 
+    private static IO<String> encode(String text) {
+        return IO.fromValue(encoder.encodeToString(text.getBytes(StandardCharsets.UTF_8)));
+    }
 
     @Override
     public Function<String[], IO<String>> apply(final JsObj conf,
@@ -36,9 +39,5 @@ class Base64EncodeCommand extends Command {
                                .then(Base64EncodeCommand::encode);
             return encode(Functions.joinTail(tokens));
         };
-    }
-
-    private static IO<String> encode(String text) {
-        return IO.fromValue(encoder.encodeToString(text.getBytes(StandardCharsets.UTF_8)));
     }
 }

@@ -38,7 +38,7 @@ public class TestManagedBlocker {
 
         }
 
-        List<Integer> list = exp.join();
+        List<Integer> list = exp.result();
 
 
         System.out.println(list.stream().reduce(Integer::sum));

@@ -22,12 +22,11 @@ public final class GetAccessToken implements Lambda<HttpResponse<String>, String
      * singleton of this class
      */
     public static final GetAccessToken DEFAULT = new GetAccessToken();
+    private static final JsPath ACCESS_TOKEN_PATH = JsPath.empty()
+                                                          .key("access_token");
 
     private GetAccessToken() {
     }
-
-    private static final JsPath ACCESS_TOKEN_PATH = JsPath.empty()
-                                                          .key("access_token");
 
     @Override
     public IO<String> apply(final HttpResponse<String> resp) {
@@ -36,17 +35,17 @@ public final class GetAccessToken implements Lambda<HttpResponse<String>, String
             var json = JsObj.parse(body);
             var token = json.getStr(ACCESS_TOKEN_PATH);
             if (token == null || token.isBlank())
-                return IO.failure(new AccessTokenNotFound(String.format("Response: %s. Expected a string located at the path: %s.",
-                                                                            body,
-                                                                            ACCESS_TOKEN_PATH
-                                                                           )
+                return IO.fail(new AccessTokenNotFound(String.format("Response: %s. Expected a string located at the path: %s.",
+                                                                     body,
+                                                                     ACCESS_TOKEN_PATH
+                                                                    )
                                )
-                                     );
-            return IO.value(token);
+                              );
+            return IO.succeed(token);
         } catch (JsParserException malformedJson) {
-            return IO.failure(new AccessTokenNotFound("A JsObj body response was expected. Received: " + body));
+            return IO.fail(new AccessTokenNotFound("A JsObj body response was expected. Received: " + body));
         } catch (Exception e) {
-            return IO.failure(new AccessTokenNotFound("Exception while reading access token from response.", e));
+            return IO.fail(new AccessTokenNotFound("Exception while reading access token from response.", e));
         }
 
     }

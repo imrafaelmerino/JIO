@@ -15,10 +15,27 @@ class SetVarCommand extends Command {
               """
                       Stores the specified value into the the specified variable.
                       set var value
-                      jio.chatgpt.Examples:
+                      Examples:
                           $command age 40
                           $command counter $var""".replace("$command", COMMAND_NAME)
              );
+    }
+
+    private static IO<String> setVarValue(State state,
+                                          String varName,
+                                          String newValue
+                                         ) {
+
+        return IO.fromSupplier(() -> {
+                                   String oldValue = state.stringVariables.get(varName);
+                                   state.stringVariables.put(varName, newValue);
+                                   return String.format("%s from %s to %s",
+                                                        varName,
+                                                        oldValue,
+                                                        newValue
+                                                       );
+                               }
+                              );
     }
 
     @Override
@@ -48,19 +65,5 @@ class SetVarCommand extends Command {
 
 
         };
-    }
-
-    private static IO<String> setVarValue(State state, String varName, String newValue) {
-
-        return IO.fromSupplier(() -> {
-                                   String oldValue = state.stringVariables.get(varName);
-                                   state.stringVariables.put(varName, newValue);
-                                   return String.format("%s from %s to %s",
-                                                        varName,
-                                                        oldValue,
-                                                        newValue
-                                                       );
-                               }
-                              );
     }
 }

@@ -1,9 +1,9 @@
 package jio.console;
 
 /**
- *Some ANSI escape sequences.
+ * Some ANSI escape sequences.
  */
-public  enum ControlChars {
+public enum ControlChars {
 
     /**
      * clears the terminal window

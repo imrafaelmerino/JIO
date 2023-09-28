@@ -22,15 +22,14 @@ final class Functions {
             }
         }
     };
-
-    static String joinTail(String[] tokens) {
-        return String.join(" ", tail.apply(tokens));
-    }
-
     static final Function<String[], List<String>> tail =
             tokens -> Arrays.stream(tokens)
                             .toList()
                             .subList(1, tokens.length);
+
+    static String joinTail(String[] tokens) {
+        return String.join(" ", tail.apply(tokens));
+    }
 
     static String indent(final JsPath path) {
         return IntStream.range(0,

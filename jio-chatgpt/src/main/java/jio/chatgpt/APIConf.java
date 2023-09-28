@@ -12,7 +12,7 @@ public class APIConf {
 
     public APIConf(byte[] authHeader, String version, String host) {
         this.authHeader = Objects.requireNonNull(authHeader);
-        if(authHeader.length == 0) throw new IllegalArgumentException("authHeader empty");
+        if (authHeader.length == 0) throw new IllegalArgumentException("authHeader empty");
         this.version = Objects.requireNonNull(version);
         this.host = Objects.requireNonNull(host);
     }
@@ -21,7 +21,7 @@ public class APIConf {
     @Override
     public String toString() {
         return "APIConf{" +
-                "authHeader=*****"  +
+                "authHeader=*****" +
                 ", version='" + version + '\'' +
                 ", host='" + host + '\'' +
                 '}';

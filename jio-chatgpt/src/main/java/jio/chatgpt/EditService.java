@@ -14,7 +14,7 @@ public class EditService extends AbstractService {
     }
 
     public IO<JsObj> create(EditBuilder builder) {
-        return post(uri,builder.build());
+        return post(uri, builder.build());
     }
 
 }

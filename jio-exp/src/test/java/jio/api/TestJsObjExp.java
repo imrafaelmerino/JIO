@@ -21,7 +21,7 @@ public class TestJsObjExp {
                 JsObjExp.seq("a",
                              A.map(JsStr::of)
                             )
-                        .join()
+                        .result()
                                );
 
         Assertions.assertEquals(
@@ -33,7 +33,7 @@ public class TestJsObjExp {
                 JsObjExp.seq("a", A.map(JsStr::of),
                              "b", B.map(JsStr::of)
                             )
-                        .join()
+                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -50,7 +50,7 @@ public class TestJsObjExp {
                                              "c",
                                              ONE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
 
@@ -72,7 +72,7 @@ public class TestJsObjExp {
                                              "d",
                                              TWO.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -97,7 +97,7 @@ public class TestJsObjExp {
                                              "e",
                                              THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -125,7 +125,7 @@ public class TestJsObjExp {
                                              THREE.map(JsInt::of),
                                              "f", TWO.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -156,7 +156,7 @@ public class TestJsObjExp {
                                              "f", TWO.map(JsInt::of),
                                              "g", TWO.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -190,7 +190,7 @@ public class TestJsObjExp {
                                              "g", TWO.map(JsInt::of),
                                              "h", TWO.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -227,7 +227,7 @@ public class TestJsObjExp {
                                              "h", TWO.map(JsInt::of),
                                              "i", TWO.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -267,7 +267,7 @@ public class TestJsObjExp {
                                              "i", TWO.map(JsInt::of),
                                              "j", THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -310,7 +310,7 @@ public class TestJsObjExp {
                                              "j", THREE.map(JsInt::of),
                                              "k", THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -356,7 +356,7 @@ public class TestJsObjExp {
                                              "k", THREE.map(JsInt::of),
                                              "l", THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -405,7 +405,7 @@ public class TestJsObjExp {
                                              "l", THREE.map(JsInt::of),
                                              "m", THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -457,7 +457,7 @@ public class TestJsObjExp {
                                              "m", THREE.map(JsInt::of),
                                              "n", THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -512,7 +512,7 @@ public class TestJsObjExp {
                                              "n", THREE.map(JsInt::of),
                                              "o", THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
     }
 
@@ -525,7 +525,7 @@ public class TestJsObjExp {
                 JsObjExp.par("a",
                              A.map(JsStr::of)
                             )
-                        .join()
+                        .result()
                                );
 
         Assertions.assertEquals(
@@ -537,7 +537,7 @@ public class TestJsObjExp {
                 JsObjExp.par("a", A.map(JsStr::of),
                              "b", B.map(JsStr::of)
                             )
-                        .join()
+                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -554,7 +554,7 @@ public class TestJsObjExp {
                                              "c",
                                              ONE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
 
@@ -576,7 +576,7 @@ public class TestJsObjExp {
                                              "d",
                                              TWO.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -601,7 +601,7 @@ public class TestJsObjExp {
                                              "e",
                                              THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -629,7 +629,7 @@ public class TestJsObjExp {
                                              THREE.map(JsInt::of),
                                              "f", TWO.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -660,7 +660,7 @@ public class TestJsObjExp {
                                              "f", TWO.map(JsInt::of),
                                              "g", TWO.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -694,7 +694,7 @@ public class TestJsObjExp {
                                              "g", TWO.map(JsInt::of),
                                              "h", TWO.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -731,7 +731,7 @@ public class TestJsObjExp {
                                              "h", TWO.map(JsInt::of),
                                              "i", TWO.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -771,7 +771,7 @@ public class TestJsObjExp {
                                              "i", TWO.map(JsInt::of),
                                              "j", THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -814,7 +814,7 @@ public class TestJsObjExp {
                                              "j", THREE.map(JsInt::of),
                                              "k", THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -860,7 +860,7 @@ public class TestJsObjExp {
                                              "k", THREE.map(JsInt::of),
                                              "l", THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -909,7 +909,7 @@ public class TestJsObjExp {
                                              "l", THREE.map(JsInt::of),
                                              "m", THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -961,7 +961,7 @@ public class TestJsObjExp {
                                              "m", THREE.map(JsInt::of),
                                              "n", THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
 
         Assertions.assertEquals(JsObj.of("a",
@@ -1016,7 +1016,7 @@ public class TestJsObjExp {
                                              "n", THREE.map(JsInt::of),
                                              "o", THREE.map(JsInt::of)
                                             )
-                                        .join()
+                                        .result()
                                );
     }
 

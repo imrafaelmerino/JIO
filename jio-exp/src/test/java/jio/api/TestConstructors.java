@@ -25,14 +25,14 @@ public class TestConstructors {
     @Test
     public void succeed_constructor() {
 
-        IO<String> foo = IO.value("foo");
+        IO<String> foo = IO.succeed("foo");
 
-        Assertions.assertEquals("foo", foo.join());
+        Assertions.assertEquals("foo", foo.result());
 
         Instant before = Instant.now();
         IO<Instant> now = IO.lazy(Instant::now);
 
-        Assertions.assertTrue(before.isBefore(now.join()));
+        Assertions.assertTrue(before.isBefore(now.result()));
 
     }
 
@@ -43,7 +43,7 @@ public class TestConstructors {
         String forkJoinPoolThreadName = IO.lazy(
                 () -> Thread.currentThread().getName(),
                 ForkJoinPool.commonPool()
-                                                       ).join();
+                                                       ).result();
 
         Assertions.assertTrue(forkJoinPoolThreadName.startsWith("ForkJoinPool.commonPool-worker-"));
 
@@ -51,7 +51,7 @@ public class TestConstructors {
                 IO.lazy(
                         () -> Thread.currentThread().getName(),
                         Executors.newSingleThreadExecutor()
-                               ).join();
+                               ).result();
 
         System.out.println("----------" + executorThreadName);
 
@@ -81,11 +81,11 @@ public class TestConstructors {
 
         IO<Boolean> par = AllExp.par(IO.FALSE, IO.TRUE, IO.FALSE).debugEach("my-op");
 
-        Assertions.assertFalse(par.join());
+        Assertions.assertFalse(par.result());
 
         IO<Boolean> seq = AllExp.seq(IO.FALSE, IO.TRUE, IO.FALSE).debugEach("my-op");
 
-        Assertions.assertFalse(seq.join());
+        Assertions.assertFalse(seq.result());
 
 
     }
@@ -94,10 +94,10 @@ public class TestConstructors {
     public void testIfElse() {
         Assertions.assertEquals("alternative",
                                 IfElseExp.<String>predicate(IO.FALSE)
-                                         .consequence(() -> IO.value("consequence"))
-                                         .alternative(() -> IO.value("alternative"))
+                                         .consequence(() -> IO.succeed("consequence"))
+                                         .alternative(() -> IO.succeed("alternative"))
                                          .debugEach("my-op")
-                                         .join()
+                                         .result()
                                );
     }
 
@@ -111,18 +111,18 @@ public class TestConstructors {
                                                        "g", JsArray.of(true, false)
                                                       )
                                         ),
-                                JsObjExp.par("a", IO.value(1).map(JsInt::of),
-                                             "b", IO.value(2).map(JsInt::of),
-                                             "c", IO.value(3).map(JsInt::of),
-                                             "d", JsObjExp.seq("e", IO.value(4).map(JsInt::of),
-                                                               "f", IO.value(5).map(JsInt::of),
+                                JsObjExp.par("a", IO.succeed(1).map(JsInt::of),
+                                             "b", IO.succeed(2).map(JsInt::of),
+                                             "c", IO.succeed(3).map(JsInt::of),
+                                             "d", JsObjExp.seq("e", IO.succeed(4).map(JsInt::of),
+                                                               "f", IO.succeed(5).map(JsInt::of),
                                                                "g", JsArrayExp.seq(IO.TRUE.map(JsBool::of),
                                                                                    IO.FALSE.map(JsBool::of)
                                                                                   )
                                                               )
                                             )
                                         .debugEach("my-op")
-                                        .join()
+                                        .result()
 
                                );
     }
@@ -138,7 +138,7 @@ public class TestConstructors {
                                },
                                it -> it.lines().collect(Collectors.joining())
                                   )
-                     .join();
+                     .result();
 
 
         Assertions.assertEquals("hola", a);
@@ -152,7 +152,7 @@ public class TestConstructors {
                   throw new IllegalArgumentException("hola");
               })
               .debug()
-              .join();
+              .result();
         } catch (Exception e) {
             Assertions.assertEquals("hola", e.getCause().getMessage());
         }
@@ -164,7 +164,7 @@ public class TestConstructors {
                         Executors.newCachedThreadPool()
                        )
               .debug()
-              .join();
+              .result();
         } catch (Exception e) {
             Assertions.assertEquals("hola", e.getCause().getMessage());
         }

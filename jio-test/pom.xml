@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-test</artifactId>
-    <version>0.7.0</version>
+    <version>0.8.0</version>
     <name>jio-test</name>
     <description>Java Input-Output Monad</description>
     <url>https://github.com/imrafaelmerino/jio</url>
@@ -40,7 +40,7 @@
         <MAVEN-SUREFIRE-PLUGIN.VERSION>3.0.0-M6</MAVEN-SUREFIRE-PLUGIN.VERSION>
         <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
         <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
-        <JIO-EXP-VERSION>0.7.0</JIO-EXP-VERSION>
+        <JIO-EXP-VERSION>0.8.1</JIO-EXP-VERSION>
         <JIO-HTTP-VERSION>0.7.0</JIO-HTTP-VERSION>
         <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
     </properties>
@@ -77,7 +77,7 @@
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>-Xplugin:ErrorProne</arg>
                         <arg>--enable-preview</arg>
-                        <arg> -Xlint:all</arg>
+                        <arg>-Xlint:all</arg>
                     </compilerArgs>
                     <annotationProcessorPaths>
                         <path>
@@ -121,12 +121,6 @@
 
         <dependency>
             <groupId>com.github.imrafaelmerino</groupId>
-            <artifactId>jio-http</artifactId>
-            <version>${JIO-HTTP-VERSION}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.imrafaelmerino</groupId>
             <artifactId>java-fun</artifactId>
             <version>0.9.5</version>
         </dependency>
@@ -135,6 +129,12 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${JUNIT-JUPITER-ENGINE.VERSION}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.imrafaelmerino</groupId>
+            <artifactId>jio-http</artifactId>
+            <version>0.8.0</version>
         </dependency>
 
     </dependencies>

@@ -13,7 +13,6 @@ import static java.util.Objects.requireNonNull;
 import static jio.http.client.ClientReqEvent.RESULT.FAILURE;
 import static jio.http.client.ClientReqEvent.RESULT.SUCCESS;
 
-
 class MyHttpClientImpl implements MyHttpClient {
 
     private final AtomicLong counter = new AtomicLong(0);
@@ -37,59 +36,6 @@ class MyHttpClientImpl implements MyHttpClient {
         this.ofBytesLambda = bodyHandler(HttpResponse.BodyHandlers.ofByteArray());
         this.discardingLambda = bodyHandler(HttpResponse.BodyHandlers.discarding());
         this.ofStringLambda = bodyHandler(HttpResponse.BodyHandlers.ofString());
-    }
-
-    @Override
-    public <T> HttpLambda<T> bodyHandler(final HttpResponse.BodyHandler<T> handler) {
-        requireNonNull(handler);
-        if (reqRetryPolicy != null && reqRetryPredicate != null) {
-            return builder -> {
-                requireNonNull(builder);
-                return IO.effect(() -> requestWrapper(this,
-                                                          builder.build(),
-                                                          handler
-                                                         )
-                                    )
-                         .retry(reqRetryPredicate,
-                                reqRetryPolicy
-                               );
-            };
-        }
-        if (reqRetryPolicy != null) {
-            return builder -> {
-                requireNonNull(builder);
-                return IO.effect(() -> requestWrapper(this,
-                                                          builder.build(),
-                                                          handler
-                                                         )
-                                    )
-                         .retry(reqRetryPolicy);
-            };
-        }
-        return builder -> {
-            requireNonNull(builder);
-            return IO.effect(() -> requestWrapper(this,
-                                                      builder.build(),
-                                                      handler
-                                                     )
-                                );
-        };
-    }
-
-
-    @Override
-    public HttpLambda<String> ofString() {
-        return ofStringLambda;
-    }
-
-    @Override
-    public HttpLambda<byte[]> ofBytes() {
-        return ofBytesLambda;
-    }
-
-    @Override
-    public HttpLambda<Void> discarding() {
-        return discardingLambda;
     }
 
     static <O> CompletableFuture<HttpResponse<O>> requestWrapper(final MyHttpClientImpl myClient,
@@ -124,6 +70,58 @@ class MyHttpClientImpl implements MyHttpClient {
                                       event.commit();
                                   }
                               });
+    }
+
+    @Override
+    public <T> HttpLambda<T> bodyHandler(final HttpResponse.BodyHandler<T> handler) {
+        requireNonNull(handler);
+        if (reqRetryPolicy != null && reqRetryPredicate != null) {
+            return builder -> {
+                requireNonNull(builder);
+                return IO.effect(() -> requestWrapper(this,
+                                                      builder.build(),
+                                                      handler
+                                                     )
+                                )
+                         .retry(reqRetryPredicate,
+                                reqRetryPolicy
+                               );
+            };
+        }
+        if (reqRetryPolicy != null) {
+            return builder -> {
+                requireNonNull(builder);
+                return IO.effect(() -> requestWrapper(this,
+                                                      builder.build(),
+                                                      handler
+                                                     )
+                                )
+                         .retry(reqRetryPolicy);
+            };
+        }
+        return builder -> {
+            requireNonNull(builder);
+            return IO.effect(() -> requestWrapper(this,
+                                                  builder.build(),
+                                                  handler
+                                                 )
+                            );
+        };
+    }
+
+    @Override
+    public HttpLambda<String> ofString() {
+        return ofStringLambda;
+    }
+
+    @Override
+    public HttpLambda<byte[]> ofBytes() {
+        return ofBytesLambda;
+    }
+
+    @Override
+    public HttpLambda<Void> discarding() {
+        return discardingLambda;
     }
 }
 

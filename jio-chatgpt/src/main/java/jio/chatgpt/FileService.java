@@ -12,10 +12,14 @@ import java.util.UUID;
 public class FileService extends AbstractService {
 
     public FileService(MyHttpClient client, ConfBuilder builder) {
-        super(client, builder, "files");
+        super(client,
+              builder,
+              "files");
     }
 
-    public IO<JsObj> upload(File file, String purpose) {
+    public IO<JsObj> upload(File file,
+                            String purpose
+                           ) {
         String boundary = UUID.randomUUID().toString();
         return post(uri,
                     MultipartFormDataBuilder.build(Map.of("purpose", purpose),

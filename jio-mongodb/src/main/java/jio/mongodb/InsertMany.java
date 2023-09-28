@@ -19,12 +19,11 @@ import static jio.mongodb.MongoDBEvent.OP.INSERT_MANY;
 
 public final class InsertMany<R> implements Lambda<JsArray, R> {
 
+    private static final InsertManyOptions DEFAULT_OPTIONS = new InsertManyOptions();
     private final CollectionSupplier collection;
     private final InsertManyOptions options;
     private final Function<InsertManyResult, R> resultConverter;
-
-    private static final InsertManyOptions DEFAULT_OPTIONS = new InsertManyOptions();
-
+    private Executor executor;
 
     private InsertMany(final CollectionSupplier collection,
                        final Function<InsertManyResult, R> resultConverter,
@@ -34,8 +33,6 @@ public final class InsertMany<R> implements Lambda<JsArray, R> {
         this.options = requireNonNull(options);
         this.resultConverter = requireNonNull(resultConverter);
     }
-
-    private Executor executor;
 
     public static <R> InsertMany<R> of(final CollectionSupplier collection,
                                        final Function<InsertManyResult, R> resultConverter,
@@ -67,21 +64,21 @@ public final class InsertMany<R> implements Lambda<JsArray, R> {
         event.begin();
         Supplier<R> supplier =
                 Fun.jfrEventWrapper(() -> {
-                              var docs = jsArray2ListOfJsObj.apply(message);
-                              var col = requireNonNull(collection.get());
-                              return resultConverter.apply(col
-                                                                   .insertMany(docs,
-                                                                               options
-                                                                              )
-                                                          );
-                          },
+                                        var docs = jsArray2ListOfJsObj.apply(message);
+                                        var col = requireNonNull(collection.get());
+                                        return resultConverter.apply(col
+                                                                             .insertMany(docs,
+                                                                                         options
+                                                                                        )
+                                                                    );
+                                    },
                                     INSERT_MANY
                                    );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
-                                executor
-                               );
+                        executor
+                       );
 
     }
 }

@@ -18,7 +18,7 @@ class ReadVarCommand extends Command {
               """
                       Read the content of the specified variable.
                       var-get {name}
-                      jio.chatgpt.Examples:
+                      Examples:
                           $command age
                           $command $var""".replace("$command", COMMAND_NAME)
              );

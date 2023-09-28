@@ -8,7 +8,10 @@ import jsonvalues.JsObj;
 
 public class ImageService extends AbstractService {
     public ImageService(MyHttpClient client, ConfBuilder builder) {
-        super(client, builder, "images");
+
+        super(client,
+              builder,
+              "images");
     }
 
 

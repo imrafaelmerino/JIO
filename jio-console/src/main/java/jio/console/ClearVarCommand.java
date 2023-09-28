@@ -1,4 +1,3 @@
-
 package jio.console;
 
 import jio.IO;
@@ -19,7 +18,7 @@ class ClearVarCommand extends Command {
               """
                       Remove the specified variable.
                       Usage: $command {name}
-                      jio.chatgpt.Examples:
+                      Examples:
                           $command age
                           $command $var""".replace("$command", COMMAND_NAME)
              );

@@ -26,7 +26,7 @@ public class Examples {
 
             IO<JsObj> files = services.fileService.list();
 
-            System.out.println(files.join());
+            System.out.println(files.result());
 
 
 

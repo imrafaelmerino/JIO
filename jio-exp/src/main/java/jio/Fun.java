@@ -9,9 +9,9 @@ class Fun {
         return supplier -> () -> map.apply(supplier.get());
     }
 
-    static void publishException(String exp,String context,Throwable exc){
+    static void publishException(String exp, String context, Throwable exc) {
         ExpEvent event = new ExpEvent();
-        event.exception = String.format("%s:%s",exc.getClass().getName(),exc.getMessage());
+        event.exception = String.format("%s:%s", exc.getClass().getName(), exc.getMessage());
         event.result = ExpEvent.RESULT.FAILURE.name();
         event.expression = exp;
         event.context = context;

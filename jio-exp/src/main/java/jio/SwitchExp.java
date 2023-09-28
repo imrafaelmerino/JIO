@@ -26,7 +26,7 @@ public final class SwitchExp<I, O> extends Exp<O> {
               final List<Predicate<I>> predicates,
               final List<Lambda<I, O>> lambdas,
               final Lambda<I, O> otherwise,
-              final Function<ExpEvent,BiConsumer<O, Throwable>> logger
+              final Function<ExpEvent, BiConsumer<O, Throwable>> logger
              ) {
         super(logger);
         this.val = val;
@@ -38,35 +38,27 @@ public final class SwitchExp<I, O> extends Exp<O> {
     /**
      * Creates a SwitchMatcher from a given value that will be evaluated and matched against the branches
      * defined with the {@link SwitchMatcher#match(Object, Lambda, Object, Lambda, Lambda) match} method
+     *
      * @param input the input that will be evaluated
+     * @param <I>   the type of the input
+     * @param <O>   the type of the expression result
      * @return a SwitchMatcher
-     * @param <I> the type of the input
-     * @param <O> the type of the expression result
      */
     public static <I, O> SwitchMatcher<I, O> eval(final I input) {
-        return new SwitchMatcher<>(IO.value(requireNonNull(input)));
+        return new SwitchMatcher<>(IO.succeed(requireNonNull(input)));
     }
 
     /**
      * Creates a SwitchMatcher from a given effect that will be evaluated and matched against the branches
      * defined with the {@link SwitchMatcher#match(Object, Lambda, Object, Lambda, Lambda) match} method
+     *
      * @param input the effect that will be evaluated
+     * @param <I>   the type of the input
+     * @param <O>   the type of the expression result
      * @return a SwitchMatcher
-     * @param <I> the type of the input
-     * @param <O> the type of the expression result
      */
     public static <I, O> SwitchMatcher<I, O> eval(final IO<I> input) {
         return new SwitchMatcher<>(requireNonNull(input));
-    }
-
-    @Override
-    CompletableFuture<O> reduceExp() {
-        return SwitchExp.get(val.get(),
-                             predicates,
-                             lambdas,
-                             otherwise,
-                             0
-                            );
     }
 
     private static <I, O> CompletableFuture<O> get(CompletableFuture<I> val,
@@ -84,6 +76,16 @@ public final class SwitchExp<I, O> extends Exp<O> {
                                );
 
 
+    }
+
+    @Override
+    CompletableFuture<O> reduceExp() {
+        return SwitchExp.get(val.get(),
+                             predicates,
+                             lambdas,
+                             otherwise,
+                             0
+                            );
     }
 
     /**
@@ -173,7 +175,7 @@ public final class SwitchExp<I, O> extends Exp<O> {
      *
      * }
      * </pre>
-     *
+     * <p>
      * 2023-02-04T17:58:43.148662+01:00 main DEBUGGER [context] 7299292 success SwitchExp-eval 2
      * 2023-02-04T17:58:43.157197+01:00 main DEBUGGER [context] 60417 success SwitchExp-branch[1]
      * 2023-02-04T17:58:43.157785+01:00 main DEBUGGER [context] 11846250 success SwitchExp two

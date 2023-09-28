@@ -13,14 +13,10 @@ public class ModelService extends AbstractService {
 
     public IO<JsObj> list() {
         return get(uri);
-
-
     }
 
     public IO<JsObj> retrieve(String model) {
         return get(uri.resolve("/" + model));
-
-
     }
 
 }

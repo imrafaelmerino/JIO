@@ -11,28 +11,29 @@ import java.util.function.Function;
 /**
  * A RetryPolicy is a function that takes a RetryStatus and possibly returns the duration of the delay to wait
  * before the next try.
- * Iteration numbers start at zero and increase by one on each retry. An <code>Optional.empty()</code>
- * return value from the function implies we have reached the retry limit.
- * You can collapse multiple strategies into one using the {@link #append(RetryPolicy) append} method.
- * There are a number of policies available in
- * {@link RetryPolicies}. There are also a few combinators to transform policies, including:
- * {@link #capDelay(Duration)} (Timer)}, {@link #limitRetriesByDelay(Duration)} and
- * {@link #limitRetriesByCumulativeDelay(Duration)}.
- * Always simulate any policy you define with {@link #simulate(int)} to check it's behaved as expected
+ *
+ * <p>Iteration numbers start at zero and increase by one on each retry. An {@code Optional.empty()} return value
+ * from the function implies we have reached the retry limit.
+ *
+ * <p>You can collapse multiple strategies into one using the {@link #append(RetryPolicy) append} method. There are
+ * also several predefined policies available in {@link RetryPolicies}. Additionally, you can use combinators like
+ * {@link #capDelay(Duration)}, {@link #limitRetriesByDelay(Duration)}, and {@link #limitRetriesByCumulativeDelay(Duration)}
+ * to transform policies.
+ *
+ * <p>Always simulate any policy you define with {@link #simulate(int)} to check it's behaved as expected.
+ *
+ * @see RetryPolicies
  */
 public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
 
     /**
-     * The semantics of this combination is as follows:
-     * If either policy (this or other) returns Optional.empty(), the combined policy returns Optional.empty().
-     * This can be used to inhibit after a number of retries, for example.
-     * If both policies return a delay, the larger delay will be used. This is quite natural
-     * when combining multiple policies to achieve a certain effect. For an example of composing policies like this,
-     * we can use join to create a policy that retries up to 5 times, starting with a 10 ms delay and increasing
-     * exponentially.
+     * Combines this policy with another policy. If either policy (this or other) returns {@code Optional.empty()},
+     * the combined policy returns {@code Optional.empty()}. This can be used to inhibit retries after a certain
+     * number of attempts. If both policies return a delay, the larger delay will be used.
      *
      * @param other the other retry policy to be appended
-     * @return a new retry policy
+     * @return a new retry policy combining this and the other policy
+     * @throws NullPointerException if the other policy is null
      */
     default RetryPolicy append(final RetryPolicy other) {
         Objects.requireNonNull(other);
@@ -49,11 +50,12 @@ public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
     }
 
     /**
-     * There is also an operator followedBy to sequentially compose policies, i.e. if the first one wants to give up,
-     * use the second one. As an example, we can retry with a 100ms delay 5 times and then retry every minute.
+     * Sequentially composes this policy with another policy. If this policy returns a delay, it will be used.
+     * Otherwise, the other policy will be applied.
      *
      * @param other the other policy to be applied after this policy gives up
-     * @return a new retry policy
+     * @return a new retry policy combining this policy followed by the other policy
+     * @throws NullPointerException if the other policy is null
      */
     default RetryPolicy followedBy(final RetryPolicy other) {
         Objects.requireNonNull(other);
@@ -64,10 +66,11 @@ public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
     }
 
     /**
-     * set an upper bound on the delay between retries
+     * Sets an upper bound on the delay between retries.
      *
-     * @param cap the upper bound
-     * @return a new policy
+     * @param cap the upper bound for retry delay
+     * @return a new policy with the delay capped at the specified upper bound
+     * @throws NullPointerException if the cap duration is null
      */
     default RetryPolicy capDelay(final Duration cap) {
         Objects.requireNonNull(cap);
@@ -82,10 +85,11 @@ public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
     }
 
     /**
-     * give up when the delay between retries reaches a certain limit
+     * Gives up when the delay between retries reaches a certain limit.
      *
-     * @param max the limit
-     * @return a new policy
+     * @param max the limit for retry delay
+     * @return a new policy that gives up when the delay exceeds the specified limit
+     * @throws NullPointerException if the max duration is null
      */
     default RetryPolicy limitRetriesByDelay(final Duration max) {
         Objects.requireNonNull(max);
@@ -99,10 +103,11 @@ public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
     }
 
     /**
-     * give up when the total delay reaches a certain limit
+     * Gives up when the total cumulative delay reaches a certain limit.
      *
-     * @param max the limit
-     * @return a new policy
+     * @param max the limit for cumulative delay
+     * @return a new policy that gives up when the cumulative delay exceeds the specified limit
+     * @throws NullPointerException if the max duration is null
      */
     default RetryPolicy limitRetriesByCumulativeDelay(final Duration max) {
         Objects.requireNonNull(max);
@@ -110,10 +115,12 @@ public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
     }
 
     /**
-     * runs this policy up to N iterations and gather results
+     * Simulates the behavior of this retry policy for a given number of iterations and returns a list of
+     * {@link RetryStatus} objects representing the simulation.
      *
-     * @param iterations the number of iterations
-     * @return a list of {@link RetryStatus} that represents a simulation
+     * @param iterations the number of iterations to simulate
+     * @return a list of {@link RetryStatus} objects representing the simulated behavior
+     * @throws IllegalArgumentException if iterations is less than or equal to zero
      */
     default List<RetryStatus> simulate(int iterations) {
         if (iterations <= 0) throw new IllegalArgumentException("iterations <= 0");
@@ -127,7 +134,9 @@ public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
                 next = new RetryStatus(next.counter() + 1,
                                        next.cumulativeDelay().plus(delay),
                                        delay);
-            } else {break;}
+            } else {
+                break;
+            }
         }
         return simulation;
     }

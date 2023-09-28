@@ -47,8 +47,8 @@ public class TestMongo {
 
 
         MongoClient mongoClient = MongoClients.create(settings);
-        DatabaseSupplier database = new DatabaseSupplier(mongoClient,"test");
-        CollectionSupplier collectionSupplier = new CollectionSupplier(database,"Data");
+        DatabaseSupplier database = new DatabaseSupplier(mongoClient, "test");
+        CollectionSupplier collectionSupplier = new CollectionSupplier(database, "Data");
 
 
         insertOne = InsertOne.of(collectionSupplier,
@@ -57,7 +57,7 @@ public class TestMongo {
 
         findOne = FindOne.of(collectionSupplier);
 
-        JsObj filter = JsObj.of("_id",JsObj.of("$lt",JsObj.of("$oid", JsStr.of("63ea462f9ecb966d69cfb85c"))));
+        JsObj filter = JsObj.of("_id", JsObj.of("$lt", JsObj.of("$oid", JsStr.of("63ea462f9ecb966d69cfb85c"))));
         System.out.println(filter);
         find = FindAll.of(collectionSupplier).apply(FindOptions.ofFilter(filter));
 
@@ -89,18 +89,15 @@ public class TestMongo {
                                                             )
                                                       .then(id -> findOne.apply(FindOptions.ofFilter(str2Oid.apply(id))))
                                                       .map(it -> it.delete("_id"))
-                                                      .join()
+                                                      .result()
                                             );
                  });
 
-        System.out.println(findAll.apply(FindOptions.ofFilter(JsObj.empty())).join());
+        System.out.println(findAll.apply(FindOptions.ofFilter(JsObj.empty())).result());
 
-        JsArray arr = find.join();
+        JsArray arr = find.result();
         System.out.println(arr);
-        Assertions.assertTrue(arr.size()>1);
-
-
-
+        Assertions.assertTrue(arr.size() > 1);
 
 
     }

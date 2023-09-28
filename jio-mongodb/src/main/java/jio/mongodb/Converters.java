@@ -22,24 +22,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class Converters {
-    private static final String WAS_ACKNOWLEDGED_FIELD = "wasAcknowledged";
-    private static final String DELETED_COUNT_FIELD = "deleted_count";
-    private static final String TYPE_FIELD = "type";
-    private static final String INSERTED_ID_FIELD = "insertedId";
-    private static final String MATCHED_COUNT_FIELD = "matchedCount";
-    private static final String UPSERTED_ID_FIELD = "upsertedId";
-    private static final String MODIFIED_COUNT_FIELD = "modifiedCount";
-    private static final String ID = "_id";
-    private static final String OID = "$oid";
-
-    private Converters() {
-    }
-
     public static final Function<JsObj, Bson> jsObj2Bson = obj ->
             new BsonDocumentWrapper<>(obj,
                                       JsValuesRegistry.INSTANCE.get(JsObj.class)
             );
-
     public static final Function<JsArray, List<JsObj>> jsArray2ListOfJsObj =
             array -> {
                 var errors = JsSpecs.arrayOfObj().test(array);
@@ -50,21 +36,44 @@ public final class Converters {
                      .forEachRemaining(it -> list.add(it.toJsObj()));
                 return list;
             };
-
-
     public static final Function<JsArray, List<Bson>> jsArray2ListOfBson =
             jsArray2ListOfJsObj.andThen(list -> list.stream()
                                                     .map(it -> jsObj2Bson.apply(it.toJsObj()))
                                                     .collect(Collectors.toList()));
-
     public static final Function<BsonValue, String> objectId2Hex =
             bsonValue -> bsonValue.asObjectId()
                                   .getValue()
                                   .toHexString();
-
     public static final Function<InsertOneResult, String> insertOneResult2HexId =
             result -> objectId2Hex.apply(result.getInsertedId());
-
+    public static final Function<UpdateResult, Optional<String>> updateResult2OptHexId = it -> {
+        var upsertedId = it.getUpsertedId();
+        if (upsertedId == null) return Optional.empty();
+        return Optional.of(objectId2Hex.apply(upsertedId));
+    };
+    public static final Function<FindIterable<JsObj>, JsObj> iterableFirst = MongoIterable::first;
+    public static final Function<FindIterable<JsObj>, JsArray> iterable2JsArray = JsArray::ofIterable;
+    public static final Function<InsertManyResult, JsArray> insertManyResult2JsArrayOfHexIds =
+            result -> {
+                var map = result.getInsertedIds();
+                var array = JsArray.empty();
+                for (var e : map.entrySet()) {
+                    array = array.append(JsStr.of(objectId2Hex.apply(e.getValue())));
+                }
+                return array;
+            };
+    public static final Function<AggregateIterable<JsObj>, JsArray>
+            aggregateResult2JsArray = JsArray::ofIterable;
+    private static final String WAS_ACKNOWLEDGED_FIELD = "wasAcknowledged";
+    private static final String DELETED_COUNT_FIELD = "deleted_count";
+    public static final Function<DeleteResult, JsObj> deleteResult2JsObj =
+            result -> JsObj.of(DELETED_COUNT_FIELD,
+                               JsLong.of(result.getDeletedCount()),
+                               WAS_ACKNOWLEDGED_FIELD,
+                               JsBool.of(result.wasAcknowledged())
+                              );
+    private static final String TYPE_FIELD = "type";
+    private static final String INSERTED_ID_FIELD = "insertedId";
     public static final Function<InsertOneResult, JsObj> insertOneResult2JsObj =
             result -> JsObj.of(INSERTED_ID_FIELD,
                                JsStr.of(insertOneResult2HexId.apply(result)),
@@ -75,13 +84,9 @@ public final class Converters {
                                               .getSimpleName()
                                        )
                               );
-
-    public static final Function<UpdateResult, Optional<String>> updateResult2OptHexId = it -> {
-        var upsertedId = it.getUpsertedId();
-        if (upsertedId == null) return Optional.empty();
-        return Optional.of(objectId2Hex.apply(upsertedId));
-    };
-
+    private static final String MATCHED_COUNT_FIELD = "matchedCount";
+    private static final String UPSERTED_ID_FIELD = "upsertedId";
+    private static final String MODIFIED_COUNT_FIELD = "modifiedCount";
     public static final Function<UpdateResult, JsObj> updateResult2JsObj = result -> {
         var optStr = updateResult2OptHexId.apply(result);
         return JsObj.of(UPSERTED_ID_FIELD,
@@ -100,12 +105,8 @@ public final class Converters {
                                 )
                        );
     };
-
-    public static final Function<FindIterable<JsObj>, JsObj> iterableFirst = MongoIterable::first;
-
-    public static final Function<FindIterable<JsObj>, JsArray> iterable2JsArray = JsArray::ofIterable;
-
-
+    private static final String ID = "_id";
+    private static final String OID = "$oid";
     public static final Function<String, JsObj> str2Oid =
             id -> JsObj.of(ID,
                            JsObj.of(OID,
@@ -114,25 +115,6 @@ public final class Converters {
                           );
 
 
-    public static final Function<InsertManyResult, JsArray> insertManyResult2JsArrayOfHexIds =
-            result -> {
-                var map = result.getInsertedIds();
-                var array = JsArray.empty();
-                for (var e : map.entrySet()) {
-                    array = array.append(JsStr.of(objectId2Hex.apply(e.getValue())));
-                }
-                return array;
-            };
-
-
-    public static final Function<DeleteResult, JsObj> deleteResult2JsObj =
-            result -> JsObj.of(DELETED_COUNT_FIELD,
-                               JsLong.of(result.getDeletedCount()),
-                               WAS_ACKNOWLEDGED_FIELD,
-                               JsBool.of(result.wasAcknowledged())
-                              );
-
-
-    public static final Function<AggregateIterable<JsObj>, JsArray>
-            aggregateResult2JsArray = JsArray::ofIterable;
+    private Converters() {
+    }
 }

@@ -15,9 +15,9 @@ public class TestTripleExp {
     public void sequential_constructor() {
 
         TripleExp<String, String, String> triple =
-                TripleExp.seq(IO.value("a"),
-                              IO.value("b"),
-                              IO.value("c")
+                TripleExp.seq(IO.succeed("a"),
+                              IO.succeed("b"),
+                              IO.succeed("c")
                              );
 
         Assertions.assertEquals(
@@ -25,7 +25,7 @@ public class TestTripleExp {
                           "b",
                           "c"
                          ),
-                triple.join());
+                triple.result());
     }
 
 
@@ -34,9 +34,9 @@ public class TestTripleExp {
     public void parallel_constructor() {
 
         TripleExp<String, String, String> triple =
-                TripleExp.par(IO.value("a"),
-                              IO.value("b"),
-                              IO.value("c")
+                TripleExp.par(IO.succeed("a"),
+                              IO.succeed("b"),
+                              IO.succeed("c")
                              );
 
         Assertions.assertEquals(
@@ -44,7 +44,7 @@ public class TestTripleExp {
                           "b",
                           "c"
                          ),
-                triple.join()
+                triple.result()
                                );
     }
 
