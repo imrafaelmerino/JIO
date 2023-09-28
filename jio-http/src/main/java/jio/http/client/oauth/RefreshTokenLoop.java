@@ -39,7 +39,6 @@ import java.util.function.Predicate;
  * from a 401 from the API gateway asking you to refresh the token. You need to be more specific and also
  * take into account a header or a body
  */
-@SuppressWarnings("serial")
 public final class RefreshTokenLoop extends Exception {
 
     RefreshTokenLoop(int n) {

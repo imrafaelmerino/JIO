@@ -527,7 +527,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * Creates a new effect that will handle any failure that this effect might contain
      * and will be recovered with a new effect evaluated by the specified lambda in a thread from
      * the given executor pool. If the new effect fails again, the new failure is ignored, and
-     * the original failure is returned (this is different from {@link #recoverWith(Lambda, Executor) recoverWith}
+     * the original failure is returned (this is different from {@link #recoverWithOn(Lambda, Executor)}
      * which would return the new failure).
      *
      * @param lambda   the lambda to apply if this effect fails, producing a new effect.

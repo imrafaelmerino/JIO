@@ -6,7 +6,9 @@ import jio.http.client.HttpLambda;
 import java.net.http.HttpResponse;
 
 /**
- * Represents a http client with oauth support
+ * An HTTP client with support for OAuth Client Credentials Grant.
+ * This client allows you to make HTTP requests with OAuth authentication using the Client Credentials Grant flow.
+ * It automatically handles access token expiration and refreshes tokens when needed.
  */
 public interface MyOauthHttpClient extends MyHttpClient {
 

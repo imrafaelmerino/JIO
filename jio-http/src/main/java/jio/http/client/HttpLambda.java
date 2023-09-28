@@ -7,9 +7,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 /**
- * lambda that takes a request builder and returns a http response
+ * Represents a lambda function that takes an HTTP request builder and returns an HTTP response.
  *
- * @param <R> the response body type
+ * @param <R> The type of the response body.
  */
 public interface HttpLambda<R> extends Lambda<HttpRequest.Builder, HttpResponse<R>> {
 }

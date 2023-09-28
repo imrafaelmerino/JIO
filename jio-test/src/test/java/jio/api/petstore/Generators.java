@@ -42,8 +42,8 @@ public class Generators {
     public static final JsObjGen petGen = JsObjGen.of(Fields.ID, JsLongGen.arbitrary().suchThat(id -> id.value >= 0),
                                                       Fields.CATEGORY, Generators.categoryGen,
                                                       Fields.NAME, JsStrGen.alphabetic(),
-                                                      Fields.PHOTO_URLS, JsArrayGen.arbitrary(JsStrGen.alphanumeric(), 1),
-                                                      Fields.TAGS, JsArrayGen.arbitrary(Generators.tagGen, 0),
+                                                      Fields.PHOTO_URLS, JsArrayGen.arbitrary(JsStrGen.alphanumeric(), 1,10),
+                                                      Fields.TAGS, JsArrayGen.arbitrary(Generators.tagGen, 0,100),
                                                       Fields.STATUS, Combinators.oneOf(JsStr.of("available"),
                                                                                        JsStr.of("pending"),
                                                                                        JsStr.of("sold")

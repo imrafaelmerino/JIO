@@ -7,7 +7,11 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
- * Builder to create {@link MyHttpClient} instances.
+ * Builder for creating custom {@link MyHttpClient} instances with configurable options.
+ * This builder allows you to customize the behavior of the HTTP client, including specifying
+ * a retry policy and a retry predicate for handling exceptions during HTTP requests.
+ *
+ *
  */
 public final class MyHttpClientBuilder {
     private final HttpClient client;
@@ -15,9 +19,11 @@ public final class MyHttpClientBuilder {
     private RetryPolicy reqRetryPolicy;
 
     /**
-     * Constructor to create a http client builder from a http client
+     * Constructs a MyHttpClientBuilder with the specified HTTP client.
      *
-     * @param client the http client
+     * @param client The HTTP client to be used for building MyHttpClient instances.
+     *
+     *  @see HttpClient
      */
     public MyHttpClientBuilder(HttpClient client) {
         this.client = Objects.requireNonNull(client);
@@ -25,12 +31,12 @@ public final class MyHttpClientBuilder {
 
 
     /**
-     * Option to define a default retry policy that will be applied to every request sent by this http client,
-     * making retries according to the policy whenever an exception happens. To narrow down what
-     * exceptions are retryable, set a retry predicate with {@link #setRetryPredicate(Predicate)}
+     * Sets a default retry policy that will be applied to every request sent by this HTTP client,
+     * allowing for retries when exceptions occur during requests. You can specify the behavior of
+     * retries using a RetryPolicy.
      *
-     * @param reqRetryPolicy the policy  (if null no request is retried)
-     * @return this builder
+     * @param reqRetryPolicy The retry policy to be applied to HTTP requests (if null, no requests are retried).
+     * @return This builder with the specified retry policy.
      */
     public MyHttpClientBuilder setRetryPolicy(RetryPolicy reqRetryPolicy) {
         this.reqRetryPolicy = Objects.requireNonNull(reqRetryPolicy);
@@ -38,12 +44,13 @@ public final class MyHttpClientBuilder {
     }
 
     /**
-     * Option to define a predicate that takes an exception and returns true if the retry policy specified
-     * with {@link #setRetryPolicy(RetryPolicy)} (RetryPolicy)} must be applied. If a retry policy is not
-     * set, then this option is ignored.
+     * Sets a predicate that takes an exception and returns true if the retry policy specified
+     * with {@link #setRetryPolicy(RetryPolicy)} should be applied. This predicate allows you to
+     * selectively apply the retry policy based on the type or condition of the exception.
      *
-     * @param reqRetryPredicate the predicate (if null, option ignored)
-     * @return this builder
+     * @param reqRetryPredicate The predicate to determine if the retry policy should be applied
+     *                          (if null, the retry policy is applied to all exceptions).
+     * @return This builder with the specified retry predicate.
      */
     public MyHttpClientBuilder setRetryPredicate(Predicate<Throwable> reqRetryPredicate) {
         this.reqRetryPredicate = Objects.requireNonNull(reqRetryPredicate);
@@ -52,10 +59,13 @@ public final class MyHttpClientBuilder {
 
 
     /**
-     * Creates the http client with the specified options
+     * Creates a new instance of MyHttpClient with the configured options.
      *
-     * @return a http client
+     * @return A MyHttpClient instance configured with the specified options.
+     *
+     * @see MyHttpClient
      */
+
     public MyHttpClient create() {
         return new MyHttpClientImpl(client,
                                     reqRetryPolicy,

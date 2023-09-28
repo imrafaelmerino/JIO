@@ -86,7 +86,7 @@ public final class ClientCredentialsHttpClientBuilder {
      *
      * @return a ClientCredentialsHttpClient
      */
-    public ClientCredentialsHttpClient create() {
+    public MyOauthHttpClient create() {
         return new ClientCredentialsHttpClient(client,
                                                accessTokenReq,
                                                authorizationHeaderName,

@@ -4,9 +4,9 @@ import com.sun.net.httpserver.HttpServer;
 import jio.IO;
 import jio.http.client.MyHttpClientBuilder;
 import jio.http.client.oauth.AccessTokenRequest;
-import jio.http.client.oauth.ClientCredentialsHttpClient;
 import jio.http.client.oauth.ClientCredentialsHttpClientBuilder;
 import jio.http.client.oauth.GetAccessToken;
+import jio.http.client.oauth.MyOauthHttpClient;
 import jio.http.server.HttpServerBuilder;
 import jio.test.junit.DebugHttpClient;
 import jio.test.junit.DebugHttpServer;
@@ -65,7 +65,7 @@ public class TestOauth {
 
                 );
 
-        ClientCredentialsHttpClient client = builder.create();
+        MyOauthHttpClient client = builder.create();
 
         HttpResponse<String> resp = client.oauthOfString()
                                           .apply(HttpRequest.newBuilder()

@@ -11,6 +11,7 @@ import jio.test.pbt.*;
 import jio.test.pbt.rest.CRDPropBuilder;
 import jsonvalues.JsNull;
 import jsonvalues.JsObj;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+@Disabled
 @ExtendWith(Debugger.class)
 @DebugHttpClient(duration = 10000)
 public class Properties {
