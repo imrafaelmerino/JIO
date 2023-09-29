@@ -9,32 +9,31 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Represents information related to an exception that happened during the execution
+ * Represents information related to an exception that occurred during the execution
  * of a specific test.
  *
- * @param context   the context of the exception
- * @param exception the exception
+ * @param context   The context of the exception.
+ * @param exception The exception.
  */
 public record ExceptionContext(Context context,
                                Throwable exception) {
 
     /**
-     * serializes this record into a json converting the exception into a Json with its
-     * message, class name and stacktrace. The json schema is the following
+     * Serializes this record into a JSON object, converting the exception into a JSON object with its
+     * message, class name, and stacktrace. The JSON schema is as follows:
      *
      * <pre>
      *     {@code
-     *           {
-     *               "context": JsObj,
-     *               "message": String,
-     *               "type":  String,
-     *               "stacktrace": JsArray[String]
-     *           }
-     *
+     *     {
+     *         "context": JsObj (see Context#toJson()),
+     *         "message": String (or empty string if null),
+     *         "type": String (class name of the exception),
+     *         "stacktrace": JsArray[String]
+     *     }
      *     }
      * </pre>
      *
-     * @return a json
+     * @return A JSON representation of the exception context.
      * @see Context#toJson()
      */
     public JsObj toJson() {

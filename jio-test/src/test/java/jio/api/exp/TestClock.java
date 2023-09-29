@@ -1,6 +1,6 @@
 package jio.api.exp;
 
-import jio.test.stub.value.ClockStub;
+import jio.test.stub.effect.ClockStub;
 import jio.time.Clock;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

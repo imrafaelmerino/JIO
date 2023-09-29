@@ -1,5 +1,5 @@
 
-package jio.test.stub.value;
+package jio.test.stub.effect;
 
 import jio.IO;
 
@@ -11,17 +11,22 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
 /**
- * Class to create different kind of stubs that stand in for {@link IO IO} effects
- * @param <O> the type of the value computed by this stub
+ * Class to create different kinds of stubs that stand in for {@link IO IO} effects.
+ * Each time the stub generates a value, an event is created and sent to the JFR (Java Flight Recorder) system.
+ * This event contains information about the result and the number of times the stub has been called, which can be
+ * useful for debugging purposes.
+ *
+ * @param <O> The type of the value computed by this stub.
  */
 public abstract sealed class IOStub<O> implements Supplier<IO<O>> permits ValStub, FailureStub {
 
     Executor executor;
 
     /**
-     * Computations can be performed by the given executor in order to not block the caller thread
-     * @param executor the executor
-     * @return a new IO stub
+     * Sets the executor for this stub to perform computations asynchronously.
+     *
+     * @param executor The executor.
+     * @return A new IO stub with the specified executor.
      */
     public IOStub<O> onExecutor(Executor executor) {
         this.executor = Objects.requireNonNull(executor);
@@ -30,30 +35,22 @@ public abstract sealed class IOStub<O> implements Supplier<IO<O>> permits ValStu
 
     /**
      * Creates an IO stub that returns successful effects with some delay. The value and the delay
-     * are specified with functions that takes as input the number of times the stub has been called.
+     * are specified with functions that take as input the number of times the stub has been called.
      * For example:
-     *
      * <pre>
-     *
-     *   {@code
-     *
-     *        IOStub<Integer> supplier = IOStub.succeed(n -> n,
-     *                                                  n -> Duration.ofSeconds(n)
-     *                                                 );
-     *
-     *        IO<Integer> stub = supplier.get();
-     *
-     *        stub.join()  // produces 1 after one second
-     *        stub.join()  // produces 2 after two seconds
-     *        and so on
-     *
-     *   }
-     *
+     * {@code
+     * IOStub<Integer> supplier = IOStub.succeed(n -> n, n -> Duration.ofSeconds(n));
+     * IO<Integer> stub = supplier.get();
+     * stub.join();  // Produces 1 after one second
+     * stub.join();  // Produces 2 after two seconds
+     * // and so on
+     * }
      * </pre>
-     * @param valueFn function that takes the calls number and returns the value
-     * @param delayFn function that takes the calls number and returns the delay
-     * @return an IOStub
-     * @param <O> the type of the returned value
+     *
+     * @param valueFn Function that takes the call's number and returns the value.
+     * @param delayFn Function that takes the call's number and returns the delay.
+     * @return An IOStub.
+     * @param <O> The type of the returned value.
      */
     public static <O> IOStub<O> succeed(final IntFunction<O> valueFn,
                                         final IntFunction<Duration> delayFn
@@ -96,28 +93,21 @@ public abstract sealed class IOStub<O> implements Supplier<IO<O>> permits ValStu
      * Creates an IO stub that fails with the exception returned by the given function. When
      * the function returns null, the specified value is returned.
      * For example:
-     *
      * <pre>
-     *
-     *   {@code
-     *
-     *        IOStub<Integer> supplier = IOStub.failThenSucceed(n -> n < 3 ? new RuntimeException():null,
-     *                                                          1);
-     *
-     *        IO<Integer> stub = supplier.get();
-     *
-     *        stub.join()  // throws RuntimeException
-     *        stub.join()  // throws RuntimeException
-     *        stub.join()  // produces 1
-     *        and so on
-     *
-     *   }
-     *
+     * {@code
+     * IOStub<Integer> supplier = IOStub.failThenSucceed(n -> n < 3 ? new RuntimeException() : null, 1);
+     * IO<Integer> stub = supplier.get();
+     * stub.join();  // Throws RuntimeException
+     * stub.join();  // Throws RuntimeException
+     * stub.join();  // Produces 1
+     * // and so on
+     * }
      * </pre>
-     * @param errorFn function that takes the calls number and returns an exception or null
-     * @param value the returned value when the errorFn returns null
-     * @return an IOStub
-     * @param <O> the type of the returned value
+     *
+     * @param errorFn Function that takes the call's number and returns an exception or null.
+     * @param value   The returned value when the errorFn returns null.
+     * @return An IOStub.
+     * @param <O> The type of the returned value.
      */
     public static <O> IOStub<O> failThenSucceed(final IntFunction<Throwable> errorFn,
                                                 final O value
@@ -130,33 +120,30 @@ public abstract sealed class IOStub<O> implements Supplier<IO<O>> permits ValStu
 
 
     /**
-     * Creates an IO stub that delay the computations according to the given delay function, failing with the
-     * exception returned by errorFn. When errorFn returns null, the computation succeed and the specified
+     * Creates an IO stub that delays the computations according to the given delay function, failing with the
+     * exception returned by errorFn. When errorFn returns null, the computation succeeds, and the specified
      * value is returned.
      * For example:
-     *
      * <pre>
-     *
-     *   {@code
-     *
-     *        IOStub<Integer> supplier = IOStub.failThenSucceed(n -> n < 3 ? new RuntimeException():null,
-     *                                                          n -> Duration.ofSeconds(n),
-     *                                                          1);
-     *
-     *        IO<Integer> stub = supplier.get();
-     *
-     *        stub.join()  // throws RuntimeException after 1 second
-     *        stub.join()  // throws RuntimeException after 2 seconds
-     *        stub.join()  // produces 1 after three seconds
-     *        and so on
-     *
-     *   }
+     * {@code
+     * IOStub<Integer> supplier = IOStub.failThenSucceed(
+     *     n -> n < 3 ? new RuntimeException() : null,
+     *     n -> Duration.ofSeconds(n),
+     *     1
+     * );
+     * IO<Integer> stub = supplier.get();
+     * stub.join();  // Throws RuntimeException after 1 second
+     * stub.join();  // Throws RuntimeException after 2 seconds
+     * stub.join();  // Produces 1 after three seconds
+     * // and so on
+     * }
      * </pre>
-     * @param errorFn function that takes the calls number and returns an exception or null
-     * @param delayFn function that takes the calls number and returns a delay
-     * @param value the value returned
-     * @return an IOStub
-     * @param <O> the type of the returned value
+     *
+     * @param errorFn Function that takes the call's number and returns an exception or null.
+     * @param delayFn Function that takes the call's number and returns a delay.
+     * @param value   The value returned.
+     * @return An IOStub.
+     * @param <O> The type of the returned value.
      */
     public static <O> IOStub<O> failThenSucceed(final IntFunction<Throwable> errorFn,
                                                 final IntFunction<Duration> delayFn,
@@ -204,6 +191,14 @@ public abstract sealed class IOStub<O> implements Supplier<IO<O>> permits ValStu
                 .thenCompose(it -> CompletableFuture.failedFuture(failure));
     }
 
+    /**
+     * Wraps an IO effect with stub event tracking, recording information about the execution of the effect.
+     * Records success or failure and commits the event.
+     *
+     * @param effect  The IO effect to be wrapped.
+     * @param counter A supplier of an integer counter.
+     * @return An IO effect with stub event tracking.
+     */
     static <O> IO<O> wrapStub(IO<O> effect,Supplier<Integer> counter) {
         return IO.lazy(() -> {
             StubEvent event = new StubEvent();

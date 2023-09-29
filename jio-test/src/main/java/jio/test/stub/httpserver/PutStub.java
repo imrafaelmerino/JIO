@@ -3,9 +3,10 @@ package jio.test.stub.httpserver;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Stub that stands in for the handler of a PUT http request
+ * Stub that stands in for the handler of a PUT HTTP request.
  */
 public final class PutStub extends ReqHandlerStub {
+
     private PutStub(final BodyStub body,
                     final StatusCodeStub statusCode,
                     final HeadersStub headers
@@ -13,17 +14,17 @@ public final class PutStub extends ReqHandlerStub {
         super(requireNonNull(body),
               requireNonNull(statusCode),
               requireNonNull(headers),
-              "put"
+              "PUT"
              );
     }
 
-
     /**
-     * Creates a PUT handler stub that build the http response from the given body, status code and headers stubs
-     * @param body the body response stub
-     * @param statusCode the status code response stub
-     * @param headers the headers response stub
-     * @return a put stub
+     * Creates a PUT handler stub that builds the HTTP response from the given body, status code, and headers stubs.
+     *
+     * @param body       The body response stub.
+     * @param statusCode The status code response stub.
+     * @param headers    The headers response stub.
+     * @return A put stub.
      */
     public static PutStub of(final BodyStub body,
                              final StatusCodeStub statusCode,
@@ -33,10 +34,11 @@ public final class PutStub extends ReqHandlerStub {
     }
 
     /**
-     * Creates a PUT handler stub that build the http response from the given body and status code stubs
-     * @param body the body response stub
-     * @param statusCode the status code response stub
-     * @return a put stub
+     * Creates a PUT handler stub that builds the HTTP response from the given body and status code stubs.
+     *
+     * @param body       The body response stub.
+     * @param statusCode The status code response stub.
+     * @return A put stub.
      */
     public static PutStub of(final BodyStub body,
                              final StatusCodeStub statusCode
@@ -44,3 +46,4 @@ public final class PutStub extends ReqHandlerStub {
         return new PutStub(body, statusCode, HeadersStub.EMPTY);
     }
 }
+

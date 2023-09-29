@@ -7,8 +7,24 @@ import jio.console.Programs.AskForInputParams;
 import jsonvalues.JsObj;
 
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
+/**
+ * Command to read the content of a specified variable with the command:
+ * <pre>
+ *     var-get {name}
+ * </pre>
+ * <p>
+ * Users can specify the name of the variable they want to read, and the command will return the variable's content as a string.
+ * If the variable doesn't exist, the command allows for multiple retries.
+ * <p>
+ * Examples:
+ * <pre>
+ *     var-get age
+ *     var-get $var
+ * </pre>
+ *
+ * @see Command
+ */
 class ReadVarCommand extends Command {
 
     private static final String COMMAND_NAME = "var-get";
@@ -28,19 +44,11 @@ class ReadVarCommand extends Command {
     public Function<String[], IO<String>> apply(final JsObj conf,
                                                 final State state
                                                ) {
-        Lambda<String, String> program = var -> IO.fromSupplier(() -> {
-            var value = state.stringVariables.get(var);
+        Lambda<String, String> program = var -> IO.lazy(() -> {
+            var value = state.variables.get(var);
             if (value != null) return value;
             var list = state.listsVariables.get(var);
             if (list != null) return String.join("\n", list);
-            var map = state.mapVariables.get(var);
-            if (map != null) return state.mapVariables.get(var).entrySet().stream()
-                                                      .map(e -> String.format("%s -> %s",
-                                                                              e.getKey(),
-                                                                              e.getValue()
-                                                                             )
-                                                          )
-                                                      .collect(Collectors.joining("\n"));
             return "";
         });
 
@@ -49,9 +57,8 @@ class ReadVarCommand extends Command {
 
             if (nTokens == 1)
                 return Programs.ASK_FOR_INPUT(new AskForInputParams("Type the name of the variable",
-                                                                    name -> state.stringVariables.containsKey(name) ||
-                                                                            state.listsVariables.containsKey(name) ||
-                                                                            state.mapVariables.containsKey(name),
+                                                                    name -> state.variables.containsKey(name) ||
+                                                                            state.listsVariables.containsKey(name),
                                                                     "The variable doesn't exist",
                                                                     RetryPolicies.limitRetries(3)
                                               )

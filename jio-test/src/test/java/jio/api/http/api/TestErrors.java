@@ -43,41 +43,6 @@ public class TestErrors {
                                                   9000
                                                  );
 
-    @Test
-    public void test_http() throws InterruptedException {
-        var a = new HttpServerBuilder().addContext("/marca",
-                                                   GetStub.of(BodyStub.cons("marca"),
-                                                              StatusCodeStub.cons(200),
-                                                              HeadersStub.EMPTY
-                                                             )
-                                                  )
-                                       .start("localhost",
-                                              8888
-                                             ).get().join();
-
-        var b = new HttpServerBuilder().addContext("/as",
-                                                   GetStub.of(BodyStub.cons("as"),
-                                                              StatusCodeStub.cons(200),
-                                                              HeadersStub.EMPTY
-                                                             )
-                                                  )
-                                       .start("localhost",
-                                              8889
-                                             ).result();
-
-        var c = new HttpServerBuilder().addContext("/google",
-                                                   GetStub.of(BodyStub.cons("as"),
-                                                              StatusCodeStub.cons(200),
-                                                              HeadersStub.EMPTY
-                                                             )
-                                                  )
-                                       .start("localhost",
-                                              8890
-                                             ).result();
-
-
-        Thread.sleep(Integer.MAX_VALUE);
-    }
 
     @Test
     public void test_http_connect_timeout() {

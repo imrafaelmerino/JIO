@@ -1,4 +1,4 @@
-package jio.test.stub.value;
+package jio.test.stub.effect;
 
 import jio.IO;
 
@@ -48,8 +48,8 @@ final class ValStub<O> extends IOStub<O> implements Supplier<IO<O>> {
     @Override
     public IO<O> get() {
         var stub = new ValStub<>(getValue, delay, executor);
-        return IOStub.wrapStub(stub.effect,
-                               ()->
+        return wrapStub(stub.effect,
+                        ()->
                                        stub.counter);
     }
 

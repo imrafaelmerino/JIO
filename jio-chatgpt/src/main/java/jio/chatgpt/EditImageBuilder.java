@@ -6,7 +6,11 @@ import jsonvalues.JsStr;
 
 import java.util.Objects;
 
-public class EditImageBuilder {
+/**
+ * Builder for creating edited images using the GPT model.
+ * Given a text description and an image, the model will return edited versions of the image.
+ */
+public final class EditImageBuilder {
 
     final String prompt;
     final String image;
@@ -18,9 +22,11 @@ public class EditImageBuilder {
 
 
     /**
+     * Creates an EditImageBuilder instance with the specified prompt and image.
+     *
      * @param prompt A text description of the desired image(s). The maximum length is 1000 characters.
-     * @param image  The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided,
-     *               image must have transparency, which will be used as the mask.
+     * @param image  The image to edit. Must be a valid PNG file, less than 4MB, and square. If a mask is not provided,
+     *               the image must have transparency, which will be used as the mask.
      */
     public EditImageBuilder(String prompt, String image) {
         this.image = Objects.requireNonNull(image);
@@ -32,10 +38,10 @@ public class EditImageBuilder {
     }
 
     /**
-     * size parameter setter
+     * Sets the size of the generated images.
      *
      * @param size The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
-     * @return this builder
+     * @return This builder.
      */
     public EditImageBuilder setSize(Data.IMAGE_SIZE size) {
         this.size = Objects.requireNonNull(size);
@@ -43,9 +49,10 @@ public class EditImageBuilder {
     }
 
     /**
-     * @param mask An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where image
-     *             should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as image.
-     * @return this builder
+     * Sets an additional image whose fully transparent areas indicate where the main image should be edited.
+     *
+     * @param mask An additional image. Must be a valid PNG file, less than 4MB, and have the same dimensions as the main image.
+     * @return This builder.
      */
     public EditImageBuilder setMask(String mask) {
         this.mask = Objects.requireNonNull(mask);
@@ -53,10 +60,10 @@ public class EditImageBuilder {
     }
 
     /**
-     * response_format parameter setter
+     * Sets the format in which the generated images are returned.
      *
-     * @param format The format in which the generated images are returned. Must be one of url or b64_json.
-     * @return this builder
+     * @param format The format in which the generated images are returned. Must be one of "url" or "b64_json".
+     * @return This builder.
      */
     public EditImageBuilder setResponseFormat(Data.IMAGE_FORMAT format) {
         this.responseFormat = Objects.requireNonNull(format);
@@ -64,10 +71,10 @@ public class EditImageBuilder {
     }
 
     /**
-     * n parameter setter
+     * Sets the number of images to generate.
      *
      * @param n The number of images to generate. Must be between 1 and 10.
-     * @return this builder
+     * @return This builder.
      */
     public EditImageBuilder setN(int n) {
         if (n < 0) throw new IllegalArgumentException("n < 0");
@@ -77,16 +84,21 @@ public class EditImageBuilder {
     }
 
     /**
-     * user parameter setter
+     * Sets a unique identifier representing your end-user.
      *
-     * @param user A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse
-     * @return this builder
+     * @param user A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
+     * @return This builder.
      */
     public EditImageBuilder setUser(String user) {
         this.user = Objects.requireNonNull(user);
         return this;
     }
 
+    /**
+     * Builds a configuration object for making a request to generate edited images.
+     *
+     * @return A configuration object (JsObj) containing the specified parameters for image editing.
+     */
     public JsObj build() {
 
         JsObj obj = JsObj.of(JSON_FIELDS.PROMPT_FIELD, JsStr.of(prompt),

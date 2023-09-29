@@ -1,6 +1,6 @@
 package jio.chatgpt;
 
-public class Constraints {
+final class Constraints {
 
     static final int MAX_CHAT_COMPLETION_TEMPERATURE = 2;
     static final int MIN_CHAT_COMPLETION_TEMPERATURE = 0;

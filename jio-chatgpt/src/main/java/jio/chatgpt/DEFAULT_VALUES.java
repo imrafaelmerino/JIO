@@ -1,6 +1,6 @@
 package jio.chatgpt;
 
-public class DEFAULT_VALUES {
+final class DEFAULT_VALUES {
 
     static final double DEFAULT_TEMPERATURE = 1.0;
     static final double DEFAULT_TOP_P = 1;

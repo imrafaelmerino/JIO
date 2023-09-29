@@ -30,8 +30,8 @@ class JsPairsCommand extends Command {
             int nArgs = tokens.length - 1;
 
             return nArgs > 0 ?
-                    IO.fromSupplier(
-                            () -> Functions.toJson.apply(state.stringVariables.get("output"))
+                    IO.lazy(
+                            () -> Functions.toJson.apply(state.variables.get("output"))
                                                   .stream()
                                                   .filter(it -> it.path()
                                                                   .toString()
@@ -42,8 +42,8 @@ class JsPairsCommand extends Command {
                                                                           ))
                                                   .collect(Collectors.joining("\n"))
                                    ) :
-                    IO.fromSupplier(
-                            () -> Functions.toJson.apply(state.stringVariables.get("output"))
+                    IO.lazy(
+                            () -> Functions.toJson.apply(state.variables.get("output"))
                                                   .stream()
                                                   .map(it -> String.format("%s -> %s",
                                                                            it.path(),

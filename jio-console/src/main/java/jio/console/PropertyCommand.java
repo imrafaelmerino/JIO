@@ -1,7 +1,7 @@
 package jio.console;
 
 import jio.IO;
-import jio.pbt.Property;
+import jio.test.pbt.Property;
 import jsonvalues.JsObj;
 
 import java.util.Arrays;
@@ -11,11 +11,11 @@ import java.util.regex.Pattern;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Command to execute {@link Property properties} with the command:
+ * Command to execute {@link jio.test.pbt.Property properties} with the command:
  * <pre>
  *     prop name
  * </pre>
- *
+ * <p>
  * Properties can also be executed an arbitrary number of time either in parallel
  * or sequentially:
  *
@@ -23,7 +23,6 @@ import static java.util.Objects.requireNonNull;
  *     prop name par 3
  *     prop name seq 5
  * </pre>
- *
  */
 public class PropertyCommand extends Command {
 
@@ -31,25 +30,24 @@ public class PropertyCommand extends Command {
             Pattern.compile("prop \\w+ par \\d+");
     static final Pattern seqPattern =
             Pattern.compile("prop \\w+ seq \\d+");
-
-    private final Property<?> prop;
-
     private static final String PREFIX_COMMAND = "prop";
+    private final Property<?> prop;
 
 
     /**
-     * Creates a PropertyCommand from a property
-     * @param prop the property
+     * Creates a PropertyCommand from a property.
+     *
+     * @param prop The property to execute.
      */
     public PropertyCommand(final Property<?> prop) {
         super(String.format("%s %s",
                             PREFIX_COMMAND,
-                            requireNonNull(prop).getName()
+                            requireNonNull(prop).name
                            ),
-              prop.getDescription(),
+              prop.description,
               tokens ->
                       tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
-                              && tokens[1].equalsIgnoreCase(prop.getName())
+                              && tokens[1].equalsIgnoreCase(prop.name)
              );
         this.prop = requireNonNull(prop);
     }
@@ -62,14 +60,14 @@ public class PropertyCommand extends Command {
             String command = String.join(" ", Arrays.stream(tokens).toList());
             if (parPattern.matcher(command).matches()) {
                 int n = Integer.parseInt(tokens[3]);
-                return IO.fromValue(prop.repeatPar(n).toString());
+                return IO.succeed(prop.repeatPar(n).toString());
 
             }
             if (seqPattern.matcher(command).matches()) {
                 int n = Integer.parseInt(tokens[3]);
-                return IO.fromValue(prop.repeatSeq(n).toString());
+                return IO.succeed(prop.repeatSeq(n).toString());
             }
-            return IO.fromFailure( new CommandNotFoundException(command));
+            return IO.fail(new CommandNotFoundException(command));
 
 
         };

@@ -12,13 +12,27 @@ import java.net.http.HttpResponse;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * A builder class for creating property tests that cover CRUD (Create, Read, Update, Delete) operations on a RESTful API endpoint.
+ *
+ * @param <O> The type of data generated to feed the property tests.
+ */
 public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder<O>> {
 
 
     private final BiLambda<JsObj, HttpResponse<String>, HttpResponse<String>> update;
 
     private Function<HttpResponse<String>, TestResult> updateAssert = respAssert;
-
+    /**
+     * Creates a new instance of CRUDPropBuilder with the specified parameters.
+     *
+     * @param name    The name of the property test.
+     * @param gen     The data generator that produces pseudorandom data for testing.
+     * @param p_post  The lambda function representing the HTTP POST operation.
+     * @param p_get   The lambda function representing the HTTP GET operation.
+     * @param p_update The lambda function representing the HTTP UPDATE operation.
+     * @param p_delete The lambda function representing the HTTP DELETE operation.
+     */
     public CRUDPropBuilder(String name,
                            Gen<O> gen,
                            Lambda<O, HttpResponse<String>> p_post,
@@ -29,7 +43,16 @@ public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder
         super(name, gen, p_post, p_get, p_delete);
         this.update = (conf, res) -> p_update.apply(res);
     }
-
+    /**
+     * Creates a new instance of CRUDPropBuilder with the specified parameters.
+     *
+     * @param name    The name of the property test.
+     * @param gen     The data generator that produces pseudorandom data for testing.
+     * @param p_post  The lambda function representing the HTTP POST operation.
+     * @param p_get   The lambda function representing the HTTP GET operation.
+     * @param p_update The lambda function representing the HTTP UPDATE operation.
+     * @param p_delete The lambda function representing the HTTP DELETE operation.
+     */
 
     public CRUDPropBuilder(String name,
                            Gen<O> gen,
@@ -42,7 +65,11 @@ public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder
         this.update = p_update;
     }
 
-
+    /**
+     * Creates a property test based on the configuration of this builder.
+     *
+     * @return A property test for the CRUD operations defined by this builder.
+     */
     public Property<O> create() {
         BiLambda<JsObj, O, TestResult> lambda =
                 (conf, body) -> post.apply(conf, body)
@@ -77,7 +104,12 @@ public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder
         return Property.ofLambda(name, gen, lambda);
     }
 
-
+    /**
+     * Sets the assertion function for the HTTP UPDATE operation.
+     *
+     * @param updateAssert The assertion function for the HTTP UPDATE operation.
+     * @return This CRUDPropBuilder instance with the updated assertion function.
+     */
     public CRUDPropBuilder<O> withUpdateAssert(Function<HttpResponse<String>, TestResult> updateAssert) {
         this.updateAssert = Objects.requireNonNull(updateAssert);
         return this;

@@ -8,31 +8,32 @@ import jsonvalues.Json;
 import java.util.function.Function;
 
 /**
- * Class to create different commands to execute interactive programs that allows the user to compose a Json
+ * Class to create different commands to execute interactive programs that allow the user to compose a JSON
  * given a provided spec. The constructor takes three arguments: the command name and description,
- * and the program that interacts with the user to compose the Json. To execute the command:
+ * and the program that interacts with the user to compose the JSON. To execute the command:
  *
  * <pre>
  *     json command_name
  * </pre>
- *
+ * <p>
  * To get some help about the program and show the description:
  * <pre>
  *     help json command_name
  * </pre>
  *
+ * @see JsObjConsole
  */
 public class JsObjConsoleCommand extends Command {
-    private final JsConsole<? extends Json<?>> program;
     private static final String COMMAND_NAME = "json-console";
+    private final JsConsole<? extends Json<?>> program;
 
 
     /**
-     * Constructor to create a JsObjConsoleCommand
-     * @param name the name of the command
-     * @param description the description (will show up if the user types in the help command)
-     * @param objConsole the program that composes the Json
+     * Constructor to create a JsObjConsoleCommand.
      *
+     * @param name        the name of the command
+     * @param description the description (will show up if the user types in the help command)
+     * @param objConsole  the program that composes the JSON
      * @see JsObjConsole
      */
     public JsObjConsoleCommand(final String name,

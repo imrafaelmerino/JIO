@@ -22,8 +22,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-//TODO validaciones comandos
-public class GptConsole {
+public final class GptConsole {
 
     public static void main(String[] args) throws IOException {
 
@@ -43,37 +42,37 @@ public class GptConsole {
             throw new IllegalArgumentException(confArg + "auth_header is missing in " + confArg);
 
         var services = new Services(new ConfBuilder(authHeader.getBytes(StandardCharsets.UTF_8)),
-                new MyHttpClientBuilder(HttpClient.newHttpClient()).create()
+                                    new MyHttpClientBuilder(HttpClient.newHttpClient()).create()
         );
 
         List<Command> commands = new ArrayList<>();
 
         commands.add(new SupplierCommand("gpt-file-list", "Returns a list of files that belong to the user's organization.",
-                        () -> services.fileService.list().map(JsObj::toString).result()
-                )
-        );
+                                         () -> services.fileService.list().map(JsObj::toString).result()
+                     )
+                    );
         commands.add(new Command("gpt-file-upload", "Upload a file that contains document(s) to be used across various endpoints/features. Currently, the size of all the files uploaded by one organization can be up to 1 GB. Please contact us if you need to increase the storage limit.") {
             @Override
             public Function<String[], IO<String>> apply(JsObj obj, State state) {
                 return tokens -> {
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_PAIR(
-                                        new Programs.AskForInputParams("Type the absolute path of the file",
-                                                path -> path != null && !path.isBlank() && new File(path).exists(),
-                                                "Introduce a valid path",
-                                                RetryPolicies.limitRetries(3)
-                                        ),
-                                        new Programs.AskForInputParams("Type the purpose",
-                                                str -> str != null && !str.trim().isBlank(),
-                                                "purpose is re required",
-                                                RetryPolicies.limitRetries(3)
-                                        )
-                                )
-                                .then(pair -> services.fileService.upload(new File(pair.first()),
-                                                        pair.second()
-                                                )
-                                                .map(JsObj::toString)
-                                );
+                                               new Programs.AskForInputParams("Type the absolute path of the file",
+                                                                              path -> path != null && !path.isBlank() && new File(path).exists(),
+                                                                              "Introduce a valid path",
+                                                                              RetryPolicies.limitRetries(3)
+                                               ),
+                                               new Programs.AskForInputParams("Type the purpose",
+                                                                              str -> str != null && !str.trim().isBlank(),
+                                                                              "purpose is re required",
+                                                                              RetryPolicies.limitRetries(3)
+                                               )
+                                                    )
+                                       .then(pair -> services.fileService.upload(new File(pair.first()),
+                                                                                 pair.second()
+                                                                                )
+                                                                         .map(JsObj::toString)
+                                            );
                     String path = tokens[1];
                     String purpose = tokens[2];
                     File file = new File(path);
@@ -90,12 +89,12 @@ public class GptConsole {
                 return tokens -> {
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUT(
-                                        new Programs.AskForInputParams("Type the id of the file",
-                                                str -> str != null && !str.trim().isBlank(),
-                                                "Id is required",
-                                                RetryPolicies.limitRetries(3)
-                                        ))
-                                .then(id -> services.fileService.delete(id).map(JsObj::toString));
+                                               new Programs.AskForInputParams("Type the id of the file",
+                                                                              str -> str != null && !str.trim().isBlank(),
+                                                                              "Id is required",
+                                                                              RetryPolicies.limitRetries(3)
+                                               ))
+                                       .then(id -> services.fileService.delete(id).map(JsObj::toString));
                     String id = tokens[1];
                     return services.fileService.delete(id).map(JsObj::toString);
                 };
@@ -108,12 +107,12 @@ public class GptConsole {
                 return tokens -> {
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUT(
-                                        new Programs.AskForInputParams("Type the id of the file",
-                                                str -> str != null && !str.trim().isBlank(),
-                                                "Id is required",
-                                                RetryPolicies.limitRetries(3)
-                                        ))
-                                .then(id -> services.fileService.retrieve(id).map(JsObj::toString));
+                                               new Programs.AskForInputParams("Type the id of the file",
+                                                                              str -> str != null && !str.trim().isBlank(),
+                                                                              "Id is required",
+                                                                              RetryPolicies.limitRetries(3)
+                                               ))
+                                       .then(id -> services.fileService.retrieve(id).map(JsObj::toString));
                     String id = tokens[1];
                     return services.fileService.retrieve(id).map(JsObj::toString);
                 };
@@ -126,12 +125,12 @@ public class GptConsole {
                 return tokens -> {
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUT(
-                                        new Programs.AskForInputParams("Type the id of the file",
-                                                str -> str != null && !str.trim().isBlank(),
-                                                "Id is required",
-                                                RetryPolicies.limitRetries(3)
-                                        ))
-                                .then(id -> services.fileService.retrieveFileContent(id).map(JsObj::toString));
+                                               new Programs.AskForInputParams("Type the id of the file",
+                                                                              str -> str != null && !str.trim().isBlank(),
+                                                                              "Id is required",
+                                                                              RetryPolicies.limitRetries(3)
+                                               ))
+                                       .then(id -> services.fileService.retrieveFileContent(id).map(JsObj::toString));
                     String id = tokens[1];
                     return services.fileService.retrieveFileContent(id).map(JsObj::toString);
                 };
@@ -144,35 +143,35 @@ public class GptConsole {
                 return tokens -> {
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUTS(
-                                        new Programs.AskForInputParams("Type the model (curie, davinci, babbage,gpt-3.5-turbo)",
-                                                str -> str != null && !str.trim().isBlank(),
-                                                "Model is required",
-                                                RetryPolicies.limitRetries(3)
-                                        ),
-                                        new Programs.AskForInputParams("Type the prompt",
-                                                str -> str != null && !str.trim().isBlank(),
-                                                "Prompt is required",
-                                                RetryPolicies.limitRetries(3)
-                                        ),
-                                        new Programs.AskForInputParams("Type the max_tokens",
-                                                n -> {
-                                                    try {
-                                                        int i = Integer.parseInt(n);
-                                                        return i < 4096 && i > 0;
-                                                    } catch (NumberFormatException e) {
-                                                        return false;
-                                                    }
-                                                },
-                                                "max tokens is a number (0, 4096)",
-                                                RetryPolicies.limitRetries(3)
-                                        )
-                                )
-                                .then(list -> services.completionService
-                                        .create(new CompletionBuilder(list.get(0),
-                                                        list.get(1)
-                                                ).setMaxTokens(Integer.parseInt(list.get(2)))
-                                        )
-                                        .map(JsObj::toString));
+                                               new Programs.AskForInputParams("Type the model (curie, davinci, babbage,gpt-3.5-turbo)",
+                                                                              str -> str != null && !str.trim().isBlank(),
+                                                                              "Model is required",
+                                                                              RetryPolicies.limitRetries(3)
+                                               ),
+                                               new Programs.AskForInputParams("Type the prompt",
+                                                                              str -> str != null && !str.trim().isBlank(),
+                                                                              "Prompt is required",
+                                                                              RetryPolicies.limitRetries(3)
+                                               ),
+                                               new Programs.AskForInputParams("Type the max_tokens",
+                                                                              n -> {
+                                                                                  try {
+                                                                                      int i = Integer.parseInt(n);
+                                                                                      return i < 4096 && i > 0;
+                                                                                  } catch (NumberFormatException e) {
+                                                                                      return false;
+                                                                                  }
+                                                                              },
+                                                                              "max tokens is a number (0, 4096)",
+                                                                              RetryPolicies.limitRetries(3)
+                                               )
+                                                      )
+                                       .then(list -> services.completionService
+                                               .create(new CompletionBuilder(list.get(0),
+                                                                             list.get(1)
+                                                       ).setMaxTokens(Integer.parseInt(list.get(2)))
+                                                      )
+                                               .map(JsObj::toString));
                     String model = tokens[1];
                     List<String> promptList = Arrays.stream(tokens).toList().subList(2, tokens.length);
                     String prompt = String.join(" ", promptList);
@@ -184,10 +183,10 @@ public class GptConsole {
         });
 
         commands.add(new SupplierCommand("gpt-models",
-                        "Lists the currently available models, and provides basic information about each one such as the owner and availability.",
-                        () -> services.modelService.list().result().toString()
-                )
-        );
+                                         "Lists the currently available models, and provides basic information about each one such as the owner and availability.",
+                                         () -> services.modelService.list().result().toString()
+                     )
+                    );
 
 
         commands.add(new Command("gpt-finetune-create", "Creates a job that fine-tunes a specified model from a given dataset.\n" +
@@ -198,15 +197,15 @@ public class GptConsole {
                 return tokens -> {
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type the file id",
-                                        str -> str != null && !str.trim().isBlank(),
-                                        "file id is required",
-                                        RetryPolicies.limitRetries(3)
-                                ))
-                                .then(id -> services.fineTunerService.create(new FineTuneBuilder(id))
-                                        .map(JsObj::toString));
+                                                                                     str -> str != null && !str.trim().isBlank(),
+                                                                                     "file id is required",
+                                                                                     RetryPolicies.limitRetries(3)
+                                       ))
+                                       .then(id -> services.fineTunerService.create(new FineTuneBuilder(id))
+                                                                            .map(JsObj::toString));
 
                     return services.fineTunerService.create(new FineTuneBuilder(tokens[1]))
-                            .map(JsObj::toString);
+                                                    .map(JsObj::toString);
                 };
             }
         });
@@ -218,14 +217,14 @@ public class GptConsole {
                 return tokens -> {
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type the fine-tune job id",
-                                        str -> str != null && !str.trim().isBlank(),
-                                        "job id is required",
-                                        RetryPolicies.limitRetries(3)
-                                ))
-                                .then(id -> services.fineTunerService.get(id)
-                                        .map(JsObj::toString));
+                                                                                     str -> str != null && !str.trim().isBlank(),
+                                                                                     "job id is required",
+                                                                                     RetryPolicies.limitRetries(3)
+                                       ))
+                                       .then(id -> services.fineTunerService.get(id)
+                                                                            .map(JsObj::toString));
                     return services.fineTunerService.get(tokens[1])
-                            .map(JsObj::toString);
+                                                    .map(JsObj::toString);
                 };
             }
         });
@@ -236,14 +235,14 @@ public class GptConsole {
                 return tokens -> {
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type the file id",
-                                        str -> str != null && !str.trim().isBlank(),
-                                        "file id is required",
-                                        RetryPolicies.limitRetries(3)
-                                ))
-                                .then(id -> services.fineTunerService.cancel(id)
-                                        .map(JsObj::toString));
+                                                                                     str -> str != null && !str.trim().isBlank(),
+                                                                                     "file id is required",
+                                                                                     RetryPolicies.limitRetries(3)
+                                       ))
+                                       .then(id -> services.fineTunerService.cancel(id)
+                                                                            .map(JsObj::toString));
                     return services.fineTunerService.cancel(tokens[1])
-                            .map(JsObj::toString);
+                                                    .map(JsObj::toString);
                 };
             }
         });
@@ -254,14 +253,14 @@ public class GptConsole {
                 return tokens -> {
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type the file id",
-                                        str -> str != null && !str.trim().isBlank(),
-                                        "file id is required",
-                                        RetryPolicies.limitRetries(3)
-                                ))
-                                .then(id -> services.fineTunerService.listEvents(id)
-                                        .map(JsObj::toString));
+                                                                                     str -> str != null && !str.trim().isBlank(),
+                                                                                     "file id is required",
+                                                                                     RetryPolicies.limitRetries(3)
+                                       ))
+                                       .then(id -> services.fineTunerService.listEvents(id)
+                                                                            .map(JsObj::toString));
                     return services.fineTunerService.listEvents(tokens[1])
-                            .map(JsObj::toString);
+                                                    .map(JsObj::toString);
                 };
             }
         });
@@ -271,7 +270,7 @@ public class GptConsole {
             @Override
             public Function<String[], IO<String>> apply(JsObj conf, State state) {
                 return tokens -> services.fineTunerService.list()
-                        .map(JsObj::toString);
+                                                          .map(JsObj::toString);
             }
         });
 
@@ -290,17 +289,17 @@ public class GptConsole {
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
-                        return IO.succeed("loades messages from " + path);
+                        return IO.succeed("loaded messages from " + path);
                     };
 
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type the absolute path with the chat messages",
-                                                str -> str != null && new File(str).exists(),
-                                                "File must exist and be an array of messages",
-                                                RetryPolicies.limitRetries(3)
-                                        )
-                                )
-                                .then(loadFile);
+                                                                                     str -> str != null && new File(str).exists(),
+                                                                                     "File must exist and be an array of messages",
+                                                                                     RetryPolicies.limitRetries(3)
+                                                      )
+                                                     )
+                                       .then(loadFile);
 
                     return loadFile.apply(tokens[1]);
 
@@ -317,33 +316,33 @@ public class GptConsole {
 
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUTS(new Programs.AskForInputParams("Type the role (system, user or assistant)",
-                                                str -> str != null && !str.trim().isBlank(),
-                                                "role is required",
-                                                RetryPolicies.limitRetries(3)
-                                        ),
-                                        new Programs.AskForInputParams("Type the message",
-                                                str -> str != null && !str.trim().isBlank(),
-                                                "message is required",
-                                                RetryPolicies.limitRetries(3)
-                                        )
-                                )
-                                .then(list -> {
-                                            state.listsVariables.get("#chat#")
-                                                    .add(new ChatMessageBuilder(Data.ROLE.valueOf(list.get(0)), list.get(1))
-                                                            .build()
-                                                            .toString()
-                                                    );
-                                            return IO.succeed("Added a new message to the chat!");
-                                        }
-                                );
+                                                                                      str -> str != null && !str.trim().isBlank(),
+                                                                                      "role is required",
+                                                                                      RetryPolicies.limitRetries(3)
+                                                       ),
+                                                       new Programs.AskForInputParams("Type the message",
+                                                                                      str -> str != null && !str.trim().isBlank(),
+                                                                                      "message is required",
+                                                                                      RetryPolicies.limitRetries(3)
+                                                       )
+                                                      )
+                                       .then(list -> {
+                                                 state.listsVariables.get("#chat#")
+                                                                     .add(new ChatMessageBuilder(Data.ROLE.valueOf(list.get(0)), list.get(1))
+                                                                                  .build()
+                                                                                  .toString()
+                                                                         );
+                                                 return IO.succeed("Added a new message to the chat!");
+                                             }
+                                            );
 
                     String role = tokens[1];
                     String content = String.join(" ", Arrays.stream(tokens).toList().subList(2, tokens.length));
                     state.listsVariables.get("#chat#")
-                            .add(new ChatMessageBuilder(Data.ROLE.valueOf(role), content)
-                                    .build()
-                                    .toString()
-                            );
+                                        .add(new ChatMessageBuilder(Data.ROLE.valueOf(role), content)
+                                                     .build()
+                                                     .toString()
+                                            );
                     return IO.succeed("Added a new message to the chat!");
 
                 };
@@ -367,25 +366,25 @@ public class GptConsole {
                 return tokens -> {
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUTS(new Programs.AskForInputParams("Type the model (text-davinci-edit-001 or code-davinci-edit-001)",
-                                        str -> str != null && !str.trim().isBlank(),
-                                        "model is required",
-                                        RetryPolicies.limitRetries(3)
-                                ),
-                                new Programs.AskForInputParams("Type the instructions",
-                                        str -> str != null && !str.trim().isBlank(),
-                                        "instructions is required",
-                                        RetryPolicies.limitRetries(3)
-                                )
-                        ).then(list -> services.editService.create(new EditBuilder(list.get(0),
-                                        list.get(1)
-                                ))
-                                .map(JsObj::toString));
+                                                                                      str -> str != null && !str.trim().isBlank(),
+                                                                                      "model is required",
+                                                                                      RetryPolicies.limitRetries(3)
+                                                       ),
+                                                       new Programs.AskForInputParams("Type the instructions",
+                                                                                      str -> str != null && !str.trim().isBlank(),
+                                                                                      "instructions is required",
+                                                                                      RetryPolicies.limitRetries(3)
+                                                       )
+                                                      ).then(list -> services.editService.create(new EditBuilder(list.get(0),
+                                                                                                                 list.get(1)
+                                                                             ))
+                                                                                         .map(JsObj::toString));
                     String model = tokens[1];
                     String instructions = tokens[2];
                     return services.editService.create(new EditBuilder(model,
-                                    instructions
-                            ))
-                            .map(JsObj::toString);
+                                                                       instructions
+                                   ))
+                                               .map(JsObj::toString);
                 };
             }
         });
@@ -409,31 +408,31 @@ public class GptConsole {
             public Function<String[], IO<String>> apply(JsObj obj, State state) {
                 return tokens -> {
                     JsArray messages = JsArray.ofIterable(state.listsVariables
-                            .get("#chat#")
-                            .stream()
-                            .map(JsObj::parse)
-                            .collect(Collectors.toList()));
+                                                                  .get("#chat#")
+                                                                  .stream()
+                                                                  .map(JsObj::parse)
+                                                                  .collect(Collectors.toList()));
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUTS(new Programs.AskForInputParams("Type the model (gpt-3.5-turbo) ",
-                                        str -> str != null && !str.trim().isBlank(),
-                                        "model is required",
-                                        RetryPolicies.limitRetries(3)
-                                ))
-                                .then(list -> services.chatService.create(new ChatBuilder(list.get(0), messages))
-                                        .peekSuccess(resp -> state.listsVariables.get("#chat#")
-                                                .add(resp.getObj("/choices/0/message")
-                                                        .toString()
-                                                )
-                                        )
-                                        .map(JsObj::toString));
+                                                                                      str -> str != null && !str.trim().isBlank(),
+                                                                                      "model is required",
+                                                                                      RetryPolicies.limitRetries(3)
+                                       ))
+                                       .then(list -> services.chatService.create(new ChatBuilder(list.get(0), messages))
+                                                                         .peekSuccess(resp -> state.listsVariables.get("#chat#")
+                                                                                                                  .add(resp.getObj("/choices/0/message")
+                                                                                                                           .toString()
+                                                                                                                      )
+                                                                                     )
+                                                                         .map(JsObj::toString));
                     String model = tokens[1];
                     return services.chatService.create(new ChatBuilder(model, messages))
-                            .peekSuccess(resp -> state.listsVariables.get("#chat#")
-                                    .add(resp.getObj("/choices/0/message")
-                                            .toString()
-                                    )
-                            )
-                            .map(JsObj::toString);
+                                               .peekSuccess(resp -> state.listsVariables.get("#chat#")
+                                                                                        .add(resp.getObj("/choices/0/message")
+                                                                                                 .toString()
+                                                                                            )
+                                                           )
+                                               .map(JsObj::toString);
                 };
             }
         });

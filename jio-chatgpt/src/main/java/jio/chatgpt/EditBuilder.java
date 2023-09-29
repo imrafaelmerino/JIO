@@ -5,9 +5,10 @@ import jsonvalues.*;
 import java.util.Objects;
 
 /**
- * Edit builder. Given a prompt and an instruction, the model will return an edited version of the prompt.
+ * Builder for creating edited versions of prompts using the GPT model.
+ * Given a prompt and an instruction, the model will return an edited version of the prompt.
  */
-public class EditBuilder {
+public final class EditBuilder {
 
     private final String model;
     private final String instruction;
@@ -17,8 +18,8 @@ public class EditBuilder {
 
 
     /**
-     * @param model       ID of the model to use. You can use the text-davinci-edit-001 or code-davinci-edit-001 model with this endpoint.
-     * @param instruction The instruction that tells the model how to edit the prompt.
+     * Builder for creating edited versions of prompts using the GPT model.
+     * Given a prompt and an instruction, the model will return an edited version of the prompt.
      */
     public EditBuilder(String model, String instruction) {
 
@@ -31,14 +32,14 @@ public class EditBuilder {
 
 
     /**
-     * temperature parameter setter.
+     * Sets the sampling temperature for generating edited versions of the prompt.
      * Higher values like 0.8 will make the output more random,
      * while lower values like 0.2 will make it more focused and deterministic.
      * <p>
      * We generally recommend altering this or top_p but not both.
      *
-     * @param value What sampling temperature to use, between 0 and 2. (Defaults to 1)
-     * @return this builder
+     * @param value The sampling temperature to use, between 0 and 2. (Defaults to 1)
+     * @return This builder.
      */
     public EditBuilder setTemperature(double value) {
         if (value > Constraints.MAX_EDIT_TEMPERATURE)
@@ -50,15 +51,14 @@ public class EditBuilder {
     }
 
     /**
-     * top_p parameter setter.
-     * 0.1 means only the tokens comprising the top 10% probability mass
-     * are considered.
+     * Sets the top_p parameter for edited prompt generation.
+     * 0.1 means only the tokens comprising the top 10% probability mass are considered.
      * <p>
      * We generally recommend altering this or temperature but not both.
      *
      * @param value An alternative to sampling with temperature, called nucleus sampling, where the
-     *              model considers the results of  the tokens with top_p probability mass. (Defaults to 1)
-     * @return this builder
+     *              model considers the results of the tokens with top_p probability mass. (Defaults to 1)
+     * @return This builder.
      */
     public EditBuilder setTopP(double value) {
         if (value < Constraints.MIN_EDIT_TOP_P) throw new IllegalArgumentException("topP < 0");
@@ -68,15 +68,21 @@ public class EditBuilder {
     }
 
     /**
+     * Sets the number of edits to generate for the input and instruction.
+     *
      * @param n How many edits to generate for the input and instruction.
-     * @return this builder
+     * @return This builder.
      */
     public EditBuilder setN(int n) {
         this.n = n;
         return this;
     }
 
-
+    /**
+     * Builds a configuration object for making a request to generate edited prompts.
+     *
+     * @return A configuration object (JsObj) containing the specified parameters for edited prompt generation.
+     */
     public JsObj build() {
         JsObj obj = JsObj.of(JSON_FIELDS.MODEL_FIELD, JsStr.of(model),
                              JSON_FIELDS.INSTRUCTION_FIELD, JsStr.of(instruction)

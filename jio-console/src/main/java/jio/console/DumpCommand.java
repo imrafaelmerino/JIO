@@ -12,6 +12,19 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.function.Function;
 
+/**
+ * Represents a command that writes the content of the output variable into the specified file.
+ * If the file exists, it appends the content to the file.
+ *
+ * Usage: {@code file-dump {path_file}}
+ *
+ * Examples:
+ * {@code file-dump /Users/rmerinogarcia/dump.txt}
+ * {@code file-dump $var}
+ *
+ * The content of the {@code output} variable contains the result of the last command executed
+ * (if the command is configured to do so).
+ */
 class DumpCommand extends Command {
 
     private static final String COMMAND_NAME = "file-dump";
@@ -54,15 +67,15 @@ class DumpCommand extends Command {
         try {
             Path file = Paths.get(path);
             if (!file.getParent().toFile().isDirectory())
-                return IO.fromFailure(new InvalidCommand(this, "Folder " + file.getParent() + " not found"));
+                return IO.fail(new InvalidCommand(this, "Folder " + file.getParent() + " not found"));
 
             Files.writeString(file,
-                              state.stringVariables.getOrDefault("output", "") + "\n",
+                              state.variables.getOrDefault("output", "") + "\n",
                               StandardOpenOption.CREATE,
                               StandardOpenOption.APPEND
                              );
         } catch (IOException e) {
-            return IO.fromFailure(e);
+            return IO.fail(e);
         }
         return IO.NULL();
     }

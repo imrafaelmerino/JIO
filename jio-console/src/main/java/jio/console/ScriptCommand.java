@@ -15,10 +15,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * Represents a command to execute a script file containing multiple commands.
+ * It reads the specified file and executes all the commands found in it.
+ * Usage:
+ * - script /path/to/script.txt
+ */
 class ScriptCommand extends Command {
-    private final Console console;
-
     private static final String COMMAND_NAME = "script";
+    private final Console console;
 
 
     public ScriptCommand(Console console) {
@@ -51,7 +56,7 @@ class ScriptCommand extends Command {
             Path path = Paths.get(Functions.joinTail(tokens));
             File file = path.toFile();
             if (!file.exists())
-                return IO.fromFailure(new FileNotFoundException("The file '" + file + "' doesnt exist"));
+                return IO.fail(new FileNotFoundException("The file '" + file + "' doesnt exist"));
             return execScript(conf, path);
 
 
@@ -67,20 +72,20 @@ class ScriptCommand extends Command {
                          .map(line -> {
                                   Optional<Pair<Command, IO<String>>> opt = console.parse(conf, line.trim());
                                   if (opt.isPresent()) return opt.get().second();
-                                  return IO.fromValue(String.format("The line %s is not a supported command",
-                                                                    line
-                                                                   )
-                                                     );
+                                  return IO.succeed(String.format("The line %s is not a supported command",
+                                                                  line
+                                                                 )
+                                                   );
                               }
                              )
                          .toList();
 
             return list.stream()
-                       .reduce(IO.fromValue(""),
+                       .reduce(IO.succeed(""),
                                (a, b) -> a.then(as -> b.map(bs -> as + "\n" + bs))
                               );
         } catch (IOException e) {
-            return IO.fromFailure(new InvalidCommand(this, e.getMessage()));
+            return IO.fail(new InvalidCommand(this, e.getMessage()));
         }
 
     }

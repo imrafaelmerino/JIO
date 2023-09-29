@@ -1,17 +1,18 @@
 package jio.console;
 
 /**
- * Exception that represents a user error typing in a command: an argument is missing, a number was expected etc
+ * Represents an exception that occurs when a user enters an invalid command or command arguments in the console.
+ * This exception provides details about the specific reason for the failure and includes information about the
+ * description of the command for user reference.
  */
-@SuppressWarnings("serial")
 public class InvalidCommand extends Exception {
 
 
     /**
-     * Constructor to create InvalidCommand exceptions from the command and the exact reason of the failure
+     * Constructs a new {@code InvalidCommand} exception with the given command and the exact reason for the failure.
      *
-     * @param command the command
-     * @param reason  the reason the command can not be executed
+     * @param command The command that the user attempted to execute.
+     * @param reason  The reason the command cannot be executed due to invalid input.
      */
     public InvalidCommand(final Command command,
                           final String reason

@@ -4,15 +4,16 @@ import java.time.Duration;
 import java.util.Objects;
 
 /**
- * Stub that stands in for the body response of a http request.
- *
+ * A stub that stands in for the body response of an HTTP request.
  */
 public interface BodyStub extends HttpRespStub<String> {
 
     /**
-     * stub that always returns the given body
-     * @param body the body
-     * @return a body stub
+     * Creates a body stub that always returns the given body as the HTTP response body.
+     *
+     * @param body The body to be returned.
+     * @return A body stub that returns the specified body.
+     * @throws NullPointerException if the provided body is null.
      */
     static BodyStub cons(final String body) {
         Objects.requireNonNull(body);
@@ -20,10 +21,13 @@ public interface BodyStub extends HttpRespStub<String> {
     }
 
     /**
-     * stub that always returns the given body after the specified delay
-     * @param body the body
-     * @param delay the delay
-     * @return a body stub
+     * Creates a body stub that always returns the given body as the HTTP response body
+     * after the specified delay.
+     *
+     * @param body  The body to be returned.
+     * @param delay The delay before returning the body.
+     * @return A body stub that returns the specified body after the delay.
+     * @throws NullPointerException if the provided body or delay is null.
      */
     static BodyStub consAfter(final String body,
                               final Duration delay

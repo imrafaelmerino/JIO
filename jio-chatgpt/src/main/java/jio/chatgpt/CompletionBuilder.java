@@ -16,7 +16,7 @@ import static jio.chatgpt.JSON_FIELDS.*;
  * Given a prompt, the model will return one or more predicted completions, and can also return the probabilities of
  * alternative tokens at each position.
  */
-public class CompletionBuilder {
+public final class CompletionBuilder {
 
     private static final int DEFAULT_MAX_TOKEN = 16;
     private final String model;
@@ -38,16 +38,22 @@ public class CompletionBuilder {
 
 
     /**
-     * @param model  ID of the model to use. You can use the List models API to see all of your available models, or see our Model overview for descriptions of them.
-     * @param prompt The prompt to generate completions for, encoded as a string
+     * Creates a new CompletionBuilder instance.
+     *
+     * @param model  ID of the model to use. You can use the List models API to see all of your available models,
+     *               or see our Model overview for descriptions of them.
+     * @param prompt The prompt to generate completions for, encoded as a string.
      */
     public CompletionBuilder(String model, String prompt) {
         this(model, JsArray.of(prompt));
     }
 
     /**
-     * @param model  ID of the model to use. You can use the List models API to see all of your available models, or see our Model overview for descriptions of them.
-     * @param prompt The prompts to generate completions for, encoded as an array of strings
+     * Creates a new CompletionBuilder instance.
+     *
+     * @param model  ID of the model to use. You can use the List models API to see all of your available models,
+     *               or see our Model overview for descriptions of them.
+     * @param prompt The prompts to generate completions for, encoded as an array of strings.
      */
     public CompletionBuilder(String model, JsArray prompt) {
         this.model = Objects.requireNonNull(model);
@@ -63,7 +69,7 @@ public class CompletionBuilder {
     }
 
     /**
-     * suffix parameter setter
+     * Suffix parameter setter.
      *
      * @param suffix The suffix that comes after a completion of inserted text.
      * @return this builder
@@ -75,10 +81,10 @@ public class CompletionBuilder {
 
 
     /**
-     * max_tokens parameter setter
+     * Max_tokens parameter setter.
      * The total length of input tokens and generated tokens is limited by the model's context length.
      *
-     * @param maxTokens The maximum number of tokens to generate in the completion (Default to 16)
+     * @param maxTokens The maximum number of tokens to generate in the completion (Default to 16).
      * @return this builder
      */
     public CompletionBuilder setMaxTokens(int maxTokens) {
@@ -88,10 +94,9 @@ public class CompletionBuilder {
     }
 
     /**
-     * temperature parameter setter.
+     * Temperature parameter setter.
      * Higher values like 0.8 will make the output more random,
      * while lower values like 0.2 will make it more focused and deterministic.
-     * <p>
      * We generally recommend altering this or top_p but not both.
      *
      * @param value What sampling temperature to use, between 0 and 2. (Defaults to 1)
@@ -107,14 +112,13 @@ public class CompletionBuilder {
     }
 
     /**
-     * top_p parameter setter.
+     * Top_p parameter setter.
      * 0.1 means only the tokens comprising the top 10% probability mass
      * are considered.
-     * <p>
      * We generally recommend altering this or temperature but not both.
      *
      * @param value An alternative to sampling with temperature, called nucleus sampling, where the
-     *              model considers the results of  the tokens with top_p probability mass. (Defaults to 1)
+     *              model considers the results of the tokens with top_p probability mass. (Defaults to 1)
      * @return this builder
      */
     public CompletionBuilder setTopP(double value) {
@@ -125,9 +129,9 @@ public class CompletionBuilder {
     }
 
     /**
-     * n parameter builder
+     * N parameter builder.
      *
-     * @param n How many chat completion choices to generate for each input message (Defaults to 1)
+     * @param n How many chat completion choices to generate for each input message (Defaults to 1).
      * @return this builder
      */
     public CompletionBuilder setNChoices(int n) {
@@ -138,10 +142,11 @@ public class CompletionBuilder {
 
 
     /**
+     * Stream parameter setter.
      * If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only server-sent
-     * events as they become available, with the stream terminated by a data: [DONE] message
+     * events as they become available, with the stream terminated by a data: [DONE] message.
      *
-     * @param stream Whether to stream back partial progress (Defaults to false)
+     * @param stream Whether to stream back partial progress (Defaults to false).
      * @return this builder
      */
     public CompletionBuilder setStream(boolean stream) {
@@ -150,13 +155,12 @@ public class CompletionBuilder {
     }
 
     /**
-     * logprobs parameter setter.
+     * Logprobs parameter setter.
      * For example, if logprobs is 5, the API will return a list of the 5 most likely tokens. The API will
      * always return the logprob of the sampled token, so there may be up to logprobs+1 elements in the response.
-     * <p>
-     * The maximum value for logprobs is 5. If you need more than this, please contact OpenAI through their Help center and describe your use case.
+     * The maximum value for logprobs is 5.
      *
-     * @param logprobs Include the log probabilities on the logprobs most likely tokens, as well the chosen tokens (Defaults to null)
+     * @param logprobs Include the log probabilities on the logprobs most likely tokens, as well the chosen tokens (Defaults to null).
      * @return this builder
      */
     public CompletionBuilder setLogprobs(int logprobs) {
@@ -167,9 +171,9 @@ public class CompletionBuilder {
     }
 
     /**
-     * echo parameter setter.
+     * Echo parameter setter.
      *
-     * @param echo Echo back the prompt in addition to the completion (Defaults to false)
+     * @param echo Echo back the prompt in addition to the completion (Defaults to false).
      * @return this builder
      */
     public CompletionBuilder setEcho(boolean echo) {
@@ -179,9 +183,9 @@ public class CompletionBuilder {
 
 
     /**
-     * stop parameter setter
+     * Stop parameter setter.
      *
-     * @param stop up to 4 sequences where the API will stop generating further tokens (Defaults to null)
+     * @param stop Up to 4 sequences where the API will stop generating further tokens (Defaults to null).
      * @return this builder
      */
     public CompletionBuilder setStop(JsArray stop) {
@@ -193,9 +197,9 @@ public class CompletionBuilder {
     }
 
     /**
-     * stop parameter setter
+     * Stop parameter setter.
      *
-     * @param stop text where the API will stop generating further tokens (Defaults to null)
+     * @param stop Up to 4 sequences where the API will stop generating further tokens (Defaults to null).
      * @return this builder
      */
     public CompletionBuilder setStop(String stop) {
@@ -204,10 +208,10 @@ public class CompletionBuilder {
 
 
     /**
-     * presence_penalty parameter setter.
+     * Presence_penalty parameter setter.
      *
      * @param value Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the
-     *              text so far, increasing the model's likelihood to talk about new topics (Defaults to 0)
+     *              text so far, increasing the model's likelihood to talk about new topics (Defaults to 0).
      * @return this builder
      */
     public CompletionBuilder setPresencePenalty(double value) {
@@ -220,10 +224,10 @@ public class CompletionBuilder {
     }
 
     /**
-     * frequency_penalty parameter setter
+     * Frequency_penalty parameter setter.
      *
-     * @param value between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in
-     *              the text so far, decreasing the model's likelihood to repeat the same line verbatim. (Defaults to 0)
+     * @param value Between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in
+     *              the text so far, decreasing the model's likelihood to repeat the same line verbatim. (Defaults to 0).
      * @return this builder
      */
     public CompletionBuilder setFrequencyPenalty(double value) {
@@ -235,16 +239,14 @@ public class CompletionBuilder {
         return this;
     }
 
-    /***
+    /**
+     * Best_of parameter builder.
+     * When used with n, best_of controls the number of candidate completions and n specifies how many to return –
+     * best_of must be greater than n. Because this parameter generates many completions, it can quickly consume
+     * your token quota. Use carefully and ensure that you have reasonable settings for max_tokens and stop.
      *
-     * best_of parameter builder
-     * When used with n, best_of controls the number of candidate completions and n specifies how many to return
-     * – best_of must be greater than n. Because this parameter generates many completions, it can quickly consume
-     * your token quota.
-     * Use carefully and ensure that you have reasonable settings for max_tokens and stop.
      * @param bestOf Generates best_of completions server-side and returns the "best" (the one with the highest
-     *               log probability per token).
-     *               Results cannot be streamed. Defaults to 1
+     *               log probability per token). Results cannot be streamed. Defaults to 1.
      * @return this builder
      */
     public CompletionBuilder setBestOf(int bestOf) {

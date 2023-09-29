@@ -5,8 +5,11 @@ import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 
 import java.util.Objects;
-
-public class VariationImageBuilder {
+/**
+ * Builder class to create variation images.
+ * Given a base image, this builder allows you to generate variations of the image.
+ */
+public final  class VariationImageBuilder {
 
     final String image;
     Data.IMAGE_FORMAT responseFormat;
@@ -14,7 +17,10 @@ public class VariationImageBuilder {
     int n;
     Data.IMAGE_SIZE size;
     /**
-     * @param image The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and square.
+     * Constructs a VariationImageBuilder with the provided base image.
+     *
+     * @param image The image to use as the basis for the variation(s).
+     *              Must be a valid PNG file, less than 4MB, and square.
      */
     public VariationImageBuilder(String image) {
         this.image = Objects.requireNonNull(image);
@@ -24,10 +30,10 @@ public class VariationImageBuilder {
     }
 
     /**
-     * size parameter setter
+     * Sets the size parameter for the generated images.
      *
-     * @param size The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
-     * @return this builder
+     * @param size The size of the generated images, which must be one of 256x256, 512x512, or 1024x1024.
+     * @return This builder instance.
      */
     public VariationImageBuilder setSize(Data.IMAGE_SIZE size) {
         this.size = Objects.requireNonNull(size);
@@ -36,10 +42,10 @@ public class VariationImageBuilder {
 
 
     /**
-     * response_format parameter setter
+     * Sets the response format parameter for the generated images.
      *
-     * @param format The format in which the generated images are returned. Must be one of url or b64_json.
-     * @return this builder
+     * @param format The format in which the generated images are returned, which must be one of url or b64_json.
+     * @return This builder instance.
      */
     public VariationImageBuilder setResponseFormat(Data.IMAGE_FORMAT format) {
         this.responseFormat = Objects.requireNonNull(format);
@@ -47,10 +53,10 @@ public class VariationImageBuilder {
     }
 
     /**
-     * n parameter setter
+     * Sets the number of images to generate.
      *
-     * @param n The number of images to generate. Must be between 1 and 10.
-     * @return this builder
+     * @param n The number of images to generate, which must be between 1 and 10.
+     * @return This builder instance.
      */
     public VariationImageBuilder setN(int n) {
         if (n < 0) throw new IllegalArgumentException("n < 0");
@@ -60,17 +66,21 @@ public class VariationImageBuilder {
     }
 
     /**
-     * user parameter setter
+     * Sets the user parameter to represent your end-user, which can help OpenAI monitor and detect abuse.
      *
-     * @param user A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse
-     * @return this builder
+     * @param user A unique identifier representing your end-user.
+     * @return This builder instance.
      */
     public VariationImageBuilder setUser(String user) {
         this.user = Objects.requireNonNull(user);
         return this;
     }
 
-
+    /**
+     * Builds a JSON object representing the parameters for generating variation images.
+     *
+     * @return A JsObj containing the variation image parameters.
+     */
     public JsObj build() {
 
         JsObj obj = JsObj.of(JSON_FIELDS.IMAGE_FIELD, JsStr.of(image));

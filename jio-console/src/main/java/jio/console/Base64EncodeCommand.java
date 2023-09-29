@@ -7,6 +7,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.function.Function;
 
+/**
+ * Represents a command that encodes a specified string into a new string using the Base64 encoding scheme.
+ * The encoded string is returned as the result of this command.
+ * <p>
+ * Usage: {@code base64-encode {string}}
+ * <p>
+ * Examples:
+ * - {@code base64-encode hi! i'll be encoded into base 64}
+ * - {@code base64-encode $var}
+ */
 class Base64EncodeCommand extends Command {
 
     private final static Base64.Encoder encoder = Base64.getEncoder();
@@ -25,7 +35,7 @@ class Base64EncodeCommand extends Command {
     }
 
     private static IO<String> encode(String text) {
-        return IO.fromValue(encoder.encodeToString(text.getBytes(StandardCharsets.UTF_8)));
+        return IO.succeed(encoder.encodeToString(text.getBytes(StandardCharsets.UTF_8)));
     }
 
     @Override

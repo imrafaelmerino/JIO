@@ -10,10 +10,22 @@ import jsonvalues.*;
 
 import java.net.http.HttpResponse;
 
-
+/**
+ * A builder class for creating property tests for RESTful APIs that support Create (POST), Read (GET), and Delete (DELETE) operations.
+ *
+ * @param <O> The type of data generated to feed the property tests.
+ */
 public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O>> {
 
-
+    /**
+     * Creates a new instance of CRDPropBuilder for building property tests for CRUD operations.
+     *
+     * @param name   The name of the property test.
+     * @param gen    A generator for producing input data of type O.
+     * @param p_post A function for making HTTP POST requests to create entities.
+     * @param p_get  A function for making HTTP GET requests to retrieve entities by ID.
+     * @param p_delete A function for making HTTP DELETE requests to delete entities by ID.
+     */
     public CRDPropBuilder(String name,
                           Gen<O> gen,
                           Lambda<O, HttpResponse<String>> p_post,
@@ -22,7 +34,15 @@ public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O
                          ) {
         super(name, gen, p_post, p_get, p_delete);
     }
-
+    /**
+     * Creates a new instance of CRDPropBuilder for building property tests for CRUD operations.
+     *
+     * @param name   The name of the property test.
+     * @param gen    A generator for producing input data of type O.
+     * @param p_post A bi-function for making HTTP POST requests to create entities, taking a configuration and input data.
+     * @param p_get  A bi-function for making HTTP GET requests to retrieve entities by ID, taking a configuration and an ID.
+     * @param p_delete A bi-function for making HTTP DELETE requests to delete entities by ID, taking a configuration and an ID.
+     */
     public CRDPropBuilder(String name,
                           Gen<O> gen,
                           BiLambda<JsObj, O, HttpResponse<String>> p_post,
@@ -31,7 +51,11 @@ public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O
                          ) {
         super(name, gen, p_post, p_get, p_delete);
     }
-
+    /**
+     * Creates a property test based on the configured CRUD operations.
+     *
+     * @return A property test for Create (POST), Read (GET), and Delete (DELETE) operations on a RESTful API.
+     */
     public Property<O> create() {
         BiLambda<JsObj, O, TestResult> lambda =
                 (conf, body) -> post.apply(conf, body).then(resp -> switch (postAssert.apply(resp)) {

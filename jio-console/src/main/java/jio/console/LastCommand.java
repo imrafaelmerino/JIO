@@ -12,6 +12,18 @@ import java.util.regex.Pattern;
 import static java.lang.Integer.parseInt;
 import static java.time.Duration.ofMillis;
 
+/**
+ * Represents a command to execute the last command one or more times, optionally with a repetition interval or duration.
+ * It provides flexibility in repeating the last command based on user input.
+ * <p>
+ * Examples of valid input patterns:
+ * - Execute the last command once: "last"
+ * - Execute the last command a specified number of times: "last 3"
+ * - Execute the last command at regular intervals: "last every 100"
+ * - Execute the last command at regular intervals for a specified duration: "last every 100 for 1000"
+ *
+ * @see Command
+ */
 class LastCommand extends Command {
 
     static final Pattern pattern1 =
@@ -42,7 +54,7 @@ class LastCommand extends Command {
                                                 final State state
                                                ) {
         return tokens -> {
-            if (state.historyCommands.isEmpty()) return IO.fromValue("The history stack is empty!");
+            if (state.historyCommands.isEmpty()) return IO.succeed("The history stack is empty!");
             IO<String> lastCommand = state.getHistoryCommand(state.historyCommands.size() - 1);
 
             if (tokens.length == 1)
@@ -69,7 +81,7 @@ class LastCommand extends Command {
                                           RetryPolicies.constantDelay(ofMillis(parseInt(tokens[2])))
                                                        .limitRetriesByCumulativeDelay(ofMillis(parseInt(tokens[4])))
                                          );
-            return IO.fromFailure(new InvalidCommand(this, "Not a expected pattern"));
+            return IO.fail(new InvalidCommand(this, "Not a expected pattern"));
 
         };
     }

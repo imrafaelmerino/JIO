@@ -1,7 +1,7 @@
 package jio.api.exp;
 
 import jio.IO;
-import jio.test.stub.value.IOStub;
+import jio.test.stub.effect.IOStub;
 
 import java.time.Duration;
 import java.util.concurrent.Executors;

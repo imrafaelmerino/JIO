@@ -6,9 +6,12 @@ import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
-public class FineTuneBuilder {
-    private final String trainingFile;
 
+/**
+ * A builder class for configuring and creating a fine-tuning job.
+ */
+public final  class FineTuneBuilder {
+    private final String trainingFile;
 
     private String validationFile;
     private String model;
@@ -22,6 +25,11 @@ public class FineTuneBuilder {
     private OptionalDouble learningRateMultiplier;
     private OptionalInt classificationNClasses;
 
+    /**
+     * Constructs a new FineTuneBuilder with the required training file.
+     *
+     * @param trainingFile The path or URL of the training data file.
+     */
     public FineTuneBuilder(String trainingFile) {
         this.trainingFile = Objects.requireNonNull(trainingFile);
         this.nEpochs = DEFAULT_VALUES.DEFAULT_FINE_TUNE_NEPOCHS;
@@ -32,62 +40,126 @@ public class FineTuneBuilder {
         this.promptLossWeight = DEFAULT_VALUES.DEFAULT__FINE_TUNE_PROMPTLOSSWEIGHT;
     }
 
-
+    /**
+     * Sets the validation data file.
+     *
+     * @param validationFile The path or URL of the validation data file.
+     * @return This FineTuneBuilder instance for method chaining.
+     */
     public FineTuneBuilder setValidationFile(String validationFile) {
         this.validationFile = Objects.requireNonNull(validationFile);
         return this;
     }
 
+    /**
+     * Sets the ID of the model to fine-tune.
+     *
+     * @param model The ID of the model.
+     * @return This FineTuneBuilder instance for method chaining.
+     */
     public FineTuneBuilder setModel(String model) {
         this.model = Objects.requireNonNull(model);
         return this;
     }
 
+    /**
+     * Sets the number of training epochs.
+     *
+     * @param nEpochs The number of training epochs.
+     * @return This FineTuneBuilder instance for method chaining.
+     */
     public FineTuneBuilder setNEpochs(int nEpochs) {
         if (nEpochs < 0) throw new IllegalArgumentException("nEpochs < 0");
         this.nEpochs = nEpochs;
         return this;
     }
 
+    /**
+     * Sets the batch size for training.
+     *
+     * @param batchSize The batch size.
+     * @return This FineTuneBuilder instance for method chaining.
+     */
     public FineTuneBuilder setBatchSize(int batchSize) {
         if (batchSize < 0) throw new IllegalArgumentException("batchSize < 0");
         this.batchSize = OptionalInt.of(batchSize);
         return this;
     }
 
+    /**
+     * Sets the learning rate multiplier.
+     *
+     * @param learningRateMultiplier The learning rate multiplier.
+     * @return This FineTuneBuilder instance for method chaining.
+     */
     public FineTuneBuilder setLearningRateMultiplier(double learningRateMultiplier) {
         if (learningRateMultiplier < 0) throw new IllegalArgumentException("learningRateMultiplier < 0");
         this.learningRateMultiplier = OptionalDouble.of(learningRateMultiplier);
         return this;
     }
 
+    /**
+     * Sets the weight assigned to the prompt loss.
+     *
+     * @param promptLossWeight The prompt loss weight.
+     * @return This FineTuneBuilder instance for method chaining.
+     */
     public FineTuneBuilder setPromptLossWeight(double promptLossWeight) {
         if (promptLossWeight < 0) throw new IllegalArgumentException("promptLossWeight < 0");
         this.promptLossWeight = promptLossWeight;
         return this;
     }
 
+    /**
+     * Sets whether to compute classification metrics.
+     *
+     * @param computeClassificationMetrics True to compute classification metrics, false otherwise.
+     * @return This FineTuneBuilder instance for method chaining.
+     */
     public FineTuneBuilder setComputeClassificationMetrics(boolean computeClassificationMetrics) {
         this.computeClassificationMetrics = computeClassificationMetrics;
         return this;
     }
 
+    /**
+     * Sets the number of classes for classification tasks.
+     *
+     * @param classificationNClasses The number of classes.
+     * @return This FineTuneBuilder instance for method chaining.
+     */
     public FineTuneBuilder setClassificationNClasses(int classificationNClasses) {
         if (classificationNClasses < 0) throw new IllegalArgumentException("classificationNClasses < 0");
         this.classificationNClasses = OptionalInt.of(classificationNClasses);
         return this;
     }
 
+    /**
+     * Sets the positive class for classification tasks.
+     *
+     * @param classificationPositiveClass The positive class.
+     * @return This FineTuneBuilder instance for method chaining.
+     */
     public FineTuneBuilder setClassificationPositiveClass(String classificationPositiveClass) {
         this.classificationPositiveClass = Objects.requireNonNull(classificationPositiveClass);
         return this;
     }
 
+    /**
+     * Sets a suffix to add to the fine-tuned model's name.
+     *
+     * @param suffix The suffix to add.
+     * @return This FineTuneBuilder instance for method chaining.
+     */
     public FineTuneBuilder setSuffix(String suffix) {
         this.suffix = Objects.requireNonNull(suffix);
         return this;
     }
 
+    /**
+     * Builds a JSON object representing the fine-tuning configuration.
+     *
+     * @return A JsObj containing the fine-tuning parameters.
+     */
     public JsObj build() {
         var body = JsObj.of(JSON_FIELDS.TRAINING_FILE_FIELD, JsStr.of(trainingFile));
         if (validationFile != null)

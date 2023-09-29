@@ -23,6 +23,15 @@ class JsGetValueCommand extends Command {
              );
     }
 
+    private static IO<String> getValue(State state, String path) {
+        JsPath jsPath = JsPath.path(path);
+        return IO.lazy(() ->
+                               Functions.toJson
+                                       .apply(state.variables.get("output"))
+                                       .get(jsPath)
+                                       .toString());
+    }
+
     @Override
     public Function<String[], IO<String>> apply(final JsObj conf,
                                                 final State state
@@ -46,14 +55,5 @@ class JsGetValueCommand extends Command {
                                .then(path -> getValue(state, path));
             return getValue(state, Functions.joinTail(tokens));
         };
-    }
-
-    private static IO<String> getValue(State state, String path) {
-        JsPath jsPath = JsPath.path(path);
-        return IO.fromSupplier(() ->
-                                      Functions.toJson
-                                              .apply(state.stringVariables.get("output"))
-                                              .get(jsPath)
-                                              .toString());
     }
 }

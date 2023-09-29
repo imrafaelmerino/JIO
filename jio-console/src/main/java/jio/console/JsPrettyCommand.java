@@ -19,9 +19,9 @@ class JsPrettyCommand extends Command {
     public Function<String[], IO<String>> apply(final JsObj conf,
                                                 final State state
                                                ) {
-        return tokens -> IO.fromSupplier(() ->
+        return tokens -> IO.lazy(() ->
                                            Functions.toJson
-                                                   .apply(state.stringVariables.get("output"))
+                                                   .apply(state.variables.get("output"))
                                                    .toPrettyString()
                                         );
     }

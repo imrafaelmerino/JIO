@@ -8,6 +8,16 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a command to list all possible commands, optionally filtered by a specified prefix.
+ * It provides users with a list of available commands and allows them to filter the results by prefix.
+ *
+ * Examples of valid input patterns:
+ * - List all possible commands: "list"
+ * - List commands filtered by a prefix: "list js"
+ *
+ * @see Command
+ */
 class ListCommand extends Command {
     private static final String COMMAND_NAME = "list";
     private final List<Command> commands;
@@ -38,8 +48,8 @@ class ListCommand extends Command {
                             .sorted(Comparator.naturalOrder())
                             .collect(Collectors.toList());
             return tokens.length == 1 ?
-                    IO.fromValue(String.join("\n", list)) :
-                    IO.fromValue(list.stream()
+                    IO.succeed(String.join("\n", list)) :
+                    IO.succeed(list.stream()
                                      .filter(it -> it.startsWith(tokens[1]))
                                      .collect(Collectors.joining("\n"))
                                 );

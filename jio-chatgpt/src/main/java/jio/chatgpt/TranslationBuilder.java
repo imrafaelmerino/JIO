@@ -11,7 +11,7 @@ import jsonvalues.JsStr;
 /**
  * Builder class to create Translations
  */
-public class TranslationBuilder {
+public final class TranslationBuilder {
 
 
     final String file;

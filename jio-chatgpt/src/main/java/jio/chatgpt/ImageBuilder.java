@@ -10,7 +10,7 @@ import java.util.Objects;
  * Builder to create images.
  * Given a prompt and/or an input image, the model will generate a new image.
  */
-public class ImageBuilder {
+public  final class ImageBuilder {
 
     final String prompt;
     Data.IMAGE_FORMAT responseFormat;
@@ -18,8 +18,9 @@ public class ImageBuilder {
     int n;
     Data.IMAGE_SIZE size;
 
-
     /**
+     * Constructs an ImageBuilder with the provided prompt.
+     *
      * @param prompt A text description of the desired image(s). The maximum length is 1000 characters.
      */
     public ImageBuilder(String prompt) {
@@ -31,7 +32,7 @@ public class ImageBuilder {
     }
 
     /**
-     * size parameter setter
+     * Sets the size parameter for the generated images.
      *
      * @param size The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
      * @return this builder
@@ -42,7 +43,7 @@ public class ImageBuilder {
     }
 
     /**
-     * response_format parameter setter
+     * Sets the response format parameter for the generated images.
      *
      * @param format The format in which the generated images are returned. Must be one of url or b64_json.
      * @return this builder
@@ -53,7 +54,7 @@ public class ImageBuilder {
     }
 
     /**
-     * n parameter setter
+     * Sets the number of images to generate.
      *
      * @param n The number of images to generate. Must be between 1 and 10.
      * @return this builder
@@ -66,9 +67,10 @@ public class ImageBuilder {
     }
 
     /**
-     * user parameter setter
+     * Sets the user parameter, representing a unique identifier for the end-user.
+     * This can help OpenAI monitor and detect abuse.
      *
-     * @param user A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse
+     * @param user A unique identifier representing your end-user.
      * @return this builder
      */
     public ImageBuilder setUser(String user) {
@@ -76,8 +78,12 @@ public class ImageBuilder {
         return this;
     }
 
+    /**
+     * Builds a JSON object representing the image creation parameters.
+     *
+     * @return A JsObj containing the image creation parameters.
+     */
     public JsObj build() {
-
         JsObj obj = JsObj.of(JSON_FIELDS.PROMPT_FIELD, JsStr.of(prompt));
 
         if (responseFormat != DEFAULT_VALUES.DEFAULT_IMAGE_RESPONSE_FORMAT)

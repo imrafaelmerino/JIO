@@ -9,18 +9,24 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Class to create different commands to execute interactive programs that generates random data
- * given a provided generator. The constructor takes three arguments: the command name and description,
- * and the generator. To execute the command:
+ * Represents a command that generates random data using a provided generator.
+ * Usage: {@code gen command_name}
+ * <p>
+ * This command is used to execute interactive programs that generate random data. It takes
+ * three arguments in its constructor: the command name, a description (shown in the help command),
+ * and a generator. To execute the command, users can use the following syntax:
  *
  * <pre>
  *     gen command_name
  * </pre>
  * <p>
- * To get some help about the program and show the description:
+ * To get help about the program and view its description, users can type:
+ *
  * <pre>
  *     help gen command_name
  * </pre>
+ * <p>
+ * The generated data is obtained from the provided generator when the command is executed.
  */
 public class GenerateCommand extends Command {
     private static final String PREFIX_COMMAND = "gen";
@@ -28,12 +34,11 @@ public class GenerateCommand extends Command {
 
 
     /**
-     * Constructor to create a GenerateCommand
+     * Constructs a new {@code GenerateCommand} with the specified name, description, and generator.
      *
      * @param name        the name of the command
-     * @param description the description (will show up if the user types in the help command)
-     * @param gen         the generator
-     * @see JsObjConsole
+     * @param description the description (shown in the help command)
+     * @param gen         the generator for generating random data
      */
     public GenerateCommand(final String name,
                            final String description,
@@ -52,11 +57,19 @@ public class GenerateCommand extends Command {
         this.gen = gen.apply(new Random());
     }
 
+    /**
+     * Returns a function that takes an array of tokens representing user input (unused in this command)
+     * and generates random data using the provided generator.
+     *
+     * @param conf  the configuration (unused in this command)
+     * @param state the state (unused in this command)
+     * @return a function that generates random data
+     */
     @Override
     public Function<String[], IO<String>> apply(final JsObj conf,
                                                 final State state
                                                ) {
-        return tokens -> IO.fromSupplier(gen);
+        return tokens -> IO.lazy(gen);
 
     }
 }

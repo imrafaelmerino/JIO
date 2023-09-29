@@ -13,31 +13,32 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Class to create different commands to execute interactive programs that send http request
- * given a provided function. The constructor takes three arguments: the command name and description,
- * and the function that send the request and returns the http response. To execute the command:
- *
- * <pre>
- *     req command_name
- * </pre>
+ * Represents a command that allows users to execute interactive programs that send HTTP requests
+ * and receive HTTP responses using a provided function. Users can specify the command name,
+ * description, and the function to build and send the HTTP request, and the command can be executed as follows:
  * <p>
- * To get some help about the program and show the description:
- * <pre>
- *     help req command_name
- * </pre>
+ * Usage: {@code http command_name [options]}
+ * - {@code command_name}: The name of the HTTP command to execute.
+ * - {@code [options]}: Additional options or parameters for the HTTP request.
+ * <p>
+ * To get help and show the description of the HTTP command, users can enter:
+ * {@code help http command_name}
+ * <p>
+ * This command is designed for sending HTTP requests and displaying HTTP response details, including
+ * status code, response time, HTTP method, URI, response body, and headers.
  */
 public class HttpCommand extends Command {
 
-    private final BiFunction<JsObj, String[], IO<HttpResponse<String>>> request;
     private static final String PREFIX_COMMAND = "http";
+    private final BiFunction<JsObj, String[], IO<HttpResponse<String>>> request;
 
     /**
-     * Constructor to create a GenerateCommand
+     * Constructs a new {@code HttpCommand} with the specified name, description, and HTTP request function.
      *
-     * @param name        the name of the command
-     * @param description the description (will show up if the user types in the help command)
-     * @param req         the function that takes the configuration, the array of tokens typed in by the user and build the request
-     *                    , returning the http response
+     * @param name        The name of the HTTP command.
+     * @param description The description of the command (displayed in the help command).
+     * @param req         The function that takes configuration, user input tokens, and builds the HTTP request,
+     *                    returning an {@code IO} that represents the HTTP response.
      * @see JsObjConsole
      */
     public HttpCommand(final String name,
@@ -57,11 +58,18 @@ public class HttpCommand extends Command {
         this.request = req;
     }
 
+    /**
+     * Applies the HTTP command to execute an HTTP request with the given configuration and user input tokens.
+     *
+     * @param conf  The configuration for the HTTP request.
+     * @param state The current state of the console.
+     * @return A function that takes user input tokens and returns an {@code IO} representing the HTTP response.
+     */
     @Override
     public Function<String[], IO<String>> apply(final JsObj conf,
                                                 final State state
                                                ) {
-        return tokens -> IO.fromSupplier(Clock.realTime)
+        return tokens -> IO.lazy(Clock.realTime)
                            .then(tic -> request.apply(conf, tokens)
                                                .map(resp ->
                                                             JsObj.of("status_code",

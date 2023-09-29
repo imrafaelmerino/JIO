@@ -41,8 +41,10 @@
         <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
         <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
         <JIO-EXP-VERSION>0.9.0</JIO-EXP-VERSION>
-        <JIO-TEST-VERSION>0.7.0</JIO-TEST-VERSION>
+        <JIO-TEST-VERSION>0.9.0</JIO-TEST-VERSION>
         <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
+        <JIO-CONSOLE.VERSION>0.9.0</JIO-CONSOLE.VERSION>
+        <JIO-HTTP.VERSION>0.9.0</JIO-HTTP.VERSION>
     </properties>
 
     <build>
@@ -124,13 +126,13 @@
         <dependency>
             <groupId>com.github.imrafaelmerino</groupId>
             <artifactId>jio-console</artifactId>
-            <version>0.7.6</version>
+            <version>${JIO-CONSOLE.VERSION}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.github.imrafaelmerino</groupId>
             <artifactId>jio-http</artifactId>
-            <version>0.9.0</version>
+            <version>${JIO-HTTP.VERSION}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

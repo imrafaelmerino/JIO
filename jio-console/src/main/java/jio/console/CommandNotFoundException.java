@@ -1,6 +1,5 @@
 package jio.console;
 
-@SuppressWarnings("serial")
 class CommandNotFoundException extends Exception {
 
     public CommandNotFoundException(String name) {

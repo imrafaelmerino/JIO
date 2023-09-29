@@ -12,66 +12,33 @@ import static java.util.Objects.requireNonNull;
 
 
 /**
- * Represents a {@link JsConsole console} program to compose a json object from the user inputs.
- * It has the same recursive structure as a Json object, which makes very easy to create
- * interactive programs to compose JsObj:
+ * Represents a {@link JsConsole console} program to compose a JSON object from the user inputs.
+ * It has the same recursive structure as a JSON object, which makes it very easy to create
+ * interactive programs to compose a {@link jsonvalues.JsObj JsObj}:
  *
  * <pre>
  *     {@code
- *
  *           JsObjConsole.of("a", JsConsole.of(JsSpecs.integer()),
  *                           "b", JsConsole.of(JsSpecs.str()),
  *                           "c", JsConsole.of(JsSpecs.bool()),
  *                           "d", JsConsole.of(JsSpecs.arrayOfStr())
  *                           );
  *     }
- *
  * </pre>
- * 
+ * <p>
  * If the user introduces a value that is not valid according to the specified spec,
- * an error message will be prompted, and they'll have up to three retries to get it right
+ * an error message will be prompted, and they'll have up to three retries to get it right.
  */
 public class JsObjConsole implements JsConsole<JsObj> {
-    private final Map<String, JsConsole<?>> bindings = new LinkedHashMap<>();
+    private final Map<String, JsConsole<?>> bindings;
+
+    JsObjConsole(Map<String, JsConsole<?>> bindings) {
+        this.bindings = bindings;
+    }
 
     /**
-     * static factory method to create a JsObjIO of sixteen mappings
-     *
-     * @param key1  the first key
-     * @param program1   the program associated to the first key
-     * @param key2  the second key
-     * @param program2   the program associated to the second key
-     * @param key3  the third key
-     * @param program3   the program associated to the third key
-     * @param key4  the forth key
-     * @param program4   the program associated to the forth key
-     * @param key5  the fifth key
-     * @param program5   the program associated to the fifth key
-     * @param key6  the sixth key
-     * @param program6   the program associated to the sixth key
-     * @param key7  the seventh key
-     * @param program7   the program associated to the seventh key
-     * @param key8  the eight key
-     * @param program8   the program associated to the eight key
-     * @param key9  the ninth key
-     * @param program9   the program associated to the ninth key
-     * @param key10 the tenth key
-     * @param program10  the program associated to the tenth key
-     * @param key11 the eleventh key
-     * @param program11  the program associated to the eleventh key
-     * @param key12 the twelfth key
-     * @param program12  the program associated to the twelfth key
-     * @param key13 the thirteenth key
-     * @param program13  the program associated to the thirteenth key
-     * @param key14 the fourteenth key
-     * @param program14  the program associated to the fourteenth key
-     * @param key15 the fifteenth key
-     * @param program15  the program associated to the fifteenth key
-     * @param key16 the sixteenth key
-     * @param program16  the program associated to the sixteenth key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
-
     public static JsObjConsole of(final String key1,
                                   final JsConsole<?> program1,
                                   final String key2,
@@ -147,41 +114,8 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of fifteen mappings
-     *
-     * @param key1  the first key
-     * @param program1   the program associated to the first key
-     * @param key2  the second key
-     * @param program2   the program associated to the second key
-     * @param key3  the third key
-     * @param program3   the program associated to the third key
-     * @param key4  the forth key
-     * @param program4   the program associated to the forth key
-     * @param key5  the fifth key
-     * @param program5   the program associated to the fifth key
-     * @param key6  the sixth key
-     * @param program6   the program associated to the sixth key
-     * @param key7  the seventh key
-     * @param program7   the program associated to the seventh key
-     * @param key8  the eight key
-     * @param program8   the program associated to the eight key
-     * @param key9  the ninth key
-     * @param program9   the program associated to the ninth key
-     * @param key10 the tenth key
-     * @param program10  the program associated to the tenth key
-     * @param key11 the eleventh key
-     * @param program11  the program associated to the eleventh key
-     * @param key12 the twelfth key
-     * @param program12  the program associated to the twelfth key
-     * @param key13 the thirteenth key
-     * @param program13  the program associated to the thirteenth key
-     * @param key14 the fourteenth key
-     * @param program14  the program associated to the fourteenth key
-     * @param key15 the fifteenth key
-     * @param program15  the program associated to the fifteenth key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
-
     public static JsObjConsole of(final String key1,
                                   final JsConsole<?> program1,
                                   final String key2,
@@ -253,39 +187,8 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of fourteen mappings
-     *
-     * @param key1  the first key
-     * @param program1   the program associated to the first key
-     * @param key2  the second key
-     * @param program2   the program associated to the second key
-     * @param key3  the third key
-     * @param program3   the program associated to the third key
-     * @param key4  the forth key
-     * @param program4   the program associated to the forth key
-     * @param key5  the fifth key
-     * @param program5   the program associated to the fifth key
-     * @param key6  the sixth key
-     * @param program6   the program associated to the sixth key
-     * @param key7  the seventh key
-     * @param program7   the program associated to the seventh key
-     * @param key8  the eight key
-     * @param program8   the program associated to the eight key
-     * @param key9  the ninth key
-     * @param program9   the program associated to the ninth key
-     * @param key10 the tenth key
-     * @param program10  the program associated to the tenth key
-     * @param key11 the eleventh key
-     * @param program11  the program associated to the eleventh key
-     * @param key12 the twelfth key
-     * @param program12  the program associated to the twelfth key
-     * @param key13 the thirteenth key
-     * @param program13  the program associated to the thirteenth key
-     * @param key14 the fourteenth key
-     * @param program14  the program associated to the fourteenth key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
-
     public static JsObjConsole of(final String key1,
                                   final JsConsole<?> program1,
                                   final String key2,
@@ -353,37 +256,8 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of thirteen mappings
-     *
-     * @param key1  the first key
-     * @param program1   the program associated to the first key
-     * @param key2  the second key
-     * @param program2   the program associated to the second key
-     * @param key3  the third key
-     * @param program3   the program associated to the third key
-     * @param key4  the forth key
-     * @param program4   the program associated to the forth key
-     * @param key5  the fifth key
-     * @param program5   the program associated to the fifth key
-     * @param key6  the sixth key
-     * @param program6   the program associated to the sixth key
-     * @param key7  the seventh key
-     * @param program7   the program associated to the seventh key
-     * @param key8  the eight key
-     * @param program8   the program associated to the eight key
-     * @param key9  the ninth key
-     * @param program9   the program associated to the ninth key
-     * @param key10 the tenth key
-     * @param program10  the program associated to the tenth key
-     * @param key11 the eleventh key
-     * @param program11  the program associated to the eleventh key
-     * @param key12 the twelfth key
-     * @param program12  the program associated to the twelfth key
-     * @param key13 the thirteenth key
-     * @param program13  the program associated to the thirteenth key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
-
     public static JsObjConsole of(final String key1,
                                   final JsConsole<?> program1,
                                   final String key2,
@@ -447,35 +321,8 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of twelve mappings
-     *
-     * @param key1  the first key
-     * @param program1   the program associated to the first key
-     * @param key2  the second key
-     * @param program2   the program associated to the second key
-     * @param key3  the third key
-     * @param program3   the program associated to the third key
-     * @param key4  the forth key
-     * @param program4   the program associated to the forth key
-     * @param key5  the fifth key
-     * @param program5   the program associated to the fifth key
-     * @param key6  the sixth key
-     * @param program6   the program associated to the sixth key
-     * @param key7  the seventh key
-     * @param program7   the program associated to the seventh key
-     * @param key8  the eight key
-     * @param program8   the program associated to the eight key
-     * @param key9  the ninth key
-     * @param program9   the program associated to the ninth key
-     * @param key10 the tenth key
-     * @param program10  the program associated to the tenth key
-     * @param key11 the eleventh key
-     * @param program11  the program associated to the eleventh key
-     * @param key12 the twelfth key
-     * @param program12  the program associated to the twelfth key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
-
     public static JsObjConsole of(final String key1,
                                   final JsConsole<?> program1,
                                   final String key2,
@@ -535,33 +382,8 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of eleven mappings
-     *
-     * @param key1  the first key
-     * @param program1   the program associated to the first key
-     * @param key2  the second key
-     * @param program2   the program associated to the second key
-     * @param key3  the third key
-     * @param program3   the program associated to the third key
-     * @param key4  the forth key
-     * @param program4   the program associated to the forth key
-     * @param key5  the fifth key
-     * @param program5   the program associated to the fifth key
-     * @param key6  the sixth key
-     * @param program6   the program associated to the sixth key
-     * @param key7  the seventh key
-     * @param program7   the program associated to the seventh key
-     * @param key8  the eight key
-     * @param program8   the program associated to the eight key
-     * @param key9  the ninth key
-     * @param program9   the program associated to the ninth key
-     * @param key10 the tenth key
-     * @param program10  the program associated to the tenth key
-     * @param key11 the eleventh key
-     * @param program11  the program associated to the eleventh key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
-
     public static JsObjConsole of(final String key1,
                                   final JsConsole<?> program1,
                                   final String key2,
@@ -617,31 +439,8 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of ten mappings
-     *
-     * @param key1  the first key
-     * @param program1   the program associated to the first key
-     * @param key2  the second key
-     * @param program2   the program associated to the second key
-     * @param key3  the third key
-     * @param program3   the program associated to the third key
-     * @param key4  the forth key
-     * @param program4   the program associated to the forth key
-     * @param key5  the fifth key
-     * @param program5   the program associated to the fifth key
-     * @param key6  the sixth key
-     * @param program6   the program associated to the sixth key
-     * @param key7  the seventh key
-     * @param program7   the program associated to the seventh key
-     * @param key8  the eight key
-     * @param program8   the program associated to the eight key
-     * @param key9  the ninth key
-     * @param program9   the program associated to the ninth key
-     * @param key10 the tenth key
-     * @param program10  the program associated to the tenth key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
-
     public static JsObjConsole of(final String key1,
                                   final JsConsole<?> program1,
                                   final String key2,
@@ -693,29 +492,8 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of nine mappings
-     *
-     * @param key1 the first key
-     * @param program1  the program associated to the first key
-     * @param key2 the second key
-     * @param program2  the program associated to the second key
-     * @param key3 the third key
-     * @param program3  the program associated to the third key
-     * @param key4 the forth key
-     * @param program4  the program associated to the forth key
-     * @param key5 the fifth key
-     * @param program5  the program associated to the fifth key
-     * @param key6 the sixth key
-     * @param program6  the program associated to the sixth key
-     * @param key7 the seventh key
-     * @param program7  the program associated to the seventh key
-     * @param key8 the eight key
-     * @param program8  the program associated to the eight key
-     * @param key9 the ninth key
-     * @param program9  the program associated to the ninth key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
-
     public static JsObjConsole of(final String key1,
                                   final JsConsole<?> program1,
                                   final String key2,
@@ -763,27 +541,8 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of eight mappings
-     *
-     * @param key1 the first key
-     * @param program1  the program associated to the first key
-     * @param key2 the second key
-     * @param program2  the program associated to the second key
-     * @param key3 the third key
-     * @param program3  the program associated to the third key
-     * @param key4 the forth key
-     * @param program4  the program associated to the forth key
-     * @param key5 the fifth key
-     * @param program5  the program associated to the fifth key
-     * @param key6 the sixth key
-     * @param program6  the program associated to the sixth key
-     * @param key7 the seventh key
-     * @param program7  the program associated to the seventh key
-     * @param key8 the eight key
-     * @param program8  the program associated to the eight key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
-
     public static JsObjConsole of(final String key1,
                                   final JsConsole<?> program1,
                                   final String key2,
@@ -827,25 +586,8 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of seven mappings
-     *
-     * @param key1 the first key
-     * @param program1  the program associated to the first key
-     * @param key2 the second key
-     * @param program2  the program associated to the second key
-     * @param key3 the third key
-     * @param program3  the program associated to the third key
-     * @param key4 the forth key
-     * @param program4  the program associated to the forth key
-     * @param key5 the fifth key
-     * @param program5  the program associated to the fifth key
-     * @param key6 the sixth key
-     * @param program6  the program associated to the sixth key
-     * @param key7 the seventh key
-     * @param program7  the program associated to the seventh key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
-
     public static JsObjConsole of(final String key1,
                                   final JsConsole<?> program1,
                                   final String key2,
@@ -885,21 +627,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of six mappings
-     *
-     * @param key1 the first key
-     * @param program1  the program associated to the first key
-     * @param key2 the second key
-     * @param program2  the program associated to the second key
-     * @param key3 the third key
-     * @param program3  the program associated to the third key
-     * @param key4 the forth key
-     * @param program4  the program associated to the forth key
-     * @param key5 the fifth key
-     * @param program5  the program associated to the fifth key
-     * @param key6 the sixth key
-     * @param program6  the program associated to the sixth key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
 
     public static JsObjConsole of(final String key1,
@@ -937,19 +665,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of five mappings
-     *
-     * @param key1 the first key
-     * @param program1  the program associated to the first key
-     * @param key2 the second key
-     * @param program2  the program associated to the second key
-     * @param key3 the third key
-     * @param program3  the program associated to the third key
-     * @param key4 the forth key
-     * @param program4  the program associated to the forth key
-     * @param key5 the fifth key
-     * @param program5  the program associated to the fifth key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
 
     public static JsObjConsole of(final String key1,
@@ -983,19 +699,8 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of four mappings
-     *
-     * @param key1 the first key
-     * @param program1  the program associated to the first key
-     * @param key2 the second key
-     * @param program2  the program associated to the second key
-     * @param key3 the third key
-     * @param program3  the program associated to the third key
-     * @param key4 the forth key
-     * @param program4  the program associated to the forth key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
-
     public static JsObjConsole of(final String key1,
                                   final JsConsole<?> program1,
                                   final String key2,
@@ -1023,17 +728,8 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of three mappings
-     *
-     * @param key1 the first key
-     * @param program1  the program associated to the first key
-     * @param key2 the second key
-     * @param program2  the program associated to the second key
-     * @param key3 the third key
-     * @param program3  the program associated to the third key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
-
     public static JsObjConsole of(final String key1,
                                   final JsConsole<?> program1,
                                   final String key2,
@@ -1057,13 +753,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of two mappings
-     *
-     * @param ke1  the first key
-     * @param program1  the program associated to the first key
-     * @param key2 the second key
-     * @param program2  the program associated to the second key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
     public static JsObjConsole of(final String ke1,
                                   final JsConsole<?> program1,
@@ -1084,16 +774,12 @@ public class JsObjConsole implements JsConsole<JsObj> {
     }
 
     /**
-     * static factory method to create a JsObjIO of one mapping
-     *
-     * @param key the key
-     * @param program  the program associated to the key
-     * @return a JsObjIO
+     * Static factory method to create a {@link JsObjConsole}
      */
     public static JsObjConsole of(final String key,
                                   final JsConsole<?> program
                                  ) {
-        var console = new JsObjConsole();
+        var console = new JsObjConsole(new LinkedHashMap<>());
         console.bindings.put(requireNonNull(key),
                              requireNonNull(program)
                             );
@@ -1101,25 +787,44 @@ public class JsObjConsole implements JsConsole<JsObj> {
 
     }
 
+    /**
+     * Sets a key-program mapping in this {@link JsObjConsole}.
+     *
+     * @param key     The key to set in the JSON object.
+     * @param program The program associated with the key.
+     * @return A new {@link JsObjConsole} instance with the specified key-program mapping added.
+     */
+    public JsObjConsole set(String key, JsConsole<?> program) {
+        Map<String, JsConsole<?>> map = new LinkedHashMap<>(bindings);
+        map.put(key, program);
+        return new JsObjConsole(map);
+    }
+
+    /**
+     * Apply the JsObjConsole program to build a JSON object interactively.
+     *
+     * @param path The current JsPath for composing the JSON object.
+     * @return An IO effect representing the completion of the JSON object.
+     */
     @Override
     public IO<JsObj> apply(final JsPath path) {
         requireNonNull(path);
-        return IO.fromEffect(() ->
-                         {
-                             var result = CompletableFuture.completedFuture(JsObj.empty());
-                             for (var entry : bindings.entrySet()) {
-                                 var currentPath = path.append(JsPath.fromKey(entry.getKey()));
-                                 var nextValue = entry.getValue();
-                                 result = result
-                                         .thenCombine(nextValue
-                                                              .apply(currentPath)
-                                                              .get(),
-                                                      (obj, value) -> obj.set(entry.getKey(),
-                                                                              value
-                                                                             )
-                                                     );
-                             }
-                             return result;
-                         });
+        return IO.effect(() ->
+                             {
+                                 var result = CompletableFuture.completedFuture(JsObj.empty());
+                                 for (var entry : bindings.entrySet()) {
+                                     var currentPath = path.append(JsPath.fromKey(entry.getKey()));
+                                     var nextValue = entry.getValue();
+                                     result = result
+                                             .thenCombine(nextValue
+                                                                  .apply(currentPath)
+                                                                  .get(),
+                                                          (obj, value) -> obj.set(entry.getKey(),
+                                                                                  value
+                                                                                 )
+                                                         );
+                                 }
+                                 return result;
+                             });
     }
 }

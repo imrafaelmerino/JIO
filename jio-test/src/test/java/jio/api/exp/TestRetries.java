@@ -6,7 +6,7 @@ import jio.RetryPolicy;
 import jio.test.junit.DebugStub;
 import jio.test.junit.Debugger;
 import jio.test.junit.DebugExp;
-import jio.test.stub.value.IOStub;
+import jio.test.stub.effect.IOStub;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

@@ -8,6 +8,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.function.Function;
 
+/**
+ * Represents a command that decodes a base64 encoded string into a new string using the Base64 encoding scheme.
+ * The decoded string is returned as the result of this command.
+ * <p>
+ * Usage: {@code base64-decode {encoded}}
+ * <p>
+ * Examples:
+ * - {@code base64-decode aGkhIGknbGwgYmUgZW5jb2RlZCBpbnRvIGJhc2UgNjQ=}
+ * - {@code base64-decode $var}
+ */
 class Base64DecodeCommand extends Command {
 
     private final static Base64.Decoder decoder = Base64.getDecoder();
@@ -36,12 +46,12 @@ class Base64DecodeCommand extends Command {
                                                                              e -> e.length() == 1,
                                                                              "Space blank is not a valid base64 scheme",
                                                                              RetryPolicies.limitRetries(3)
-                )).then(encoded -> IO.fromValue(new String(decoder.decode(encoded), StandardCharsets.UTF_8)));
+                )).then(encoded -> IO.succeed(new String(decoder.decode(encoded), StandardCharsets.UTF_8)));
 
             if (nTokens == 2)
-                return IO.fromValue(new String(decoder.decode(tokens[1]), StandardCharsets.UTF_8));
+                return IO.succeed(new String(decoder.decode(tokens[1]), StandardCharsets.UTF_8));
 
-            return IO.fromFailure(new InvalidCommand(this, "Space blank is not a valid base64 character"));
+            return IO.fail(new InvalidCommand(this, "Space blank is not a valid base64 character"));
 
 
         };

@@ -5,29 +5,29 @@ import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 
 /**
- * Represents information related to a failure that was observed during the execution
+ * Represents information related to a failure that occurred during the execution
  * of a specific test.
  *
- * @param context the context of the failure
- * @param failure the failure
+ * @param context The context of the failure.
+ * @param failure The failure.
  */
 public record FailureContext(Context context,
                              TestFailure failure
 ) {
 
     /**
-     * serializes this record into a json. The json schema is the following
+     * Serializes this record into a JSON object. The JSON schema is as follows:
      *
      * <pre>
      *     {@code
-     *           {
-     *               "context": JsObj,
-     *               "reason": string
-     *           }
+     *     {
+     *         "context": JsObj (see Context#toJson()),
+     *         "reason": String (the reason for the failure)
+     *     }
      *     }
      * </pre>
      *
-     * @return a json
+     * @return A JSON representation of the failure context.
      * @see Context#toJson()
      */
     public JsObj toJson() {

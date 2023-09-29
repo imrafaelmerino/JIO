@@ -9,6 +9,12 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * An abstract base class for implementing request handler stubs for HTTP server testing.
+ * This class allows you to define custom behaviors for handling HTTP requests based on various parameters
+ * such as HTTP method, response headers, response status code, and response body.
+ *
+ */
 abstract class AbstractReqHandlerStub implements HttpHandler {
 
     static int counter = 0;
@@ -18,6 +24,14 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
     private final String method;
     private final Function<HttpExchange, String> body;
 
+    /**
+     * Creates an instance of the abstract request handler stub with the specified behaviors.
+     *
+     * @param headers A function that provides response headers based on the HTTP exchange.
+     * @param code    A function that provides the response status code based on the HTTP exchange.
+     * @param body    A function that provides the response body based on the HTTP exchange.
+     * @param method  The expected HTTP method for handling requests.
+     */
     public AbstractReqHandlerStub(final Function<HttpExchange, Headers> headers,
                                   final Function<HttpExchange, Integer> code,
                                   final Function<HttpExchange, String> body,
@@ -29,6 +43,12 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
         this.body = requireNonNull(body);
     }
 
+    /**
+     * Handles an HTTP request by applying custom behaviors based on the expected HTTP method.
+     *
+     * @param exchange The HTTP exchange to handle.
+     * @throws IOException If an I/O error occurs during request handling.
+     */
     @Override
     public void handle(final HttpExchange exchange) throws IOException {
         counter += 1;

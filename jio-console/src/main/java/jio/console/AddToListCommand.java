@@ -1,5 +1,6 @@
 package jio.console;
 
+
 import jio.IO;
 import jsonvalues.JsObj;
 
@@ -29,7 +30,7 @@ class AddToListCommand extends Command {
                                             ) {
 
 
-        return IO.fromSupplier(() -> {
+        return IO.lazy(() -> {
             if (!state.listsVariables.containsKey(varName))
                 state.listsVariables.put(varName, new ArrayList<>());
 

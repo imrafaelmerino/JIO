@@ -6,6 +6,14 @@ import jsonvalues.JsObj;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a command that prints out a message into the console.
+ * Usage: {@code echo {text}}
+ *
+ * Example:
+ * {@code echo hi, how are you doing?}
+ * {@code echo $var}
+ */
 class EchoCommand extends Command {
 
     private static final String COMMAND_NAME = "echo";
@@ -27,7 +35,7 @@ class EchoCommand extends Command {
                                                ) {
         return tokens -> {
             int nArgs = tokens.length - 1;
-            return nArgs == 0 ? IO.fromValue("") : IO.fromValue(Functions.joinTail(tokens));
+            return nArgs == 0 ? IO.succeed("") : IO.succeed(Functions.joinTail(tokens));
         };
     }
 }

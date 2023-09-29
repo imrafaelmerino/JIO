@@ -1,4 +1,4 @@
-package jio.test.stub.value;
+package jio.test.stub.effect;
 
 import jio.IO;
 

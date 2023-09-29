@@ -22,6 +22,6 @@ public class SupplierCommand extends Command {
     public Function<String[], IO<String>> apply(JsObj conf,
                                                 State state
                                                ) {
-        return tokens -> IO.fromSupplier(supplier);
+        return tokens -> IO.lazy(supplier);
     }
 }

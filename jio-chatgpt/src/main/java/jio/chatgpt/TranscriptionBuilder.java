@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * Builder class to create Transcriptions
  */
-public class TranscriptionBuilder {
+public final class TranscriptionBuilder {
 
     final String file;
     final String model;

@@ -1,6 +1,6 @@
 package jio.chatgpt;
 
-public class JSON_FIELDS {
+final class JSON_FIELDS {
 
     static final String MODEL_FIELD = "model";
     static final String PROMPT_FIELD = "prompt";

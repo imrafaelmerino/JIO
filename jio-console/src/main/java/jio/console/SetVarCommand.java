@@ -26,9 +26,9 @@ class SetVarCommand extends Command {
                                           String newValue
                                          ) {
 
-        return IO.fromSupplier(() -> {
-                                   String oldValue = state.stringVariables.get(varName);
-                                   state.stringVariables.put(varName, newValue);
+        return IO.lazy(() -> {
+                                   String oldValue = state.variables.get(varName);
+                                   state.variables.put(varName, newValue);
                                    return String.format("%s from %s to %s",
                                                         varName,
                                                         oldValue,

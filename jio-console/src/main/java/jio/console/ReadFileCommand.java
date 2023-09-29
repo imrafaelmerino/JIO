@@ -11,6 +11,23 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Command to read the content from a file with the command:
+ * <pre>
+ *     file-read /path/to/file
+ * </pre>
+ * <p>
+ * Users can specify the absolute path to the file they want to read, and the command will return the file's contents as a string
+ * stored in the variable 'output'. If the file is not found, the command allows for multiple retries.
+ * <p>
+ * Examples:
+ * <pre>
+ *     file-read /Users/username/json.txt
+ *     file-read $var
+ * </pre>
+ *
+ * @see Command
+ */
 class ReadFileCommand extends Command {
 
     private static final String COMMAND_NAME = "file-read";
@@ -48,15 +65,15 @@ class ReadFileCommand extends Command {
     private IO<String> readFile(String path) {
         Path file = Paths.get(path);
         if (!file.toFile().isFile())
-            return IO.fromFailure(new InvalidCommand(this, "File " + path + " not found"));
+            return IO.fail(new InvalidCommand(this, "File " + path + " not found"));
         try {
             List<String> lines = Files.readAllLines(file);
-            return IO.fromValue(String.join("\n", lines));
+            return IO.succeed(String.join("\n", lines));
         } catch (IOException e) {
-            return IO.fromFailure(new InvalidCommand(this,
-                                                     e.getMessage()
+            return IO.fail(new InvalidCommand(this,
+                                              e.getMessage()
                            )
-                                 );
+                          );
         }
 
     }

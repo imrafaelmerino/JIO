@@ -7,20 +7,21 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Stub that stands in for the response headers of a http request.
- *
+ * A stub that stands in for the response headers of an HTTP request.
  */
 public interface HeadersStub extends HttpRespStub<Headers> {
 
     /**
-     * Stub that always set empty the headers response
+     * An empty headers stub that always sets empty headers as the response headers.
      */
     HeadersStub EMPTY = n -> reqBody -> uri -> headers -> new Headers();
 
     /**
-     * Stub that always set the specified map as the response headers
-     * @param map the map of headers
-     * @return a header stub
+     * Creates a headers stub that always sets the specified map as the response headers.
+     *
+     * @param map The map of headers to be set as response headers.
+     * @return A header stub that sets the specified headers.
+     * @throws NullPointerException if the provided map is null.
      */
     static HeadersStub cons(Map<String, List<String>> map) {
         Headers respHeaders = new Headers();

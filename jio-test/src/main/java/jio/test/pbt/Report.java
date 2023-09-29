@@ -13,9 +13,12 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
- * Represents the result of the execution of a {@link Property property}.
- * A report can be serialized into a Json with the method {@link #toJson()}. It contains
- * the following information:
+ * Represents the result of the execution of a property-based test ({@link Property}).
+ * A report can be serialized into JSON format with the method {@link #toJson()}. It contains
+ * detailed information about the test execution, including the number of executed tests,
+ * the name and description of the property, execution time statistics, failures, and exceptions.
+ *
+ * <p>Report Contents:</p>
  * <ul>
  *   <li>The number of executed tests</li>
  *   <li>The name of the property</li>
@@ -28,6 +31,13 @@ import java.util.function.Supplier;
  *   <li>The number of failures</li>
  *   <li>The number of exceptions</li>
  * </ul>
+ *
+ * <p>Reports are typically used to track the results of property-based tests and can be
+ * aggregated to summarize the overall test suite performance.</p>
+ *
+ * @see Property
+ * @see FailureContext
+ * @see ExceptionContext
  */
 
 public final class Report {
@@ -52,63 +62,63 @@ public final class Report {
     }
 
     /**
-     * the name of the property
+     * Get the name of the property associated with this report.
      *
-     * @return the name of the property
+     * @return The name of the property.
      */
     public String getPropName() {
         return propName;
     }
 
     /**
-     * the average time in ms needed to execute a test
+     * Get the average execution time (in milliseconds) needed to execute a single test.
      *
-     * @return the average in ms time needed to execute a test
+     * @return The average execution time in milliseconds.
      */
     public long getAvgTime() {
         return avgTime;
     }
 
     /**
-     * the maximum time in ms needed to execute a test
+     * Get the maximum execution time (in milliseconds) among all executed tests.
      *
-     * @return the maximum in ms time needed to execute a test
+     * @return The maximum execution time in milliseconds.
      */
     public long getMaxTime() {
         return maxTime;
     }
 
     /**
-     * the minimum time in ms needed to execute a test
+     * Get the minimum execution time (in milliseconds) among all executed tests.
      *
-     * @return the minimum time in ms needed to execute a test
+     * @return The minimum execution time in milliseconds.
      */
     public long getMinTime() {
         return minTime;
     }
 
     /**
-     * the accumulative time in ms spent on executing all the tests
+     * Get the accumulative execution time (in milliseconds) spent on executing all tests.
      *
-     * @return the accumulative time in ms spent on executing all the tests
+     * @return The accumulative execution time in milliseconds.
      */
     public long getAccumulativeTime() {
         return accumulativeTime;
     }
 
     /**
-     * the number of failures
+     * Get a list of failure contexts, containing information about failed tests.
      *
-     * @return the number of failures
+     * @return A list of failure contexts.
      */
     public List<FailureContext> getFailures() {
         return failures;
     }
 
     /**
-     * the number of exceptions
+     * Get a list of exception contexts, containing information about tests that threw exceptions.
      *
-     * @return the number of exceptions
+     * @return A list of exception contexts.
      */
     public List<ExceptionContext> getExceptions() {
         return exceptions;
@@ -174,27 +184,25 @@ public final class Report {
      *     {@code
      *
      *     JsObjSpec.of( "n_tests",integer,
-     * "name",string
-     * "n_failures", integer,
-     * "n_exceptions", integer,
-     * "property_name", string,
-     * "description", string,
-     * "start_time", instant,
-     * "end_time", instant,
-     * "avg_time", long,
-     * "max_time", long,
-     * "min_time", long,
-     * "accumulative_time", long,
-     * "failures", arrayOf(JsObjSpec.of("reason",string,
-     * "context", JsObj
-     * ),
-     * "exceptions", arrayOf(JsObjSpec.of("message", string,
-     * "type", string,
-     * "stacktrace", array
-     * )
-     * )
-     *          )
-     * )
+     *                   "name",string
+     *                   "n_failures", integer,
+     *                   "n_exceptions", integer,
+     *                   "property_name", string,
+     *                   "description", string,
+     *                   "start_time", instant,
+     *                   "end_time", instant,
+     *                   "avg_time", long,
+     *                   "max_time", long,
+     *                   "min_time", long,
+     *                   "accumulative_time", long,
+     *                   "failures", arrayOf(JsObjSpec.of("reason",string,
+     *                                                    "context", JsObj
+     *                                                   )),
+     *                   "exceptions", arrayOf(JsObjSpec.of("message", string,
+     *                                                      "type", string,
+     *                                                      "stacktrace", array
+     *                                                      ))
+     *                 )
      *     }
      * </pre>
      *
@@ -254,26 +262,41 @@ public final class Report {
         return result;
     }
 
+    /**
+     * Assert that all tests associated with this report have passed successfully.
+     * If there are any failures or exceptions, this assertion will fail.
+     */
     public void assertAllSuccess() {
 
         Assertions.assertTrue(getExceptions().isEmpty() && getFailures().isEmpty(),
                               () -> {
-                                  if (getExceptions().isEmpty()) return "Report with failures: " + this.toJson();
-                                  if (getFailures().isEmpty()) return "Report with exceptions: " + this.toJson();
-                                  return "Report with failures and exceptions: " + this.toJson();
+                                  if (getExceptions().isEmpty())
+                                      return String.format("Property %s with failures: ", propName) + this.toJson();
+                                  if (getFailures().isEmpty())
+                                      return String.format("Property %s with exceptions: ", propName) + this.toJson();
+                                  return String.format("Property %s with failures and exceptions: ", propName) + this.toJson();
                               }
                              );
     }
 
+    /**
+     * Assert that there are no failures associated with this report.
+     * If there are any failures, this assertion will fail.
+     */
     public void assertNoFailures() {
 
         Assertions.assertTrue(getFailures()
                                       .isEmpty(),
-                              () -> "Report with failures: " + this.toJson()
+                              () -> String.format("Property %s with failures: ", propName) + this.toJson()
                              );
     }
 
-
+    /**
+     * Perform a custom assertion on the report using a provided condition and message supplier.
+     *
+     * @param condition A predicate condition to evaluate the report.
+     * @param message   A supplier that provides a message to be used if the condition fails.
+     */
     public void assertThat(Predicate<Report> condition,
                            Supplier<String> message
                           ) {
@@ -283,6 +306,9 @@ public final class Report {
                              );
     }
 
+    /**
+     * Print a summary of the report to the console, including test execution details and results.
+     */
     public synchronized void summarize() {
         System.out.println("Property " + propName + " executed at " + startTime.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME) + " for " + accumulativeTime + " ms:");
         if (getExceptions().isEmpty() && getFailures().isEmpty())
