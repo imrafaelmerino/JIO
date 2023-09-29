@@ -9,15 +9,15 @@ import jsonvalues.JsObj;
 /**
  * A service class for working with audio-related tasks using an API.
  */
-public  final  class AudioService extends AbstractService {
+public final class AudioService extends AbstractService {
 
     /**
      * Constructs an AudioService instance with the specified client and configuration builder.
      *
-     * @param client   The HTTP client used for making API requests.
-     * @param builder  The configuration builder for API settings.
+     * @param client  The HTTP client used for making API requests.
+     * @param builder The configuration builder for API settings.
      */
-    public AudioService(MyHttpClient client, ConfBuilder builder) {
+    AudioService(MyHttpClient client, ConfBuilder builder) {
         super(client, builder, "audio");
     }
 

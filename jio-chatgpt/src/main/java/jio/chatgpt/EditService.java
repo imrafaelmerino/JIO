@@ -16,9 +16,10 @@ public final class EditService extends AbstractService {
      * @param client  The HTTP client used for making requests.
      * @param builder The configuration builder for this service.
      */
-    public EditService(MyHttpClient client, ConfBuilder builder) {
+    EditService(MyHttpClient client, ConfBuilder builder) {
         super(client, builder, "edits");
     }
+
     /**
      * Creates an edit based on the provided builder configuration.
      *

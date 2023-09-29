@@ -7,7 +7,7 @@ import jsonvalues.JsObj;
 /**
  * Service class for interacting with the GPT-based chat API to create chat completions.
  */
-public  final class ChatService extends AbstractService {
+public final class ChatService extends AbstractService {
 
     /**
      * Creates a new ChatService instance.
@@ -15,7 +15,7 @@ public  final class ChatService extends AbstractService {
      * @param client  The HTTP client for making requests.
      * @param builder A configuration builder for the chat service.
      */
-    public ChatService(MyHttpClient client, ConfBuilder builder) {
+    ChatService(MyHttpClient client, ConfBuilder builder) {
         super(client, builder, "chat/completions");
     }
 

@@ -65,7 +65,6 @@ public final class Console {
         commands.add(new ListCommand(commands).setSaveOutput(false));
         commands.add(new ReadVarCommand().setSaveOutput(false));
         commands.add(new SetVarCommand().setSaveOutput(false));
-        commands.add(new AddToListCommand().setSaveOutput(false));
         commands.add(new LastCommand());
         commands.add(new HistoryCommand().setSaveOutput(false));
         commands.add(new HelpCommand(commands).setSaveOutput(false));
@@ -94,7 +93,14 @@ public final class Console {
      * @param conf the configuration JSON
      */
     public void eval(JsObj conf) {
-
+       System.out.println("""
+                                       ___ ___ _______      _______ _______ __    _ _______ _______ ___     _______\s
+                                      |   |   |       |    |       |       |  |  | |       |       |   |   |       |
+                                      |   |   |   _   |____|       |   _   |   |_| |  _____|   _   |   |   |    ___|
+                                      |   |   |  | |  |____|       |  | |  |       | |_____|  | |  |   |   |   |___\s
+                                   ___|   |   |  |_|  |    |      _|  |_|  |  _    |_____  |  |_|  |   |___|    ___|
+                                  |       |   |       |    |     |_|       | | |   |_____| |       |       |   |___\s
+                                  |_______|___|_______|    |_______|_______|_|  |__|_______|_______|_______|_______|""");
         for (; ; ) {
             Programs.READ_LINE
                     .then(line -> {

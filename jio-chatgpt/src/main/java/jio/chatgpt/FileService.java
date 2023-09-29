@@ -2,27 +2,30 @@ package jio.chatgpt;
 
 import jio.IO;
 import jio.http.client.MyHttpClient;
+import jio.http.client.Utils;
 import jsonvalues.JsObj;
 
 
 import java.io.File;
 import java.util.Map;
 import java.util.UUID;
+
 /**
  * Service for managing files, including uploading, deleting, retrieving, and listing files.
  */
-public  final class FileService extends AbstractService {
+public final class FileService extends AbstractService {
     /**
      * Creates a FileService instance with the specified HTTP client and configuration builder.
      *
      * @param client  The HTTP client used for making requests.
      * @param builder The configuration builder for this service.
      */
-    public FileService(MyHttpClient client, ConfBuilder builder) {
+    FileService(MyHttpClient client, ConfBuilder builder) {
         super(client,
               builder,
               "files");
     }
+
     /**
      * Uploads a file with the given purpose.
      *
@@ -35,13 +38,14 @@ public  final class FileService extends AbstractService {
                            ) {
         String boundary = UUID.randomUUID().toString();
         return post(uri,
-                    MultipartFormDataBuilder.build(Map.of("purpose", purpose),
-                                                   Map.of("file", file),
-                                                   boundary
-                                                  ),
-                    "multipart/form-data; boundary=" + boundary
+                    Utils.createMultipartFormBody(Map.of("purpose", purpose),
+                                                  Map.of("file", file),
+                                                  boundary
+                                                 ),
+                    Utils.createMultipartFormContentTypeHeader(boundary)
                    );
     }
+
     /**
      * Deletes a file with the specified fileId.
      *
@@ -51,6 +55,7 @@ public  final class FileService extends AbstractService {
     public IO<JsObj> delete(String fileId) {
         return delete(uri.resolve("/" + fileId));
     }
+
     /**
      * Retrieves information about a file with the specified fileId.
      *
@@ -60,6 +65,7 @@ public  final class FileService extends AbstractService {
     public IO<JsObj> retrieve(String fileId) {
         return get(uri.resolve("/" + fileId));
     }
+
     /**
      * Retrieves the content of a file with the specified fileId.
      *
@@ -69,6 +75,7 @@ public  final class FileService extends AbstractService {
     public IO<JsObj> retrieveFileContent(String fileId) {
         return get(uri.resolve("/" + fileId + "/" + "content"));
     }
+
     /**
      * Lists all available files.
      *

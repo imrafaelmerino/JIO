@@ -8,14 +8,14 @@ import jsonvalues.JsObj;
 /**
  * Service for fine-tuning models using a specified dataset.
  */
-public final  class FineTunerService extends AbstractService {
+public final class FineTunerService extends AbstractService {
     /**
      * Creates a FineTunerService instance with the specified HTTP client and configuration builder.
      *
      * @param client  The HTTP client used for making requests.
      * @param builder The configuration builder for this service.
      */
-    public FineTunerService(MyHttpClient client, ConfBuilder builder) {
+    FineTunerService(MyHttpClient client, ConfBuilder builder) {
         super(client, builder, "fine-tunes");
     }
 
@@ -32,6 +32,7 @@ public final  class FineTunerService extends AbstractService {
 
         return post(uri, builder.build());
     }
+
     /**
      * Lists all fine-tuning jobs.
      *
@@ -40,6 +41,7 @@ public final  class FineTunerService extends AbstractService {
     public IO<JsObj> list() {
         return get(uri);
     }
+
     /**
      * Gets details of a specific fine-tuning job by its ID.
      *
@@ -59,6 +61,7 @@ public final  class FineTunerService extends AbstractService {
     public IO<JsObj> cancel(String id) {
         return post(uri.resolve("/" + id + "/cancel"));
     }
+
     /**
      * Lists events associated with a fine-tuning job by its ID.
      *
@@ -69,6 +72,7 @@ public final  class FineTunerService extends AbstractService {
 
         return get(uri.resolve("/" + id + "/events"));
     }
+
     /**
      * Deletes a fine-tuned model by its name.
      *

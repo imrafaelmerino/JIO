@@ -15,7 +15,7 @@ public final class ImageService extends AbstractService {
      * @param client  The HTTP client used for making requests.
      * @param builder The configuration builder for this service.
      */
-    public ImageService(MyHttpClient client, ConfBuilder builder) {
+    ImageService(MyHttpClient client, ConfBuilder builder) {
 
         super(client,
               builder,
