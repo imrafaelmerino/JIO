@@ -1,12 +1,14 @@
 package jio.api.exp;
 
+import fun.gen.Gen;
 import jio.IO;
 import jio.RetryPolicies;
 import jio.RetryPolicy;
+import jio.test.junit.DebugExp;
 import jio.test.junit.DebugStub;
 import jio.test.junit.Debugger;
-import jio.test.junit.DebugExp;
-import jio.test.stub.effect.IOStub;
+import jio.test.stub.effect.Gens;
+import jio.test.stub.effect.Stub;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -30,7 +32,8 @@ public class TestRetries {
     //throws stackoverflowexception
     public void testRetryLimits() {
 
-        IOStub<Integer> stub = IOStub.failThenSucceed(n -> n < 3500 ? new RuntimeException() : null, 1);
+        Gen<IO<Integer>> gen = Gens.seq(n -> n < 3500 ? IO.fail(new RuntimeException()) : IO.succeed(1));
+        Stub<Integer> stub = Stub.ofGen(gen);
 
         CompletableFuture<Integer> future = stub.get()
                                                 .retry(RetryPolicies.limitRetries(3500))
@@ -49,12 +52,10 @@ public class TestRetries {
 
     @Test
     public void test_retry_success() {
+        Gen<IO<String>> gen =
+                Gens.seq(n -> n <= 3 ? IO.fail(new RuntimeException()) : IO.succeed("a"));
 
-        IOStub<String> val = IOStub.failThenSucceed(i -> i <= 3 ?
-                                                            new RuntimeException() :
-                                                            null,
-                                                    "a"
-                                                   );
+        Stub<String> val = Stub.ofGen(gen);
         Assertions.assertEquals("a",
                                 val.get()
                                    .retry(RetryPolicies.limitRetries(3))
@@ -73,9 +74,10 @@ public class TestRetries {
     @Test
     public void test_retry_failure() {
 
-        IOStub<String> val = IOStub.failThenSucceed(i -> i <= 3 ? new RuntimeException() : null,
-                                                    "a"
-                                                   );
+        Gen<IO<String>> gen =
+                Gens.seq(n -> n <= 3 ? IO.fail(new RuntimeException()) : IO.succeed("a"));
+
+        Stub<String> val = Stub.ofGen(gen);
 
         Assertions.assertThrows(CompletionException.class,
                                 () -> val.get()
@@ -88,11 +90,10 @@ public class TestRetries {
     @Test
     public void test_retry_with_failurePolicy_success() {
         long start = System.nanoTime();
-        IO<String> val = IOStub.failThenSucceed(i -> i <= 3 ?
-                                                        new RuntimeException() :
-                                                        null,
-                                                "b"
-                                               ).get();
+        Gen<IO<String>> gen =
+                Gens.seq(n -> n <= 3 ? IO.fail(new RuntimeException()) : IO.succeed("b"));
+
+        IO<String> val = Stub.ofGen(gen).get();
 
         RetryPolicy retryPolicy = RetryPolicies.limitRetries(3)
                                                .append(incrementalDelay(Duration.ofSeconds(1)));
@@ -113,11 +114,10 @@ public class TestRetries {
     @Test
     public void test_retry_with_failurePolicy_failure() {
         long start = System.nanoTime();
-        var val = IOStub.failThenSucceed(i -> i <= 3 ?
-                                                 new RuntimeException() :
-                                                 null,
-                                         "b"
-                                        ).get();
+        Gen<IO<String>> gen =
+                Gens.seq(n -> n <= 3 ? IO.fail(new RuntimeException()) : IO.succeed("b"));
+
+        IO<String> val = Stub.ofGen(gen).get();
 
         RetryPolicy retryPolicy = RetryPolicies.limitRetries(2)
                                                .append(incrementalDelay(Duration.ofSeconds(1)));

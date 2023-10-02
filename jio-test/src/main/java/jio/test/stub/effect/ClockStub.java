@@ -9,9 +9,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Class to create different kinds of stubs that stand in for {@link Clock clocks}.
- * These clock stubs are useful for controlling time-related behavior in your applications
- * during testing and development.
+ * Class to create different kinds of stubs that stand in for {@link Clock clocks}. These clock stubs are useful for
+ * controlling time-related behavior in your applications during testing and development.
  */
 public final class ClockStub implements Supplier<Clock> {
 
@@ -49,9 +48,8 @@ public final class ClockStub implements Supplier<Clock> {
     /**
      * Static factory method to create a clock stub from a reference time.
      * <p>
-     * This method creates a clock stub that starts ticking from the provided reference time.
-     * You can use this to simulate time-based scenarios where you want the clock to behave
-     * as if it started at a specific instant.
+     * This method creates a clock stub that starts ticking from the provided reference time. You can use this to
+     * simulate time-based scenarios where you want the clock to behave as if it started at a specific instant.
      * </p>
      *
      * @param reference The instant from which the clock starts ticking.
@@ -62,11 +60,11 @@ public final class ClockStub implements Supplier<Clock> {
     }
 
     /**
-     * Static factory method to create a clock stub from a function that takes the call's counter and
-     * returns a long representing the time.
+     * Static factory method to create a clock stub from a function that takes the call's counter and returns a long
+     * representing the time.
      * <p>
-     * This method allows you to create a clock stub where you can control the ticking time based on
-     * the number of calls made to the clock. You can use this for more dynamic time simulation.
+     * This method allows you to create a clock stub where you can control the ticking time based on the number of calls
+     * made to the clock. You can use this for more dynamic time simulation.
      * </p>
      * <pre>
      * {@code

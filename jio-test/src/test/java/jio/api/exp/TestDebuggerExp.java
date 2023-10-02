@@ -3,9 +3,10 @@ package jio.api.exp;
 import fun.tuple.Pair;
 import fun.tuple.Triple;
 import jio.*;
-import jio.test.junit.Debugger;
 import jio.test.junit.DebugExp;
-import jio.test.stub.effect.IOStub;
+import jio.test.junit.Debugger;
+import jio.test.stub.effect.Gens;
+import jio.test.stub.effect.Stub;
 import jsonvalues.JsArray;
 import jsonvalues.JsInt;
 import jsonvalues.JsObj;
@@ -55,10 +56,16 @@ public class TestDebuggerExp {
     @Test
     public void testAllExpSeqRetries() {
 
-        IOStub<Boolean> trueAfterFailure =
-                IOStub.failThenSucceed(i -> i <= 1 ? new RuntimeException(Integer.toString(i)) : null,
-                                       true
-                                      );
+
+        Stub<Boolean> trueAfterFailure =
+                Stub.ofGen(Gens.seq(
+                        n -> n <= 1
+                        ? IO.fail(new RuntimeException(Integer.toString(n)))
+                        : IO.TRUE));
+
+
+        IO<Boolean> a = trueAfterFailure.get();
+
 
         Assertions.assertTrue(AllExp.seq(trueAfterFailure.get(),
                                          trueAfterFailure.get()
@@ -68,11 +75,11 @@ public class TestDebuggerExp {
                                     .result()
                              );
 
+        Stub<Boolean> falseAfterFailure =
+                Stub.ofGen(Gens.seq(n -> n <= 1
+                        ? IO.fail(new RuntimeException(Integer.toString(n)))
+                        : IO.FALSE));
 
-        IOStub<Boolean> falseAfterFailure =
-                IOStub.failThenSucceed(i -> i <= 1 ? new RuntimeException(Integer.toString(i)) : null,
-                                       false
-                                      );
 
         // second effect is not evaluated since the first one is false
         Assertions.assertFalse(AllExp.seq(falseAfterFailure.get(),
@@ -88,10 +95,10 @@ public class TestDebuggerExp {
 
     @Test
     public void testAllExpParRetries() {
-        IOStub<Boolean> trueAfterFailure =
-                IOStub.failThenSucceed(i -> i <= 1 ? new RuntimeException(Integer.toString(i)) : null,
-                                       true
-                                      );
+        Stub<Boolean> trueAfterFailure =
+                Stub.ofGen(Gens.seq(n -> n <= 1
+                        ? IO.fail(new RuntimeException(Integer.toString(n)))
+                        : IO.TRUE));
 
         Assertions.assertTrue(AllExp.par(trueAfterFailure.get(),
                                          trueAfterFailure.get()
@@ -102,10 +109,10 @@ public class TestDebuggerExp {
                              );
 
 
-        IOStub<Boolean> falseAfterFailure =
-                IOStub.failThenSucceed(i -> i <= 1 ? new RuntimeException(Integer.toString(i)) : null,
-                                       false
-                                      );
+        Stub<Boolean> falseAfterFailure =
+                Stub.ofGen(Gens.seq(n -> n <= 1
+                        ? IO.fail(new RuntimeException(Integer.toString(n)))
+                        : IO.FALSE));
 
         // all effects are evaluated even the first one is false,not like with the seq constructor
         Assertions.assertFalse(AllExp.par(falseAfterFailure.get(),
