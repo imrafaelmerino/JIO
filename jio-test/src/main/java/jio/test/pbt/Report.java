@@ -8,9 +8,12 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Represents the result of the execution of a property-based test ({@link Property}).
@@ -45,12 +48,20 @@ public final class Report {
     private final String propDescription;
     private final List<FailureContext> failures = new ArrayList<>();
     private final List<ExceptionContext> exceptions = new ArrayList<>();
+    /**
+     * map that holds the tags of the generated values and the number of times they appear.
+     * This map is fed only when classifiers are specified
+     */
+    private final Map<String, Long> tagsCounter = new HashMap<>();
+    /**
+     * map that holds the generated values and the number of times they are generated
+     */
+    private final Map<String, Long> valuesCounter = new HashMap<>();
     private int tests;
     private long avgTime;
     private long maxTime = Long.MIN_VALUE;
     private long minTime = Long.MAX_VALUE;
     private long accumulativeTime;
-
     private Instant startTime;
     private Instant endTime;
 
@@ -59,6 +70,15 @@ public final class Report {
           ) {
         this.propName = name;
         this.propDescription = description;
+    }
+
+    private static String addTagToVal(Context it) {
+        Object input = it.input();
+        String str = input == null ? "null" : input.toString();
+        String tags = it.tags();
+        return (tags != null && !tags.isEmpty()) ?
+                String.format("(%s, %s)", str, tags) :
+                str;
     }
 
     /**
@@ -310,28 +330,102 @@ public final class Report {
      * Print a summary of the report to the console, including test execution details and results.
      */
     public synchronized void summarize() {
-        System.out.println("Property " + propName + " executed at " + startTime.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME) + " for " + accumulativeTime + " ms:");
+        System.out.printf("Property %s executed %s times at %s for %s:%n", propName, tests, startTime.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME), formatTime(accumulativeTime));
         if (getExceptions().isEmpty() && getFailures().isEmpty())
-            System.out.printf("+ OK, passed %d tests.\n\n",
+            System.out.printf("  + OK, passed %d tests.\n",
                               tests
                              );
-        else if (getExceptions().isEmpty())
-            System.out.printf("! KO, passed %d tests. \n%d tests ended with a failure.\n\n",
+        else if (getExceptions().isEmpty()) {
+            System.out.printf("  ! KO, passed %d tests (%s) and %d (%s) ended with a failure.\n",
                               tests - getFailures().size(),
-                              getFailures().size()
-                             );
-        else if (getFailures().isEmpty())
-            System.out.printf("! KO, passed %d tests. \n%d tests ended with a exception.\n\n",
-                              tests - getExceptions().size(),
-                              getExceptions().size()
-                             );
-        else
-            System.out.printf("! KO, passed %d tests. \n%d tests ended with a failure.\n%d tests ended with a exception.\n\n",
-                              tests - getExceptions().size() - getFailures().size(),
+                              calculatePer(tests - getFailures().size()),
                               getFailures().size(),
-                              getExceptions().size()
+                              calculatePer(getFailures().size())
                              );
+            printFailuresValues();
+        } else if (getFailures().isEmpty()) {
+            System.out.printf("  ! KO, passed %d tests (%s) and %d (%s) ended with a exception.\n",
+                              tests - getExceptions().size(),
+                              calculatePer(tests - getFailures().size()),
+                              getExceptions().size(),
+                              calculatePer(getFailures().size())
+                             );
+            printExceptionsValues();
+        } else {
+            System.out.printf("  ! KO, passed %d tests (%s), %d (%s) ended with a failure and %d (%s) ended with a exception.\n",
+                              tests - getExceptions().size() - getFailures().size(),
+                              calculatePer(tests - getExceptions().size() - getFailures().size()),
+                              getFailures().size(),
+                              calculatePer(getFailures().size()),
+                              getExceptions().size(),
+                              calculatePer(getExceptions().size())
+                             );
+            printFailuresValues();
+            printExceptionsValues();
+        }
+
+        if (!valuesCounter.isEmpty() || !tagsCounter.isEmpty())
+            System.out.println(String.format("  %s values collected in total:",
+                                             tests)
+                              );
+        if (!valuesCounter.isEmpty()) printCounter(valuesCounter);
+        if (!tagsCounter.isEmpty()) printCounter(tagsCounter);
 
         System.out.flush();
+    }
+
+    private void printFailuresValues() {
+        System.out.println("  Generated values that caused a failure:");
+        var failureValues = getFailures()
+                .stream()
+                .map(it -> {
+                    return addTagToVal(it.context());
+                })
+                .collect(Collectors.joining(","));
+
+        System.out.println("   " + failureValues);
+    }
+
+    private void printExceptionsValues() {
+        System.out.println("  Generated values that caused an exception:");
+
+        var failureValues = getExceptions()
+                .stream()
+                .map(it -> addTagToVal(it.context()))
+                .collect(Collectors.joining(","));
+
+        System.out.println("   " + failureValues);
+        System.out.println();
+    }
+
+    void classify(final String tags) {
+        if (!tags.isEmpty())
+            tagsCounter.compute(tags,
+                                (key, value) -> value == null ? 1 : value + 1);
+    }
+
+    void collect(final String value) {
+        valuesCounter.compute(value,
+                              (key, val) -> val == null ? 1 : val + 1);
+    }
+
+    private void printCounter(Map<?, Long> map) {
+        map.entrySet()
+           .forEach(e -> System.out.println(String.format("     %s %s",
+                                                          calculatePer(e.getValue()),
+                                                          e.getKey()
+                                                         )
+                                           )
+                   );
+    }
+
+    private String formatTime(long time) {
+        if (time > 1000_000_00) return Duration.ofNanos(time).toSeconds() + " sg";
+        if (time > 1000_100) return Duration.ofNanos(time).toMillis() + " ms";
+        return time + " ns";
+    }
+
+    private String calculatePer(long n){
+        return String.format("%.1f %%",((double) n/tests)*100);
     }
 }

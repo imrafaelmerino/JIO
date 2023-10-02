@@ -9,12 +9,16 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.SplittableRandom;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.random.RandomGenerator;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -41,15 +45,19 @@ import static java.util.Objects.requireNonNull;
  * @param <O> the type of the data generated to feed the property tests
  */
 public class Property<O> implements Testable {
+    private boolean collect;
     private static final RandomGenerator seedGen = new SplittableRandom();
     private static final int DEFAULT_TESTS = 1000;
     public final String name;
     final Gen<O> gen;
     final BiLambda<JsObj, O, TestResult> lambda;
+
+
     public String description = "";
     int times = DEFAULT_TESTS;
     private Path path;
     private JsObj conf = JsObj.empty();
+    private Map<String, Predicate<O>> classifiers;
 
     /**
      * @param fn the property to be tested
@@ -151,7 +159,10 @@ public class Property<O> implements Testable {
      * @return A new Property instance representing the defined property.
      * @see #ofLambda(String, Gen, BiLambda)
      */
-    public static <O> Property<O> ofLambda(final String name, final Gen<O> gen, final Lambda<O, TestResult> property) {
+    public static <O> Property<O> ofLambda(final String name,
+                                           final Gen<O> gen,
+                                           final Lambda<O, TestResult> property
+                                          ) {
         BiLambda<JsObj, O, TestResult> bfn = (conf, o) -> requireNonNull(property).apply(o);
         return new Property<>(requireNonNull(name),
                               bfn,
@@ -186,7 +197,10 @@ public class Property<O> implements Testable {
                               gen);
     }
 
-    private static IO<TestResult> handleExc(Report report, Throwable exc, Context context) {
+    private static IO<TestResult> handleExc(Report report,
+                                            Throwable exc,
+                                            Context context
+                                           ) {
         return switch (exc) {
             case TestFailure tf -> {
                 report.addFailure(new FailureContext(context,
@@ -224,6 +238,35 @@ public class Property<O> implements Testable {
 
         };
     }
+
+    //todo property immutable
+    public Property<O> withCollector() {
+        this.collect = true;
+        return this;
+    }
+
+    public Property<O> withClassifiers(final Map<String, Predicate<O>> classifiers,
+                                       final String defaultTag
+                                      ) {
+        if (requireNonNull(classifiers).isEmpty()) throw new IllegalArgumentException("classifiers empty");
+        Predicate<O> defaultClassifier =
+                o -> classifiers.values().stream()
+                                .noneMatch(cla -> cla.test(o));
+
+        Map<String, Predicate<O>> xs = new HashMap<>(classifiers);
+        xs.put(requireNonNull(defaultTag), defaultClassifier);
+        this.classifiers = xs;
+        return this;
+    }
+
+    private String getTags(O value) {
+        if (classifiers == null) return "";
+        return classifiers.keySet()
+                          .stream()
+                          .filter(key -> classifiers.get(key).test(value))
+                          .collect(Collectors.joining(","));
+    }
+
 
     synchronized void dump(Report report) {
         try {
@@ -326,28 +369,36 @@ public class Property<O> implements Testable {
             report.setStartTime(Instant.now());
             for (int i = 1; i <= times; i++) {
                 report.incTest();
-                IO.succeed(i).then(n -> {
-                                       var tic = Instant.now();
-                                       var generated = rg.get();
-                                       return lambda.apply(conf, generated).then(tr -> {
-                                           report.tac(tic);
-                                           var context = new Context(tic, seed, n, generated);
-                                           return handleResult(report, tr, context);
+                IO.succeed(i)
+                  .then(n -> {
+                            var tic = Instant.now();
+                            var generated = rg.get();
+                            String tags = getTags(generated);
+                            if(classifiers!=null)report.classify(tags);
+                            if(collect) report.collect(generated == null ? "null" : generated.toString());
+                            return lambda.apply(conf, generated)
+                                         .then(
+                                                 tr -> {
+                                                     report.tac(tic);
+                                                     var context = new Context(tic, seed, n, generated, tags);
+                                                     return handleResult(report, tr, context);
 
-                                       }, exc -> {
-                                           report.tac(tic);
-                                           var context = new Context(tic, seed, n, generated);
-                                           return handleExc(report, exc, context);
-                                       });
-                                   }
-
-                                  ).result();
+                                                 },
+                                                 exc -> {
+                                                     report.tac(tic);
+                                                     var context = new Context(tic, seed, n, generated, tags);
+                                                     return handleExc(report, exc, context);
+                                                 });
+                        }
+                       )
+                  .result();
             }
             report.setEndTime(Instant.now());
             return report;
         };
 
-        IO<Report> io = IO.managedLazy(task).peekSuccess(Report::summarize);
+        IO<Report> io = IO.managedLazy(task)
+                          .peekSuccess(Report::summarize);
 
         return path == null ? io : io.peekSuccess(this::dump);
 

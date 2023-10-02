@@ -1,6 +1,7 @@
 
 package jio.test.stub.effect;
 
+import fun.gen.Gen;
 import jio.IO;
 
 import java.time.Duration;
@@ -31,6 +32,12 @@ public abstract sealed class IOStub<O> implements Supplier<IO<O>> permits ValStu
     public IOStub<O> onExecutor(Executor executor) {
         this.executor = Objects.requireNonNull(executor);
         return this;
+    }
+
+
+    public static <O> IOStub<O> gen(Gen<O> gen){
+        Supplier<O> supplier = gen.sample();
+        return new ValStub<>(n -> supplier.get(),null);
     }
 
     /**

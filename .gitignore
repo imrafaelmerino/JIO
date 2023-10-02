@@ -4,6 +4,7 @@ jio-exp/jio.iml
 jio-exp/target
 jio-exp/deploy.sh
 jio-exp/settings.xml
+jio-exp/*.jfr
 
 jio-http/jio-http.iml
 jio-http/target
@@ -14,25 +15,23 @@ jio-mongodb/jio-mongodb.iml
 jio-mongodb/target
 jio-mongodb/deploy.sh
 jio-mongodb/settings.xml
+jio-mongodb/*.jfr
 
 jio-console/jio-mongodb.iml
 jio-console/target
 jio-console/deploy.sh
 jio-console/settings.xml
+jio-console/*.jfr
 
 jio-test/jio-test.iml
 jio-test/target
 jio-test/deploy.sh
 jio-test/settings.xml
+jio-test/*.jfr
 
 javadoc
 
 *.jfr
-jio-test/*.jfr
-jio-console/*.jfr
-jio-exp/*.jfr
-jio-mongodb/*.jfr
-
 
 jio-chatgpt/conf.json
 jio-chatgpt/target

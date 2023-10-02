@@ -1,12 +1,20 @@
 package jio.test.stub.httpserver;
 
+import fun.gen.Gen;
+
 import java.time.Duration;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * A stub that stands in for the body response of an HTTP request.
  */
 public interface BodyStub extends HttpRespStub<String> {
+
+    static BodyStub gen(final Gen<String> generator){
+        Supplier<String> supplier = generator.sample();
+        return n -> reqBody -> uri -> headers -> supplier.get();
+    }
 
     /**
      * Creates a body stub that always returns the given body as the HTTP response body.

@@ -19,15 +19,15 @@ public class Examples {
             String secret = "";
 
             MyHttpClient client =
-                    new MyHttpClientBuilder(HttpClient.newHttpClient())
-                            .create();
+                    new MyHttpClientBuilder(HttpClient.newHttpClient()).create();
 
-            Services services = new Services(new ConfBuilder(secret.getBytes(StandardCharsets.UTF_8)), client);
+            Services services =
+                    new Services(new ConfBuilder(secret.getBytes(StandardCharsets.UTF_8)),
+                                 client);
 
             IO<JsObj> files = services.fileService.list();
 
             System.out.println(files.result());
-
 
 
             // Response

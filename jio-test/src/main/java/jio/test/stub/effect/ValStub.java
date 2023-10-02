@@ -12,10 +12,10 @@ import static java.util.Objects.requireNonNull;
 
 final class ValStub<O> extends IOStub<O> implements Supplier<IO<O>> {
 
-    private int counter;
     private final IntFunction<O> getValue;
     private final IntFunction<Duration> delay;
     private final IO<O> effect;
+    private int counter;
 
     ValStub(final IntFunction<O> getValue,
             final IntFunction<Duration> delay,
@@ -49,8 +49,7 @@ final class ValStub<O> extends IOStub<O> implements Supplier<IO<O>> {
     public IO<O> get() {
         var stub = new ValStub<>(getValue, delay, executor);
         return wrapStub(stub.effect,
-                        ()->
-                                       stub.counter);
+                        () -> stub.counter);
     }
 
 

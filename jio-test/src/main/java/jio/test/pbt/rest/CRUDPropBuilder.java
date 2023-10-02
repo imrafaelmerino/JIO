@@ -70,6 +70,7 @@ public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder
      *
      * @return A property test for the CRUD operations defined by this builder.
      */
+    @Override
     public Property<O> create() {
         BiLambda<JsObj, O, TestResult> lambda =
                 (conf, body) -> post.apply(conf, body)

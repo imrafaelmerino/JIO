@@ -69,6 +69,7 @@ public class GroupReport {
                                       );
     }
 
+    @Override
     public String toString() {
         return toJson().toString();
     }

@@ -15,7 +15,8 @@ import java.time.Instant;
 record Context(Instant start,
                long seed,
                int generatedSeqNumber,
-               Object input
+               Object input,
+               String tags
 ) {
 
     /**
@@ -28,7 +29,8 @@ record Context(Instant start,
      *         "start": instant,
      *         "seed": long,
      *         "seq_number": int,
-     *         "input": string
+     *         "input": string,
+     *         "tags": string
      *     }
      *     }
      * </pre>
@@ -39,7 +41,8 @@ record Context(Instant start,
         return JsObj.of("start", JsInstant.of(start),
                         "seed", JsLong.of(seed),
                         "seq_number", JsInt.of(generatedSeqNumber),
-                        "input", JsStr.of(input.toString())
+                        "input", JsStr.of(input.toString()),
+                        "tags",JsStr.of(tags)
                        );
     }
 }

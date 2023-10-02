@@ -99,6 +99,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      * @param postAssert The assertion function for the HTTP POST operation.
      * @return This RestPropBuilder instance with the updated assertion function.
      */
+    @SuppressWarnings("unchecked")
     public A withPostAssert(Function<HttpResponse<String>, TestResult> postAssert) {
         this.postAssert = Objects.requireNonNull(postAssert);
         return (A) this;
@@ -109,6 +110,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      * @param getAssert The assertion function for the HTTP GET operation.
      * @return This RestPropBuilder instance with the updated assertion function.
      */
+    @SuppressWarnings("unchecked")
     public A withGetAssert(Function<HttpResponse<String>, TestResult> getAssert) {
         this.getAssert = Objects.requireNonNull(getAssert);
         return (A) this;
@@ -119,6 +121,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      * @param deleteAssert The assertion function for the HTTP DELETE operation.
      * @return This RestPropBuilder instance with the updated assertion function.
      */
+    @SuppressWarnings("unchecked")
     public A withDeleteAssert(Function<HttpResponse<String>, TestResult> deleteAssert) {
         this.deleteAssert = Objects.requireNonNull(deleteAssert);
         return (A) this;
@@ -134,6 +137,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      * @param getId The function to extract an ID for subsequent HTTP requests.
      * @return This RestPropBuilder instance with the updated ID extraction method.
      */
+    @SuppressWarnings("unchecked")
     public A withGetId(BiFunction<O, HttpResponse<String>, IO<String>> getId) {
         this.getId = Objects.requireNonNull(getId);
         return (A) this;
@@ -145,6 +149,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      * @param path The path to extract an ID from the HTTP response.
      * @return This RestPropBuilder instance with the updated ID extraction path.
      */
+    @SuppressWarnings("unchecked")
     public A withGetIdFromRespPath(final JsPath path) {
         this.getId = getIdFromPath.apply(Objects.requireNonNull(path));
         return (A) this;
@@ -155,6 +160,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      * @param p_getId The function to extract an ID from the request body of type O.
      * @return This RestPropBuilder instance with the updated ID extraction function.
      */
+    @SuppressWarnings("unchecked")
     public A withGetIdFromReqBody(final Function<O, String> p_getId) {
         Objects.requireNonNull(p_getId);
         this.getId = (body, resp) -> {
