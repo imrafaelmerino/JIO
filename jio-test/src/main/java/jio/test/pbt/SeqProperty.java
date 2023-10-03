@@ -3,11 +3,11 @@ package jio.test.pbt;
 import jio.IO;
 import jio.ListExp;
 import jsonvalues.JsObj;
+
 import java.util.Objects;
 
 
-
- class SeqProperty<O> implements Testable {
+non-sealed class SeqProperty<O> implements Testable {
 
     int n;
 

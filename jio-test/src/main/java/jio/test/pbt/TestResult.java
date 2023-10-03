@@ -1,8 +1,8 @@
 package jio.test.pbt;
 
 /**
- * Represents the result of the execution of a property test.
- * This sealed interface has three implementations: TestException, TestFailure, and TestSuccess.
+ * Represents the result of the execution of a property test. This sealed interface has three implementations:
+ * TestException, TestFailure, and TestSuccess.
  */
 public sealed interface TestResult permits TestException, TestFailure, TestSuccess {
 

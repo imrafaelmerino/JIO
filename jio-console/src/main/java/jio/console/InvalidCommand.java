@@ -1,10 +1,11 @@
 package jio.console;
 
 /**
- * Represents an exception that occurs when a user enters an invalid command or command arguments in the console.
- * This exception provides details about the specific reason for the failure and includes information about the
- * description of the command for user reference.
+ * Represents an exception that occurs when a user enters an invalid command or command arguments in the console. This
+ * exception provides details about the specific reason for the failure and includes information about the description
+ * of the command for user reference.
  */
+@SuppressWarnings("serial")
 public class InvalidCommand extends Exception {
 
 

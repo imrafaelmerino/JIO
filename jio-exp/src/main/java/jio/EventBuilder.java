@@ -7,14 +7,13 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a builder to create JFR {@link jdk.jfr.consumer.RecordedEvent} from computations performed by the JIO API.
- * Some event fields can be customized. The event message of a successful computation is
- * by default the string representation of the result and can be customized with the method
- * {@link #setSuccessMessage(Function)}. The failure message of a fail computation is by
- * default <code>exception.getClass().getName():exception.getMessage()</code> and can
- * be customized with the method {@link #seFailureMessage(Function)}.
+ * Some event fields can be customized. The event message of a successful computation is by default the string
+ * representation of the result and can be customized with the method {@link #setSuccessMessage(Function)}. The failure
+ * message of a fail computation is by default <code>exception.getClass().getName():exception.getMessage()</code> and
+ * can be customized with the method {@link #seFailureMessage(Function)}.
  * <p>
- * Expressions made up of different subexpressions generate different JFR events that
- * can be correlated with a context specified with {@link #setContext(String)}.
+ * Expressions made up of different subexpressions generate different JFR events that can be correlated with a context
+ * specified with {@link #setContext(String)}.
  *
  * @param <O> the type of the result of a computation in case of success
  * @see IO#debug(EventBuilder)
@@ -49,8 +48,8 @@ public final class EventBuilder<O> {
     }
 
     /**
-     * Set the function that takes the result of the expression and produces the event value.
-     * By default, the value of the event is <code>result.toString()</code>.
+     * Set the function that takes the result of the expression and produces the event value. By default, the value of
+     * the event is <code>result.toString()</code>.
      *
      * @param successValue a function that takes the result of the expression and produces the event value
      * @return this event builder
@@ -61,8 +60,8 @@ public final class EventBuilder<O> {
     }
 
     /**
-     * Set the function that produces the event failure message from the exception produced by an expression.
-     * By default, the event failure message is <code>exception.getClass().getName:exception.getMessage</code>.
+     * Set the function that produces the event failure message from the exception produced by an expression. By
+     * default, the event failure message is <code>exception.getClass().getName:exception.getMessage</code>.
      *
      * @param failureMessage a function that produces the event failure message from the exception
      * @return this event builder

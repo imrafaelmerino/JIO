@@ -7,7 +7,6 @@
  *
  * <p>The key classes and annotations in this package include:
  * - {@link jio.test.junit.Debugger}: A JUnit extension that enables debugging of different components during test execution.
- * - {@link jio.test.junit.DebugStub}: An annotation for enabling debugging of stub interactions.
  * - {@link jio.test.junit.DebugHttpClient}: An annotation for enabling debugging of HTTP client interactions.
  * - {@link jio.test.junit.DebugHttpServer}: An annotation for enabling debugging of HTTP server interactions.
  * - {@link jio.test.junit.DebugMongoClient}: An annotation for enabling debugging of MongoDB client interactions.
@@ -34,7 +33,6 @@
  * tests and gain valuable insights into the behavior of your code.
  *
  * @see jio.test.junit.Debugger
- * @see jio.test.junit.DebugStub
  * @see jio.test.junit.DebugHttpClient
  * @see jio.test.junit.DebugHttpServer
  * @see jio.test.junit.DebugMongoClient

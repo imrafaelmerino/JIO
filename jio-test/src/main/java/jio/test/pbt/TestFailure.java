@@ -3,9 +3,10 @@ package jio.test.pbt;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an observed failure during the execution of a property test.
- * A reason must be specified to create a TestFailure.
+ * Represents an observed failure during the execution of a property test. A reason must be specified to create a
+ * TestFailure.
  */
+@SuppressWarnings("serial")
 public final class TestFailure extends Exception implements TestResult {
 
     /**

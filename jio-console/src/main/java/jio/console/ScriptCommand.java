@@ -16,10 +16,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * Represents a command to execute a script file containing multiple commands.
- * It reads the specified file and executes all the commands found in it.
- * Usage:
- * - script /path/to/script.txt
+ * Represents a command to execute a script file containing multiple commands. It reads the specified file and executes
+ * all the commands found in it. Usage: - script /path/to/script.txt
  */
 class ScriptCommand extends Command {
     private static final String COMMAND_NAME = "script";

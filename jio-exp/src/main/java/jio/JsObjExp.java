@@ -13,10 +13,9 @@ import java.util.stream.Collectors;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an expression that is reduced to a JSON object. It follows the same recursive
- * structure as a JSON object, where each key is associated with an effect.
- * This class provides two constructors: 'seq' and 'par', for creating expressions
- * that evaluate effects sequentially or in parallel, respectively.
+ * Represents an expression that is reduced to a JSON object. It follows the same recursive structure as a JSON object,
+ * where each key is associated with an effect. This class provides two constructors: 'seq' and 'par', for creating
+ * expressions that evaluate effects sequentially or in parallel, respectively.
  */
 public abstract sealed class JsObjExp extends Exp<JsObj>
         permits JsObjExpPar, JsObjExpSeq {
@@ -32,7 +31,6 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
 
     /**
      * Creates a expression that is evaluated to the empty JsObj
-     *
      */
     public static JsObjExp seq() {
         var obj = new JsObjExpSeq();
@@ -41,8 +39,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key,
                                final IO<? extends JsValue> effect
@@ -55,8 +53,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -75,8 +73,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
 
     public static JsObjExp seq(final String key1,
@@ -100,8 +98,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -130,8 +128,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -164,8 +162,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -203,8 +201,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -247,8 +245,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -297,8 +295,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -352,8 +350,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -411,8 +409,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -475,8 +473,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -544,8 +542,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -618,8 +616,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -698,8 +696,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings,
-     * where each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
+     * Your code defines a static method seq that creates a JsObjExp expression with three key-value bindings, where
+     * each key is associated with a corresponding effect.If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -915,8 +913,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
-     * If any of the effects fail, the entire expression fails.
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
+     * object. If any of the effects fail, the entire expression fails.
      */
 
     public static JsObjExp par(final String key1,
@@ -952,8 +950,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
-     * If any of the effects fail, the entire expression fails.
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
+     * object. If any of the effects fail, the entire expression fails.
      */
 
     public static JsObjExp par(final String key1,
@@ -994,8 +992,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
-     * If any of the effects fail, the entire expression fails.
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
+     * object. If any of the effects fail, the entire expression fails.
      */
 
     public static JsObjExp par(final String key1,
@@ -1041,8 +1039,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
-     * If any of the effects fail, the entire expression fails.
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
+     * object. If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1091,8 +1089,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
-     * If any of the effects fail, the entire expression fails.
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
+     * object. If any of the effects fail, the entire expression fails.
      */
 
     public static JsObjExp par(final String key1,
@@ -1148,8 +1146,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
-     * If any of the effects fail, the entire expression fails.
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
+     * object. If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1208,8 +1206,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
-     * If any of the effects fail, the entire expression fails.
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
+     * object. If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1274,8 +1272,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
-     * If any of the effects fail, the entire expression fails.
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
+     * object. If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1344,8 +1342,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
-     * If any of the effects fail, the entire expression fails.
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
+     * object. If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1418,8 +1416,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
-     * If any of the effects fail, the entire expression fails.
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
+     * object. If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1498,8 +1496,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     }
 
     /**
-     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON object.
-     * If any of the effects fail, the entire expression fails.
+     * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
+     * object. If any of the effects fail, the entire expression fails.
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,

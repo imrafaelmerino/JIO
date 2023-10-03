@@ -3,7 +3,6 @@ package jio.mongodb;
 import com.mongodb.client.model.DeleteOptions;
 import com.mongodb.client.result.DeleteResult;
 import jio.IO;
-
 import jio.Lambda;
 import jsonvalues.JsObj;
 import org.bson.conversions.Bson;
@@ -19,8 +18,8 @@ import static jio.mongodb.MongoDBEvent.OP.DELETE_ONE;
 
 
 /**
- * Represents an operation to delete a single document from a MongoDB collection. This class provides
- * flexibility in handling the result and allows you to specify various options for the delete operation.
+ * Represents an operation to delete a single document from a MongoDB collection. This class provides flexibility in
+ * handling the result and allows you to specify various options for the delete operation.
  *
  * @param <O> The type of result expected from the delete operation.
  */
@@ -33,8 +32,7 @@ public final class DeleteOne<O> implements Lambda<JsObj, O> {
     private Executor executor;
 
     /**
-     * Constructs a {@code DeleteOne} instance with the specified collection, result converter,
-     * and delete options.
+     * Constructs a {@code DeleteOne} instance with the specified collection, result converter, and delete options.
      *
      * @param collection      The {@code CollectionSupplier} to obtain the MongoDB collection.
      * @param resultConverter A {@code Function} to convert the delete result into the desired type.
@@ -50,8 +48,7 @@ public final class DeleteOne<O> implements Lambda<JsObj, O> {
     }
 
     /**
-     * Creates a new {@code DeleteOne} instance with the specified collection, result converter,
-     * and delete options.
+     * Creates a new {@code DeleteOne} instance with the specified collection, result converter, and delete options.
      *
      * @param <O>             The type of result expected from the delete operation.
      * @param collection      The {@code CollectionSupplier} to obtain the MongoDB collection.
@@ -67,8 +64,8 @@ public final class DeleteOne<O> implements Lambda<JsObj, O> {
     }
 
     /**
-     * Creates a new {@code DeleteOne} instance with the specified collection and result converter,
-     * using default delete options.
+     * Creates a new {@code DeleteOne} instance with the specified collection and result converter, using default delete
+     * options.
      *
      * @param <O>             The type of result expected from the delete operation.
      * @param collection      The {@code CollectionSupplier} to obtain the MongoDB collection.
@@ -82,8 +79,8 @@ public final class DeleteOne<O> implements Lambda<JsObj, O> {
     }
 
     /**
-     * Creates a new {@code DeleteOne} instance with the specified collection,
-     * using default delete options and a result converter for {@code JsObj} result type.
+     * Creates a new {@code DeleteOne} instance with the specified collection, using default delete options and a result
+     * converter for {@code JsObj} result type.
      *
      * @param collection The {@code CollectionSupplier} to obtain the MongoDB collection.
      * @return A new {@code DeleteOne} instance for {@code JsObj} result type.

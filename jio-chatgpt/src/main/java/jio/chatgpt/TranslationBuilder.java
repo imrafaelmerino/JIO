@@ -1,11 +1,11 @@
 package jio.chatgpt;
 
 
-import static jio.chatgpt.JSON_FIELDS.*;
-
 import jsonvalues.JsDouble;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
+
+import static jio.chatgpt.JSON_FIELDS.*;
 
 
 /**
@@ -29,8 +29,8 @@ public final class TranslationBuilder {
     }
 
     /**
-     * @param responseFormat The format of the transcript output, in one of these options: json, text, srt, verbose_json, or vtt.
-     *                       Defaults to json
+     * @param responseFormat The format of the transcript output, in one of these options: json, text, srt,
+     *                       verbose_json, or vtt. Defaults to json
      * @return this builder
      */
     public TranslationBuilder setResponseFormat(Data.RESPONSE_FORMAT responseFormat) {
@@ -39,9 +39,9 @@ public final class TranslationBuilder {
     }
 
     /**
-     * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make
-     * it more focused and deterministic. If set to 0, the model will use log probability to automatically
-     * increase the temperature until certain thresholds are hit.
+     * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused
+     * and deterministic. If set to 0, the model will use log probability to automatically increase the temperature
+     * until certain thresholds are hit.
      *
      * @param value The sampling temperature, between 0 and 1 (Defaults to 0)
      * @return this builder

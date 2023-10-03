@@ -31,9 +31,9 @@ public final class InsertMany<R> implements Lambda<JsArray, R> {
     /**
      * Constructs a new InsertMany instance.
      *
-     * @param collection       The supplier for the MongoDB collection.
-     * @param resultConverter  The function to convert the insert result to the desired type.
-     * @param options          The insert many options.
+     * @param collection      The supplier for the MongoDB collection.
+     * @param resultConverter The function to convert the insert result to the desired type.
+     * @param options         The insert many options.
      */
     private InsertMany(final CollectionSupplier collection,
                        final Function<InsertManyResult, R> resultConverter,
@@ -47,10 +47,10 @@ public final class InsertMany<R> implements Lambda<JsArray, R> {
     /**
      * Creates an InsertMany instance with the specified collection supplier, result converter, and options.
      *
-     * @param collection       The supplier for the MongoDB collection.
-     * @param resultConverter  The function to convert the insert result to the desired type.
-     * @param options          The insert many options.
-     * @param <R>              The type of the result.
+     * @param collection      The supplier for the MongoDB collection.
+     * @param resultConverter The function to convert the insert result to the desired type.
+     * @param options         The insert many options.
+     * @param <R>             The type of the result.
      * @return An InsertMany instance.
      */
     public static <R> InsertMany<R> of(final CollectionSupplier collection,
@@ -61,11 +61,12 @@ public final class InsertMany<R> implements Lambda<JsArray, R> {
     }
 
     /**
-     * Creates an InsertMany instance with the specified collection supplier and result converter using default options.
+     * Creates an InsertMany instance with the specified collection supplier and result converter using default
+     * options.
      *
-     * @param collection       The supplier for the MongoDB collection.
-     * @param resultConverter  The function to convert the insert result to the desired type.
-     * @param <R>              The type of the result.
+     * @param collection      The supplier for the MongoDB collection.
+     * @param resultConverter The function to convert the insert result to the desired type.
+     * @param <R>             The type of the result.
      * @return An InsertMany instance with default options.
      */
     public static <R> InsertMany<R> of(final CollectionSupplier collection,

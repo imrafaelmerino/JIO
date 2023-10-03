@@ -8,9 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents the state of the console, including variables, command history, and command results.
- * The state keeps track of variables, lists, and maps, and maintains a history of executed commands
- * and their results.
+ * Represents the state of the console, including variables, command history, and command results. The state keeps track
+ * of variables, lists, and maps, and maintains a history of executed commands and their results.
  */
 public class State {
 
@@ -18,8 +17,8 @@ public class State {
 
     final List<String> historyResults = new ArrayList<>();
     /**
-     * Map with variables and their string values. The special variable "OUTPUT" stores the result
-     * of the execution of the last command.
+     * Map with variables and their string values. The special variable "OUTPUT" stores the result of the execution of
+     * the last command.
      */
     public Map<String, String> variables = new HashMap<>();
     /**

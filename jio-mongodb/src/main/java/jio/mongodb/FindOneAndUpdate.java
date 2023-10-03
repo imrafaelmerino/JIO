@@ -12,10 +12,12 @@ import java.util.function.Supplier;
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.Converters.jsObj2Bson;
 import static jio.mongodb.MongoDBEvent.OP.FIND_ONE_AND_UPDATE;
+
 /**
- * Represents a MongoDB find one and update operation to atomically update a single document in a collection asynchronously using {@link jio.BiLambda lambdas}.
- * This class allows you to specify a filter query criteria and an update document as {@link jsonvalues.JsObj}, along with options
- * for controlling the update behavior, such as sort criteria and projection.
+ * Represents a MongoDB find one and update operation to atomically update a single document in a collection
+ * asynchronously using {@link jio.BiLambda lambdas}. This class allows you to specify a filter query criteria and an
+ * update document as {@link jsonvalues.JsObj}, along with options for controlling the update behavior, such as sort
+ * criteria and projection.
  *
  * @see CollectionSupplier
  */
@@ -33,8 +35,10 @@ public final class FindOneAndUpdate implements BiLambda<JsObj, JsObj, JsObj> {
         this.collectionSupplier = requireNonNull(collectionSupplier);
         this.options = requireNonNull(options);
     }
+
     /**
-     * Creates a new instance of {@code FindOneAndUpdate} with the specified MongoDB collection supplier and update options.
+     * Creates a new instance of {@code FindOneAndUpdate} with the specified MongoDB collection supplier and update
+     * options.
      *
      * @param collectionSupplier the supplier of the MongoDB collection to perform the update operation
      * @param options            the options to control the update operation
@@ -45,8 +49,10 @@ public final class FindOneAndUpdate implements BiLambda<JsObj, JsObj, JsObj> {
                                      ) {
         return new FindOneAndUpdate(collectionSupplier, options);
     }
+
     /**
-     * Creates a new instance of {@code FindOneAndUpdate} with the specified MongoDB collection supplier and default update options.
+     * Creates a new instance of {@code FindOneAndUpdate} with the specified MongoDB collection supplier and default
+     * update options.
      *
      * @param collectionSupplier the supplier of the MongoDB collection to perform the update operation
      * @return a new {@code FindOneAndUpdate} instance with default update options

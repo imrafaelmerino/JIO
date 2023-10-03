@@ -1,4 +1,4 @@
-package jio.test.stub.effect;
+package jio.test.stub;
 
 import fun.gen.Gen;
 import jio.IO;
@@ -26,11 +26,11 @@ import java.util.function.Supplier;
  * @see Gen
  * @see fun.gen.Combinators
  */
-public class Stub<O> implements Supplier<IO<O>> {
+public class StubSupplier<O> implements Supplier<IO<O>> {
 
     private final Gen<IO<O>> gen;
 
-    private Stub(final Gen<IO<O>> gen) {
+    private StubSupplier(final Gen<IO<O>> gen) {
         this.gen = gen;
     }
 
@@ -41,8 +41,8 @@ public class Stub<O> implements Supplier<IO<O>> {
      * @param <O> The type of value to generate.
      * @return A new stub instance.
      */
-    public static <O> Stub<O> ofGen(final Gen<IO<O>> gen) {
-        return new Stub<>(Objects.requireNonNull(gen));
+    public static <O> StubSupplier<O> ofGen(final Gen<IO<O>> gen) {
+        return new StubSupplier<>(Objects.requireNonNull(gen));
     }
 
     /**

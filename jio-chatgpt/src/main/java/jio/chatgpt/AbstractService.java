@@ -4,11 +4,11 @@ import jio.IO;
 import jio.http.client.MyHttpClient;
 import jsonvalues.JsObj;
 
-
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+
 /**
  * An abstract base class for GPT API services providing common HTTP request methods.
  */
@@ -17,6 +17,7 @@ class AbstractService {
     final byte[] authHeader;
     final MyHttpClient client;
     final URI uri;
+
     /**
      * Constructs an AbstractService with the provided HTTP client, configuration builder, and resource path.
      *
@@ -31,9 +32,10 @@ class AbstractService {
         this.uri = URI.create(String.format("https://%s/%s/%s", conf.host, conf.version, resource));
 
     }
+
     /**
-     * Handles the response from an API request and parses it as JSON.
-     * If the response status code is below 300, it succeeds with the parsed JSON; otherwise, it fails with an APIError.
+     * Handles the response from an API request and parses it as JSON. If the response status code is below 300, it
+     * succeeds with the parsed JSON; otherwise, it fails with an APIError.
      *
      * @param resp The HTTP response received from the API request.
      * @return An IO monad that represents the parsed JSON result or an APIError in case of failure.

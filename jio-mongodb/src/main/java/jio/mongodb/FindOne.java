@@ -3,9 +3,9 @@ package jio.mongodb;
 import jsonvalues.JsObj;
 
 /**
- * Represents a MongoDB find operation to retrieve a single document from a collection asynchronously using {@link jio.Lambda lambdas}.
- * This class is a specific implementation of the {@link Find} class for querying a single document and converting the result
- * to a {@link jsonvalues.JsObj}.
+ * Represents a MongoDB find operation to retrieve a single document from a collection asynchronously using
+ * {@link jio.Lambda lambdas}. This class is a specific implementation of the {@link Find} class for querying a single
+ * document and converting the result to a {@link jsonvalues.JsObj}.
  *
  * @see Find
  * @see CollectionSupplier
@@ -17,6 +17,7 @@ public final class FindOne extends Find<JsObj> {
               Converters.iterableFirst
              );
     }
+
     /**
      * Creates a new instance of {@code FindOne} with the specified MongoDB collection supplier.
      *

@@ -1,10 +1,9 @@
 package jio.chatgpt;
 
+import jsonvalues.*;
+
 import java.util.Objects;
 import java.util.OptionalInt;
-
-
-import jsonvalues.*;
 
 import static jio.chatgpt.Constraints.*;
 import static jio.chatgpt.DEFAULT_VALUES.*;
@@ -12,9 +11,8 @@ import static jio.chatgpt.JSON_FIELDS.*;
 
 
 /**
- * Builder to create completions.
- * Given a prompt, the model will return one or more predicted completions, and can also return the probabilities of
- * alternative tokens at each position.
+ * Builder to create completions. Given a prompt, the model will return one or more predicted completions, and can also
+ * return the probabilities of alternative tokens at each position.
  */
 public final class CompletionBuilder {
 
@@ -40,8 +38,8 @@ public final class CompletionBuilder {
     /**
      * Creates a new CompletionBuilder instance.
      *
-     * @param model  ID of the model to use. You can use the List models API to see all of your available models,
-     *               or see our Model overview for descriptions of them.
+     * @param model  ID of the model to use. You can use the List models API to see all of your available models, or see
+     *               our Model overview for descriptions of them.
      * @param prompt The prompt to generate completions for, encoded as a string.
      */
     public CompletionBuilder(String model, String prompt) {
@@ -51,8 +49,8 @@ public final class CompletionBuilder {
     /**
      * Creates a new CompletionBuilder instance.
      *
-     * @param model  ID of the model to use. You can use the List models API to see all of your available models,
-     *               or see our Model overview for descriptions of them.
+     * @param model  ID of the model to use. You can use the List models API to see all of your available models, or see
+     *               our Model overview for descriptions of them.
      * @param prompt The prompts to generate completions for, encoded as an array of strings.
      */
     public CompletionBuilder(String model, JsArray prompt) {
@@ -81,8 +79,8 @@ public final class CompletionBuilder {
 
 
     /**
-     * Max_tokens parameter setter.
-     * The total length of input tokens and generated tokens is limited by the model's context length.
+     * Max_tokens parameter setter. The total length of input tokens and generated tokens is limited by the model's
+     * context length.
      *
      * @param maxTokens The maximum number of tokens to generate in the completion (Default to 16).
      * @return this builder
@@ -94,10 +92,8 @@ public final class CompletionBuilder {
     }
 
     /**
-     * Temperature parameter setter.
-     * Higher values like 0.8 will make the output more random,
-     * while lower values like 0.2 will make it more focused and deterministic.
-     * We generally recommend altering this or top_p but not both.
+     * Temperature parameter setter. Higher values like 0.8 will make the output more random, while lower values like
+     * 0.2 will make it more focused and deterministic. We generally recommend altering this or top_p but not both.
      *
      * @param value What sampling temperature to use, between 0 and 2. (Defaults to 1)
      * @return this builder
@@ -112,13 +108,11 @@ public final class CompletionBuilder {
     }
 
     /**
-     * Top_p parameter setter.
-     * 0.1 means only the tokens comprising the top 10% probability mass
-     * are considered.
-     * We generally recommend altering this or temperature but not both.
+     * Top_p parameter setter. 0.1 means only the tokens comprising the top 10% probability mass are considered. We
+     * generally recommend altering this or temperature but not both.
      *
-     * @param value An alternative to sampling with temperature, called nucleus sampling, where the
-     *              model considers the results of the tokens with top_p probability mass. (Defaults to 1)
+     * @param value An alternative to sampling with temperature, called nucleus sampling, where the model considers the
+     *              results of the tokens with top_p probability mass. (Defaults to 1)
      * @return this builder
      */
     public CompletionBuilder setTopP(double value) {
@@ -142,9 +136,8 @@ public final class CompletionBuilder {
 
 
     /**
-     * Stream parameter setter.
-     * If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only server-sent
-     * events as they become available, with the stream terminated by a data: [DONE] message.
+     * Stream parameter setter. If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as
+     * data-only server-sent events as they become available, with the stream terminated by a data: [DONE] message.
      *
      * @param stream Whether to stream back partial progress (Defaults to false).
      * @return this builder
@@ -155,12 +148,12 @@ public final class CompletionBuilder {
     }
 
     /**
-     * Logprobs parameter setter.
-     * For example, if logprobs is 5, the API will return a list of the 5 most likely tokens. The API will
-     * always return the logprob of the sampled token, so there may be up to logprobs+1 elements in the response.
-     * The maximum value for logprobs is 5.
+     * Logprobs parameter setter. For example, if logprobs is 5, the API will return a list of the 5 most likely tokens.
+     * The API will always return the logprob of the sampled token, so there may be up to logprobs+1 elements in the
+     * response. The maximum value for logprobs is 5.
      *
-     * @param logprobs Include the log probabilities on the logprobs most likely tokens, as well the chosen tokens (Defaults to null).
+     * @param logprobs Include the log probabilities on the logprobs most likely tokens, as well the chosen tokens
+     *                 (Defaults to null).
      * @return this builder
      */
     public CompletionBuilder setLogprobs(int logprobs) {
@@ -226,8 +219,8 @@ public final class CompletionBuilder {
     /**
      * Frequency_penalty parameter setter.
      *
-     * @param value Between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in
-     *              the text so far, decreasing the model's likelihood to repeat the same line verbatim. (Defaults to 0).
+     * @param value Between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the
+     *              text so far, decreasing the model's likelihood to repeat the same line verbatim. (Defaults to 0).
      * @return this builder
      */
     public CompletionBuilder setFrequencyPenalty(double value) {
@@ -240,13 +233,13 @@ public final class CompletionBuilder {
     }
 
     /**
-     * Best_of parameter builder.
-     * When used with n, best_of controls the number of candidate completions and n specifies how many to return –
-     * best_of must be greater than n. Because this parameter generates many completions, it can quickly consume
-     * your token quota. Use carefully and ensure that you have reasonable settings for max_tokens and stop.
+     * Best_of parameter builder. When used with n, best_of controls the number of candidate completions and n specifies
+     * how many to return – best_of must be greater than n. Because this parameter generates many completions, it can
+     * quickly consume your token quota. Use carefully and ensure that you have reasonable settings for max_tokens and
+     * stop.
      *
-     * @param bestOf Generates best_of completions server-side and returns the "best" (the one with the highest
-     *               log probability per token). Results cannot be streamed. Defaults to 1.
+     * @param bestOf Generates best_of completions server-side and returns the "best" (the one with the highest log
+     *               probability per token). Results cannot be streamed. Defaults to 1.
      * @return this builder
      */
     public CompletionBuilder setBestOf(int bestOf) {

@@ -4,7 +4,6 @@ import fun.tuple.Pair;
 import fun.tuple.Triple;
 import jio.*;
 import jio.test.junit.DebugExp;
-import jio.test.junit.DebugStub;
 import jio.test.junit.Debugger;
 import jsonvalues.JsArray;
 import jsonvalues.JsObj;
@@ -21,8 +20,7 @@ import static jio.api.exp.Stubs.*;
 
 @ExtendWith(Debugger.class)
 @DebugExp(duration = 5000)
-@DebugStub(duration = 5000)
-public class StubTests {
+public class StubSupplierTests {
 
     @Test
     public void ifelse_exp_measuring_time() {

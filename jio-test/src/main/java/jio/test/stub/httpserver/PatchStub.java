@@ -1,9 +1,11 @@
 package jio.test.stub.httpserver;
 
+import com.sun.net.httpserver.HttpHandler;
+
 import static java.util.Objects.requireNonNull;
 
 /**
- * Stub that stands in for the handler of a PATCH HTTP request.
+ * Stub that stands in for the {@link HttpHandler} of a PATCH HTTP request.
  */
 public final class PatchStub extends ReqHandlerStub {
 

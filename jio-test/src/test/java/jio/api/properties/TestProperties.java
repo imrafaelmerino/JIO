@@ -2,40 +2,53 @@ package jio.api.properties;
 
 import fun.gen.IntGen;
 import fun.gen.PairGen;
-import jio.test.pbt.Property;
-import jio.test.pbt.TestFailure;
-import jio.test.pbt.TestResult;
+import fun.tuple.Pair;
+import jio.console.JsConsole;
+import jio.test.pbt.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+
 public class TestProperties {
 
+    public static void main(String[] args) throws IOException {
+        new PropertyConsole(List.of(TestProperties.class)).start(args);
+    }
+    static BiFunction<Integer, Integer, Integer> fn = (a, b) -> (a + b) / 2;
+    @Command
+    static Property<Pair<Integer, Integer>> mediumProperty =
+            Property.ofFunction("medium",
+                                PairGen.of(IntGen.arbitrary(0, 100),
+                                           IntGen.arbitrary(0,100)
+                                          )
+                                       .suchThat(pair -> pair.first() <= pair.second()),
+                                pair -> {
+                                    var a = pair.first();
+                                    var b = pair.second();
+                                    var mean = fn.apply(a, b);
+                                    if (mean < a)
+                                        return TestFailure.reason("mean lower than a");
+                                    if (mean > b)
+                                        return TestFailure.reason("mean greater than b");
+                                    return TestResult.SUCCESS;
+                                }
+                               )
+                    .withClassifiers(Map.of("both",
+                                            p -> p.first() > Integer.MAX_VALUE / 2 && p.second() > Integer.MAX_VALUE / 2,
+                                            "none",
+                                            p -> p.first() < Integer.MAX_VALUE / 2 && p.second() < Integer.MAX_VALUE / 2),
+                                     "one"
+                                    );
 
     @Test
     public void testMean() {
-        BiFunction<Integer, Integer, Integer> fn = (a, b) -> (a + b) / 2;
-        Property.ofFunction("medium",
-                            PairGen.of(IntGen.arbitrary(0, Integer.MAX_VALUE),
-                                       IntGen.arbitrary()
-                                      )
-                                   .suchThat(pair -> pair.first() <= pair.second()),
-                            pair -> {
-                                var a = pair.first();
-                                var b = pair.second();
-                                var mean = fn.apply(a, b);
-                                if (mean < a) return TestFailure.reason("mean lower than a");
-                                if (mean > b) return TestFailure.reason("mean greater than b");
-                                return TestResult.SUCCESS;
-                            }
-                           )
-                .withClassifiers(Map.of("both",
-                                        p -> p.first() > Integer.MAX_VALUE / 2 && p.second() > Integer.MAX_VALUE / 2,
-                                        "none",
-                                        p -> p.first() < Integer.MAX_VALUE / 2 && p.second() < Integer.MAX_VALUE / 2),
-                                 "one"
-                                )
+
+
+        mediumProperty
                 .check()
                 .result()
                 .assertAllSuccess();

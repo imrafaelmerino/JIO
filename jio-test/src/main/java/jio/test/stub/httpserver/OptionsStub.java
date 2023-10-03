@@ -5,17 +5,17 @@ import com.sun.net.httpserver.HttpHandler;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Stub that stands in for the {@link HttpHandler} of a GET HTTP request.
+ * Stub that stands in for the {@link HttpHandler} of an OPTIONS HTTP request.
  */
-public final class GetStub extends ReqHandlerStub {
-    private GetStub(final BodyStub body,
-                    final StatusCodeStub statusCode,
-                    final HeadersStub headers
-                   ) {
+public final class OptionsStub extends ReqHandlerStub {
+    private OptionsStub(final BodyStub body,
+                        final StatusCodeStub statusCode,
+                        final HeadersStub headers
+                       ) {
         super(requireNonNull(body),
               requireNonNull(statusCode),
               requireNonNull(headers),
-              "get"
+              "options"
              );
     }
 
@@ -27,11 +27,11 @@ public final class GetStub extends ReqHandlerStub {
      * @param headers    The headers response stub.
      * @return A GET stub.
      */
-    public static GetStub of(final BodyStub body,
-                             final StatusCodeStub statusCode,
-                             final HeadersStub headers
-                            ) {
-        return new GetStub(body, statusCode, headers);
+    public static OptionsStub of(final BodyStub body,
+                                 final StatusCodeStub statusCode,
+                                 final HeadersStub headers
+                                ) {
+        return new OptionsStub(body, statusCode, headers);
     }
 
     /**
@@ -41,9 +41,9 @@ public final class GetStub extends ReqHandlerStub {
      * @param statusCode The status code response stub.
      * @return A GET stub.
      */
-    public static GetStub of(final BodyStub body,
-                             final StatusCodeStub statusCode
-                            ) {
-        return new GetStub(body, statusCode, HeadersStub.EMPTY);
+    public static OptionsStub of(final BodyStub body,
+                                 final StatusCodeStub statusCode
+                                ) {
+        return new OptionsStub(body, statusCode, HeadersStub.EMPTY);
     }
 }

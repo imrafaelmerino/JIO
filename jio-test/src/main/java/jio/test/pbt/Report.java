@@ -16,10 +16,10 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * Represents the result of the execution of a property-based test ({@link Property}).
- * A report can be serialized into JSON format with the method {@link #toJson()}. It contains
- * detailed information about the test execution, including the number of executed tests,
- * the name and description of the property, execution time statistics, failures, and exceptions.
+ * Represents the result of the execution of a property-based test ({@link Property}). A report can be serialized into
+ * JSON format with the method {@link #toJson()}. It contains detailed information about the test execution, including
+ * the number of executed tests, the name and description of the property, execution time statistics, failures, and
+ * exceptions.
  *
  * <p>Report Contents:</p>
  * <ul>
@@ -49,8 +49,8 @@ public final class Report {
     private final List<FailureContext> failures = new ArrayList<>();
     private final List<ExceptionContext> exceptions = new ArrayList<>();
     /**
-     * map that holds the tags of the generated values and the number of times they appear.
-     * This map is fed only when classifiers are specified
+     * map that holds the tags of the generated values and the number of times they appear. This map is fed only when
+     * classifiers are specified
      */
     private final Map<String, Long> tagsCounter = new HashMap<>();
     /**
@@ -283,8 +283,8 @@ public final class Report {
     }
 
     /**
-     * Assert that all tests associated with this report have passed successfully.
-     * If there are any failures or exceptions, this assertion will fail.
+     * Assert that all tests associated with this report have passed successfully. If there are any failures or
+     * exceptions, this assertion will fail.
      */
     public void assertAllSuccess() {
 
@@ -300,8 +300,8 @@ public final class Report {
     }
 
     /**
-     * Assert that there are no failures associated with this report.
-     * If there are any failures, this assertion will fail.
+     * Assert that there are no failures associated with this report. If there are any failures, this assertion will
+     * fail.
      */
     public void assertNoFailures() {
 
@@ -329,49 +329,51 @@ public final class Report {
     /**
      * Print a summary of the report to the console, including test execution details and results.
      */
-    public synchronized void summarize() {
-        System.out.printf("Property %s executed %s times at %s for %s:%n", propName, tests, startTime.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME), formatTime(accumulativeTime));
-        if (getExceptions().isEmpty() && getFailures().isEmpty())
-            System.out.printf("  + OK, passed %d tests.\n",
-                              tests
-                             );
-        else if (getExceptions().isEmpty()) {
-            System.out.printf("  ! KO, passed %d tests (%s) and %d (%s) ended with a failure.\n",
-                              tests - getFailures().size(),
-                              calculatePer(tests - getFailures().size()),
-                              getFailures().size(),
-                              calculatePer(getFailures().size())
-                             );
-            printFailuresValues();
-        } else if (getFailures().isEmpty()) {
-            System.out.printf("  ! KO, passed %d tests (%s) and %d (%s) ended with a exception.\n",
-                              tests - getExceptions().size(),
-                              calculatePer(tests - getFailures().size()),
-                              getExceptions().size(),
-                              calculatePer(getFailures().size())
-                             );
-            printExceptionsValues();
-        } else {
-            System.out.printf("  ! KO, passed %d tests (%s), %d (%s) ended with a failure and %d (%s) ended with a exception.\n",
-                              tests - getExceptions().size() - getFailures().size(),
-                              calculatePer(tests - getExceptions().size() - getFailures().size()),
-                              getFailures().size(),
-                              calculatePer(getFailures().size()),
-                              getExceptions().size(),
-                              calculatePer(getExceptions().size())
-                             );
-            printFailuresValues();
-            printExceptionsValues();
+    public  void summarize() {
+        synchronized (Report.class) {
+            System.out.printf("Property %s executed %s times at %s for %s:%n", propName, tests, startTime.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME), formatTime(accumulativeTime));
+            if (getExceptions().isEmpty() && getFailures().isEmpty())
+                System.out.printf("  + OK, passed %d tests.\n",
+                                  tests
+                                 );
+            else if (getExceptions().isEmpty()) {
+                System.out.printf("  ! KO, passed %d tests (%s) and %d (%s) ended with a failure.\n",
+                                  tests - getFailures().size(),
+                                  calculatePer(tests - getFailures().size()),
+                                  getFailures().size(),
+                                  calculatePer(getFailures().size())
+                                 );
+                printFailuresValues();
+            } else if (getFailures().isEmpty()) {
+                System.out.printf("  ! KO, passed %d tests (%s) and %d (%s) ended with a exception.\n",
+                                  tests - getExceptions().size(),
+                                  calculatePer(tests - getFailures().size()),
+                                  getExceptions().size(),
+                                  calculatePer(getFailures().size())
+                                 );
+                printExceptionsValues();
+            } else {
+                System.out.printf("  ! KO, passed %d tests (%s), %d (%s) ended with a failure and %d (%s) ended with a exception.\n",
+                                  tests - getExceptions().size() - getFailures().size(),
+                                  calculatePer(tests - getExceptions().size() - getFailures().size()),
+                                  getFailures().size(),
+                                  calculatePer(getFailures().size()),
+                                  getExceptions().size(),
+                                  calculatePer(getExceptions().size())
+                                 );
+                printFailuresValues();
+                printExceptionsValues();
+            }
+
+            if (!valuesCounter.isEmpty() || !tagsCounter.isEmpty())
+                System.out.println(String.format("  %s values collected in total:",
+                                                 tests)
+                                  );
+            if (!valuesCounter.isEmpty()) printCounter(valuesCounter);
+            if (!tagsCounter.isEmpty()) printCounter(tagsCounter);
+
+            System.out.flush();
         }
-
-        if (!valuesCounter.isEmpty() || !tagsCounter.isEmpty())
-            System.out.println(String.format("  %s values collected in total:",
-                                             tests)
-                              );
-        if (!valuesCounter.isEmpty()) printCounter(valuesCounter);
-        if (!tagsCounter.isEmpty()) printCounter(tagsCounter);
-
-        System.out.flush();
     }
 
     private void printFailuresValues() {
@@ -425,7 +427,7 @@ public final class Report {
         return time + " ns";
     }
 
-    private String calculatePer(long n){
-        return String.format("%.1f %%",((double) n/tests)*100);
+    private String calculatePer(long n) {
+        return String.format("%.1f %%", ((double) n / tests) * 100);
     }
 }

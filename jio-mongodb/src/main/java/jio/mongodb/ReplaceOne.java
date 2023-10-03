@@ -74,7 +74,8 @@ public final class ReplaceOne<O> implements BiLambda<JsObj, JsObj, O> {
     }
 
     /**
-     * Creates a ReplaceOne instance for performing replace one operations on a MongoDB collection with the result as a JsObj.
+     * Creates a ReplaceOne instance for performing replace one operations on a MongoDB collection with the result as a
+     * JsObj.
      *
      * @param collection The supplier for the MongoDB collection.
      * @return A ReplaceOne instance for performing replace one operations with a JsObj result.

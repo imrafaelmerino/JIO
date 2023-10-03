@@ -5,9 +5,7 @@ import jio.ListExp;
 import jsonvalues.JsObj;
 
 
-
-
-class ParProperty<O> implements Testable {
+non-sealed class ParProperty<O> implements Testable {
 
     int n;
 

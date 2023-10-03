@@ -1,4 +1,4 @@
-package jio.test.stub.effect;
+package jio.test.stub;
 
 import jio.time.Clock;
 
@@ -12,14 +12,14 @@ import java.util.function.Supplier;
  * Class to create different kinds of stubs that stand in for {@link Clock clocks}. These clock stubs are useful for
  * controlling time-related behavior in your applications during testing and development.
  */
-public final class ClockStub implements Supplier<Clock> {
+public final class ClockStubSupplier implements Supplier<Clock> {
 
     private final long lastTick;
     private final Function<Integer, Long> tickCounter;
     Clock clock;
     private volatile int counter;
 
-    private ClockStub(final Instant base) {
+    private ClockStubSupplier(final Instant base) {
         Objects.requireNonNull(base);
         lastTick = System.nanoTime();
         tickCounter = n -> n == 1 ?
@@ -34,7 +34,7 @@ public final class ClockStub implements Supplier<Clock> {
         });
     }
 
-    private ClockStub(final Function<Integer, Long> tickCounter) {
+    private ClockStubSupplier(final Function<Integer, Long> tickCounter) {
         lastTick = System.nanoTime();
         this.tickCounter = Objects.requireNonNull(tickCounter);
         clock = Clock.custom.apply(() -> {
@@ -55,8 +55,8 @@ public final class ClockStub implements Supplier<Clock> {
      * @param reference The instant from which the clock starts ticking.
      * @return A clock stub.
      */
-    public static ClockStub fromReference(final Instant reference) {
-        return new ClockStub(Objects.requireNonNull(reference));
+    public static ClockStubSupplier fromReference(final Instant reference) {
+        return new ClockStubSupplier(Objects.requireNonNull(reference));
     }
 
     /**
@@ -82,8 +82,8 @@ public final class ClockStub implements Supplier<Clock> {
      * @param callsFn Function that takes the call number and returns the time.
      * @return A clock stub.
      */
-    public static ClockStub fromCalls(final Function<Integer, Long> callsFn) {
-        return new ClockStub(Objects.requireNonNull(callsFn));
+    public static ClockStubSupplier fromCalls(final Function<Integer, Long> callsFn) {
+        return new ClockStubSupplier(Objects.requireNonNull(callsFn));
     }
 
     /**
@@ -93,6 +93,6 @@ public final class ClockStub implements Supplier<Clock> {
      */
     @Override
     public Clock get() {
-        return new ClockStub(tickCounter).clock;
+        return new ClockStubSupplier(tickCounter).clock;
     }
 }

@@ -1,8 +1,7 @@
 /**
- * This package provides classes and interfaces for defining and executing property-based tests (PBT)
- * using the JIO (Java I/O) library. Property-based testing is a technique for automatically generating
- * test cases based on properties or specifications of a system, allowing for comprehensive testing
- * of various input scenarios.
+ * This package provides classes and interfaces for defining and executing property-based tests (PBT) using the JIO
+ * (Java I/O) library. Property-based testing is a technique for automatically generating test cases based on properties
+ * or specifications of a system, allowing for comprehensive testing of various input scenarios.
  * <p>
  * The key classes and interfaces in this package include:
  * <ul>
@@ -25,6 +24,10 @@
  *     It includes a reason explaining why the test failed, allowing for quick diagnosis and resolution.</li>
  *     <li>{@link jio.test.pbt.TestException}: A class representing an exception thrown during the execution of a property test.
  *     Exception details are included in the reports, enabling effective debugging and problem resolution.</li>
+ *     <li>{@link jio.test.pbt.PropertyConsole}: A class for managing and interacting with properties using a console interface.
+ *     It allows you to execute commands related to properties, such as reading and configuring them.</li>
+ *     <li>{@link jio.test.pbt.Command}: An annotation used to mark fields that represent commands within the Property Console.
+ *     Fields annotated with {@code @Command} will be identified as callable commands when using the console.</li>
  * </ul>
  * <p>
  * Additionally, this package includes classes for defining property-based tests for RESTful APIs, such as

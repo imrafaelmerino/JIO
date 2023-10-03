@@ -10,9 +10,9 @@ import java.net.http.HttpResponse;
 import java.util.Objects;
 
 /**
- * Lambda that takes the access token request response, parses into a JsObj and returns the access token located at
- * the field access_token. If the token is not found the lambda fails with the exception {@link AccessTokenNotFound}
- * There is no public constructors to create instances of this class. Use the singleton {@link #DEFAULT}
+ * Lambda that takes the access token request response, parses into a JsObj and returns the access token located at the
+ * field access_token. If the token is not found the lambda fails with the exception {@link AccessTokenNotFound} There
+ * is no public constructors to create instances of this class. Use the singleton {@link #DEFAULT}
  *
  * @see ClientCredentialsHttpClientBuilder
  */

@@ -1,4 +1,4 @@
-package jio.test.stub.effect;
+package jio.test.stub;
 
 import fun.gen.Gen;
 import jio.Delay;
@@ -25,7 +25,7 @@ import java.util.function.Supplier;
  * }
  * </pre>
  *
- * @see Stub
+ * @see StubSupplier
  * @see fun.gen.Combinators
  */
 public final class Gens {

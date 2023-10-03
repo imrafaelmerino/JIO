@@ -6,7 +6,8 @@ import jio.http.client.MyHttpClient;
 import jsonvalues.JsObj;
 
 /**
- * Service for creating edits using the GPT model. This service allows you to send an instruction to the model, which will return an edited version of the provided text.
+ * Service for creating edits using the GPT model. This service allows you to send an instruction to the model, which
+ * will return an edited version of the provided text.
  */
 public final class EditService extends AbstractService {
 

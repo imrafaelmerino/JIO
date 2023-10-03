@@ -1,7 +1,7 @@
 /**
- * This package provides a set of classes and interfaces to create stubs for HTTP server request handlers.
- * These stubs allow you to simulate HTTP server responses for testing and mocking purposes. These stubs are particularly
- * useful when testing client applications that make HTTP requests to external services.
+ * This package provides a set of classes and interfaces to create stubs for HTTP server request handlers. These stubs
+ * allow you to simulate HTTP server responses for testing and mocking purposes. These stubs are particularly useful
+ * when testing client applications that make HTTP requests to external services.
  *
  * <p>The main classes and interfaces in this package include:
  *
@@ -34,7 +34,7 @@
  * import jio.test.stub.httpserver.StatusCodeStub;
  *
  * // Define request handler stubs for GET requests
- * GetStub getStrReqHandler = GetStub.of(BodyStub.cons("foo"),
+ * GetStub getStrReqHandler = GetStub.of(BodyStub.gen(StrGen.alphabetic()),
  *                                       StatusCodeStub.cons(200),
  *                                       HeadersStub.EMPTY
  *                                      );

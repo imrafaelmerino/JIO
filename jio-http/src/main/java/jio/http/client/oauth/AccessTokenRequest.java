@@ -13,9 +13,8 @@ import java.util.Objects;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents a function that takes a http client and send a predefined request to get
- * the access token to the server, returning the http response which body is a JsObj. The predefined request is
- * the following:
+ * Represents a function that takes a http client and send a predefined request to get the access token to the server,
+ * returning the http response which body is a JsObj. The predefined request is the following:
  *
  * <pre>
  *
@@ -37,8 +36,7 @@ import static java.util.Objects.requireNonNull;
  * </li>
  * </ul>
  *
- * @see ClientCredentialsHttpClientBuilder
- * .
+ * @see ClientCredentialsHttpClientBuilder .
  */
 public final class AccessTokenRequest implements Lambda<MyOauthHttpClient, HttpResponse<String>> {
 
@@ -50,8 +48,7 @@ public final class AccessTokenRequest implements Lambda<MyOauthHttpClient, HttpR
     private final Boolean ssl;
 
     /**
-     * Constructor to create the function that takes a http client and send the following request to
-     * the server
+     * Constructor to create the function that takes a http client and send the following request to the server
      * <pre>
      *
      *     POST https|http://host:port/uri
@@ -87,8 +84,7 @@ public final class AccessTokenRequest implements Lambda<MyOauthHttpClient, HttpR
     }
 
     /**
-     * Constructor to create the function that takes a http client and send the following request to
-     * the server
+     * Constructor to create the function that takes a http client and send the following request to the server
      * <pre>
      *
      *     POST https://host:port/token

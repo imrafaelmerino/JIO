@@ -1,7 +1,7 @@
 /**
- * The {@code jio.http.client.oauth} package extends the functionality of the {@code jio.http.client} package to include OAuth authentication support.
- * It provides classes and interfaces for creating HTTP clients that can handle OAuth 2.0 Client Credentials Grant flow.
- * Key classes and interfaces in this package include:
+ * The {@code jio.http.client.oauth} package extends the functionality of the {@code jio.http.client} package to include
+ * OAuth authentication support. It provides classes and interfaces for creating HTTP clients that can handle OAuth 2.0
+ * Client Credentials Grant flow. Key classes and interfaces in this package include:
  * <ul>
  *   <li>{@link jio.http.client.oauth.ClientCredentialsHttpClient}: A specialized HTTP client that handles OAuth authentication using the Client Credentials Grant flow. It automatically manages access tokens, refreshing them when necessary.</li>
  *   <li>{@link jio.http.client.oauth.ClientCredentialsHttpClientBuilder}: A builder class for creating instances of {@code ClientCredentialsHttpClient} with customizable settings for access token requests, token parsing, and token refresh conditions.</li>

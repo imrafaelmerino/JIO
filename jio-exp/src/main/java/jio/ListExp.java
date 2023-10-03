@@ -3,15 +3,17 @@ package jio;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an expression that is reduced to a list of values.
- * You can create ListExp expressions using the 'seq' method to evaluate effects sequentially
- * or using the 'par' method to evaluate effects in parallel. If one effect fails, the entire
- * expression fails.
+ * Represents an expression that is reduced to a list of values. You can create ListExp expressions using the 'seq'
+ * method to evaluate effects sequentially or using the 'par' method to evaluate effects in parallel. If one effect
+ * fails, the entire expression fails.
  *
  * @param <O> the type of the values
  */
@@ -27,8 +29,8 @@ public abstract sealed class ListExp<O> extends Exp<List<O>> permits ListExpPar,
     }
 
     /**
-     * Creates a ListExp from a list of effects that will be evaluated sequentially.
-     * If one fails, the whole expression fails.
+     * Creates a ListExp from a list of effects that will be evaluated sequentially. If one fails, the whole expression
+     * fails.
      *
      * @param effects the list of effects
      * @param <O>     the type of the effects
@@ -42,10 +44,9 @@ public abstract sealed class ListExp<O> extends Exp<List<O>> permits ListExpPar,
     }
 
 
-
     /**
-     * Creates a ListExp from a list of effects that will be evaluated in parallel.
-     * If one fails, the whole expression fails.
+     * Creates a ListExp from a list of effects that will be evaluated in parallel. If one fails, the whole expression
+     * fails.
      *
      * @param effects the list of effects
      * @param <O>     the type of the list effects

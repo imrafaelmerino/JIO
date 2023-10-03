@@ -31,9 +31,9 @@ public final class UpdateMany<O> implements BiLambda<JsObj, JsObj, O> {
     /**
      * Constructs a new UpdateMany instance.
      *
-     * @param collection       The supplier for the MongoDB collection.
-     * @param resultConverter  The function to convert the update result to the desired type.
-     * @param options          The update options.
+     * @param collection      The supplier for the MongoDB collection.
+     * @param resultConverter The function to convert the update result to the desired type.
+     * @param options         The update options.
      */
     private UpdateMany(final CollectionSupplier collection,
                        final Function<UpdateResult, O> resultConverter,
@@ -45,11 +45,12 @@ public final class UpdateMany<O> implements BiLambda<JsObj, JsObj, O> {
     }
 
     /**
-     * Creates an UpdateMany instance with the specified collection supplier and result converter using default options.
+     * Creates an UpdateMany instance with the specified collection supplier and result converter using default
+     * options.
      *
-     * @param collection       The supplier for the MongoDB collection.
-     * @param resultConverter  The function to convert the update result to the desired type.
-     * @param <O>              The type of the result.
+     * @param collection      The supplier for the MongoDB collection.
+     * @param resultConverter The function to convert the update result to the desired type.
+     * @param <O>             The type of the result.
      * @return An UpdateMany instance with default options.
      */
     public static <O> UpdateMany<O> of(final CollectionSupplier collection,
@@ -61,10 +62,10 @@ public final class UpdateMany<O> implements BiLambda<JsObj, JsObj, O> {
     /**
      * Creates an UpdateMany instance with the specified collection supplier, result converter, and options.
      *
-     * @param collection       The supplier for the MongoDB collection.
-     * @param resultConverter  The function to convert the update result to the desired type.
-     * @param options          The update options.
-     * @param <O>              The type of the result.
+     * @param collection      The supplier for the MongoDB collection.
+     * @param resultConverter The function to convert the update result to the desired type.
+     * @param options         The update options.
+     * @param <O>             The type of the result.
      * @return An UpdateMany instance.
      */
     public static <O> UpdateMany<O> of(final CollectionSupplier collection,

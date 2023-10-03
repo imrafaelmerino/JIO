@@ -1,9 +1,11 @@
 package jio.test.stub.httpserver;
 
+import com.sun.net.httpserver.HttpHandler;
+
 import static java.util.Objects.requireNonNull;
 
 /**
- * Stub that stands in for the handler of a DELETE HTTP request.
+ * Stub that stands in for the {@link HttpHandler} of a DELETE HTTP request.
  */
 public final class DeleteStub extends ReqHandlerStub {
     private DeleteStub(final BodyStub body,

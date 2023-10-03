@@ -10,7 +10,7 @@ import java.util.OptionalInt;
 /**
  * A builder class for configuring and creating a fine-tuning job.
  */
-public final  class FineTuneBuilder {
+public final class FineTuneBuilder {
     private final String trainingFile;
 
     private String validationFile;

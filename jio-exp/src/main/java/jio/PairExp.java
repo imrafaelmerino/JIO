@@ -9,12 +9,11 @@ import java.util.function.Predicate;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an expression that is reduced to a pair. Their elements can be evaluated either in
- * parallel or sequentially. In both cases, if one fails, the whole expression fails.
+ * Represents an expression that is reduced to a pair. Their elements can be evaluated either in parallel or
+ * sequentially. In both cases, if one fails, the whole expression fails.
  * <p>
- * You can create PairExp expressions using the 'seq' method to evaluate effects sequentially,
- * or using the 'par' method to evaluate effects in parallel. If one effect fails, the entire
- * expression fails.
+ * You can create PairExp expressions using the 'seq' method to evaluate effects sequentially, or using the 'par' method
+ * to evaluate effects in parallel. If one effect fails, the entire expression fails.
  *
  * @param <A> the type of the first computation
  * @param <B> the type of the second computation
@@ -31,8 +30,8 @@ public abstract sealed class PairExp<A, B> extends Exp<Pair<A, B>> permits PairE
     }
 
     /**
-     * create a tuple of two effects that will be evaluated sequentially. If the first one fails,
-     * the second one is not evaluated and the whole expression fails.
+     * create a tuple of two effects that will be evaluated sequentially. If the first one fails, the second one is not
+     * evaluated and the whole expression fails.
      *
      * @param first  the first effect
      * @param second the second effect
@@ -50,8 +49,8 @@ public abstract sealed class PairExp<A, B> extends Exp<Pair<A, B>> permits PairE
     }
 
     /**
-     * create a tuple of two effects that will be evaluated in parallel if they run on different threads.
-     * The two effect are always evaluated, no matter if the first one fails.
+     * create a tuple of two effects that will be evaluated in parallel if they run on different threads. The two effect
+     * are always evaluated, no matter if the first one fails.
      *
      * @param first  first effect of the pair
      * @param second second effect of the pair

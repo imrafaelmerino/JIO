@@ -1,10 +1,11 @@
 package jio.chatgpt;
 
 import java.util.Objects;
+
 /**
  * A builder class for configuring the API client's settings.
  */
-public  final  class ConfBuilder {
+public final class ConfBuilder {
     private final byte[] authHeader;
     private String version = "v1";
     private String host = "api.openai.com";

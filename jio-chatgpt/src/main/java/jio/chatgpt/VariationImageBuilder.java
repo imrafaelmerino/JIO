@@ -5,22 +5,24 @@ import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 
 import java.util.Objects;
+
 /**
- * Builder class to create variation images.
- * Given a base image, this builder allows you to generate variations of the image.
+ * Builder class to create variation images. Given a base image, this builder allows you to generate variations of the
+ * image.
  */
-public final  class VariationImageBuilder {
+public final class VariationImageBuilder {
 
     final String image;
     Data.IMAGE_FORMAT responseFormat;
     String user;
     int n;
     Data.IMAGE_SIZE size;
+
     /**
      * Constructs a VariationImageBuilder with the provided base image.
      *
-     * @param image The image to use as the basis for the variation(s).
-     *              Must be a valid PNG file, less than 4MB, and square.
+     * @param image The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and
+     *              square.
      */
     public VariationImageBuilder(String image) {
         this.image = Objects.requireNonNull(image);

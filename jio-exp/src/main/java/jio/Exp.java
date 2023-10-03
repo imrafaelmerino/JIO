@@ -42,8 +42,8 @@ sealed abstract class Exp<O> extends IO<O>
 
 
     /**
-     * Defines a strategy for retrying each operand of this expression when a specified condition is met,
-     * based on the given retry policy.
+     * Defines a strategy for retrying each operand of this expression when a specified condition is met, based on the
+     * given retry policy.
      *
      * @param predicate the condition to evaluate whether to retry an operand
      * @param policy    the retry policy specifying the behavior for each retry attempt
@@ -52,7 +52,6 @@ sealed abstract class Exp<O> extends IO<O>
     abstract Exp<O> retryEach(final Predicate<Throwable> predicate,
                               final RetryPolicy policy
                              );
-
 
 
     /**
@@ -65,8 +64,8 @@ sealed abstract class Exp<O> extends IO<O>
 
 
     /**
-     * Attaches a debug mechanism to each operand of this expression, allowing you to monitor and log
-     * the execution of each operand individually.
+     * Attaches a debug mechanism to each operand of this expression, allowing you to monitor and log the execution of
+     * each operand individually.
      *
      * @param messageBuilder the builder for creating debug events for each operand
      * @return a new expression with debug behavior applied to each operand
@@ -75,8 +74,8 @@ sealed abstract class Exp<O> extends IO<O>
 
 
     /**
-     * Attaches a debug mechanism to each operand of this expression, allowing you to monitor and log
-     * the execution of each operand individually.
+     * Attaches a debug mechanism to each operand of this expression, allowing you to monitor and log the execution of
+     * each operand individually.
      *
      * @param context a descriptive context for the debug events of each operand
      * @return a new expression with debug behavior applied to each operand

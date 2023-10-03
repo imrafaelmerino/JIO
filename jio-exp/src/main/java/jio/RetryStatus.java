@@ -6,9 +6,9 @@ import java.time.Duration;
  * A record with statistics about retries made so far.
  *
  * <p>The record includes the following fields:
- * - {@code counter}: The retry counter, where 0 is the first try.
- * - {@code cumulativeDelay}: The cumulative delay incurred from retries in milliseconds.
- * - {@code previousDelay}: The delay of the latest retry attempt. It will always be -1 on the first run.
+ * - {@code counter}: The retry counter, where 0 is the first try. - {@code cumulativeDelay}: The cumulative delay
+ * incurred from retries in milliseconds. - {@code previousDelay}: The delay of the latest retry attempt. It will always
+ * be -1 on the first run.
  *
  * <p>Use the {@link #ZERO} constant to represent the initial retry status.
  *

@@ -1,6 +1,7 @@
 package jio.http.client;
 
-import jio.*;
+import jio.IO;
+import jio.RetryPolicy;
 
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;

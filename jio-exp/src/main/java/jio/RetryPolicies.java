@@ -68,8 +68,8 @@ public final class RetryPolicies {
     }
 
     /**
-     * Creates a policy that adds some jitter to the backoff sequence, spreading out the spikes
-     * to achieve an approximately constant rate of retries.
+     * Creates a policy that adds some jitter to the backoff sequence, spreading out the spikes to achieve an
+     * approximately constant rate of retries.
      *
      * <p>The retry delay is calculated as follows:
      * <pre>
@@ -96,8 +96,8 @@ public final class RetryPolicies {
     }
 
     /**
-     * Creates a policy that introduces jitter to the backoff sequence, resulting in retries that are
-     * spread out more evenly. The retry delay is calculated as follows:
+     * Creates a policy that introduces jitter to the backoff sequence, resulting in retries that are spread out more
+     * evenly. The retry delay is calculated as follows:
      *
      * <pre>
      * {@code

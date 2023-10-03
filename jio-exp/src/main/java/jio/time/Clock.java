@@ -4,39 +4,33 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Represents a clock, which is modeled with a lazy computation that returns a {@code long}.
- * The returned {@code long} value typically represents time or time-related information,
- * depending on the specific clock type.
+ * Represents a clock, which is modeled with a lazy computation that returns a {@code long}. The returned {@code long}
+ * value typically represents time or time-related information, depending on the specific clock type.
  */
 public sealed interface Clock extends Supplier<Long> permits Monotonic, MyClock, RealTime {
 
     /**
-     * Creates a monotonic clock, appropriate for time measurements.
-     * When invoked, it returns the current value of the running Java
-     * Virtual Machine's high-resolution time source, in nanoseconds.
-     * This {@code long} value represents a time measurement.
-     * It uses the {@link System#nanoTime} method.
+     * Creates a monotonic clock, appropriate for time measurements. When invoked, it returns the current value of the
+     * running Java Virtual Machine's high-resolution time source, in nanoseconds. This {@code long} value represents a
+     * time measurement. It uses the {@link System#nanoTime} method.
      *
      * @see System#nanoTime
      */
     Clock monotonic = new Monotonic();
 
     /**
-     * Creates a real-time or wall-clock watch. It produces the current time,
-     * as a Unix timestamp in milliseconds (number of time units since the Unix epoch).
-     * This {@code long} value represents a Unix timestamp.
-     * This clock is not appropriate for measuring the duration of intervals
-     * (use {@link Clock#monotonic} instead).
-     * It uses the {@link System#currentTimeMillis} method.
+     * Creates a real-time or wall-clock watch. It produces the current time, as a Unix timestamp in milliseconds
+     * (number of time units since the Unix epoch). This {@code long} value represents a Unix timestamp. This clock is
+     * not appropriate for measuring the duration of intervals (use {@link Clock#monotonic} instead). It uses the
+     * {@link System#currentTimeMillis} method.
      *
      * @see System#currentTimeMillis
      */
     Clock realTime = new RealTime();
 
     /**
-     * Function that takes a {@code long} supplier as the clock tick generator and returns a Clock.
-     * The provided {@code long} values typically represent time or time-related information,
-     * depending on the specific clock type.
+     * Function that takes a {@code long} supplier as the clock tick generator and returns a Clock. The provided
+     * {@code long} values typically represent time or time-related information, depending on the specific clock type.
      */
     Function<Supplier<Long>, Clock> custom = MyClock::new;
 

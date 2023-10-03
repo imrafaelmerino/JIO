@@ -9,16 +9,16 @@ import java.util.function.Function;
 
 
 /**
- * A RetryPolicy is a function that takes a RetryStatus and possibly returns the duration of the delay to wait
- * before the next try.
+ * A RetryPolicy is a function that takes a RetryStatus and possibly returns the duration of the delay to wait before
+ * the next try.
  *
  * <p>Iteration numbers start at zero and increase by one on each retry. An {@code Optional.empty()} return value
  * from the function implies we have reached the retry limit.
  *
  * <p>You can collapse multiple strategies into one using the {@link #append(RetryPolicy) append} method. There are
  * also several predefined policies available in {@link RetryPolicies}. Additionally, you can use combinators like
- * {@link #capDelay(Duration)}, {@link #limitRetriesByDelay(Duration)}, and {@link #limitRetriesByCumulativeDelay(Duration)}
- * to transform policies.
+ * {@link #capDelay(Duration)}, {@link #limitRetriesByDelay(Duration)}, and
+ * {@link #limitRetriesByCumulativeDelay(Duration)} to transform policies.
  *
  * <p>Always simulate any policy you define with {@link #simulate(int)} to check it's behaved as expected.
  *
@@ -27,9 +27,9 @@ import java.util.function.Function;
 public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
 
     /**
-     * Combines this policy with another policy. If either policy (this or other) returns {@code Optional.empty()},
-     * the combined policy returns {@code Optional.empty()}. This can be used to inhibit retries after a certain
-     * number of attempts. If both policies return a delay, the larger delay will be used.
+     * Combines this policy with another policy. If either policy (this or other) returns {@code Optional.empty()}, the
+     * combined policy returns {@code Optional.empty()}. This can be used to inhibit retries after a certain number of
+     * attempts. If both policies return a delay, the larger delay will be used.
      *
      * @param other the other retry policy to be appended
      * @return a new retry policy combining this and the other policy

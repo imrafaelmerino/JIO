@@ -12,9 +12,9 @@ import static java.util.Objects.requireNonNull;
 
 
 /**
- * Represents a {@link JsConsole console} program to compose a JSON object from the user inputs.
- * It has the same recursive structure as a JSON object, which makes it very easy to create
- * interactive programs to compose a {@link jsonvalues.JsObj JsObj}:
+ * Represents a {@link JsConsole console} program to compose a JSON object from the user inputs. It has the same
+ * recursive structure as a JSON object, which makes it very easy to create interactive programs to compose a
+ * {@link jsonvalues.JsObj JsObj}:
  *
  * <pre>
  *     {@code
@@ -26,8 +26,8 @@ import static java.util.Objects.requireNonNull;
  *     }
  * </pre>
  * <p>
- * If the user introduces a value that is not valid according to the specified spec,
- * an error message will be prompted, and they'll have up to three retries to get it right.
+ * If the user introduces a value that is not valid according to the specified spec, an error message will be prompted,
+ * and they'll have up to three retries to get it right.
  */
 public class JsObjConsole implements JsConsole<JsObj> {
     private final Map<String, JsConsole<?>> bindings;
@@ -810,21 +810,21 @@ public class JsObjConsole implements JsConsole<JsObj> {
     public IO<JsObj> apply(final JsPath path) {
         requireNonNull(path);
         return IO.effect(() ->
-                             {
-                                 var result = CompletableFuture.completedFuture(JsObj.empty());
-                                 for (var entry : bindings.entrySet()) {
-                                     var currentPath = path.append(JsPath.fromKey(entry.getKey()));
-                                     var nextValue = entry.getValue();
-                                     result = result
-                                             .thenCombine(nextValue
-                                                                  .apply(currentPath)
-                                                                  .get(),
-                                                          (obj, value) -> obj.set(entry.getKey(),
-                                                                                  value
-                                                                                 )
-                                                         );
-                                 }
-                                 return result;
-                             });
+                         {
+                             var result = CompletableFuture.completedFuture(JsObj.empty());
+                             for (var entry : bindings.entrySet()) {
+                                 var currentPath = path.append(JsPath.fromKey(entry.getKey()));
+                                 var nextValue = entry.getValue();
+                                 result = result
+                                         .thenCombine(nextValue
+                                                              .apply(currentPath)
+                                                              .get(),
+                                                      (obj, value) -> obj.set(entry.getKey(),
+                                                                              value
+                                                                             )
+                                                     );
+                             }
+                             return result;
+                         });
     }
 }

@@ -7,8 +7,8 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * A supplier that provides a MongoDB collection of JSON objects ({@link JsObj}).
- * This supplier ensures that the MongoDB collection is lazily initialized and cached for efficient reuse.
+ * A supplier that provides a MongoDB collection of JSON objects ({@link JsObj}). This supplier ensures that the MongoDB
+ * collection is lazily initialized and cached for efficient reuse.
  *
  * <p>Instances of this class can be used to obtain a reference to a specific collection within a MongoDB database,
  * which can then be used to perform various database operations.</p>
@@ -24,6 +24,7 @@ public class CollectionSupplier implements Supplier<MongoCollection<JsObj>> {
     final DatabaseSupplier database;
     final String name;
     volatile MongoCollection<JsObj> collection;
+
     /**
      * Constructs a new CollectionSupplier with the given DatabaseSupplier and collection name.
      *
@@ -39,8 +40,8 @@ public class CollectionSupplier implements Supplier<MongoCollection<JsObj>> {
     }
 
     /**
-     * Gets the MongoDB collection. If the collection has not been initialized, it will be lazily initialized
-     * using the associated database supplier.
+     * Gets the MongoDB collection. If the collection has not been initialized, it will be lazily initialized using the
+     * associated database supplier.
      *
      * <p>This method is thread-safe, ensuring safe and efficient lazy initialization of the MongoDB collection.</p>
      *

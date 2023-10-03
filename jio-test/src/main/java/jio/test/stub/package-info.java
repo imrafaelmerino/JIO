@@ -1,0 +1,48 @@
+/**
+ * The {@code jio.test.stub} package provides utility classes and stubs for creating and controlling behaviors of
+ * asynchronous IO operations in testing scenarios. These classes are particularly useful for simulating various IO
+ * behaviors, including success, failure, delays, and sequencing, to aid in testing and development.
+ *
+ * <p>Key Classes:</p>
+ *
+ * <ul>
+ *   <li>{@link jio.test.stub.Gens}: Utility class for generating `IO` instances using generators, commonly used for creating stubs in testing scenarios.</li>
+ *   <li>{@link jio.test.stub.StubSupplier}: A stub for generating `IO` instances using generators. This allows you to specify the behavior of IO operations.</li>
+ *   <li>{@link jio.test.stub.ClockStubSupplier}: Class for creating different kinds of stubs that stand in for {@link jio.time.Clock clocks}. Useful for controlling time-related behavior during testing.</li>
+ * </ul>
+ *
+ * <p>Usage Examples:</p>
+ *
+ * <p>Generating IO instances with generators:</p>
+ * <pre>
+ * {@code
+ * var gen1 = Gens.seq(n -> IO.succeed(n));
+ * var gen2 = Gens.fail(new RuntimeException("bad luck!"));
+ * var gen = Combinators.oneOf(gen1, gen2);
+ * }
+ * </pre>
+ *
+ * <p>Creating a stub for controlling IO behavior:</p>
+ * <pre>
+ * {@code
+ * var stub = Stub.ofGen(Gens.seq(n -> IO.succeed(n)));
+ * IO<Integer> result = stub.get();
+ * }
+ * </pre>
+ *
+ * <p>Simulating clock behavior in testing:</p>
+ * <pre>
+ * {@code
+ * ClockStub clockStub = ClockStub.fromReference(Instant.now());
+ * Clock customClock = clockStub.get();
+ * }
+ * </pre>
+ * <p>
+ * For creating stubs in the {@link com.sun.net.httpserver.HttpServer}, exists the subpackage {@link jio.test.stub.httpserver}
+ *
+ * @see jio.test.stub.Gens
+ * @see jio.test.stub.StubSupplier
+ * @see jio.test.stub.ClockStubSupplier
+ * @see jio.test.stub.httpserver
+ */
+package jio.test.stub;

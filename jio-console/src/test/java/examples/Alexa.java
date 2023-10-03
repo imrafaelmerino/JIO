@@ -1,12 +1,5 @@
 package examples;
-
-import fun.gen.Combinators;
-import fun.gen.Gen;
-import fun.tuple.Pair;
 import jio.console.*;
-import jio.test.pbt.Property;
-import jio.test.pbt.TestFailure;
-import jio.test.pbt.TestResult;
 import jsonvalues.JsObj;
 import jsonvalues.gen.JsIntGen;
 import jsonvalues.gen.JsObjGen;
@@ -14,15 +7,15 @@ import jsonvalues.gen.JsStrGen;
 import jsonvalues.spec.JsSpecs;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-
 
 
 public class Alexa {
 
 
     public static void main(String[] args) {
-        ArrayList<Command> myCommnads = new ArrayList<>();
+        List<Command> myCommnads = new ArrayList<>();
         JsObjConsole program =
                 JsObjConsole.of("a", JsConsole.of(JsSpecs.integer()),
                                 "b", JsConsole.of(JsSpecs.str()),
@@ -45,18 +38,7 @@ public class Alexa {
         ));
 
 
-        myCommnads.add(new PropertyCommand(
-                Property.ofFunction("example",
-                                    Combinators.freq(Pair.of(3, JsObjGen.of("a", JsStrGen.alphabetic())),
-                                                     Pair.of(1, Gen.cons(JsObj.empty()))
-                                                    ),
-                                    (JsObj o) -> o.isNotEmpty() ?
-                                            TestResult.SUCCESS :
-                                            TestFailure.reason("empty json")
-                                   )
-                        .withDescription("Json empty")
 
-        ));
         Console alexa = new Console(myCommnads);
         alexa.eval(JsObj.empty());
     }

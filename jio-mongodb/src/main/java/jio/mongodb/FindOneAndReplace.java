@@ -13,9 +13,10 @@ import static java.util.Objects.requireNonNull;
 import static jio.mongodb.MongoDBEvent.OP.FIND_ONE_AND_REPLACE;
 
 /**
- * Represents a MongoDB find one and replace operation to update a single document in a collection asynchronously using {@link jio.BiLambda lambdas}.
- * This class allows you to specify a filter query criteria and an update document as {@link jsonvalues.JsObj}, along with options
- * for controlling the replacement behavior, such as sort criteria and projection.
+ * Represents a MongoDB find one and replace operation to update a single document in a collection asynchronously using
+ * {@link jio.BiLambda lambdas}. This class allows you to specify a filter query criteria and an update document as
+ * {@link jsonvalues.JsObj}, along with options for controlling the replacement behavior, such as sort criteria and
+ * projection.
  *
  * @see CollectionSupplier
  */
@@ -32,8 +33,10 @@ public final class FindOneAndReplace implements BiLambda<JsObj, JsObj, JsObj> {
         this.collection = requireNonNull(collection);
         this.options = requireNonNull(options);
     }
+
     /**
-     * Creates a new instance of {@code FindOneAndReplace} with the specified MongoDB collection supplier and replacement options.
+     * Creates a new instance of {@code FindOneAndReplace} with the specified MongoDB collection supplier and
+     * replacement options.
      *
      * @param collection the supplier of the MongoDB collection to perform the replacement operation
      * @param options    the options to control the replacement operation
@@ -44,8 +47,10 @@ public final class FindOneAndReplace implements BiLambda<JsObj, JsObj, JsObj> {
                                       ) {
         return new FindOneAndReplace(collection, options);
     }
+
     /**
-     * Creates a new instance of {@code FindOneAndReplace} with the specified MongoDB collection supplier and default replacement options.
+     * Creates a new instance of {@code FindOneAndReplace} with the specified MongoDB collection supplier and default
+     * replacement options.
      *
      * @param collection the supplier of the MongoDB collection to perform the replacement operation
      * @return a new {@code FindOneAndReplace} instance with default replacement options
@@ -53,6 +58,7 @@ public final class FindOneAndReplace implements BiLambda<JsObj, JsObj, JsObj> {
     public static FindOneAndReplace of(final CollectionSupplier collection) {
         return new FindOneAndReplace(collection, DEFAULT_OPTIONS);
     }
+
     /**
      * Sets the executor to use for performing the find one and replace operation asynchronously.
      *

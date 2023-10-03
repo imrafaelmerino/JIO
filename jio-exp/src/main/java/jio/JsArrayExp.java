@@ -15,9 +15,9 @@ import java.util.stream.IntStream;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents a sequence of effects that produce JSON values ({@link JsValue}) and combines them into a JSON array.
- * This abstraction allows for the evaluation of these effects either in parallel or sequentially. If any of the
- * effects fail, the entire expression fails.
+ * Represents a sequence of effects that produce JSON values ({@link JsValue}) and combines them into a JSON array. This
+ * abstraction allows for the evaluation of these effects either in parallel or sequentially. If any of the effects
+ * fail, the entire expression fails.
  */
 public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpPar, JsArrayExpSeq {
 
@@ -32,8 +32,8 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
     }
 
     /**
-     * Creates a JsArray expression that evaluates the effects sequentially, one after the other.
-     * If any effect fails, the entire expression fails, and subsequent effects are not evaluated.
+     * Creates a JsArray expression that evaluates the effects sequentially, one after the other. If any effect fails,
+     * the entire expression fails, and subsequent effects are not evaluated.
      *
      * @param effects the effects to be evaluated sequentially
      * @return a JsArrayExp for sequential evaluation
@@ -47,8 +47,8 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
 
 
     /**
-     * Creates a JsArray expression that evaluates all the effects in parallel.
-     * If any effect fails, the entire expression fails.
+     * Creates a JsArray expression that evaluates all the effects in parallel. If any effect fails, the entire
+     * expression fails.
      *
      * @param effects the effects to be evaluated in parallel
      * @return a JsArrayExp for parallel evaluation

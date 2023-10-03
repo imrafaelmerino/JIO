@@ -37,15 +37,15 @@ public abstract class Command implements BiFunction<JsObj, State, Function<Strin
     public final String name;
     private final Predicate<String[]> isCommand;
     /**
-     * Flag to control whether the output of the command is saved in the state variable 'output.'
-     * By default, it is set to true, meaning that output is saved.
+     * Flag to control whether the output of the command is saved in the state variable 'output.' By default, it is set
+     * to true, meaning that output is saved.
      */
     public boolean isSaveOutput = true;
 
     /**
-     * Constructor to create a command from its name, description, and a predicate to check if
-     * the text typed in by the user corresponds to this command. The description will be printed
-     * out on the console when typing the help command:
+     * Constructor to create a command from its name, description, and a predicate to check if the text typed in by the
+     * user corresponds to this command. The description will be printed out on the console when typing the help
+     * command:
      * <pre>
      *     help name
      * </pre>
@@ -64,8 +64,8 @@ public abstract class Command implements BiFunction<JsObj, State, Function<Strin
     }
 
     /**
-     * Constructor to create a command from its name and description. The predicate to
-     * check if the text typed in by the user corresponds to this command is:
+     * Constructor to create a command from its name and description. The predicate to check if the text typed in by the
+     * user corresponds to this command is:
      *
      * @param name        the name of the command
      * @param description the description of the command
@@ -98,15 +98,14 @@ public abstract class Command implements BiFunction<JsObj, State, Function<Strin
     }
 
     /**
-     * Returns a function that, given an array of tokens representing the user input, returns
-     * an empty optional if the user input doesn't correspond to this command, or a JIO effect
-     * that executes the command action and returns a string as the output.
+     * Returns a function that, given an array of tokens representing the user input, returns an empty optional if the
+     * user input doesn't correspond to this command, or a JIO effect that executes the command action and returns a
+     * string as the output.
      *
      * @param conf  the configuration
      * @param state the state
-     * @return a function that takes the array of tokens typed in by the client and returns the
-     * command action wrapped into an optional. If the optional is empty, it means the user input
-     * doesn't correspond to this command.
+     * @return a function that takes the array of tokens typed in by the client and returns the command action wrapped
+     * into an optional. If the optional is empty, it means the user input doesn't correspond to this command.
      */
     Function<String[], Optional<IO<String>>> executeIfMatch(JsObj conf, State state) {
         return tokens -> {

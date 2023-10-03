@@ -10,8 +10,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 
 /**
- * Represents a delay that is modeled with an IO effect that is reduced to null after the specified time.
- * It's implemented using {@link CompletableFuture#delayedExecutor}.
+ * Represents a delay that is modeled with an IO effect that is reduced to null after the specified time. It's
+ * implemented using {@link CompletableFuture#delayedExecutor}.
  *
  * <p>It's widely used by the {@link RetryPolicy} function to implement different policies.
  * For example, to delay an effect for 1 second:
@@ -38,9 +38,8 @@ public final class Delay extends IO<Void> {
     }
 
     /**
-     * Creates a delay of the specified duration with the given base executor, which
-     * means a CompletableFuture will be completed with null asynchronously by a thread
-     * from the executor.
+     * Creates a delay of the specified duration with the given base executor, which means a CompletableFuture will be
+     * completed with null asynchronously by a thread from the executor.
      *
      * @param duration the duration
      * @param executor the executor
@@ -51,9 +50,8 @@ public final class Delay extends IO<Void> {
     }
 
     /**
-     * Returns a CompletableFuture completed with null after the specified delay
-     * by a thread from the executor. If the duration is zero, the future is completed
-     * with the caller thread.
+     * Returns a CompletableFuture completed with null after the specified delay by a thread from the executor. If the
+     * duration is zero, the future is completed with the caller thread.
      *
      * @return a CompletableFuture
      */

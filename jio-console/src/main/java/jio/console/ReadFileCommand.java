@@ -17,8 +17,8 @@ import java.util.function.Function;
  *     file-read /path/to/file
  * </pre>
  * <p>
- * Users can specify the absolute path to the file they want to read, and the command will return the file's contents as a string
- * stored in the variable 'output'. If the file is not found, the command allows for multiple retries.
+ * Users can specify the absolute path to the file they want to read, and the command will return the file's contents as
+ * a string stored in the variable 'output'. If the file is not found, the command allows for multiple retries.
  * <p>
  * Examples:
  * <pre>

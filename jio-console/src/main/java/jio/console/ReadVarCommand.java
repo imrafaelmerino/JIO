@@ -14,8 +14,8 @@ import java.util.function.Function;
  *     var-get {name}
  * </pre>
  * <p>
- * Users can specify the name of the variable they want to read, and the command will return the variable's content as a string.
- * If the variable doesn't exist, the command allows for multiple retries.
+ * Users can specify the name of the variable they want to read, and the command will return the variable's content as a
+ * string. If the variable doesn't exist, the command allows for multiple retries.
  * <p>
  * Examples:
  * <pre>

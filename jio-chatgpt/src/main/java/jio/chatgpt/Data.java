@@ -1,6 +1,6 @@
 package jio.chatgpt;
 
-public  final class Data {
+public final class Data {
 
 
     public enum IMAGE_FORMAT {url, b64_json}

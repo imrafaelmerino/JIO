@@ -8,12 +8,15 @@ import jsonvalues.JsObj;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Creates a REPL (read eval print loop) program from a list of user commands.
- * It's executed with the method {@link #eval(JsObj)}. The commands returned by
- * the method {@link #getPredefinedCommands()} are always loaded to the console.
+ * Creates a REPL (read eval print loop) program from a list of user commands. It's executed with the method
+ * {@link #eval(JsObj)}. The commands returned by the method {@link #getPredefinedCommands()} are always loaded to the
+ * console.
  *
  * <p>Predefined Commands:</p>
  * <ul>
@@ -86,21 +89,20 @@ public final class Console {
     }
 
     /**
-     * Executes the console program and the REP (read, eval, print) loop starts executing.
-     * A JSON can be specified, and it will be passed into every command in case some configuration
-     * is needed.
+     * Executes the console program and the REP (read, eval, print) loop starts executing. A JSON can be specified, and
+     * it will be passed into every command in case some configuration is needed.
      *
      * @param conf the configuration JSON
      */
     public void eval(JsObj conf) {
-       System.out.println("""
-                                       ___ ___ _______      _______ _______ __    _ _______ _______ ___     _______\s
-                                      |   |   |       |    |       |       |  |  | |       |       |   |   |       |
-                                      |   |   |   _   |____|       |   _   |   |_| |  _____|   _   |   |   |    ___|
-                                      |   |   |  | |  |____|       |  | |  |       | |_____|  | |  |   |   |   |___\s
-                                   ___|   |   |  |_|  |    |      _|  |_|  |  _    |_____  |  |_|  |   |___|    ___|
-                                  |       |   |       |    |     |_|       | | |   |_____| |       |       |   |___\s
-                                  |_______|___|_______|    |_______|_______|_|  |__|_______|_______|_______|_______|""");
+        System.out.println("""
+                                        ___ ___ _______      _______ _______ __    _ _______ _______ ___     _______\s
+                                       |   |   |       |    |       |       |  |  | |       |       |   |   |       |
+                                       |   |   |   _   |____|       |   _   |   |_| |  _____|   _   |   |   |    ___|
+                                       |   |   |  | |  |____|       |  | |  |       | |_____|  | |  |   |   |   |___\s
+                                    ___|   |   |  |_|  |    |      _|  |_|  |  _    |_____  |  |_|  |   |___|    ___|
+                                   |       |   |       |    |     |_|       | | |   |_____| |       |       |   |___\s
+                                   |_______|___|_______|    |_______|_______|_|  |__|_______|_______|_______|_______|""");
         for (; ; ) {
             Programs.READ_LINE
                     .then(line -> {

@@ -12,14 +12,13 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
- * Class with different predicates to identify specify exceptions that comes up when
- * connecting to a server: timeouts, unresolved hosts etc
+ * Class with different predicates to identify specify exceptions that comes up when connecting to a server: timeouts,
+ * unresolved hosts etc
  */
 public final class HttpExceptions {
 
     /**
-     * true when an attempt is made to invoke a network operation upon an unresolved
-     * socket address.
+     * true when an attempt is made to invoke a network operation upon an unresolved socket address.
      */
     public final static Predicate<Throwable> UNRESOLVED_SOCKET_ADDRESS =
             exc -> exc instanceof ConnectException c
@@ -44,8 +43,8 @@ public final class HttpExceptions {
             exc -> exc instanceof HttpTimeoutException;
 
     /**
-     * true when a connection, over which an HttpRequest is intended to be sent, is not
-     * successfully established within a specified time period.
+     * true when a connection, over which an HttpRequest is intended to be sent, is not successfully established within
+     * a specified time period.
      */
     public static final Predicate<Throwable> CONNECTION_TIMEOUT =
             exc -> exc instanceof HttpConnectTimeoutException;

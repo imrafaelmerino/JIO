@@ -11,9 +11,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * An HTTP client with support for OAuth Client Credentials Grant.
- * This client allows you to make HTTP requests with OAuth authentication using the Client Credentials Grant flow.
- * It automatically handles access token expiration and refreshes tokens when needed.
+ * An HTTP client with support for OAuth Client Credentials Grant. This client allows you to make HTTP requests with
+ * OAuth authentication using the Client Credentials Grant flow. It automatically handles access token expiration and
+ * refreshes tokens when needed.
  */
 final class ClientCredentialsHttpClient implements MyOauthHttpClient {
     private static final int MAX_REFRESH_TOKEN_LOOP_SIZE = 3;

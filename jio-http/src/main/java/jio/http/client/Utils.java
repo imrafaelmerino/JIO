@@ -3,6 +3,7 @@ package jio.http.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 import java.util.Objects;
@@ -23,8 +24,8 @@ public final class Utils {
     }
 
     /**
-     * Create a body encoded as multipart/form-data from a form. It's important to send the
-     * specified boundary in the Content-Type header (Content-Type: multipart/form-data; boundary={{boundary}})
+     * Create a body encoded as multipart/form-data from a form. It's important to send the specified boundary in the
+     * Content-Type header (Content-Type: multipart/form-data; boundary={{boundary}})
      *
      * @param fields   A map of fields and their values.
      * @param files    A map of file names and their content as File objects.
@@ -55,7 +56,7 @@ public final class Utils {
                        .append("Content-Disposition: form-data; name=\"").append(file.getKey()).append("\"; filename=\"")
                        .append(file.getValue().getName()).append("\"\r\n")
                        .append("\r\n")
-                       .append(new String(Files.readAllBytes(file.getValue().toPath()))).append("\r\n");
+                       .append(new String(Files.readAllBytes(file.getValue().toPath()),StandardCharsets.UTF_8)).append("\r\n");
             }
 
             builder.append("--")

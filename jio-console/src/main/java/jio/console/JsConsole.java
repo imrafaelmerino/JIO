@@ -1,28 +1,27 @@
 package jio.console;
 
 import jio.IO;
-import jsonvalues.JsParserException;
-import jsonvalues.spec.JsIO;
-import jsonvalues.spec.JsReader;
 import jio.Lambda;
 import jio.RetryPolicies;
 import jsonvalues.JsNothing;
+import jsonvalues.JsParserException;
 import jsonvalues.JsPath;
 import jsonvalues.JsValue;
+import jsonvalues.spec.JsIO;
+import jsonvalues.spec.JsReader;
 import jsonvalues.spec.JsSpec;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-
 import static jio.console.Functions.indent;
 
 /**
- * Represents a lambda that takes a JsPath and returns a JIO effect that executes an interactive program
- * to compose the associated JsValue to that path.
+ * Represents a lambda that takes a JsPath and returns a JIO effect that executes an interactive program to compose the
+ * associated JsValue to that path.
  * <p>
- * Use the static method {@link #of(JsSpec)} to create JsConsole programs from the spec
- * the value introduced by the use has to conform to.
+ * Use the static method {@link #of(JsSpec)} to create JsConsole programs from the spec the value introduced by the use
+ * has to conform to.
  *
  * @param <T> type of the JsValue returned
  * @see JsObjConsole
@@ -32,8 +31,9 @@ public interface JsConsole<T extends JsValue> extends Lambda<JsPath, T> {
 
 
     /**
-     * Factory method to create console programs that ask for the user to
-     * type in a json value that conforms to the given spec
+     * Factory method to create console programs that ask for the user to type in a json value that conforms to the
+     * given spec
+     *
      * @param spec the spec the value has to conform to
      * @return JsConsole program
      */
@@ -51,7 +51,7 @@ public interface JsConsole<T extends JsValue> extends Lambda<JsPath, T> {
                                              if (s.isEmpty()) return IO.succeed(JsNothing.NOTHING);
                                              JsReader reader = JsIO.INSTANCE.createReader(s.getBytes(StandardCharsets.UTF_8));
                                              return IO.succeed(spec.readNextValue(reader)
-                                                                );
+                                                              );
                                          } catch (JsParserException e) {
                                              return IO.fail(e);
                                          }

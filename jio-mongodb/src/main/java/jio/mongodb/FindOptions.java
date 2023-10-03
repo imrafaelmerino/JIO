@@ -5,6 +5,7 @@ import jsonvalues.JsObj;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
+
 /**
  * Represents a set of options for configuring MongoDB find operations. These options allow you to specify various
  * criteria for filtering, sorting, projecting, and controlling the behavior of find queries.
@@ -48,19 +49,23 @@ public final class FindOptions {
      */
     public final String hintString;
     /**
-     * The number of documents to skip in the query results before returning. If not specified, no documents are skipped.
+     * The number of documents to skip in the query results before returning. If not specified, no documents are
+     * skipped.
      */
     public final int skip;
     /**
-     * The maximum number of documents to return in the query results. If not specified, all matching documents are returned.
+     * The maximum number of documents to return in the query results. If not specified, all matching documents are
+     * returned.
      */
     public final int limit;
     /**
-     * Indicates whether to include the record ID field in the query results. If set to {@code true}, the record ID is included.
+     * Indicates whether to include the record ID field in the query results. If set to {@code true}, the record ID is
+     * included.
      */
     public final boolean showRecordId;
     /**
-     * Indicates whether to return only the keys of the result documents. If set to {@code true}, only the keys are returned.
+     * Indicates whether to return only the keys of the result documents. If set to {@code true}, only the keys are
+     * returned.
      */
     public final boolean returnKey;
     /**
@@ -68,11 +73,13 @@ public final class FindOptions {
      */
     public final String comment;
     /**
-     * Indicates whether to prevent the cursor from timing out automatically. If set to {@code true}, the cursor does not time out.
+     * Indicates whether to prevent the cursor from timing out automatically. If set to {@code true}, the cursor does
+     * not time out.
      */
     public final boolean noCursorTimeout;
     /**
-     * Indicates whether to return partial results if some shards are unavailable. If set to {@code true}, partial results are returned.
+     * Indicates whether to return partial results if some shards are unavailable. If set to {@code true}, partial
+     * results are returned.
      */
     public final boolean partial;
     /**
@@ -80,11 +87,13 @@ public final class FindOptions {
      */
     public final int batchSize;
     /**
-     * The maximum time, in milliseconds, that the server should allow the query to run. If not specified, there is no time limit.
+     * The maximum time, in milliseconds, that the server should allow the query to run. If not specified, there is no
+     * time limit.
      */
     public final long maxAwaitTime;
     /**
-     * The maximum time, in milliseconds, that the server should allow the query to execute. If not specified, there is no time limit.
+     * The maximum time, in milliseconds, that the server should allow the query to execute. If not specified, there is
+     * no time limit.
      */
     public final long maxTime;
 
@@ -126,6 +135,7 @@ public final class FindOptions {
         this.maxAwaitTime = maxAwaitTime;
         this.maxTime = maxTime;
     }
+
     /**
      * Creates a new {@code FindOptions} instance with the specified filter criteria.
      *
@@ -136,6 +146,7 @@ public final class FindOptions {
         return new FindOptionsBuilder().filter(requireNonNull(filter))
                                        .create();
     }
+
     /**
      * Creates a new {@code FindOptions} instance with the specified filter and projection criteria.
      *
@@ -150,6 +161,7 @@ public final class FindOptions {
                                        .projection(requireNonNull(projection))
                                        .create();
     }
+
     /**
      * Creates a new {@code FindOptions} instance with the specified filter, projection, and sort criteria.
      *

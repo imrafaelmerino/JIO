@@ -20,9 +20,9 @@ class JsPrettyCommand extends Command {
                                                 final State state
                                                ) {
         return tokens -> IO.lazy(() ->
-                                           Functions.toJson
-                                                   .apply(state.variables.get("output"))
-                                                   .toPrettyString()
-                                        );
+                                         Functions.toJson
+                                                 .apply(state.variables.get("output"))
+                                                 .toPrettyString()
+                                );
     }
 }

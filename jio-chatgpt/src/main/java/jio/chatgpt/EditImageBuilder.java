@@ -7,8 +7,8 @@ import jsonvalues.JsStr;
 import java.util.Objects;
 
 /**
- * Builder for creating edited images using the GPT model.
- * Given a text description and an image, the model will return edited versions of the image.
+ * Builder for creating edited images using the GPT model. Given a text description and an image, the model will return
+ * edited versions of the image.
  */
 public final class EditImageBuilder {
 
@@ -51,7 +51,8 @@ public final class EditImageBuilder {
     /**
      * Sets an additional image whose fully transparent areas indicate where the main image should be edited.
      *
-     * @param mask An additional image. Must be a valid PNG file, less than 4MB, and have the same dimensions as the main image.
+     * @param mask An additional image. Must be a valid PNG file, less than 4MB, and have the same dimensions as the
+     *             main image.
      * @return This builder.
      */
     public EditImageBuilder setMask(String mask) {

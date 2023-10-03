@@ -1,6 +1,7 @@
 package jio.test.pbt;
 
-import jio.*;
+import jio.IO;
+import jio.ListExp;
 import jsonvalues.JsObj;
 
 import java.io.IOException;
@@ -12,9 +13,8 @@ import java.util.*;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents a group of testable properties to be executed together.
- * Properties can be executed sequentially or in parallel, and the execution order
- * can be randomized for property-based testing.
+ * Represents a group of testable properties to be executed together. Properties can be executed sequentially or in
+ * parallel, and the execution order can be randomized for property-based testing.
  */
 public final class Group {
 
@@ -33,6 +33,7 @@ public final class Group {
         this.name = Objects.requireNonNull(name);
         this.props = Arrays.stream(Objects.requireNonNull(props)).toList();
     }
+
     /**
      * Creates a new group of testable properties with the given name and properties.
      *
@@ -54,6 +55,7 @@ public final class Group {
     public static Group of(String name, List<Testable> props) {
         return new Group(name, props);
     }
+
     /**
      * Executes the properties in the group in a random sequence order with the specified configuration.
      *
@@ -67,6 +69,7 @@ public final class Group {
         for (var property : copy) seq = seq.append(property.check(conf));
         return processReport(seq.map(l -> new GroupReport(l, name)));
     }
+
     /**
      * Executes the properties in the group in a random sequence order.
      *
@@ -75,6 +78,7 @@ public final class Group {
     public IO<GroupReport> randomSeq() {
         return randomSeq(JsObj.empty());
     }
+
     /**
      * Executes the properties in the group in parallel with a random order and the specified configuration.
      *
@@ -106,6 +110,7 @@ public final class Group {
     public IO<GroupReport> seq() {
         return seq(JsObj.empty());
     }
+
     /**
      * Executes the properties in the group sequentially with the specified configuration.
      *
@@ -140,8 +145,8 @@ public final class Group {
     }
 
     /**
-     * Sets the export path for saving the group report as a file. The group report will be saved to the
-     * specified path after executing the group of properties.
+     * Sets the export path for saving the group report as a file. The group report will be saved to the specified path
+     * after executing the group of properties.
      *
      * @param path The export path where the group report will be saved as a file.
      * @return This Group instance with the export path set.
@@ -156,11 +161,13 @@ public final class Group {
         return this;
     }
 
-    synchronized void dump(GroupReport report) {
-        try {
-            Files.writeString(path, report + "\n");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+     void dump(GroupReport report) {
+        synchronized (GroupReport.class) {
+            try {
+                Files.writeString(path, report + "\n");
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
     }
 

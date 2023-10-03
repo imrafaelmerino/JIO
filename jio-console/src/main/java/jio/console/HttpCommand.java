@@ -13,19 +13,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Represents a command that allows users to execute interactive programs that send HTTP requests
- * and receive HTTP responses using a provided function. Users can specify the command name,
- * description, and the function to build and send the HTTP request, and the command can be executed as follows:
+ * Represents a command that allows users to execute interactive programs that send HTTP requests and receive HTTP
+ * responses using a provided function. Users can specify the command name, description, and the function to build and
+ * send the HTTP request, and the command can be executed as follows:
  * <p>
- * Usage: {@code http command_name [options]}
- * - {@code command_name}: The name of the HTTP command to execute.
- * - {@code [options]}: Additional options or parameters for the HTTP request.
+ * Usage: {@code http command_name [options]} - {@code command_name}: The name of the HTTP command to execute. -
+ * {@code [options]}: Additional options or parameters for the HTTP request.
  * <p>
- * To get help and show the description of the HTTP command, users can enter:
- * {@code help http command_name}
+ * To get help and show the description of the HTTP command, users can enter: {@code help http command_name}
  * <p>
- * This command is designed for sending HTTP requests and displaying HTTP response details, including
- * status code, response time, HTTP method, URI, response body, and headers.
+ * This command is designed for sending HTTP requests and displaying HTTP response details, including status code,
+ * response time, HTTP method, URI, response body, and headers.
  */
 public class HttpCommand extends Command {
 

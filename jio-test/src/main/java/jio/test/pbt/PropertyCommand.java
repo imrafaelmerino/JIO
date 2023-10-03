@@ -1,7 +1,9 @@
-package jio.console;
+package jio.test.pbt;
 
 import jio.IO;
-import jio.test.pbt.Property;
+import jio.console.Command;
+import jio.console.CommandNotFoundException;
+import jio.console.State;
 import jsonvalues.JsObj;
 
 import java.util.Arrays;
@@ -11,20 +13,19 @@ import java.util.regex.Pattern;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Command to execute {@link jio.test.pbt.Property properties} with the command:
+ * Command to execute {@link Property properties} with the command:
  * <pre>
  *     prop name
  * </pre>
  * <p>
- * Properties can also be executed an arbitrary number of time either in parallel
- * or sequentially:
+ * Properties can also be executed an arbitrary number of time either in parallel or sequentially:
  *
  * <pre>
  *     prop name par 3
  *     prop name seq 5
  * </pre>
  */
-public class PropertyCommand extends Command {
+class PropertyCommand extends Command {
 
     static final Pattern parPattern =
             Pattern.compile("prop \\w+ par \\d+");
@@ -60,16 +61,17 @@ public class PropertyCommand extends Command {
             String command = String.join(" ", Arrays.stream(tokens).toList());
             if (parPattern.matcher(command).matches()) {
                 int n = Integer.parseInt(tokens[3]);
-                return IO.succeed(prop.repeatPar(n).toString());
-
+                return IO.succeed(prop.repeatPar(n).check(conf).result().toString());
             }
             if (seqPattern.matcher(command).matches()) {
                 int n = Integer.parseInt(tokens[3]);
-                return IO.succeed(prop.repeatSeq(n).toString());
+                return IO.succeed(prop.repeatPar(n).check(conf).result().toString());
             }
-            return IO.fail(new CommandNotFoundException(command));
+            return prop.check(conf).map(Report::toString);
 
 
         };
     }
+
+
 }

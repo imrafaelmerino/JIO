@@ -14,9 +14,9 @@ import static jio.mongodb.Converters.jsObj2Bson;
 import static jio.mongodb.MongoDBEvent.OP.FIND_ONE_AND_DELETE;
 
 /**
- * Represents a MongoDB find one and delete operation to remove a single document from a collection asynchronously using {@link jio.Lambda lambdas}.
- * This class allows you to specify query criteria as a {@link jsonvalues.JsObj} and provides options for controlling the behavior
- * of the deletion operation, such as sort criteria and projection.
+ * Represents a MongoDB find one and delete operation to remove a single document from a collection asynchronously using
+ * {@link jio.Lambda lambdas}. This class allows you to specify query criteria as a {@link jsonvalues.JsObj} and
+ * provides options for controlling the behavior of the deletion operation, such as sort criteria and projection.
  *
  * @see CollectionSupplier
  */
@@ -33,8 +33,10 @@ public final class FindOneAndDelete implements Lambda<JsObj, JsObj> {
         this.options = requireNonNull(options);
         this.collection = requireNonNull(collection);
     }
+
     /**
-     * Creates a new instance of {@code FindOneAndDelete} with the specified MongoDB collection supplier and default deletion options.
+     * Creates a new instance of {@code FindOneAndDelete} with the specified MongoDB collection supplier and default
+     * deletion options.
      *
      * @param collection the supplier of the MongoDB collection to perform the deletion operation
      * @return a new {@code FindOneAndDelete} instance with default deletion options
@@ -44,8 +46,10 @@ public final class FindOneAndDelete implements Lambda<JsObj, JsObj> {
                                      ) {
         return new FindOneAndDelete(collection, options);
     }
+
     /**
-     * Creates a new instance of {@code FindOneAndDelete} with the specified MongoDB collection supplier and default deletion options.
+     * Creates a new instance of {@code FindOneAndDelete} with the specified MongoDB collection supplier and default
+     * deletion options.
      *
      * @param collection the supplier of the MongoDB collection to perform the deletion operation
      * @return a new {@code FindOneAndDelete} instance with default deletion options

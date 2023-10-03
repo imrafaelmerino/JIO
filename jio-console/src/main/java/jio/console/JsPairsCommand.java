@@ -13,11 +13,11 @@ class JsPairsCommand extends Command {
     public JsPairsCommand() {
         super(COMMAND_NAME,
               """
-                 Returns the list of the path/value pairs of the json placed at the output variable.
-                 It's possible to filter out the list of pairs passing in a substring
-                 Examples:
-                     $command
-                     $command email""".replace("$command", COMMAND_NAME)
+                      Returns the list of the path/value pairs of the json placed at the output variable.
+                      It's possible to filter out the list of pairs passing in a substring
+                      Examples:
+                          $command
+                          $command email""".replace("$command", COMMAND_NAME)
              );
     }
 
@@ -41,7 +41,7 @@ class JsPairsCommand extends Command {
                                                                            it.value()
                                                                           ))
                                                   .collect(Collectors.joining("\n"))
-                                   ) :
+                           ) :
                     IO.lazy(
                             () -> Functions.toJson.apply(state.variables.get("output"))
                                                   .stream()
@@ -51,7 +51,7 @@ class JsPairsCommand extends Command {
                                                                           )
                                                       )
                                                   .collect(Collectors.joining("\n"))
-                                   );
+                           );
         };
     }
 }

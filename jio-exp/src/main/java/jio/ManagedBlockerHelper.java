@@ -7,18 +7,17 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.function.Supplier;
 
 /**
- * A Java utility class that simplifies the integration of blocking
- * Runnable and Suppliers with the common Java fork/join thread pool.
- * This class is a variant of the one that is described at
- * <a href="http://stackoverflow.com/questions/37512662/is-there-anything-wrong">http://stackoverflow.com/questions/37512662/is-there-anything-wrong</a>
+ * A Java utility class that simplifies the integration of blocking Runnable and Suppliers with the common Java
+ * fork/join thread pool. This class is a variant of the one that is described at
+ * <a
+ * href="http://stackoverflow.com/questions/37512662/is-there-anything-wrong">http://stackoverflow.com/questions/37512662/is-there-anything-wrong</a>
  * -with-using-i-o-managedblocker-in-java8-parallelstream.
  */
 final class ManagedBlockerHelper {
 
 
     /**
-     * This method enables blocking Suppliers to be used efficiently
-     * with the common Java fork/join thread pool.
+     * This method enables blocking Suppliers to be used efficiently with the common Java fork/join thread pool.
      */
     static <T> T computeSupplier(final Supplier<T> supplier) {
         var managedBlocker = new ManagedBlockerSupplier<>(supplier);
@@ -33,8 +32,7 @@ final class ManagedBlockerHelper {
     }
 
     /**
-     * This method enables blocking Callable to be used efficiently
-     * with the common Java fork/join thread pool.
+     * This method enables blocking Callable to be used efficiently with the common Java fork/join thread pool.
      */
     static <T> T computeTask(final Callable<T> callable) {
         var managedBlocker = new TaskManagedBlockerTask<>(callable);
@@ -50,8 +48,8 @@ final class ManagedBlockerHelper {
 
 
     /**
-     * This class is an adapter that enables a blocking Supplier to be
-     * used efficient with the common fork/join thread pool.
+     * This class is an adapter that enables a blocking Supplier to be used efficient with the common fork/join thread
+     * pool.
      */
     private static class ManagedBlockerSupplier<T>
             implements ForkJoinPool.ManagedBlocker {
@@ -104,8 +102,8 @@ final class ManagedBlockerHelper {
     }
 
     /**
-     * This class is an adapter that enables a blocking Callable to be
-     * used efficient with the common fork/join thread pool.
+     * This class is an adapter that enables a blocking Callable to be used efficient with the common fork/join thread
+     * pool.
      */
     private static class TaskManagedBlockerTask<T>
             implements ForkJoinPool.ManagedBlocker {

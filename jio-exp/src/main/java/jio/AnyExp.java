@@ -9,8 +9,8 @@ import java.util.function.Predicate;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents a boolean expression that will be reduced to true <strong>if and only if
- * at least one of the subexpressions is evaluated to true and all of the executed subexpressions succeed</strong>.
+ * Represents a boolean expression that will be reduced to true <strong>if and only if at least one of the
+ * subexpressions is evaluated to true and all of the executed subexpressions succeed</strong>.
  *
  * @see AnyExp#par(IO, IO[])
  * @see AnyExp#seq(IO, IO[])
@@ -29,8 +29,8 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
     /**
      * Creates an AnyExp expression where all the subexpressions are evaluated in parallel,
      * <strong>as long as they are computed by a different thread</strong>. In the following example,
-     * `isDivisibleByTwo` and `isDivisibleByThree` will be computed by the same thread (the caller thread),
-     * despite the fact that the `par` constructor is used:
+     * `isDivisibleByTwo` and `isDivisibleByThree` will be computed by the same thread (the caller thread), despite the
+     * fact that the `par` constructor is used:
      *
      * <pre>
      * {@code
@@ -51,9 +51,8 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
      * </pre>
      *
      * <p>
-     * On the other hand, `isDivisibleByTwo` and `isDivisibleByThree` will be computed in parallel by
-     * different threads in the following example (if the executor pool is bigger than one and two
-     * threads are free):
+     * On the other hand, `isDivisibleByTwo` and `isDivisibleByThree` will be computed in parallel by different threads
+     * in the following example (if the executor pool is bigger than one and two threads are free):
      *
      * <pre>
      * {@code
@@ -76,10 +75,9 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
      * </pre>
      *
      * <p>
-     * Not like expressions created with the {@link #seq(IO, IO[]) seq} constructor, <strong>all the
-     * subexpressions must terminate before the whole expression is reduced, no matter if one fails
-     * or one is evaluated to true</strong>.
-     * If a subexpression terminates with an exception, the whole expression fails.
+     * Not like expressions created with the {@link #seq(IO, IO[]) seq} constructor, <strong>all the subexpressions must
+     * terminate before the whole expression is reduced, no matter if one fails or one is evaluated to true</strong>. If
+     * a subexpression terminates with an exception, the whole expression fails.
      *
      * @param bool   the first subexpression
      * @param others the others subexpressions
@@ -96,11 +94,11 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
     }
 
     /**
-     * Creates an AnyExp expression where all the subexpression are <strong>always</strong> evaluated sequentially.
-     * If one subexpression terminates with an exception, the whole expression ends immediately.
+     * Creates an AnyExp expression where all the subexpression are <strong>always</strong> evaluated sequentially. If
+     * one subexpression terminates with an exception, the whole expression ends immediately.
      * <p>
-     * On the other hand, if one subexpression is evaluated to true, the whole expression ends
-     * and is also evaluated to true.
+     * On the other hand, if one subexpression is evaluated to true, the whole expression ends and is also evaluated to
+     * true.
      *
      * @param bool   the first subexpression
      * @param others the others subexpressions
@@ -117,12 +115,10 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
     }
 
 
-
     @Override
     public abstract AnyExp retryEach(final Predicate<Throwable> predicate,
                                      final RetryPolicy policy
                                     );
-
 
 
     @Override

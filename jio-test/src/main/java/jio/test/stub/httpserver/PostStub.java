@@ -1,10 +1,12 @@
 package jio.test.stub.httpserver;
 
 
+import com.sun.net.httpserver.HttpHandler;
+
 import static java.util.Objects.requireNonNull;
 
 /**
- * Stub that stands in for the handler of a POST HTTP request.
+ * Stub that stands in for the {@link HttpHandler} of a POST HTTP request.
  */
 public final class PostStub extends ReqHandlerStub {
 

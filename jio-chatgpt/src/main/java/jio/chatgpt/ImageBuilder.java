@@ -7,10 +7,9 @@ import jsonvalues.JsStr;
 import java.util.Objects;
 
 /**
- * Builder to create images.
- * Given a prompt and/or an input image, the model will generate a new image.
+ * Builder to create images. Given a prompt and/or an input image, the model will generate a new image.
  */
-public  final class ImageBuilder {
+public final class ImageBuilder {
 
     final String prompt;
     Data.IMAGE_FORMAT responseFormat;
@@ -67,8 +66,8 @@ public  final class ImageBuilder {
     }
 
     /**
-     * Sets the user parameter, representing a unique identifier for the end-user.
-     * This can help OpenAI monitor and detect abuse.
+     * Sets the user parameter, representing a unique identifier for the end-user. This can help OpenAI monitor and
+     * detect abuse.
      *
      * @param user A unique identifier representing your end-user.
      * @return this builder

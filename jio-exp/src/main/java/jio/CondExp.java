@@ -1,18 +1,21 @@
 package jio;
 
 import java.util.List;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an expression made up of different test-effect branches and a default effect.
- * Each branch consists of a predicate (concretely a boolean effect) and an associated effect.
- * The expression is reduced to the effect of the first predicate that succeeds and is evaluated to true.
- * If no predicate is evaluated to true, then the expression is reduced to the default effect.
- *
- * Predicates can be evaluated either in parallel with the static factory method {@code CondExp.par}
- * or sequentially with {@code CondExp.seq}.
+ * Represents an expression made up of different test-effect branches and a default effect. Each branch consists of a
+ * predicate (concretely a boolean effect) and an associated effect. The expression is reduced to the effect of the
+ * first predicate that succeeds and is evaluated to true. If no predicate is evaluated to true, then the expression is
+ * reduced to the default effect.
+ * <p>
+ * Predicates can be evaluated either in parallel with the static factory method {@code CondExp.par} or sequentially
+ * with {@code CondExp.seq}.
  *
  * @param <O> the type of the computation returned by this expression.
  */
@@ -23,15 +26,13 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
     }
 
     /**
-     * It creates a Cond expression which predicates are computed in parallel.
-     * Once all the predicates succeed, the expression is reduced to the
-     * effect of the fist one that is true, following the order they are
-     * passed in the constructor.
+     * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
+     * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
+     * constructor.
      * <p>
-     * Not like expressions created with the <code>seq</code> constructor, <strong>all the
-     * predicates must terminate before the whole expression is reduced to the selected effect,
-     * no matter if one fails or is evaluated to true</strong>.
-     * If one predicate terminates with an exception, the whole expression fails.
+     * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
+     * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
+     * true</strong>. If one predicate terminates with an exception, the whole expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate
@@ -62,15 +63,13 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
 
 
     /**
-     * It creates a Cond expression which predicates are computed in parallel.
-     * Once all the predicates succeed, the expression is reduced to the
-     * effect of the fist one that is true, following the order they are
-     * passed in the constructor.
+     * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
+     * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
+     * constructor.
      * <p>
-     * Not like expressions created with the <code>seq</code> constructor, <strong>all the
-     * predicates must terminate before the whole expression is reduced to the selected effect,
-     * no matter if one fails or is evaluated to true</strong>.
-     * If one predicate terminates with an exception, the whole expression fails.
+     * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
+     * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
+     * true</strong>. If one predicate terminates with an exception, the whole expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate
@@ -107,15 +106,13 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
 
 
     /**
-     * It creates a Cond expression which predicates are computed in parallel.
-     * Once all the predicates succeed, the expression is reduced to the
-     * effect of the fist one that is true, following the order they are
-     * passed in the constructor.
+     * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
+     * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
+     * constructor.
      * <p>
-     * Not like expressions created with the <code>seq</code> constructor, <strong>all the
-     * predicates must terminate before the whole expression is reduced to the selected effect,
-     * no matter if one fails or is evaluated to true</strong>.
-     * If one predicate terminates with an exception, the whole expression fails.
+     * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
+     * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
+     * true</strong>. If one predicate terminates with an exception, the whole expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate
@@ -156,15 +153,13 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
     }
 
     /**
-     * It creates a Cond expression which predicates are computed in parallel.
-     * Once all the predicates succeed, the expression is reduced to the
-     * effect of the fist one that is true, following the order they are
-     * passed in the constructor.
+     * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
+     * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
+     * constructor.
      * <p>
-     * Not like expressions created with the <code>seq</code> constructor, <strong>all the
-     * predicates must terminate before the whole expression is reduced to the selected effect,
-     * no matter if one fails or is evaluated to true</strong>.
-     * If one predicate terminates with an exception, the whole expression fails.
+     * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
+     * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
+     * true</strong>. If one predicate terminates with an exception, the whole expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate
@@ -212,15 +207,13 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
     }
 
     /**
-     * It creates a Cond expression which predicates are computed in parallel.
-     * Once all the predicates succeed, the expression is reduced to the
-     * effect of the fist one that is true, following the order they are
-     * passed in the constructor.
+     * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
+     * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
+     * constructor.
      * <p>
-     * Not like expressions created with the <code>seq</code> constructor, <strong>all the
-     * predicates must terminate before the whole expression is reduced to the selected effect,
-     * no matter if one fails or is evaluated to true</strong>.
-     * If one predicate terminates with an exception, the whole expression fails.
+     * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
+     * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
+     * true</strong>. If one predicate terminates with an exception, the whole expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate
@@ -274,12 +267,10 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
     }
 
     /**
-     * It creates a Cond expression which predicates are computed sequentially, one after the
-     * other. If a predicates succeed and is evaluated to true, the expression is reduced to
-     * its effect. Predicates are evaluated in the order they are
-     * passed in the constructor. If all the predicates succeed and all are evaluated to false,
-     * the expression is reduced to the specified default effect.
-     * If a predicate terminates with an exception, the expression fails.
+     * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
+     * succeed and is evaluated to true, the expression is reduced to its effect. Predicates are evaluated in the order
+     * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression
+     * is reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate
@@ -310,12 +301,10 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
 
 
     /**
-     * It creates a Cond expression which predicates are computed sequentially, one after the
-     * other. If a predicates succeed and is evaluated to true, the expression is reduced to
-     * its effect. Predicates are evaluated in the order they are
-     * passed in the constructor. If all the predicates succeed and all are evaluated to false,
-     * the expression is reduced to the specified default effect.
-     * If a predicate terminates with an exception, the expression fails.
+     * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
+     * succeed and is evaluated to true, the expression is reduced to its effect. Predicates are evaluated in the order
+     * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression
+     * is reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate
@@ -352,12 +341,10 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
 
 
     /**
-     * It creates a Cond expression which predicates are computed sequentially, one after the
-     * other. If a predicates succeed and is evaluated to true, the expression is reduced to
-     * its effect. Predicates are evaluated in the order they are
-     * passed in the constructor. If all the predicates succeed and all are evaluated to false,
-     * the expression is reduced to the specified default effect.
-     * If a predicate terminates with an exception, the expression fails.
+     * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
+     * succeed and is evaluated to true, the expression is reduced to its effect. Predicates are evaluated in the order
+     * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression
+     * is reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate
@@ -400,12 +387,10 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
 
 
     /**
-     * It creates a Cond expression which predicates are computed sequentially, one after the
-     * other. If a predicates succeed and is evaluated to true, the expression is reduced to
-     * its effect. Predicates are evaluated in the order they are
-     * passed in the constructor. If all the predicates succeed and all are evaluated to false,
-     * the expression is reduced to the specified default effect.
-     * If a predicate terminates with an exception, the expression fails.
+     * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
+     * succeed and is evaluated to true, the expression is reduced to its effect. Predicates are evaluated in the order
+     * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression
+     * is reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate
@@ -456,12 +441,11 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
 
 
     /**
-     * It creates a Cond expression which predicates are computed sequentially, one after the
-     * other. If a predicates succeeds and is evaluated to true, the expression is reduced to
-     * its associated effect. Predicates are evaluated in the order they are
-     * passed in the constructor. If all the predicates succeeds and all are evaluated to false,
-     * the expression is reduced to the specified default effect.
-     * If a predicate terminates with an exception, the expression fails.
+     * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
+     * succeeds and is evaluated to true, the expression is reduced to its associated effect. Predicates are evaluated
+     * in the order they are passed in the constructor. If all the predicates succeeds and all are evaluated to false,
+     * the expression is reduced to the specified default effect. If a predicate terminates with an exception, the
+     * expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate

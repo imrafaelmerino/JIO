@@ -1,13 +1,17 @@
 package jio;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an expression that combines a predicate effect with two alternative effect suppliers, one for the consequence and another for the alternative branch.
- * If the predicate evaluates to true, the expression is reduced to the consequence effect; otherwise, it is reduced to the alternative effect.
+ * Represents an expression that combines a predicate effect with two alternative effect suppliers, one for the
+ * consequence and another for the alternative branch. If the predicate evaluates to true, the expression is reduced to
+ * the consequence effect; otherwise, it is reduced to the alternative effect.
  *
  * @param <O> the type of the result that the expression will produce
  */

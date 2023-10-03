@@ -27,15 +27,15 @@ class SetVarCommand extends Command {
                                          ) {
 
         return IO.lazy(() -> {
-                                   String oldValue = state.variables.get(varName);
-                                   state.variables.put(varName, newValue);
-                                   return String.format("%s from %s to %s",
-                                                        varName,
-                                                        oldValue,
-                                                        newValue
-                                                       );
-                               }
-                              );
+                           String oldValue = state.variables.get(varName);
+                           state.variables.put(varName, newValue);
+                           return String.format("%s from %s to %s",
+                                                varName,
+                                                oldValue,
+                                                newValue
+                                               );
+                       }
+                      );
     }
 
     @Override

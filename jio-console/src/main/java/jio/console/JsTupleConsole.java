@@ -13,9 +13,8 @@ import static java.util.Objects.requireNonNull;
 
 
 /**
- * Represents a {@link JsConsole console} program to compose a json array from the user inputs.
- * It has the same recursive structure as a json array, which makes very easy to create
- * interactive programs to compose JsArray:
+ * Represents a {@link JsConsole console} program to compose a json array from the user inputs. It has the same
+ * recursive structure as a json array, which makes very easy to create interactive programs to compose JsArray:
  *
  * <pre>
  *     {@code
@@ -27,8 +26,8 @@ import static java.util.Objects.requireNonNull;
  *
  * </pre>
  * <p>
- * If the user introduces a value that is not valid according to the specified spec,
- * an error message will be prompted, and they'll have up to three retries to get it right
+ * If the user introduces a value that is not valid according to the specified spec, an error message will be prompted,
+ * and they'll have up to three retries to get it right
  */
 public class JsTupleConsole implements JsConsole<JsArray> {
 

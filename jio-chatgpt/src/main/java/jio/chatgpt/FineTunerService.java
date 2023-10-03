@@ -23,7 +23,8 @@ public final class FineTunerService extends AbstractService {
     /**
      * Creates a job that fine-tunes a specified model from a given dataset.
      * <p>
-     * Response includes details of the enqueued job, including job status and the name of the fine-tuned model once complete.
+     * Response includes details of the enqueued job, including job status and the name of the fine-tuned model once
+     * complete.
      *
      * @param builder The fine-tune builder containing configuration details for the fine-tuning job.
      * @return An IO (monadic) object representing the asynchronous result of the fine-tuning job creation request.

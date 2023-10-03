@@ -13,14 +13,12 @@ import static java.lang.Integer.parseInt;
 import static java.time.Duration.ofMillis;
 
 /**
- * Represents a command to execute the last command one or more times, optionally with a repetition interval or duration.
- * It provides flexibility in repeating the last command based on user input.
+ * Represents a command to execute the last command one or more times, optionally with a repetition interval or
+ * duration. It provides flexibility in repeating the last command based on user input.
  * <p>
- * Examples of valid input patterns:
- * - Execute the last command once: "last"
- * - Execute the last command a specified number of times: "last 3"
- * - Execute the last command at regular intervals: "last every 100"
- * - Execute the last command at regular intervals for a specified duration: "last every 100 for 1000"
+ * Examples of valid input patterns: - Execute the last command once: "last" - Execute the last command a specified
+ * number of times: "last 3" - Execute the last command at regular intervals: "last every 100" - Execute the last
+ * command at regular intervals for a specified duration: "last every 100 for 1000"
  *
  * @see Command
  */

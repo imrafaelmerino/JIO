@@ -10,10 +10,10 @@ import static jio.chatgpt.JSON_FIELDS.*;
 
 
 /**
- * Builder class for creating chat completions using the GPT model.
- * This class allows you to construct a conversation with messages and configure various parameters for generating responses.
+ * Builder class for creating chat completions using the GPT model. This class allows you to construct a conversation
+ * with messages and configure various parameters for generating responses.
  */
-public  final  class ChatBuilder {
+public final class ChatBuilder {
 
 
     private final int DEFAULT_MAX_TOKENS = Integer.MAX_VALUE;
@@ -77,8 +77,8 @@ public  final  class ChatBuilder {
     }
 
     /**
-     * Sets the sampling temperature for generating responses.
-     * Higher values make the output more random, while lower values make it more focused and deterministic.
+     * Sets the sampling temperature for generating responses. Higher values make the output more random, while lower
+     * values make it more focused and deterministic.
      *
      * @param value The temperature value (Defaults to 1).
      * @return this builder
@@ -94,8 +94,8 @@ public  final  class ChatBuilder {
 
 
     /**
-     * Sets the top_p parameter for generating responses.
-     * A value of 0.1 means only the tokens comprising the top 10% probability mass are considered.
+     * Sets the top_p parameter for generating responses. A value of 0.1 means only the tokens comprising the top 10%
+     * probability mass are considered.
      *
      * @param value An alternative to sampling with temperature (Defaults to 1).
      * @return this builder
@@ -120,8 +120,8 @@ public  final  class ChatBuilder {
     }
 
     /**
-     * Enables or disables streaming partial progress back as messages are generated.
-     * If enabled, partial message deltas are sent with the stream terminated by a data: [DONE] message.
+     * Enables or disables streaming partial progress back as messages are generated. If enabled, partial message deltas
+     * are sent with the stream terminated by a data: [DONE] message.
      *
      * @param stream Whether to stream back partial progress (Defaults to false).
      * @return this builder
@@ -157,8 +157,8 @@ public  final  class ChatBuilder {
 
 
     /**
-     * Sets the maximum number of tokens to generate in the completion.
-     * The total length of input tokens and generated tokens is limited by the model's context length.
+     * Sets the maximum number of tokens to generate in the completion. The total length of input tokens and generated
+     * tokens is limited by the model's context length.
      *
      * @param maxTokens The maximum number of tokens to generate in the completion (Default to inf).
      * @return this builder
@@ -186,8 +186,8 @@ public  final  class ChatBuilder {
     }
 
     /**
-     * Sets the frequency_penalty parameter, which penalizes new tokens based on their existing frequency in the text so far.
-     * Positive values decrease the model's likelihood to repeat the same line verbatim.
+     * Sets the frequency_penalty parameter, which penalizes new tokens based on their existing frequency in the text so
+     * far. Positive values decrease the model's likelihood to repeat the same line verbatim.
      *
      * @param value Number between -2.0 and 2.0 (Defaults to 0).
      * @return this builder

@@ -1,7 +1,8 @@
 /**
  * The `jio.console` package provides classes and components to build interactive command-line console applications.
- * These applications allow users to input commands, execute them, and interact with the program in a text-based interface.
- * This package includes various utility classes and predefined commands to streamline the development of console applications.
+ * These applications allow users to input commands, execute them, and interact with the program in a text-based
+ * interface. This package includes various utility classes and predefined commands to streamline the development of
+ * console applications.
  *
  * <p><strong>Key Components:</strong></p>
  * <ul>
@@ -21,7 +22,7 @@
  * the last command, displaying command history, and more.</p>
  *
  * <p><strong>Creating Custom Commands:</strong></p>
- * <p>To extend the functionality of your console application, you can create custom commands. Implement the {@link Command}
+ * <p>To extend the functionality of your console application, you can create custom commands. Implement the {@link jio.console.Command}
  * interface to define the behavior of your command, and then add it to the list of user-defined commands in the `Console`
  * constructor.</p>
  *

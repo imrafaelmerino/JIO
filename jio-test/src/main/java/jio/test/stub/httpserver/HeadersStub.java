@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * A stub that stands in for the response headers of an HTTP request.
+ * A stub that stands in for the response {@link Headers} of an HTTP request.
  */
-public interface HeadersStub extends HttpRespStub<Headers> {
+public non-sealed interface HeadersStub extends HttpRespStub<Headers> {
 
     /**
      * An empty headers stub that always sets empty headers as the response headers.

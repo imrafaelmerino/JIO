@@ -1,11 +1,11 @@
 /**
- * Provides classes and utilities for working with MongoDB using the Java Input/Output (JIO) library.
- * This package contains various classes for performing MongoDB operations such as querying, inserting, updating,
- * and aggregating data, as well as handling MongoDB-specific exceptions and configuration.
+ * Provides classes and utilities for working with MongoDB using the Java Input/Output (JIO) library. This package
+ * contains various classes for performing MongoDB operations such as querying, inserting, updating, and aggregating
+ * data, as well as handling MongoDB-specific exceptions and configuration.
  * <p>
- * Classes in this package are designed to work seamlessly with the MongoDB Java driver, providing a convenient
- * and type-safe way to interact with MongoDB databases. Additionally, each MongoDB operation performed using
- * the classes in this package creates a corresponding MongoDBEvent, which is sent to the Java Flight Recorder (JFR) system.
+ * Classes in this package are designed to work seamlessly with the MongoDB Java driver, providing a convenient and
+ * type-safe way to interact with MongoDB databases. Additionally, each MongoDB operation performed using the classes in
+ * this package creates a corresponding MongoDBEvent, which is sent to the Java Flight Recorder (JFR) system.
  * </p>
  * <p>
  * The core classes and interfaces in this package include:

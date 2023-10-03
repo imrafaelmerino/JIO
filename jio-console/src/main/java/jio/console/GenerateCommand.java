@@ -9,12 +9,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Represents a command that generates random data using a provided generator.
- * Usage: {@code gen command_name}
+ * Represents a command that generates random data using a provided generator. Usage: {@code gen command_name}
  * <p>
- * This command is used to execute interactive programs that generate random data. It takes
- * three arguments in its constructor: the command name, a description (shown in the help command),
- * and a generator. To execute the command, users can use the following syntax:
+ * This command is used to execute interactive programs that generate random data. It takes three arguments in its
+ * constructor: the command name, a description (shown in the help command), and a generator. To execute the command,
+ * users can use the following syntax:
  *
  * <pre>
  *     gen command_name
@@ -58,8 +57,8 @@ public class GenerateCommand extends Command {
     }
 
     /**
-     * Returns a function that takes an array of tokens representing user input (unused in this command)
-     * and generates random data using the provided generator.
+     * Returns a function that takes an array of tokens representing user input (unused in this command) and generates
+     * random data using the provided generator.
      *
      * @param conf  the configuration (unused in this command)
      * @param state the state (unused in this command)

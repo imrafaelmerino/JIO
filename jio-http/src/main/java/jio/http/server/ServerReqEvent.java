@@ -28,6 +28,7 @@ class ServerReqEvent extends Event {
     String exception;
     @Label("reqCounter")
     long reqCounter;
+
     enum RESULT {
         SUCCESS, FAILURE
     }

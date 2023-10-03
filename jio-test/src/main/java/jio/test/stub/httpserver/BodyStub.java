@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 /**
  * A stub that stands in for the body response of an HTTP request.
  */
-public interface BodyStub extends HttpRespStub<String> {
+public non-sealed interface BodyStub extends HttpRespStub<String> {
 
 
     /**

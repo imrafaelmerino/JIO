@@ -6,15 +6,15 @@ import java.net.http.HttpResponse;
 import java.util.function.Predicate;
 
 /**
- * Represents a wrapper around the HTTP Java client to make HTTP requests asynchronously using {@link jio.Lambda lambdas}
- * and therefore taking advantage of the JIO API. Instances of this interface can be created using the builder
- * {@link MyHttpClientBuilder}.
+ * Represents a wrapper around the HTTP Java client to make HTTP requests asynchronously using
+ * {@link jio.Lambda lambdas} and therefore taking advantage of the JIO API. Instances of this interface can be created
+ * using the builder {@link MyHttpClientBuilder}.
  * <p>
- * For every request, an event {@link ClientReqEvent} is created and written to the Flight Recorder system. This allows you
- * to capture request and response details for debugging and performance analysis.
+ * For every request, an event {@link ClientReqEvent} is created and written to the Flight Recorder system. This allows
+ * you to capture request and response details for debugging and performance analysis.
  * <p>
- * You can also define a retry policy and a retry condition that will be applied to every request
- * with the builder options {@link MyHttpClientBuilder#setRetryPolicy(RetryPolicy)} and
+ * You can also define a retry policy and a retry condition that will be applied to every request with the builder
+ * options {@link MyHttpClientBuilder#setRetryPolicy(RetryPolicy)} and
  * {@link MyHttpClientBuilder#setRetryPredicate(Predicate)}.
  *
  * @see ClientReqEvent
@@ -22,20 +22,19 @@ import java.util.function.Predicate;
 public interface MyHttpClient {
 
     /**
-     * Provides an HTTP lambda that takes a request builder and returns a JIO effect with the HTTP response, parsing
-     * the response body into a String. The body is decoded using the character set specified in the
-     * Content-Type response header. If there is no such header, or the character set is not supported,
-     * then UTF-8 is used. When the HttpResponse object is returned, the body has been completely written
-     * to the string.
+     * Provides an HTTP lambda that takes a request builder and returns a JIO effect with the HTTP response, parsing the
+     * response body into a String. The body is decoded using the character set specified in the Content-Type response
+     * header. If there is no such header, or the character set is not supported, then UTF-8 is used. When the
+     * HttpResponse object is returned, the body has been completely written to the string.
      *
      * @return An HTTP lambda for handling responses as strings.
      */
     HttpLambda<String> ofString();
 
     /**
-     * Provides an HTTP lambda that takes a request builder and returns a JIO effect with the HTTP response, parsing
-     * the response body into an array of bytes. When the HttpResponse object is returned, the body has
-     * been completely written to the byte array.
+     * Provides an HTTP lambda that takes a request builder and returns a JIO effect with the HTTP response, parsing the
+     * response body into an array of bytes. When the HttpResponse object is returned, the body has been completely
+     * written to the byte array.
      *
      * @return An HTTP lambda for handling responses as byte arrays.
      */
@@ -50,8 +49,8 @@ public interface MyHttpClient {
     HttpLambda<Void> discarding();
 
     /**
-     * Provides an HTTP lambda that takes a request builder and returns a JIO effect with the HTTP response, parsing
-     * the body with the given handler. Various predefined HTTP lambdas are available for parsing common response types,
+     * Provides an HTTP lambda that takes a request builder and returns a JIO effect with the HTTP response, parsing the
+     * body with the given handler. Various predefined HTTP lambdas are available for parsing common response types,
      * such as {@link #ofString()} for strings and {@link #ofBytes()} for byte arrays.
      *
      * @param handler The body response handler.

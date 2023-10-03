@@ -31,9 +31,9 @@ public final class UpdateOne<O> implements BiLambda<JsObj, JsObj, O> {
     /**
      * Constructs a new UpdateOne instance.
      *
-     * @param collection       The supplier for the MongoDB collection.
-     * @param resultConverter  The function to convert the update result to the desired type.
-     * @param options          The update options.
+     * @param collection      The supplier for the MongoDB collection.
+     * @param resultConverter The function to convert the update result to the desired type.
+     * @param options         The update options.
      */
     private UpdateOne(final CollectionSupplier collection,
                       final Function<UpdateResult, O> resultConverter,
@@ -47,9 +47,9 @@ public final class UpdateOne<O> implements BiLambda<JsObj, JsObj, O> {
     /**
      * Creates an UpdateOne instance with the specified collection supplier and result converter using default options.
      *
-     * @param collection       The supplier for the MongoDB collection.
-     * @param resultConverter  The function to convert the update result to the desired type.
-     * @param <O>              The type of the result.
+     * @param collection      The supplier for the MongoDB collection.
+     * @param resultConverter The function to convert the update result to the desired type.
+     * @param <O>             The type of the result.
      * @return An UpdateOne instance with default options.
      */
     public static <O> UpdateOne<O> of(final CollectionSupplier collection,
@@ -61,10 +61,10 @@ public final class UpdateOne<O> implements BiLambda<JsObj, JsObj, O> {
     /**
      * Creates an UpdateOne instance with the specified collection supplier, result converter, and options.
      *
-     * @param collection       The supplier for the MongoDB collection.
-     * @param resultConverter  The function to convert the update result to the desired type.
-     * @param options          The update options.
-     * @param <O>              The type of the result.
+     * @param collection      The supplier for the MongoDB collection.
+     * @param resultConverter The function to convert the update result to the desired type.
+     * @param options         The update options.
+     * @param <O>             The type of the result.
      * @return An UpdateOne instance.
      */
     public static <O> UpdateOne<O> of(final CollectionSupplier collection,

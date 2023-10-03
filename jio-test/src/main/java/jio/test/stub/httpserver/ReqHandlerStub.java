@@ -1,8 +1,9 @@
 package jio.test.stub.httpserver;
+
 /**
  * Abstract base class for creating request handler stubs for HTTP methods like PUT, POST, PATCH, etc.
  */
-abstract class ReqHandlerStub extends AbstractReqHandlerStub {
+sealed abstract class ReqHandlerStub extends AbstractReqHandlerStub permits DeleteStub, GetStub, OptionsStub, PatchStub, PostStub, PutStub {
     /**
      * Constructs a request handler stub with the specified components.
      *

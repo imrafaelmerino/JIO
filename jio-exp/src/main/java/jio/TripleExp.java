@@ -9,12 +9,11 @@ import java.util.function.Predicate;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an expression that is reduced to a triple. Their elements can be evaluated either in
- * parallel or sequentially. In both cases, if one fails, the whole expression fails.
- *
- * You can create TripleExp expressions using the 'seq' method to evaluate effects sequentially,
- * or using the 'par' method to evaluate effects in parallel. If one effect fails, the entire
- * expression fails.
+ * Represents an expression that is reduced to a triple. Their elements can be evaluated either in parallel or
+ * sequentially. In both cases, if one fails, the whole expression fails.
+ * <p>
+ * You can create TripleExp expressions using the 'seq' method to evaluate effects sequentially, or using the 'par'
+ * method to evaluate effects in parallel. If one effect fails, the entire expression fails.
  *
  * @param <A> the type of the first computation
  * @param <B> the type of the second computation
@@ -38,8 +37,8 @@ public abstract sealed class TripleExp<A, B, C> extends Exp<Triple<A, B, C>> per
     }
 
     /**
-     * create a tuple of three effects that will be evaluated sequentially. If an effect fails,
-     * the next ones are not evaluated and the whole expression fails.
+     * create a tuple of three effects that will be evaluated sequentially. If an effect fails, the next ones are not
+     * evaluated and the whole expression fails.
      *
      * @param first  the first effect
      * @param second the second effect
@@ -61,8 +60,8 @@ public abstract sealed class TripleExp<A, B, C> extends Exp<Triple<A, B, C>> per
     }
 
     /**
-     * create a tuple of three effects that will be evaluated in parallel if they run on different threads.
-     * The three effect are always evaluated, no matter if one fails.
+     * create a tuple of three effects that will be evaluated in parallel if they run on different threads. The three
+     * effect are always evaluated, no matter if one fails.
      *
      * @param first  the first effect
      * @param second the second effect

@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * of debugging, and specify custom debugging configurations.
  *
  * <p>The `Debugger` extension can be applied at both the class and method levels using the following annotations:
- * - {@link DebugStub} for enabling stub debugging
  * - {@link DebugHttpClient} for enabling HTTP client debugging
  * - {@link DebugHttpServer} for enabling HTTP server debugging
  * - {@link DebugMongoClient} for enabling MongoDB client debugging
@@ -53,7 +52,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * <p>Each component's debugging events are collected from the Java Flight Recorder (JFR) system via Jio, which
  * provides insights into component behavior during test execution.
  *
- * @see DebugStub
  * @see DebugHttpClient
  * @see DebugHttpServer
  * @see DebugMongoClient
@@ -61,7 +59,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  */
 public class Debugger implements BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
-    StubDebugger stubDebugger;
     MongoDebugger mongoEventDebugger;
     ExpDebugger expEventDebugger;
     HttpClientDebugger httpClientDebugger;
@@ -69,7 +66,6 @@ public class Debugger implements BeforeEachCallback, AfterEachCallback, AfterAll
 
     @Override
     public void afterEach(ExtensionContext context) {
-        if (stubDebugger != null) stubDebugger.awaitTermination();
         if (mongoEventDebugger != null) mongoEventDebugger.awaitTermination();
         if (expEventDebugger != null) expEventDebugger.awaitTermination();
         if (httpClientDebugger != null) httpClientDebugger.awaitTermination();
@@ -91,17 +87,6 @@ public class Debugger implements BeforeEachCallback, AfterEachCallback, AfterAll
             expEventDebugger = new ExpDebugger(debugExp.conf());
             expEventDebugger.startAsync(debugExp.duration());
             System.out.println("Registered expressions debugger for " + debugExp.duration() + " ms");
-        }
-
-        DebugStub debugSub = context.getRequiredTestMethod()
-                                    .getAnnotation(DebugStub.class);
-        if (debugSub == null)
-            debugSub = context.getRequiredTestClass()
-                              .getAnnotation(DebugStub.class);
-        if (debugSub != null) {
-            stubDebugger = new StubDebugger(debugSub.conf());
-            stubDebugger.startAsync(debugSub.duration());
-            System.out.println("Registered stub debugger for " + debugSub.duration() + " ms");
         }
 
         DebugHttpClient debugHttpClient = context.getRequiredTestMethod()
@@ -145,7 +130,6 @@ public class Debugger implements BeforeEachCallback, AfterEachCallback, AfterAll
     }
 
     void close() {
-        if (stubDebugger != null) stubDebugger.close();
         if (mongoEventDebugger != null) mongoEventDebugger.close();
         if (expEventDebugger != null) expEventDebugger.close();
         if (httpClientDebugger != null) httpClientDebugger.close();

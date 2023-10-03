@@ -5,8 +5,8 @@ import fun.tuple.Triple;
 import jio.*;
 import jio.test.junit.DebugExp;
 import jio.test.junit.Debugger;
-import jio.test.stub.effect.Gens;
-import jio.test.stub.effect.Stub;
+import jio.test.stub.Gens;
+import jio.test.stub.StubSupplier;
 import jsonvalues.JsArray;
 import jsonvalues.JsInt;
 import jsonvalues.JsObj;
@@ -57,8 +57,8 @@ public class TestDebuggerExp {
     public void testAllExpSeqRetries() {
 
 
-        Stub<Boolean> trueAfterFailure =
-                Stub.ofGen(Gens.seq(
+        StubSupplier<Boolean> trueAfterFailure =
+                StubSupplier.ofGen(Gens.seq(
                         n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.TRUE));
@@ -75,8 +75,8 @@ public class TestDebuggerExp {
                                     .result()
                              );
 
-        Stub<Boolean> falseAfterFailure =
-                Stub.ofGen(Gens.seq(n -> n <= 1
+        StubSupplier<Boolean> falseAfterFailure =
+                StubSupplier.ofGen(Gens.seq(n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.FALSE));
 
@@ -95,8 +95,8 @@ public class TestDebuggerExp {
 
     @Test
     public void testAllExpParRetries() {
-        Stub<Boolean> trueAfterFailure =
-                Stub.ofGen(Gens.seq(n -> n <= 1
+        StubSupplier<Boolean> trueAfterFailure =
+                StubSupplier.ofGen(Gens.seq(n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.TRUE));
 
@@ -109,8 +109,8 @@ public class TestDebuggerExp {
                              );
 
 
-        Stub<Boolean> falseAfterFailure =
-                Stub.ofGen(Gens.seq(n -> n <= 1
+        StubSupplier<Boolean> falseAfterFailure =
+                StubSupplier.ofGen(Gens.seq(n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.FALSE));
 

@@ -13,10 +13,10 @@ import java.net.http.HttpResponse;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
 /**
- * An abstract base class for building property tests for RESTful APIs.
- * This class provides a flexible framework for defining property tests for HTTP POST, GET, and DELETE operations
- * on a RESTful API endpoint.
+ * An abstract base class for building property tests for RESTful APIs. This class provides a flexible framework for
+ * defining property tests for HTTP POST, GET, and DELETE operations on a RESTful API endpoint.
  *
  * @param <O> The type of data generated to feed the property tests.
  * @param <A> The concrete subclass type for fluent builder methods.
@@ -52,10 +52,10 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
     /**
      * Creates a new instance of the RestPropBuilder class with the specified parameters.
      *
-     * @param name    The name of the property test.
-     * @param gen     The data generator that produces pseudorandom data for testing.
-     * @param p_post  The lambda function representing the HTTP POST operation.
-     * @param p_get   The lambda function representing the HTTP GET operation.
+     * @param name     The name of the property test.
+     * @param gen      The data generator that produces pseudorandom data for testing.
+     * @param p_post   The lambda function representing the HTTP POST operation.
+     * @param p_get    The lambda function representing the HTTP GET operation.
      * @param p_delete The lambda function representing the HTTP DELETE operation.
      */
     public RestPropBuilder(String name,
@@ -71,13 +71,14 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
              (conf, id) -> Objects.requireNonNull(p_delete).apply(id));
 
     }
+
     /**
      * Creates a new instance of the RestPropBuilder class with the specified parameters.
      *
-     * @param name    The name of the property test.
-     * @param gen     The data generator that produces pseudorandom data for testing.
-     * @param p_post  The lambda function representing the HTTP POST operation.
-     * @param p_get   The lambda function representing the HTTP GET operation.
+     * @param name     The name of the property test.
+     * @param gen      The data generator that produces pseudorandom data for testing.
+     * @param p_post   The lambda function representing the HTTP POST operation.
+     * @param p_get    The lambda function representing the HTTP GET operation.
      * @param p_delete The lambda function representing the HTTP DELETE operation.
      */
     public RestPropBuilder(String name,
@@ -93,6 +94,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
         this.gen = Objects.requireNonNull(gen);
         this.getId = getIdFromPath.apply(JsPath.fromKey("id"));
     }
+
     /**
      * Sets the assertion function for the HTTP POST operation.
      *
@@ -104,6 +106,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
         this.postAssert = Objects.requireNonNull(postAssert);
         return (A) this;
     }
+
     /**
      * Sets the assertion function for the HTTP GET operation.
      *
@@ -115,6 +118,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
         this.getAssert = Objects.requireNonNull(getAssert);
         return (A) this;
     }
+
     /**
      * Sets the assertion function for the HTTP DELETE operation.
      *
@@ -128,7 +132,8 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
     }
 
     /**
-     * Sets the function to extract an ID for subsequent HTTP requests. You can choose from two specific ways to extract the ID:
+     * Sets the function to extract an ID for subsequent HTTP requests. You can choose from two specific ways to extract
+     * the ID:
      * <ul>
      *   <li>Use {@link #withGetIdFromReqBody(Function)} to extract the ID from the request body of type O.</li>
      *   <li>Use {@link #withGetIdFromRespPath(JsPath)} to extract the ID from the HTTP response using a specific path.</li>
@@ -154,6 +159,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
         this.getId = getIdFromPath.apply(Objects.requireNonNull(path));
         return (A) this;
     }
+
     /**
      * Sets the function to extract an ID from the request body of type O and use it in subsequent HTTP requests.
      *

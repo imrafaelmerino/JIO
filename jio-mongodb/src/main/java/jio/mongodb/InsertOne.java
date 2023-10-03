@@ -30,9 +30,9 @@ public final class InsertOne<R> implements Lambda<JsObj, R> {
     /**
      * Constructs a new InsertOne instance.
      *
-     * @param collection       The supplier for the MongoDB collection.
-     * @param resultConverter  The function to convert the insert result to the desired type.
-     * @param options          The insert one options.
+     * @param collection      The supplier for the MongoDB collection.
+     * @param resultConverter The function to convert the insert result to the desired type.
+     * @param options         The insert one options.
      */
     public InsertOne(final CollectionSupplier collection,
                      final Function<InsertOneResult, R> resultConverter,
@@ -46,10 +46,10 @@ public final class InsertOne<R> implements Lambda<JsObj, R> {
     /**
      * Creates an InsertOne instance with the specified collection supplier, result converter, and options.
      *
-     * @param collection       The supplier for the MongoDB collection.
-     * @param resultConverter  The function to convert the insert result to the desired type.
-     * @param options          The insert one options.
-     * @param <R>              The type of the result.
+     * @param collection      The supplier for the MongoDB collection.
+     * @param resultConverter The function to convert the insert result to the desired type.
+     * @param options         The insert one options.
+     * @param <R>             The type of the result.
      * @return An InsertOne instance.
      */
     public static <R> InsertOne<R> of(final CollectionSupplier collection,
@@ -62,9 +62,9 @@ public final class InsertOne<R> implements Lambda<JsObj, R> {
     /**
      * Creates an InsertOne instance with the specified collection supplier and result converter using default options.
      *
-     * @param collection       The supplier for the MongoDB collection.
-     * @param resultConverter  The function to convert the insert result to the desired type.
-     * @param <R>              The type of the result.
+     * @param collection      The supplier for the MongoDB collection.
+     * @param resultConverter The function to convert the insert result to the desired type.
+     * @param <R>             The type of the result.
      * @return An InsertOne instance with default options.
      */
     public static <R> InsertOne<R> of(final CollectionSupplier collection,

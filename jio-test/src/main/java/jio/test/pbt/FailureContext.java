@@ -5,8 +5,7 @@ import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 
 /**
- * Represents information related to a failure that occurred during the execution
- * of a specific test.
+ * Represents information related to a failure that occurred during the execution of a specific test.
  *
  * @param context The context of the failure.
  * @param failure The failure.

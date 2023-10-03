@@ -10,9 +10,8 @@ import java.util.function.Predicate;
 import static java.util.Objects.requireNonNull;
 
 /**
- * It's an immutable expression that implements multiple predicate-value branches like the
- * Cond expression. However, it evaluates a type I value and allows multiple value clauses
- * based on evaluating that value.
+ * It's an immutable expression that implements multiple predicate-value branches like the Cond expression. However, it
+ * evaluates a type I value and allows multiple value clauses based on evaluating that value.
  *
  * @param <O> the type of the value this expression will be reduced
  */
@@ -36,8 +35,8 @@ public final class SwitchExp<I, O> extends Exp<O> {
     }
 
     /**
-     * Creates a SwitchMatcher from a given value that will be evaluated and matched against the branches
-     * defined with the {@link SwitchMatcher#match(Object, Lambda, Object, Lambda, Lambda) match} method
+     * Creates a SwitchMatcher from a given value that will be evaluated and matched against the branches defined with
+     * the {@link SwitchMatcher#match(Object, Lambda, Object, Lambda, Lambda) match} method
      *
      * @param input the input that will be evaluated
      * @param <I>   the type of the input
@@ -49,8 +48,8 @@ public final class SwitchExp<I, O> extends Exp<O> {
     }
 
     /**
-     * Creates a SwitchMatcher from a given effect that will be evaluated and matched against the branches
-     * defined with the {@link SwitchMatcher#match(Object, Lambda, Object, Lambda, Lambda) match} method
+     * Creates a SwitchMatcher from a given effect that will be evaluated and matched against the branches defined with
+     * the {@link SwitchMatcher#match(Object, Lambda, Object, Lambda, Lambda) match} method
      *
      * @param input the effect that will be evaluated
      * @param <I>   the type of the input
@@ -89,8 +88,8 @@ public final class SwitchExp<I, O> extends Exp<O> {
     }
 
     /**
-     * Creates a new ListExp expression where the given retry policy is applied recursively
-     * to every subexpression when an exception is tested true against the specified predicate.
+     * Creates a new ListExp expression where the given retry policy is applied recursively to every subexpression when
+     * an exception is tested true against the specified predicate.
      *
      * @param predicate the predicate to test exceptions
      * @param policy    the retry policy
@@ -112,10 +111,9 @@ public final class SwitchExp<I, O> extends Exp<O> {
     }
 
     /**
-     * Creates a new SwitchExp that will write to the given logger information about every
-     * computation evaluated to reduce this expression (like {@link #debugEach(String)} does).
-     * A final log message created with the specified builder is written after reducing
-     * the whole expression
+     * Creates a new SwitchExp that will write to the given logger information about every computation evaluated to
+     * reduce this expression (like {@link #debugEach(String)} does). A final log message created with the specified
+     * builder is written after reducing the whole expression
      *
      * @param builder the builder to create the log message from the result of the expression
      * @return a new SwitchExp
@@ -150,10 +148,9 @@ public final class SwitchExp<I, O> extends Exp<O> {
 
 
     /**
-     * Creates a new SwitchExp that will print out on the console information about every
-     * computation evaluated to reduce this expression. The given context will be associated
-     * to every subexpression and printed out to correlate all the evaluations (contextual
-     * logging).
+     * Creates a new SwitchExp that will print out on the console information about every computation evaluated to
+     * reduce this expression. The given context will be associated to every subexpression and printed out to correlate
+     * all the evaluations (contextual logging).
      * <p>
      * The line format is the following:
      * <p>

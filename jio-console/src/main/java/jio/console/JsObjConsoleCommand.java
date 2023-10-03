@@ -8,9 +8,9 @@ import jsonvalues.Json;
 import java.util.function.Function;
 
 /**
- * Class to create different commands to execute interactive programs that allow the user to compose a JSON
- * given a provided spec. The constructor takes three arguments: the command name and description,
- * and the program that interacts with the user to compose the JSON. To execute the command:
+ * Class to create different commands to execute interactive programs that allow the user to compose a JSON given a
+ * provided spec. The constructor takes three arguments: the command name and description, and the program that
+ * interacts with the user to compose the JSON. To execute the command:
  *
  * <pre>
  *     json command_name

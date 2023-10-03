@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * Builder class for creating chat messages.
  */
-public  final  class ChatMessageBuilder {
+public final class ChatMessageBuilder {
 
     private final Data.ROLE role;
     private final String content;
@@ -37,6 +37,7 @@ public  final  class ChatMessageBuilder {
         this.name = Objects.requireNonNull(name);
         return this;
     }
+
     /**
      * Builds and returns a JSON object representing the chat message.
      *

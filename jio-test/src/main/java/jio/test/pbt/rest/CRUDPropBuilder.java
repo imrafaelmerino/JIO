@@ -6,14 +6,15 @@ import jio.BiLambda;
 import jio.IO;
 import jio.Lambda;
 import jio.test.pbt.*;
-import jsonvalues.*;
+import jsonvalues.JsObj;
 
 import java.net.http.HttpResponse;
 import java.util.Objects;
 import java.util.function.Function;
 
 /**
- * A builder class for creating property tests that cover CRUD (Create, Read, Update, Delete) operations on a RESTful API endpoint.
+ * A builder class for creating property tests that cover CRUD (Create, Read, Update, Delete) operations on a RESTful
+ * API endpoint.
  *
  * @param <O> The type of data generated to feed the property tests.
  */
@@ -23,13 +24,14 @@ public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder
     private final BiLambda<JsObj, HttpResponse<String>, HttpResponse<String>> update;
 
     private Function<HttpResponse<String>, TestResult> updateAssert = respAssert;
+
     /**
      * Creates a new instance of CRUDPropBuilder with the specified parameters.
      *
-     * @param name    The name of the property test.
-     * @param gen     The data generator that produces pseudorandom data for testing.
-     * @param p_post  The lambda function representing the HTTP POST operation.
-     * @param p_get   The lambda function representing the HTTP GET operation.
+     * @param name     The name of the property test.
+     * @param gen      The data generator that produces pseudorandom data for testing.
+     * @param p_post   The lambda function representing the HTTP POST operation.
+     * @param p_get    The lambda function representing the HTTP GET operation.
      * @param p_update The lambda function representing the HTTP UPDATE operation.
      * @param p_delete The lambda function representing the HTTP DELETE operation.
      */
@@ -43,13 +45,14 @@ public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder
         super(name, gen, p_post, p_get, p_delete);
         this.update = (conf, res) -> p_update.apply(res);
     }
+
     /**
      * Creates a new instance of CRUDPropBuilder with the specified parameters.
      *
-     * @param name    The name of the property test.
-     * @param gen     The data generator that produces pseudorandom data for testing.
-     * @param p_post  The lambda function representing the HTTP POST operation.
-     * @param p_get   The lambda function representing the HTTP GET operation.
+     * @param name     The name of the property test.
+     * @param gen      The data generator that produces pseudorandom data for testing.
+     * @param p_post   The lambda function representing the HTTP POST operation.
+     * @param p_get    The lambda function representing the HTTP GET operation.
      * @param p_update The lambda function representing the HTTP UPDATE operation.
      * @param p_delete The lambda function representing the HTTP DELETE operation.
      */

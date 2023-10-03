@@ -77,6 +77,6 @@ class DumpCommand extends Command {
         } catch (IOException e) {
             return IO.fail(e);
         }
-        return IO.NULL();
+        return IO.succeed("");
     }
 }

@@ -1,12 +1,15 @@
 package jio.chatgpt;
 
-import jsonvalues.*;
+import jsonvalues.JsDouble;
+import jsonvalues.JsInt;
+import jsonvalues.JsObj;
+import jsonvalues.JsStr;
 
 import java.util.Objects;
 
 /**
- * Builder for creating edited versions of prompts using the GPT model.
- * Given a prompt and an instruction, the model will return an edited version of the prompt.
+ * Builder for creating edited versions of prompts using the GPT model. Given a prompt and an instruction, the model
+ * will return an edited version of the prompt.
  */
 public final class EditBuilder {
 
@@ -18,8 +21,8 @@ public final class EditBuilder {
 
 
     /**
-     * Builder for creating edited versions of prompts using the GPT model.
-     * Given a prompt and an instruction, the model will return an edited version of the prompt.
+     * Builder for creating edited versions of prompts using the GPT model. Given a prompt and an instruction, the model
+     * will return an edited version of the prompt.
      */
     public EditBuilder(String model, String instruction) {
 
@@ -32,9 +35,8 @@ public final class EditBuilder {
 
 
     /**
-     * Sets the sampling temperature for generating edited versions of the prompt.
-     * Higher values like 0.8 will make the output more random,
-     * while lower values like 0.2 will make it more focused and deterministic.
+     * Sets the sampling temperature for generating edited versions of the prompt. Higher values like 0.8 will make the
+     * output more random, while lower values like 0.2 will make it more focused and deterministic.
      * <p>
      * We generally recommend altering this or top_p but not both.
      *
@@ -51,13 +53,13 @@ public final class EditBuilder {
     }
 
     /**
-     * Sets the top_p parameter for edited prompt generation.
-     * 0.1 means only the tokens comprising the top 10% probability mass are considered.
+     * Sets the top_p parameter for edited prompt generation. 0.1 means only the tokens comprising the top 10%
+     * probability mass are considered.
      * <p>
      * We generally recommend altering this or temperature but not both.
      *
-     * @param value An alternative to sampling with temperature, called nucleus sampling, where the
-     *              model considers the results of the tokens with top_p probability mass. (Defaults to 1)
+     * @param value An alternative to sampling with temperature, called nucleus sampling, where the model considers the
+     *              results of the tokens with top_p probability mass. (Defaults to 1)
      * @return This builder.
      */
     public EditBuilder setTopP(double value) {

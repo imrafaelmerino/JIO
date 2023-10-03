@@ -4,9 +4,9 @@ import jsonvalues.JsDouble;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 
-import static jio.chatgpt.JSON_FIELDS.*;
-
 import java.util.Objects;
+
+import static jio.chatgpt.JSON_FIELDS.*;
 
 
 /**
@@ -30,7 +30,8 @@ public final class TranscriptionBuilder {
     }
 
     /**
-     * @param prompt An optional text to guide the model's style or continue a previous audio segment. The prompt should match the audio language.
+     * @param prompt An optional text to guide the model's style or continue a previous audio segment. The prompt should
+     *               match the audio language.
      * @return this builder
      */
     public TranscriptionBuilder setPrompt(String prompt) {
@@ -39,8 +40,8 @@ public final class TranscriptionBuilder {
     }
 
     /**
-     * @param responseFormat The format of the transcript output, in one of these options: json, text, srt, verbose_json, or vtt.
-     *                       Defaults to json
+     * @param responseFormat The format of the transcript output, in one of these options: json, text, srt,
+     *                       verbose_json, or vtt. Defaults to json
      * @return this builder
      */
     public TranscriptionBuilder setResponseFormat(Data.RESPONSE_FORMAT responseFormat) {
@@ -49,9 +50,9 @@ public final class TranscriptionBuilder {
     }
 
     /**
-     * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make
-     * it more focused and deterministic. If set to 0, the model will use log probability to automatically
-     * increase the temperature until certain thresholds are hit.
+     * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused
+     * and deterministic. If set to 0, the model will use log probability to automatically increase the temperature
+     * until certain thresholds are hit.
      *
      * @param value The sampling temperature, between 0 and 1 (Defaults to 0)
      * @return this builder

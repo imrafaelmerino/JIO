@@ -7,8 +7,8 @@ import java.net.URI;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Event that is created and written to the Flight Recorder system when
- * a request response is received or an exception happens during the exchange
+ * Event that is created and written to the Flight Recorder system when a request response is received or an exception
+ * happens during the exchange
  */
 @Label("httpclient")
 @Name("jio.httpclient")
