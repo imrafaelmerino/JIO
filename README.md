@@ -747,11 +747,11 @@ Here are some key points about the code example:
    without affecting the others. This modularity is a significant advantage when dealing with complex data structures.
 
 3. **Parallelism**: The example demonstrates the ability to perform computations in parallel when constructing  
-   the `JsObj`. By using expressions like `JsObjExp.par`, you can take advantage of multi-core processors and improve  
+   the `JsObj`. By using expressions like `JsObjExp.par`, you can take advantage of multicore processors and improve  
    performance.
 
-4. **Nesting**: The example also shows that you can nest expressions within each other, allowing for hierarchical data  
-   structures. This is valuable when dealing with deeply nested JSON objects or other complex data formats.
+4. **Nesting**: The example also shows that you can nest expressions within each other, allowing for recursive data  
+   structures. This is valuable when dealing with deeply nested expressions or other complex data formats.
 
 Overall, the code example effectively illustrates how JIO's expressions enable you to create, manipulate, and compose  
 functional effects to handle complex data scenarios. It highlights the conciseness and expressiveness of the library  
@@ -759,7 +759,8 @@ when dealing with such tasks.
   
 ---  
 
-## Clocks
+## <a name="Clocks"><a/> Clocks
+
 
 In functional programming, it's crucial to maintain a clear separation between inputs and outputs of a function. When  
 dealing with time-related operations, such as retrieving the current date or time, it becomes even more critical to  
@@ -1055,11 +1056,11 @@ identify performance bottlenecks, and troubleshoot issues effectively. This appr
 monitoring of events related to your functional effects and expressions.
 
 Feel free to customize the `MyEventDebugger` class and event handling logic to suit your specific debugging and  
-monitoring needs.## Instalation
+monitoring needs.
   
 ---  
 
-## <a name="Instalation"><a/> Instalation
+## <a name="Installation"><a/> Installation
 
 ```code  
   
