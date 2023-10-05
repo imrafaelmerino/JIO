@@ -136,7 +136,7 @@ Key Concepts:
 
 ---  
 
-### <a name="Creating effects"><a/> Creating effects
+### <a name="Creating-effects"><a/> Creating effects
 
 Now that we got the ball rolling, let's learn how to create IO effects.
 
@@ -163,12 +163,11 @@ IO<String> effect = IO.fail(new RuntimeException("something went wrong :("));
 ```  
 
 Like with succeed, the effect will always produce the same result, in this case it fails always with the same exception,
-which is instantiated before creating  
-the effect. Do notice that no exception is thrown!
+which is instantiated before creating the effect. Do notice that no exception is thrown!
 
 **From a lazy computation or a supplier**
 
-This is a very common case and you will use it all the time to create effects.
+This is a very common case, and you will use it all the time to create effects.
 
 ```code  
 
@@ -197,7 +196,7 @@ IO<Long> effect = IO.task(callable);
 **From a CompletableFuture**:
 
 This is a common case when working with APIs that returns futures like the `sendAsync` methods of Java HttpClient
-introduced in Java11
+introduced in Java 11
 
 ```code  
   
@@ -211,8 +210,7 @@ Like with `lazy` and `task`, the previous example doesn't evaluate anything to c
 since the effect method takes in a `Supplier`.
 
 In all the above examples, when the `get` or `result`methods are invoked, the values **will be computed on the caller  
-thread**.  
-Sometimes we need to control on what thread to perform a computation, especially when it's blocking.  
+thread**. Sometimes we need to control on what thread to perform a computation, especially when it's blocking.  
 Whe can specify an executor, or to make use of the **ForkJoin** pool, which is not a problem since **JIO uses
 internally
 the [ManagedBlocker](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ForkJoinPool.ManagedBlocker.html)**
@@ -254,10 +252,9 @@ IO<JsObj> effect = IO.lazy(blockingTask,
 
 The `resource` method is used to create an IO effect that manages a resource implementing the `AutoCloseable`
 interface. It takes a `Callable` that supplies the closable resource and a mapping function to transform the resource
-into a
-value. This method ensures proper resource management, including automatic closing of the resource, to prevent memory
-leaks.
-It returns an IO effect encapsulating both the resource handling and mapping.
+into a value. This method ensures proper resource management, including automatic closing of the resource, to prevent
+memory
+leaks. It returns an IO effect encapsulating both the resource handling and mapping.
 
 ```code   
 static <O, I extends AutoCloseable> IO<O> resource(Callable<I> resource,  
@@ -325,19 +322,20 @@ We'll use them all the time.
   
 ---  
 
-### <a name="Operations with effects"><a/> Operations with effects
+### <a name="Operations-with-effects"><a/> Operations with effects
 
 #### <a name="Making our code more resilient"><a/> Making our code more resilient
 
-- Being persistent! Retrying failed operations is a crucial aspect of handling errors effectively in JIO. In real-world
-  scenarios,errors can sometimes be transient or caused by temporary issues, such as network glitches or resource
-  unavailability.  
-  By incorporating retry mechanisms, JIO empowers you to gracefully recover from such errors without compromising the
-  stability of your application. Whether it's a network request, database query, or any other effect, JIO's built-in
-  retry functionality allows you to define retry policies, such as exponential backoff or custom strategies, to ensure
-  that your operations have a higher chance of succeeding. This approach not only enhances the robustness of your
-  application but also minimizes the impact of transient errors, making JIO a valuable tool for building resilient and
-  reliable systems.
+**Being persistent!**
+Retrying failed operations is a crucial aspect of handling errors effectively in JIO. In real-world
+scenarios,errors can sometimes be transient or caused by temporary issues, such as network glitches or resource
+unavailability.  
+By incorporating retry mechanisms, JIO empowers you to gracefully recover from such errors without compromising the
+stability of your application. Whether it's a network request, database query, or any other effect, JIO's built-in
+retry functionality allows you to define retry policies, such as exponential backoff or custom strategies, to ensure
+that your operations have a higher chance of succeeding. This approach not only enhances the robustness of your
+application but also minimizes the impact of transient errors, making JIO a valuable tool for building resilient and
+reliable systems.
 
 ```code  
   
@@ -382,8 +380,9 @@ There are very interesting policies implemented based
 on [this article](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/):  exponential backoff, full
 jitter, equal jitter, decorrelated jitter etc
 
-- Having a Backup plan! In scenarios where errors persist despite retries, JIO offers robust error-handling mechanisms
-  to ensure your application maintains resilience. Three key methods come into play:
+**Having a Backup plan!**
+In scenarios where errors persist despite retries, JIO offers robust error-handling mechanisms
+to ensure your application maintains resilience. Three key methods come into play:
 
 ```code  
   
@@ -417,7 +416,7 @@ needed.
 
 #### Other common operations
 
-- **Being Functional**: JIO encourages a functional programming style with the following methods:
+**Being Functional**: JIO encourages a functional programming style with the following methods:
 
 ```code  
   
@@ -437,8 +436,7 @@ public interface IO<O> extends Supplier<Future<O>> {
   the result of the effect, creating a new effect that depends on the previous result. The name 'then' is used here for
   conciseness.
 
-
-- **Being Impatient**: Time is of the essence, and JIO offers methods to deal with timeouts:
+**Being Impatient!**: Time is of the essence, and JIO offers methods to deal with timeouts:
 
 ```code  
   
@@ -458,7 +456,7 @@ interface IO<O> extends Supplier<Future<O>> {
 - `timeout`: Sets a timeout for the effect, allowing you to limit how long you are willing to wait for its completion.
 - `timeoutOrElse`: Similar to `timeout`, but with a fallback value that is returned if the timeout is exceeded.
 
-- **Being sneaky**: Sometimes, you need to sneak a peek into the execution of an effect:
+**Being sneaky!**: Sometimes, you need to sneak a peek into the execution of an effect:
 
 ```code  
 interface IO<O> extends Supplier<Future<O>> {  
@@ -480,7 +478,7 @@ interface IO<O> extends Supplier<Future<O>> {
 - `peek`: Combines both success and failure consumers, giving you full visibility into the effect's execution.  
   Exceptions occurring here are logged in the JFR system and do not alter the result of the effect.
 
-- **Racing!**: When you require a result as quickly as possible among multiple alternatives, and you're uncertain which
+**I race you!**: When you require a result as quickly as possible among multiple alternatives, and you're uncertain which
   one will be the fastest:
 
 ```code  
@@ -565,7 +563,7 @@ IO<O> exp =
                       .match(I pattern1, Supplier<IO<O>> value1,  
                              I pattern2, Supplier<IO<O>> value2,  
                              I pattern3, Supplier<IO<O>> value3,  
-                             Supplier<IO<O>>otherwise  
+                             Supplier<IO<O>> otherwise  
                             );  
   
 // matches an effect of type I  
@@ -575,7 +573,7 @@ IO<O> exp=
                        .match(I pattern1, Supplier<IO<O>> value1,  
                               I pattern2, Supplier<IO<O>> value2,  
                               I pattern3, Supplier<IO<O>> value3,,  
-                              Supplier<IO<O>> defaultValue  
+                              Supplier<IO<O>> otherwise  
                              );  
   
   
@@ -601,16 +599,20 @@ IO<O> exp =
                          .match(List<I> pattern1,Supplier<IO<O>> value1,  
                                 List<I> pattern2,Supplier<IO<O>> value2,  
                                 List<I> pattern3,Supplier<IO<O>> value3,  
-                                Supplier<IO<O>> defaultValue  
+                                Supplier<IO<O>> otherwise  
                                 );  
   
 // For example, the following expression reduces to "third week"  
 IO<O> exp=  
          SwitchExp<Integer, String>.eval(20)  
-                                   .match(List.of(1,2,3,4,5,6,7), () -> IO.succeed("first week"),  
-                                          List.of(8,9,10,11,12,13,14), () -> IO.succeed("second week"),  
-                                          List.of(15,16,17,18,19,20,10), () -> IO.succeed("third week"),  
-                                          List.of(21,12,23,24,25,26,27), () -> IO.succeedd("forth week"),  
+                                   .match(List.of(1,2,3,4,5,6,7), 
+                                          () -> IO.succeed("first week"),  
+                                          List.of(8,9,10,11,12,13,14), 
+                                          () -> IO.succeed("second week"),  
+                                          List.of(15,16,17,18,19,20,10), 
+                                          () -> IO.succeed("third week"),  
+                                          List.of(21,12,23,24,25,26,27), 
+                                          () -> IO.succeedd("forth week"),  
                                           () -> IO.succeed("last days of the month")  
                                          );  
 ```  
@@ -624,7 +626,7 @@ IO<O> exp=
                        .match(Predicate<I> pattern1, Supplier<IO<O>>value1,  
                               Predicate<I> pattern2, Supplier<IO<O>>value2,  
                               Predicate<I> pattern3, Supplier<IO<O>>value3,  
-                              Supplier<IO<O>> defaultValue  
+                              Supplier<IO<O>> otherwise  
                               );  
   
 // For example, the following expression reduces to the default value  
@@ -651,7 +653,7 @@ IO<O> exp=
     CondExp.<O>seq(IO<Boolean> cond1, Supplier<IO<O>> value1,  
                    IO<Boolean> cond2, Supplier<IO<O>> value2,  
                    IO<Boolean> cond3, Supplier<IO<O>> value3,  
-                   Supplier<IO<O>> defaultValue  
+                   Supplier<IO<O>> otherwise  
                   );  
   
   
@@ -659,7 +661,7 @@ IO<O> exp =
     CondExp.<O>par(IO<Boolean> cond1, Supplier<IO<O>> value1,  
                    IO<Boolean> cond2, Supplier<IO<O>> value2,  
                    IO<Boolean> cond3,Supplier<IO<O>> value3,  
-                   Supplier<IO<O>> defaultValue  
+                   Supplier<IO<O>> otherwise  
                   );  
   
 ```  
@@ -708,16 +710,17 @@ IfElseExp<JsStr> a = IfElseExp.<JsStr>predicate(IO<Boolean> condition)
                               .consequence(IO<JsStr> consequence)  
                               .alternative(IO<JsStr> alternative);  
   
-JsArrayExp b = JsArrayExp.seq(SwitchExp<Integer, JsValue>.match(n)  
-                                                         .patterns(1, Supplier<IO<JsValue>> value1,  
-                                                                   2, Supplier<IO<JsValue>> value2,  
-                                                                   Supplier<IO<JsValue>> defaultValue  
-                                                                   ),  
-                              CondExp.par(IO<Boolean> cond1, Supplier<IO<JsValue>>value1,  
-                                          IO<Boolean> cond2, Supplier<IO<JsValue>>value3,  
-                                          Supplier<IO<JsValue>> defaultValue  
-                                         )  
-                             );  
+JsArrayExp b = 
+    JsArrayExp.seq(SwitchExp<Integer, JsValue>.match(n)  
+                                              .patterns(1, Supplier<IO<JsValue>> value1,  
+                                                        2, Supplier<IO<JsValue>> value2,  
+                                                        Supplier<IO<JsValue>> defaultValue  
+                                                       ),  
+                   CondExp.par(IO<Boolean> cond1, Supplier<IO<JsValue>>value1,  
+                               IO<Boolean> cond2, Supplier<IO<JsValue>>value3,  
+                               Supplier<IO<JsValue>> defaultValue  
+                              )  
+                 );  
   
 JsObjExp c = JsObjExp.seq("d", AnyExp.seq(IO<Boolean> cond1, IO<Boolean> cond2)  
                                      .map(JsBool::of),  
@@ -728,11 +731,11 @@ JsObjExp c = JsObjExp.seq("d", AnyExp.seq(IO<Boolean> cond1, IO<Boolean> cond2)
                           );  
   
 JsObjExp exp = JsObjExp.par("a",a,  
-                           "b",b,  
-                           "c",c  
+                            "b",b,  
+                            "c",c  
                            );  
   
-JsObj json=exp.result();  
+JsObj json = exp.result();  
   
 ```  
 
@@ -740,20 +743,19 @@ Here are some key points about the code example:
 
 1. **Readability**: The code is relatively easy to read and understand, thanks to the fluent API style provided by
    JIO's expressions. This makes it straightforward to follow the logic of constructing a `JsObj` with multiple
-   key-value  
-   pairs.
+   key-value pairs.
 
-2. **Modularity**: Each key-value pair is constructed separately, making it easy to add, modify, or remove components  
+2. **Modularity**: Each key-value pair is constructed separately, making it easy to add, modify, or remove components
    without affecting the others. This modularity is a significant advantage when dealing with complex data structures.
 
 3. **Parallelism**: The example demonstrates the ability to perform computations in parallel when constructing  
-   the `JsObj`. By using expressions like `JsObjExp.par`, you can take advantage of multicore processors and improve  
+   the `JsObj`. By using expressions like `JsObjExp.par`, you can take advantage of multicore processors and improve
    performance.
 
 4. **Nesting**: The example also shows that you can nest expressions within each other, allowing for recursive data  
    structures. This is valuable when dealing with deeply nested expressions or other complex data formats.
 
-Overall, the code example effectively illustrates how JIO's expressions enable you to create, manipulate, and compose  
+Overall, the code example effectively illustrates how JIO's expressions enable you to create, manipulate, and compose
 functional effects to handle complex data scenarios. It highlights the conciseness and expressiveness of the library  
 when dealing with such tasks.
   
@@ -761,11 +763,9 @@ when dealing with such tasks.
 
 ## <a name="Clocks"><a/> Clocks
 
-
-In functional programming, it's crucial to maintain a clear separation between inputs and outputs of a function. When  
-dealing with time-related operations, such as retrieving the current date or time, it becomes even more critical to  
-adhere to this principle. This is where the concept of clocks in JIO comes into play.
-
+In functional programming, it's crucial to maintain a clear separation between inputs and outputs of a function.
+When dealing with time-related operations, such as retrieving the current date or time, it becomes even more critical
+to adhere to this principle. This is where the concept of clocks in JIO comes into play.
 A clock in JIO is essentially a supplier that returns a numeric value, representing time. There are three types of  
 clocks available:
 
