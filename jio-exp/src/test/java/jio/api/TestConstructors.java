@@ -136,7 +136,7 @@ public class TestConstructors {
                                    Files.writeString(file.toPath(), "hola");
                                    return new BufferedReader(new FileReader(file,StandardCharsets.UTF_8));
                                },
-                               it -> it.lines().collect(Collectors.joining())
+                               it -> IO.succeed(it.lines().collect(Collectors.joining()))
                                   )
                      .result();
 

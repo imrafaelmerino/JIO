@@ -1,5 +1,5 @@
 gpt-chat-clear
-gpt-chat-load-messages /Users/rmerino/Projects/jio/jio-chatgpt/src/test/resources/json-values-chat.json
+gpt-chat-load-messages /Users/rmerino/Projects/jio/jio-chatgpt/src/test/resources/json-values-spec-chat.json
 gpt-chat-add-message user Write a `JsObjSpec` of a veterinarian JSON including keys of any type: string, int, JSON objects and arrays etc. Consider at least 15 fields. Use Java predicates and pass them in as arguments to the keys specs to add any field constraint. Please stick to the spec methods I gave you and dont use any other!
 gpt-chat-send gpt-3.5-turbo-16k
 

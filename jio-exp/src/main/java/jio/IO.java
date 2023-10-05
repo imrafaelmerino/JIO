@@ -1,7 +1,6 @@
 package jio;
 
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,27 +101,24 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
 
 
     /**
-     * Creates an effect from a callable that returns a closable resource and maps it into a value. This method is
+     * Creates an effect from a callable that returns a closable resource and maps it into an effect. This method is
      * designed to handle resources that implement the {@link AutoCloseable} interface, ensuring proper resource
      * management to avoid memory leaks.
      *
      * @param resource the resource supplier that provides the closable resource.
-     * @param map      the map function that transforms the resource into a value.
+     * @param map      the map function that transforms the resource into an effect.
      * @param <O>      the type parameter representing the result type of the effect.
      * @param <I>      the type parameter representing the type of the resource.
      * @return an IO effect that encapsulates the resource handling and mapping.
      */
     public static <O, I extends AutoCloseable> IO<O> resource(final Callable<I> resource,
-                                                              final Function<I, O> map
+                                                              final Lambda<I, O> map
                                                              ) {
-        return IO.effect(() -> {
-            try (var r = resource.call()) {
-                return CompletableFuture.completedFuture(r)
-                                        .thenApply(map);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        try (var r = resource.call()) {
+            return map.apply(r);
+        } catch (Exception e) {
+            return IO.fail(e);
+        }
     }
 
 
@@ -665,7 +661,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * TimeoutException.
      * @throws IllegalArgumentException if the specified time is less than or equal to 0.
      */
-    public IO<O> timeout(final int time,
+    public IO<O> timeout(final long time,
                          final TimeUnit unit
                         ) {
         if (time <= 0) throw new IllegalArgumentException("time <= 0");
@@ -683,7 +679,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param defaultVal the default value evaluated if a timeout happens
      * @return a new effect
      */
-    public IO<O> timeoutOrElse(final int time,
+    public IO<O> timeoutOrElse(final long time,
                                final TimeUnit unit,
                                final Supplier<O> defaultVal
                               ) {

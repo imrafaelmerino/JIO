@@ -3,7 +3,6 @@ package jio.api.properties;
 import fun.gen.IntGen;
 import fun.gen.PairGen;
 import fun.tuple.Pair;
-import jio.console.JsConsole;
 import jio.test.pbt.*;
 import org.junit.jupiter.api.Test;
 
@@ -15,15 +14,12 @@ import java.util.function.BiFunction;
 
 public class TestProperties {
 
-    public static void main(String[] args) throws IOException {
-        new PropertyConsole(List.of(TestProperties.class)).start(args);
-    }
-    static BiFunction<Integer, Integer, Integer> fn = (a, b) -> (a + b) / 2;
+    static BiFunction<Integer, Integer, Integer> fn = (a, b) -> (a + b) >>> 1;
     @Command
     static Property<Pair<Integer, Integer>> mediumProperty =
             Property.ofFunction("medium",
-                                PairGen.of(IntGen.arbitrary(0, 100),
-                                           IntGen.arbitrary(0,100)
+                                PairGen.of(IntGen.arbitrary(0),
+                                           IntGen.arbitrary(0)
                                           )
                                        .suchThat(pair -> pair.first() <= pair.second()),
                                 pair -> {
@@ -37,21 +33,29 @@ public class TestProperties {
                                     return TestResult.SUCCESS;
                                 }
                                )
+                    .withTimes(1000000)
                     .withClassifiers(Map.of("both",
-                                            p -> p.first() > Integer.MAX_VALUE / 2 && p.second() > Integer.MAX_VALUE / 2,
+                                            p -> p.first() > Integer.MAX_VALUE / 2
+                                                    && p.second() > Integer.MAX_VALUE / 2,
                                             "none",
-                                            p -> p.first() < Integer.MAX_VALUE / 2 && p.second() < Integer.MAX_VALUE / 2),
+                                            p -> p.first() < Integer.MAX_VALUE / 2
+                                                    && p.second() < Integer.MAX_VALUE / 2
+                                           ),
                                      "one"
                                     );
+
+    public static void main(String[] args) throws IOException {
+        new PropertyConsole(List.of(TestProperties.class)).start(args);
+    }
 
     @Test
     public void testMean() {
 
 
-        mediumProperty
-                .check()
-                .result()
-                .assertAllSuccess();
+        mediumProperty.check()
+                      .result()
+                      .assertAllSuccess();
 
     }
+
 }
