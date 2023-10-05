@@ -804,19 +804,19 @@ testable, and less error-prone. Consider the following scenario, which is a comm
 
 ```code  
 public class PaymentService {  
-public boolean processPayment(double amount) {  
-// Get the current date and time  
-Instant currentTime = Instant.now();  
-  
-// Perform payment processing logic  
-// ...  
-  
-// Check if the payment was made within a specific time window  
-Instant windowStart = currentTime.minus(Duration.ofHours(1));  
-Instant windowEnd = currentTime.plus(Duration.ofHours(1));  
-  
-return paymentTime.isAfter(windowStart) && paymentTime.isBefore(windowEnd);  
-}  
+    public boolean processPayment(double amount) {  
+        // Get the current date and time  
+        Instant currentTime = Instant.now();  
+          
+        // Perform payment processing logic  
+        // ...  
+          
+        // Check if the payment was made within a specific time window  
+        Instant windowStart = currentTime.minus(Duration.ofHours(1));  
+        Instant windowEnd = currentTime.plus(Duration.ofHours(1));  
+          
+        return paymentTime.isAfter(windowStart) && paymentTime.isBefore(windowEnd);  
+    }  
 }  
   
 ```  
@@ -827,19 +827,19 @@ A better approach is to pass a clock as a method parameter:
 ```code  
   
 public class PaymentService {  
-public boolean processPayment(double amount, Clock clock) {  
-// Get the current time from the provided clock  
-Instant currentTime = Instant.ofEpochMilli(clock.get());  
+    public boolean processPayment(double amount, Clock clock) {  
+        // Get the current time from the provided clock  
+        Instant currentTime = Instant.ofEpochMilli(clock.get());  
   
-// Perform payment processing logic  
-// ...  
+        // Perform payment processing logic  
+        // ...  
+          
+        // Check if the payment was made within a specific time window  
+        Instant windowStart = currentTime.minus(Duration.ofHours(1));  
+        Instant windowEnd = currentTime.plus(Duration.ofHours(1));  
   
-// Check if the payment was made within a specific time window  
-Instant windowStart = currentTime.minus(Duration.ofHours(1));  
-Instant windowEnd = currentTime.plus(Duration.ofHours(1));  
-  
-return paymentTime.isAfter(windowStart) && paymentTime.isBefore(windowEnd);  
-}  
+        return paymentTime.isAfter(windowStart) && paymentTime.isBefore(windowEnd);  
+    }  
 }  
   
   
@@ -857,7 +857,7 @@ several advantages:
 By using a clock as a parameter, you enhance the reliability and maintainability of your code, especially in scenarios  
 where time plays a critical role.
 
-## Debugging and Java Flight Recorder (JFR) Integration
+## <a name="Debugging-and-JFR-integration"><a/> Debugging and Java Flight Recorder (JFR) Integration
 
 ### Why I chose JFR
 
@@ -969,25 +969,25 @@ import java.util.function.Consumer;
 */  
 public abstract class EventDebugger {  
   
-// ... (constructor and other methods)  
-  
-/**  
-* Starts asynchronous event recording for the specified duration.  
-*  
-* @param duration The duration (in milliseconds) for which to capture events.  
-*/  
-public void startAsync(final int duration);  
-  
-/**  
-* Closes the EventStream, stopping event recording.  
-*/  
-public void close();  
-  
-/**  
-* Blocks until event recording is terminated.  
-* Throws a RuntimeException if interrupted.  
-*/  
-public void awaitTermination();  
+    // ... (constructor and other methods)  
+      
+    /**  
+    * Starts asynchronous event recording for the specified duration.  
+    *  
+    * @param duration The duration (in milliseconds) for which to capture events.  
+    */  
+    public void startAsync(final int duration);  
+      
+    /**  
+    * Closes the EventStream, stopping event recording.  
+    */  
+    public void close();  
+      
+    /**  
+    * Blocks until event recording is terminated.  
+    * Throws a RuntimeException if interrupted.  
+    */  
+    public void awaitTermination();  
 }  
   
   
@@ -1039,17 +1039,17 @@ defines how to handle each recorded event.
 ```code  
 public class MyApp {  
   
-public static void main(String[] args) {  
-// Create an instance of MyEventDebugger to start event recording.  
-MyEventDebugger eventDebugger = new MyEventDebugger();  
-  
-// ...  
-  
-// Optionally, specify a duration for event recording (e.g., 5000 milliseconds).  
-eventDebugger.startAsync(5000);  
-  
-// Ensure the event recording is properly closed when your application exits.  
-eventDebugger.awaitTermination();  
+    public static void main(String[] args) {  
+        // Create an instance of MyEventDebugger to start event recording.  
+        MyEventDebugger eventDebugger = new MyEventDebugger();  
+          
+        // ...  
+          
+        // Optionally, specify a duration for event recording (e.g., 5000 milliseconds).  
+        eventDebugger.startAsync(5000);  
+          
+        // Ensure the event recording is properly closed when your application exits.  
+        eventDebugger.awaitTermination();  
 }  
 }  
 ```  
@@ -1075,14 +1075,14 @@ monitoring needs.## Instalation
   
 ---  
 
-## Instalation
+## <a name="Instalation"><a/> Instalation
 
 ```code  
   
 <dependency>  
-<groupId>com.github.imrafaelmerino</groupId>  
-<artifactId>jio-exp</artifactId>  
-<version>1.0.0</version>  
+    <groupId>com.github.imrafaelmerino</groupId>  
+    <artifactId>jio-exp</artifactId>  
+    <version>1.0.0</version>  
 </dependency>  
   
 ```  
@@ -1090,7 +1090,7 @@ monitoring needs.## Instalation
   
 ---  
 
-## Requirements and dependencies
+## <a name="Requirements and dependencies"><a/> Requirements and dependencies
 
 - Java 17 or greater
 - [json-values](https://github.com/imrafaelmerino/json-values)
