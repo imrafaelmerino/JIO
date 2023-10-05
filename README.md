@@ -67,9 +67,8 @@ Instant b = now;
   
 ```  
 
-Here's when laziness comes into play. Since Java 8, we have suppliers. They  
-are indispensable to do FP in Java. The following piece of code is equivalent to  
-the previous where `a` and `b` where two different instants:
+Here's when laziness comes into play. Since Java 8, we have suppliers. They are indispensable to do FP in Java. The
+following piece of code is equivalent to the previous where `a` and `b` where two different instants:
 
 ```code  
   
@@ -109,11 +108,11 @@ import java.util.concurrent.CompletableFuture;
   
 public abstract class IO<O> implements Supplier<CompletableFuture<O>> {  
   
-@Override  
-CompletableFuture<O> get();  
-  
-//blocking!  
-O result();  
+    @Override  
+    CompletableFuture<O> get();  
+      
+    //blocking!  
+    O result();  
 
 }  
   
@@ -215,7 +214,7 @@ In all the above examples, when the `get` or `result`methods are invoked, the va
 thread**.  
 Sometimes we need to control on what thread to perform a computation, especially when it's blocking.  
 Whe can specify an executor, or to make use of the **ForkJoin** pool, which is not a problem since **JIO uses
-internally  
+internally
 the [ManagedBlocker](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ForkJoinPool.ManagedBlocker.html)**
 interface, or you can even get benefit from the Loom project and use fibers!
 
@@ -254,12 +253,11 @@ IO<JsObj> effect = IO.lazy(blockingTask,
 **From autoclosable resources**
 
 The `resource` method is used to create an IO effect that manages a resource implementing the `AutoCloseable`
-interface.  
-It takes a `Callable` that supplies the closable resource and a mapping function to transform the resource into a
-value.  
-This method ensures proper resource management, including automatic closing of the resource, to prevent memory leaks.
-It  
-returns an IO effect encapsulating both the resource handling and mapping.
+interface. It takes a `Callable` that supplies the closable resource and a mapping function to transform the resource
+into a
+value. This method ensures proper resource management, including automatic closing of the resource, to prevent memory
+leaks.
+It returns an IO effect encapsulating both the resource handling and mapping.
 
 ```code   
 static <O, I extends AutoCloseable> IO<O> resource(Callable<I> resource,  
@@ -267,7 +265,7 @@ static <O, I extends AutoCloseable> IO<O> resource(Callable<I> resource,
                                                    );  
 ```  
 
-and an example
+and an example:
 
 ```code  
 Callable<FileInputStream> callable = () -> new FileInputStream("example.txt");  
@@ -425,9 +423,9 @@ needed.
   
 public interface IO<O> extends Supplier<Future<O>> {  
   
-IO<A> map(Function<O, A> fn);  
-  
-IO<A> then(Lambda<O, A> fn);  
+    IO<A> map(Function<O, A> fn);  
+      
+    IO<A> then(Lambda<O, A> fn);  
   
 }  
   
@@ -446,14 +444,14 @@ IO<A> then(Lambda<O, A> fn);
   
 interface IO<O> extends Supplier<Future<O>> {  
   
-IO<O> timeout(long time,  
-              TimeUnit unit  
-             );  
-  
-IO<O> timeoutOrElse(long time,  
-                    TimeUnit unit,  
-                    Supplier<O> defaultVal  
-                   );    
+    IO<O> timeout(long time,  
+                  TimeUnit unit  
+                 );  
+      
+    IO<O> timeoutOrElse(long time,  
+                        TimeUnit unit,  
+                        Supplier<O> defaultVal  
+                       );    
 }  
 ```  
 
@@ -465,13 +463,13 @@ IO<O> timeoutOrElse(long time,
 ```code  
 interface IO<O> extends Supplier<Future<O>> {  
   
-IO<O> peekFailure(Consumer<Throwable> failConsumer);  
-  
-IO<O> peekSuccess(Consumer<O> successConsumer);  
-  
-IO<O> peek(Consumer<O> successConsumer,  
-           Consumer<Throwable> failureConsumer  
-          );  
+    IO<O> peekFailure(Consumer<Throwable> failConsumer);  
+      
+    IO<O> peekSuccess(Consumer<O> successConsumer);  
+      
+    IO<O> peek(Consumer<O> successConsumer,  
+               Consumer<Throwable> failureConsumer  
+              );  
 }  
   
 ```  
@@ -489,7 +487,7 @@ IO<O> peek(Consumer<O> successConsumer,
   
 interface IO<O> extends Supplier<CompletableFuture<O>> {  
   
-static <O> IO<O> race(IO<O> first, IO<O>... others);  
+    static <O> IO<O> race(IO<O> first, IO<O>... others);  
   
 }  
   
@@ -506,22 +504,22 @@ control over concurrency and resource allocation. Here are the key methods with 
 ```code  
 interface IO<O> extends Supplier<CompletableFuture<O>> {  
   
-IO<O> recoverWithOn(Lambda<Throwable, O> fn,  
-                    Executor executor  
-                    );  
-  
-IO<O> retryOn(Predicate<Throwable> predicate,  
-              RetryPolicy policy,  
-              Executor executor  
-              );  
-  
-<Q> IO<Q> thenOn(Lambda<O, Q> fn,  
-                 Executor executor  
-                 );  
-  
-IO<O> fallbackToOn(Lambda<Throwable, O> lambda,  
-                   Executor executor  
+    IO<O> recoverWithOn(Lambda<Throwable, O> fn,  
+                        Executor executor  
+                        );  
+      
+    IO<O> retryOn(Predicate<Throwable> predicate,  
+                  RetryPolicy policy,  
+                  Executor executor  
                   );  
+      
+    <Q> IO<Q> thenOn(Lambda<O, Q> fn,  
+                     Executor executor  
+                     );  
+      
+    IO<O> fallbackToOn(Lambda<Throwable, O> lambda,  
+                       Executor executor  
+                      );  
 }  
 ```  
 
@@ -669,8 +667,7 @@ IO<O> exp =
 ### AllExp and AnyExp
 
 `AllExp` and `AnyExp` provide idiomatic boolean expressions for "AND" and "OR." They allow you to compute multiple  
-boolean  
-effects, either sequentially or in parallel.
+boolean effects, either sequentially or in parallel.
 
 ```code  
   
@@ -742,8 +739,8 @@ JsObj json=exp.result();
 Here are some key points about the code example:
 
 1. **Readability**: The code is relatively easy to read and understand, thanks to the fluent API style provided by
-   JIO's  
-   expressions. This makes it straightforward to follow the logic of constructing a `JsObj` with multiple key-value  
+   JIO's expressions. This makes it straightforward to follow the logic of constructing a `JsObj` with multiple
+   key-value  
    pairs.
 
 2. **Modularity**: Each key-value pair is constructed separately, making it easy to add, modify, or remove components  
@@ -772,15 +769,11 @@ A clock in JIO is essentially a supplier that returns a numeric value, represent
 clocks available:
 
 - Realtime: This clock is affected by Network Time Protocol (NTP) adjustments and can move both forwards and backward
-  in  
-  time. It is implemented using the System.currentTimeMillis() method. Realtime clocks are typically used when you
-  need  
-  to work with the current wall-clock time.
+  in time. It is implemented using the System.currentTimeMillis() method. Realtime clocks are typically used when you
+  need to work with the current wall-clock time.
 - Monotonic: Monotonic clocks are useful for measuring time intervals and performing time-related comparisons. They
-  are  
-  not affected by NTP adjustments and provide a consistent and continuous time source. Monotonic clocks are
-  implemented  
-  using the System.nanoTime() method.
+  are not affected by NTP adjustments and provide a consistent and continuous time source. Monotonic clocks are
+  implemented using the System.nanoTime() method.
 - Custom: JIO allows you to create your custom clocks. Custom clocks are particularly valuable for testing scenarios  
   where you want to control the flow of time, possibly simulating the past or future.
 
@@ -849,8 +842,7 @@ In this improved version, we pass a Clock object as a parameter to the processPa
 several advantages:
 
 - Testability: During testing, you can provide a custom clock that allows you to control the current time, making
-  tests  
-  more predictable and reliable.
+  tests more predictable and reliable.
 - Predictability: The behavior of the method is consistent regardless of when it's called since it depends on the  
   provided clock.
 
@@ -862,13 +854,10 @@ where time plays a critical role.
 ### Why I chose JFR
 
 "In the world of Java, there has long been a multitude of logging libraries and frameworks, each with its strengths
-and  
-limitations. However, the introduction of Java Flight Recorder (JFR) has been a game-changer. JFR is a native and
-highly  
-efficient profiling and event recording mechanism embedded within the Java Virtual Machine (JVM). Its native
-integration  
-means it operates seamlessly with your Java applications, imposing minimal performance overhead. JFR provides  
-unparalleled visibility into the inner workings of your code, allowing you to capture and analyze events with
+and limitations. However, the introduction of Java Flight Recorder (JFR) has been a game-changer. JFR is a native and
+highly efficient profiling and event recording mechanism embedded within the Java Virtual Machine (JVM). Its native
+integration means it operates seamlessly with your Java applications, imposing minimal performance overhead. JFR
+provides unparalleled visibility into the inner workings of your code, allowing you to capture and analyze events with
 precision.  
 Unlike external logging libraries, JFR doesn't rely on third-party dependencies or introduce additional complexity to  
 your projects. By using JFR within JIO, you harness the power of this built-in tool to gain deep insights into the  
@@ -877,17 +866,15 @@ dream solution for Java developers seeking robust debugging and monitoring capab
 
 Debugging and monitoring the behavior of your JIO-based applications is essential for troubleshooting, performance  
 optimization, and gaining insights into your functional effects and expressions. JIO provides comprehensive support
-for  
-debugging and integration with Java Flight Recorder (JFR) to capture and analyze events.
+for debugging and integration with Java Flight Recorder (JFR) to capture and analyze events.
   
 ---  
 
 ### Debugging Individual Effects
 
 You can enable debugging for individual effects using the debug method. This method creates a copy of the effect that  
-generates a RecordedEvent and sends it to the Flight Recorder system. You can customize the event using the
-EventBuilder  
-provided. This feature is invaluable for monitoring the behavior of specific effects in your application.
+generates a `RecordedEvent` and sends it to the Flight Recorder system. You can customize the event using the
+`EventBuilder` provided. This feature is invaluable for monitoring the behavior of specific effects in your application.
 
 ```code  
   
@@ -938,8 +925,7 @@ abstract Exp<O> debugEach(final String context);
 
 By using `debugEach`, you can gain insights into the behavior of complex expressions and identify any issues or  
 bottlenecks that may arise during execution. All the subexpressions and the final result will be recorded with the
-same  
-context, making it easier to relate them and analyze their interactions.  
+same context, making it easier to relate them and analyze their interactions.  
 JIO's logging and JFR integration features provide valuable tools for contextual logging, debugging, profiling, and  
 monitoring your functional effects and expressions, helping you build robust and reliable applications.
 
@@ -1017,16 +1003,16 @@ import jdk.jfr.consumer.RecordedEvent;
   
 public class MyEventDebugger extends EventDebugger {  
   
-public MyEventDebugger() {  
-// Initialize the EventDebugger with the event name and event consumer.  
-super("MyAppEvents", event -> handleEvent(event));  
-}  
-  
-private void handleEvent(RecordedEvent event) {  
-// Handle the recorded event here.  
-// You can log, analyze, or take any actions based on the event data.  
-System.out.println("Recorded Event: " + event);  
-}  
+    public MyEventDebugger() {  
+        // Initialize the EventDebugger with the event name and event consumer.  
+        super("MyAppEvents", event -> handleEvent(event));  
+    }  
+      
+    private void handleEvent(RecordedEvent event) {  
+        // Handle the recorded event here.  
+        // You can log, analyze, or take any actions based on the event data.  
+        System.out.println("Recorded Event: " + event);  
+    }  
 }  
 ```  
 
@@ -1050,21 +1036,19 @@ public class MyApp {
           
         // Ensure the event recording is properly closed when your application exits.  
         eventDebugger.awaitTermination();  
-}  
+    }  
 }  
 ```  
 
 In this example, we create an instance of `MyEventDebugger` to start event recording. You can perform various
-operations  
-and effects within your application, and the `MyEventDebugger` will capture events during this period.
+operations and effects within your application, and the `MyEventDebugger` will capture events during this period.
 
 3. **Analyzing Captured Events**: As your application runs, events are captured and handled by the `MyEventDebugger`.  
    You can customize the event handling logic to log, analyze, or perform any actions you need based on the recorded  
    events.
 
 The `handleEvent` method in the `MyEventDebugger` class defines how to handle each recorded event. You can access
-event  
-data and decide how to utilize it for debugging, profiling, or monitoring purposes.
+event data and decide how to utilize it for debugging, profiling, or monitoring purposes.
 
 By using the `EventDebugger` class, you can gain valuable insights into the behavior of your JIO-based application,  
 identify performance bottlenecks, and troubleshoot issues effectively. This approach allows for contextual logging and  
