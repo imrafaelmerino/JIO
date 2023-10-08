@@ -10,7 +10,7 @@ import static java.util.Objects.requireNonNull;
  * Event that is created and written to the Flight Recorder system when a request response is received or an exception
  * happens during the exchange
  */
-@Label("httpclient")
+@Label("jio-httpclient-req")
 @Name("jio.httpclient")
 @Category("JIO")
 @Description("Http request sent by the JIO http client and it's response.")

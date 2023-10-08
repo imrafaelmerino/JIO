@@ -106,4 +106,39 @@ public abstract sealed class PairExp<A, B> extends Exp<Pair<A, B>> permits PairE
     @Override
     public abstract PairExp<A, B> debugEach(final String context);
 
+    /**
+     * Discards the result of the first `IO` operation and returns the second `IO` operation.
+     * Use this method when you are not interested in waiting for the results of the first operation.
+     *
+     * <p><b>Note:</b> If the actions associated with `_1` and `_2` are both computed by the caller thread,
+     * the behaviour is different from the expected since we have to wait for _1 to be executed.
+     *
+     * @return An effect representing the second `IO` operation.
+     */
+    @SuppressWarnings("ReturnValueIgnored")
+    public IO<B> discardFirst(){
+         return IO.NULL().then(nill -> {
+             _1.get();
+             return _2;
+         });
+
+    }
+
+    /**
+     * Discards the result of the second `IO` operation and returns the first `IO` operation.
+     * Use this method when you are not interested in waiting for the results of the second operation.
+     *
+     * <p><b>Note:</b> If the actions associated with `_1` and `_2` are both computed by the caller thread,
+     * the behaviour is different from the expected since we have to wait for `_2` to be executed.
+     *
+     * @return An effect representing the second `IO` operation.
+     */
+    @SuppressWarnings("ReturnValueIgnored")
+    public IO<A> discardSecond(){
+        return IO.NULL().then(nill -> {
+            _2.get();
+            return _1;
+        });
+    }
+
 }

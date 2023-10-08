@@ -2,7 +2,7 @@ package jio.mongodb;
 
 import jdk.jfr.*;
 
-@Label("JIO MONGODB OPERATIONS")
+@Label("jio-mongodb-op")
 @Name("jio.mongodb")
 @Category({"JIO", "DATABASE", "MONGODB"})
 @Description("MongoDB CRUD operations like find, replace, delete, insert...")

@@ -13,26 +13,26 @@ public class Stubs {
 
 
     public static final StubSupplier<String> A_AFTER_1_SEC =
-            StubSupplier.ofGen(Gens.seq(n -> IO.succeed("a"),
+            StubSupplier.ofIOGen(Gens.seq(n -> IO.succeed("a"),
                                 n -> Duration.of(1, SECONDS),
-                                        Executors.newCachedThreadPool()
-                                       )
-                              );
+                                          Executors.newCachedThreadPool()
+                                         )
+                                );
 
     public static final StubSupplier<String> B_AFTER_1_SEC =
-            StubSupplier.ofGen(Gens.seq(n -> IO.succeed("b"),
+            StubSupplier.ofIOGen(Gens.seq(n -> IO.succeed("b"),
                                 n -> Duration.of(1, SECONDS),
-                                        Executors.newCachedThreadPool()
-                                       )
-                              );
+                                          Executors.newCachedThreadPool()
+                                         )
+                                );
 
 
     public static final StubSupplier<String> C_AFTER_1_SEC =
-            StubSupplier.ofGen(Gens.seq(n -> IO.succeed("c"),
+            StubSupplier.ofIOGen(Gens.seq(n -> IO.succeed("c"),
                                 n -> Duration.of(1, SECONDS),
-                                        Executors.newCachedThreadPool()
-                                       )
-                              );
+                                          Executors.newCachedThreadPool()
+                                         )
+                                );
 
 
 }

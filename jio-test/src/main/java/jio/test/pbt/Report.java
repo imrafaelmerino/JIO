@@ -1,5 +1,6 @@
 package jio.test.pbt;
 
+import jio.test.Utils;
 import jsonvalues.*;
 import org.junit.jupiter.api.Assertions;
 
@@ -291,10 +292,13 @@ public final class Report {
         Assertions.assertTrue(getExceptions().isEmpty() && getFailures().isEmpty(),
                               () -> {
                                   if (getExceptions().isEmpty())
-                                      return String.format("Property %s with failures: ", propName) + this.toJson();
+                                      return String.format("Property %s with failures. JSON report: ",
+                                                           propName) + this.toJson();
                                   if (getFailures().isEmpty())
-                                      return String.format("Property %s with exceptions: ", propName) + this.toJson();
-                                  return String.format("Property %s with failures and exceptions: ", propName) + this.toJson();
+                                      return String.format("Property %s with exceptions. JSON report: ",
+                                                           propName) + this.toJson();
+                                  return String.format("Property %s with failures and exceptions. JSON report: ",
+                                                       propName) + this.toJson();
                               }
                              );
     }
@@ -329,9 +333,9 @@ public final class Report {
     /**
      * Print a summary of the report to the console, including test execution details and results.
      */
-    public  void summarize() {
-        synchronized (Report.class) {
-            System.out.printf("Property %s executed %s times at %s for %s:%n", propName, tests, startTime.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME), formatTime(accumulativeTime));
+    public void summarize() {
+        synchronized (System.out) {
+            System.out.printf("Property %s executed %s times at %s for %s:%n", propName, tests, startTime.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME), Utils.formatTime(accumulativeTime));
             if (getExceptions().isEmpty() && getFailures().isEmpty())
                 System.out.printf("  + OK, passed %d tests.\n",
                                   tests
@@ -377,9 +381,10 @@ public final class Report {
     }
 
     private void printFailuresValues() {
-        System.out.println("  Generated values that caused a failure:");
+        System.out.println("  Some generated values that caused a failure:");
         var failureValues = getFailures()
                 .stream()
+                .limit(20)
                 .map(it -> {
                     return addTagToVal(it.context());
                 })
@@ -389,10 +394,11 @@ public final class Report {
     }
 
     private void printExceptionsValues() {
-        System.out.println("  Generated values that caused an exception:");
+        System.out.println("  Some generated values that caused an exception:");
 
         var failureValues = getExceptions()
                 .stream()
+                .limit(20)
                 .map(it -> addTagToVal(it.context()))
                 .collect(Collectors.joining(","));
 
@@ -421,11 +427,6 @@ public final class Report {
                    );
     }
 
-    private String formatTime(long time) {
-        if (time > 1000_000_00) return Duration.ofNanos(time).toSeconds() + " sg";
-        if (time > 1000_100) return Duration.ofNanos(time).toMillis() + " ms";
-        return time + " ns";
-    }
 
     private String calculatePer(long n) {
         return String.format("%.1f %%", ((double) n / tests) * 100);

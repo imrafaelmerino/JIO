@@ -129,4 +129,62 @@ public abstract sealed class TripleExp<A, B, C> extends Exp<Triple<A, B, C>> per
 
     @Override
     public abstract TripleExp<A, B, C> debugEach(final String context);
+
+    /**
+     * Retains the result of the first `IO` operation while executing the second and third `IO` operations concurrently.
+     * Use this method when you want to retain the result of the first operation without waiting for the results of the
+     * others.
+     *
+     * <p><b>Note:</b> If the actions associated with `_1`, `_2` and `3` are both computed by the caller thread,
+     * the behaviour is different from the expected since we have to wait for `_2` and `_3` to be executed.     *
+     *
+     * @return An effect representing the first `IO` operation whose result is retained.
+     */
+    @SuppressWarnings("ReturnValueIgnored")
+    public IO<A> retainFirst() {
+        return IO.NULL().then(nill -> {
+            _2.get();
+            _3.get();
+            return _1;
+        });
+
+    }
+
+    /**
+     * Retains the result of the second `IO` operation while executing the first and third `IO` operations concurrently.
+     * Use this method when you want to retain the result of the second operation without waiting for the results of the
+     * others.
+     *
+     * <p><b>Note:</b> If the actions associated with `_1`, `_2` and `3` are both computed by the caller thread,
+     * the behaviour is different from the expected since we have to wait for `_1` and `_3` to be executed.     *
+     *
+     * @return An effect representing the first `IO` operation whose result is retained.
+     */
+    @SuppressWarnings("ReturnValueIgnored")
+    public IO<B> retainSecond() {
+        return IO.NULL().then(nill -> {
+            _1.get();
+            _3.get();
+            return _2;
+        });
+    }
+
+    /**
+     * Retains the result of the third `IO` operation while executing the first and second `IO` operations concurrently.
+     * Use this method when you want to retain the result of the second operation without waiting for the results of the
+     * others.
+     *
+     * <p><b>Note:</b> If the actions associated with `_1`, `_2` and `3` are both computed by the caller thread,
+     * the behaviour is different from the expected since we have to wait for `_1` and `_2` to be executed.     *
+     *
+     * @return An effect representing the first `IO` operation whose result is retained.
+     */
+    @SuppressWarnings("ReturnValueIgnored")
+    public IO<C> retainThird() {
+        return IO.NULL().then(nill -> {
+            _1.get();
+            _2.get();
+            return _3;
+        });
+    }
 }

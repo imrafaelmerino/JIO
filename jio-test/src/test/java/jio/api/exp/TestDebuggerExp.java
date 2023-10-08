@@ -58,7 +58,7 @@ public class TestDebuggerExp {
 
 
         StubSupplier<Boolean> trueAfterFailure =
-                StubSupplier.ofGen(Gens.seq(
+                StubSupplier.ofIOGen(Gens.seq(
                         n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.TRUE));
@@ -76,7 +76,7 @@ public class TestDebuggerExp {
                              );
 
         StubSupplier<Boolean> falseAfterFailure =
-                StubSupplier.ofGen(Gens.seq(n -> n <= 1
+                StubSupplier.ofIOGen(Gens.seq(n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.FALSE));
 
@@ -96,7 +96,7 @@ public class TestDebuggerExp {
     @Test
     public void testAllExpParRetries() {
         StubSupplier<Boolean> trueAfterFailure =
-                StubSupplier.ofGen(Gens.seq(n -> n <= 1
+                StubSupplier.ofIOGen(Gens.seq(n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.TRUE));
 
@@ -110,7 +110,7 @@ public class TestDebuggerExp {
 
 
         StubSupplier<Boolean> falseAfterFailure =
-                StubSupplier.ofGen(Gens.seq(n -> n <= 1
+                StubSupplier.ofIOGen(Gens.seq(n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.FALSE));
 

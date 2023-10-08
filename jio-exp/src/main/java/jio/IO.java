@@ -2,10 +2,7 @@ package jio;
 
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -331,6 +328,47 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                         );
 
     }
+
+    /**
+     * The `discard` method allows you to execute an action without waiting for its result and returns immediately. It
+     * is useful when you are not interested in the outcome of the action and want to trigger it asynchronously.
+     *
+     * <p><b>Note:</b> To achieve non-blocking behavior, ensure that the caller thread and the thread executing the
+     * action are different.
+     *
+     * @return An effect representing the asynchronous execution of the action, producing no meaningful result.
+     * @see #discardFor(Supplier)
+     */
+    @SuppressWarnings("ReturnValueIgnored")
+    public IO<Void> discard() {
+        return IO.NULL().then(nill -> {
+            get();
+            return IO.NULL();
+        });
+    }
+
+    /**
+     * The `discardFor` method allows you to execute an action without waiting for its result and returns immediately.
+     * It is designed to handle a value provided by a `Supplier` and returns an `IO` representing the asynchronous
+     * execution of the action.
+     *
+     * <p><b>Note:</b> To achieve non-blocking behavior, ensure that the caller thread and the thread executing the
+     * action are different.
+     *
+     * @param val A supplier supplying a value, which may be used within the action.
+     * @param <A> The type of the value supplied by the `val` parameter.
+     * @return An effect representing the asynchronous execution of the action, with the result type specified by the
+     * `val` parameter.
+     * @see #discard()
+     */
+    @SuppressWarnings("ReturnValueIgnored")
+    public <A> IO<A> discardFor(Supplier<A> val) {
+        return IO.NULL().then(nill -> {
+            get();
+            return IO.lazy(val);
+        });
+    }
+
 
     /**
      * Creates a new effect that, when this succeeds, maps the computed value into another value using the specified
@@ -1039,6 +1077,5 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                                          )
                       );
     }
-
 
 }

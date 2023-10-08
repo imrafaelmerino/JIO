@@ -3,7 +3,7 @@ package jio;
 import jdk.jfr.*;
 
 
-@Label("expressions")
+@Label("jio-eval-expression")
 @Name("jio.exp")
 @Category({"JIO"})
 @Description("JIO expressions and subexpressions results")

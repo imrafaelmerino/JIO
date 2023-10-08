@@ -1,5 +1,6 @@
 <img src="logo/package_twitter_itsywb76/black/full/coverphoto/black_logo_white_background.png" alt="logo"/>  
 
+- [Code wins arguments](#cwa)
 - [Introduction](#Introduction)
 - [jio-exp](#jio-exp)
     - [Creating effects](#Creating-effects)
@@ -10,6 +11,177 @@
     - [Debugging and JFR integration](#Debugging-and-JFR-integration)
     - [Installation](#Installation)
     - [Requirements and dependencies](#Requirements-and-dependencies)
+
+## <a name="cwa"><a/> Code wins arguments
+
+Let's implement a service with the following requirements:
+
+* The signup service processes a JSON input containing at least two fields: email and address, both of which are
+  expected as strings. Initially, the provided address is in string format, and the service proceeds to validate and
+  standardize it using the Google Geocode API. The results obtained from Google are then presented to the frontend for
+  the user's selection or rejection. In the event of any errors occurring during this process, the service will return
+  an empty array of addresses.
+
+* Additionally, the service stores the client's information in a MongoDB database. The identifier returned by MongoDB
+  serves as the client identifier, which must be sent back to the frontend. If the client is successfully saved in the
+  database and the user does not exist in the LDAP system, the service initiates two additional asynchronous actions:
+
+1. The user is sent to the LDAP service, and an activation email is dispatched to the user. It's important to note that
+   these operations are executed asynchronously and do not block the main flow of the service. Data returned from these
+   operations is neither persisted nor shared with the end user.
+
+* The signup service also provides information about the total number of existing clients in the MongoDB database. This
+  information can be used by the frontend to display a welcoming message to the user, such as "You're the user number
+  3000!" However, if any errors occur, the service will return -1, and the frontend will not display the message.
+
+* Crucially, the signup service is designed to perform all these operations in parallel. This includes the request to
+  Google for address validation and the MongoDB operations, including both persistence and counting.
+
+* The response from the signup service follows this structure:
+
+```code
+{
+  "number_users": integer, // Total number of existing clients in the DB (from MongoDB)
+  "id": string, // MongoDB ID
+  "timestamp": instant, // Timestamp indicating when the server begins processing the frontend request
+  "addresses": array // Client addresses returned by Google Geocode API
+}
+```
+
+Let's assume that we've already implemented the following Lambdas (which you'll soon learn how to create). Think of a
+Lambda as a function that takes an input and produces an output. However, unlike traditional functions, Lambdas don't
+throw exceptions (thank goodness!). Instead, they can return exceptions as normal values.
+
+```code
+
+// Returns the number of users in the database (doesn't take any input)
+static Lambda<Void, Integer> countUsers;
+
+// Save the user in the database
+static Lambda<JsObj, Integer> persistMongo;
+
+// Send an email to the user to verify their email
+static Lambda<JsObj, Void> sendEmail;
+
+// Check if the email is already in the LDAP system
+static Lambda<String, Boolean> existsInLDAP;
+
+// Save the user in the LDAP
+static Lambda<JsObj, Void> persistLDAP;
+
+// Normalize an address using the Geocode API from Google 
+// May produce several addresses
+static Lambda<String, JsArray> normalizeAddresses;
+
+
+```
+
+Now, using these code blocks, let's construct the final implementation of the signup service using expressions from JIO:
+
+```code
+public static IO<JsObj> signup(JsObj payload, Clock clock) {
+
+  String email = payload.getStr("email");
+  String address = payload.getStr("address");
+
+  return JsObjExp.par("number_users", countUsers.apply(null)
+                                                .recover(e -> -1)
+                                                .map(JsInt::of),
+                      "id", persistMongo.apply(payload)
+                                        .then(id -> IfElseExp.<Integer>predicate(existsInLDAP.apply(email))
+                                                             .consequence(() -> IO.succeed(id))
+                                                             .alternative(() -> PairExp.par(persistLDAP.apply(payload),
+                                                                                            sendEmail.apply(payload)
+                                                                                           )
+                                                                                       .discardFor(() -> id)
+                                                                         )
+                                             )
+                                        .map(JsInt::of),
+                      "addresses", normalizeAddresses.apply(address)
+                                                     .recover(e -> JsArray.empty()),
+                      "timestamp", IO.lazy(clock)
+                                     .map(JsLong::of)
+                      );      
+    }
+  
+JsObj response = signup(payload,
+                        Clock.realtime
+                       ).result();
+
+
+```
+
+A few important points to note:
+
+- Using `Instant.now()` directly all around your code is not a good practice as it introduces a side effect. It's better
+  to use clocks, as I'll explain later. Think of a clock as a functional alternative to the widespread use
+  of `Instant.now()`.
+
+- The `par` constructor from the `JsObjExp` expression ensures that all the operations are performed in
+  parallel: `countUsers`, `normalizeAddresses`, and `persistMongo`. If you want to execute them sequentially, simply
+  use `JsObjExp.seq` instead.
+
+- The `recover` functions provide an alternative value to be returned in case of any errors (-1 for `countUsers` and an
+  empty array for `normalizeAddresses`, according to the specifications).
+
+- `IfElseExp` is just a conditional expression, and I think it doesn't need much explanation.
+
+- `PairExp` is another expression that computes a tuple of two elements. Since we want to compute the values in
+  parallel, we use the `par` constructor. However, since we don't want to wait for them because we don't need their
+  result, we use the `discardFor` operator to say: "Run this in the background but return immediately with the provided
+  value, in this case, the `id`."
+
+But, to make our code resilient, let's add some retry logic. For `countUsers`, we want to make retries with a 50 ms
+delay after an error, but not more than 300 ms in total for retries. On the other hand, for `persistLDAP`
+and `sendEmail`, which run asynchronously, let's make retries every 200 ms for 5 seconds (they are legacy systems and
+can be slow). Oh, I almost forgot, the `sendEmail` service sometimes doesn't fail but gives a response saying, "system
+too busy, please wait." In this case will make up to five retries, waiting 1 second for the first retry, 2 seconds for
+the second and so on.
+How do we implement this? It's a piece of cake with JIO.
+
+```
+
+          
+
+countUsers.apply(null)
+          .retry(exception -> true,
+                 RetryPolicies.constantDelay(Duration.ofMillis(50))
+                              .limitRetriesByCumulativeDelay(Duration.ofMillis(300))
+                )
+          .recover(e -> -1)
+          .map(JsInt::of)   
+          
+Predicate<HttpResponse<String> isSystemBusy = ...        
+PairExp.par(persistLDAP.apply(payload),
+             sendEmail.apply(payload)
+                      .repeat(isSystemBusy,
+                              RetryPolicies.incrementalDelay(Duration.ofSeconds(1))
+                                           .append(RetryPolicies.limitRetries(5))
+                             )
+             )
+        .retryEach(e -> true,
+                   RetryPolicies.constantDelay(Duration.ofMillis(20))
+                                .limitRetriesByCumulativeDelay(Duration.ofSeconds(2)))
+        .discardFor(() -> id)             
+
+
+```
+
+Key points:
+
+- retry takes in a predicate to specify which errors to consider, in this we'll retry no matter the error is
+- Sometimes you want to make retries when the response is not a failure. That's exactly the purpose of the
+  repeat function
+- Retry policies are composable and very idiomatic!
+- JIO scales very well. the more complex the logic doesn translate in a very complex expression, like it happends
+  with the callback hell.
+- `retryEach` is a powerful feature in JIO that allows you to individually retry every element of an expression that
+  produces multiple results. In this case, it's being used to retry both the first and second elements of the tuple (
+  composed of `persistLDAP.apply(payload)` and `sendEmail.apply(payload)`), providing granular control over retry
+  behavior for each component of the operation. This fine-grained retry capability adds flexibility to handle different
+  retry strategies for distinct parts of a complex operation.
+
+
 
 ## <a name="Introduction"><a/> Introduction
 
@@ -478,8 +650,9 @@ interface IO<O> extends Supplier<Future<O>> {
 - `peek`: Combines both success and failure consumers, giving you full visibility into the effect's execution.  
   Exceptions occurring here are logged in the JFR system and do not alter the result of the effect.
 
-**I race you!**: When you require a result as quickly as possible among multiple alternatives, and you're uncertain which
-  one will be the fastest:
+**I race you!**: When you require a result as quickly as possible among multiple alternatives, and you're uncertain
+which
+one will be the fastest:
 
 ```code  
   

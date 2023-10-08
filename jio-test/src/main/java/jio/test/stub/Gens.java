@@ -40,7 +40,7 @@ public final class Gens {
      * @param <O> The type of value to generate.
      * @return A generator of successful `IO` instances.
      */
-    public static <O> Gen<IO<O>> gen(final Gen<O> gen) {
+    public static <O> Gen<IO<O>> lift(final Gen<O> gen) {
         return Objects.requireNonNull(gen).map(IO::succeed);
     }
 

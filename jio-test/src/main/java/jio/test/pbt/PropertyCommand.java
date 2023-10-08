@@ -2,7 +2,6 @@ package jio.test.pbt;
 
 import jio.IO;
 import jio.console.Command;
-import jio.console.CommandNotFoundException;
 import jio.console.State;
 import jsonvalues.JsObj;
 

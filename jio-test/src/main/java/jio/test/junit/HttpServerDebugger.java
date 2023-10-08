@@ -2,6 +2,7 @@ package jio.test.junit;
 
 import jdk.jfr.consumer.RecordedEvent;
 import jio.jfr.EventDebugger;
+import jio.test.Utils;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -9,24 +10,43 @@ import java.util.function.Consumer;
 
 class HttpServerDebugger extends EventDebugger {
 
+    private static final String FORMAT_SUC = """
+            event: httpserver-req, result: %s, status-code: %s, duration: %s, req-counter: %s
+            protocol: %s, method: %s, uri: %s, remoteHostAddress: %s, remoteHostPort: %s, headers: %s
+            thread: %s, start-time: %s
+            """;
+    private static final String FORMAT_ERR = """
+            event: httpserver-req, result: %s, exception: %s, duration: %s, req-counter: %s
+            protocol: %s, method: %s, uri: %s, remoteHostAddress: %s, remoteHostPort: %s, headers: %s
+            thread: %s, start-time: %s
+            """;
+
+    @SuppressWarnings("UnnecessaryLambda")
     private static final Consumer<RecordedEvent> consumer = e -> {
-        var str = String.format("httpserver; %s; %s; %s; %s; %s; %s; %s; %s; %s ms; counter=%s; %s; %s",
-                                e.getThread().getJavaName(),
-                                e.getValue("remoteHostAddress"),
-                                e.getValue("remoteHostPort"),
+        String exception = e.getValue("exception");
+        boolean isSuccess = exception == null || "".equals(exception);
+        var str = String.format(isSuccess ? FORMAT_SUC : FORMAT_ERR,
+                                e.getValue("result"),
+                                isSuccess ?
+                                        e.getValue("statusCode") :
+                                        exception,
+                                Utils.formatTime(e.getDuration().toNanos()),
+                                e.getValue("reqCounter"),
                                 e.getValue("protocol"),
                                 e.getValue("method"),
                                 e.getValue("uri"),
-                                e.getValue("result"),
-                                (e.getValue("exception") == null || "".equals(e.getValue("exception"))) ?
-                                        e.getValue("statusCode") :
-                                        e.getValue("exception"),
-                                e.getDuration().isZero() ? "0" : e.getDuration().toMillis(),
-                                e.getValue("reqCounter"),
+                                e.getValue("remoteHostAddress"),
+                                e.getValue("remoteHostPort"),
                                 e.getValue("reqHeaders"),
-                                e.getStartTime().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                                e.getThread().getJavaName(),
+                                e.getStartTime()
+                                 .atZone(ZoneId.systemDefault())
+                                 .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                                );
-        System.out.println(str);
+        synchronized (System.out) {
+            System.out.println(str);
+            System.out.flush();
+        }
     };
 
 

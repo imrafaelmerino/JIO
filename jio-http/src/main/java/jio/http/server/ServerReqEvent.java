@@ -3,7 +3,7 @@ package jio.http.server;
 import jdk.jfr.*;
 
 
-@Label("httpserver")
+@Label("jio-httpserver-req")
 @Name("jio.httpserver")
 @Category("JIO")
 @Description("Http request received by the JIO http server and it's response.")

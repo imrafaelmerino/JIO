@@ -22,10 +22,10 @@ import java.util.Objects;
  * {code
  *     public class TestProperties {
  *
- *     @Command
+ *      {@literal @}Command
  *     static Property<A> prop1;
  *
- *     @Command
+ *      {@literal @}Command
  *     static Property<A> prop2;
  *
  *     public static void main(String[] args) throws IOException {
@@ -66,7 +66,7 @@ public final class PropertyConsole {
         Objects.requireNonNull(args);
         var properties = getPropertiesCommand();
         List<Command> commands = new ArrayList<>();
-        for (Property property : properties) {
+        for (Property<?> property : properties) {
             commands.add(new PropertyCommand(property));
         }
         Console console = new Console(commands);

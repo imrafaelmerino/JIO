@@ -22,7 +22,7 @@ import java.util.function.Function;
  * @param <A> The concrete subclass type for fluent builder methods.
  */
 abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
-
+    @SuppressWarnings("UnnecessaryLambda")
     final static Function<HttpResponse<String>, TestResult> respAssert =
             resp -> resp.statusCode() < 300 ?
                     TestResult.SUCCESS :
@@ -32,6 +32,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
     final BiLambda<JsObj, String, HttpResponse<String>> get;
     final BiLambda<JsObj, String, HttpResponse<String>> delete;
     final Gen<O> gen;
+    @SuppressWarnings("UnnecessaryLambda")
     private final Function<JsPath, BiFunction<O, HttpResponse<String>, IO<String>>> getIdFromPath =
             path -> (body, resp) -> {
                 try {

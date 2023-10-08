@@ -39,7 +39,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface DebugHttpClient {
+public @interface DebugHttpClient{
     /**
      * Specifies the duration (in milliseconds) for which HTTP client debugging is active.
      *
