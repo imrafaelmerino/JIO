@@ -4,7 +4,6 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
 import jio.IO;
 import jio.mongodb.*;
 import jsonvalues.JsArray;
@@ -14,11 +13,8 @@ import jsonvalues.gen.JsIntGen;
 import jsonvalues.gen.JsObjGen;
 import jsonvalues.gen.JsStrGen;
 import mongovalues.JsValuesRegistry;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+
 
 import java.util.Random;
 import java.util.function.Supplier;
@@ -26,7 +22,7 @@ import java.util.stream.IntStream;
 
 import static jio.mongodb.Converters.str2Oid;
 
-@Disabled
+//@Disabled
 public class TestMongo {
 
     private static InsertOne<String> insertOne;
@@ -34,7 +30,7 @@ public class TestMongo {
     private static IO<JsArray> find;
     private static FindAll findAll;
 
-    @BeforeAll
+    //@BeforeAll
     private static void prepare() {
         ConnectionString connString = new ConnectionString(
                 "mongodb://localhost:27017/?connectTimeoutMS=10000&socketTimeoutMS=10000&serverSelectionTimeoutMS=10000"
@@ -65,7 +61,7 @@ public class TestMongo {
 
     }
 
-    @Test
+    //@Test
     public void testInsert() {
 
 

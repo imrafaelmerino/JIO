@@ -11,20 +11,15 @@ import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 import mongovalues.JsValuesRegistry;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled
 public class TestErrors {
 
 
     private static FindOne findOne;
 
 
-    @BeforeAll
-    private static void prepare() {
-    }
+
 
     private static CollectionSupplier getMongoCollectionSupplier(String connectionString) {
         ConnectionString connString = new ConnectionString(connectionString);
@@ -41,7 +36,7 @@ public class TestErrors {
 
     }
 
-    @Test
+    //@Test
     public void test_Socket_Timeout_One_MilliSecond() {
         String connection = "mongodb://localhost:27017/?connectTimeoutMS=10000&socketTimeoutMS=1&serverSelectionTimeoutMS=10000";
         CollectionSupplier collection = getMongoCollectionSupplier(connection);
@@ -56,8 +51,7 @@ public class TestErrors {
         //"java.util.concurrent.CompletionException: jio.JioFailure: Timeout while receiving message"
         Assertions.assertTrue(findOne.apply(FindOptions.ofFilter(obj))
                                      .then(o -> IO.FALSE,
-                                           e -> IO.succeed(Failures.READ_TIMEOUT.test(e.getCause())
-                                                          )
+                                           e -> IO.succeed(MongoExceptions.READ_TIMEOUT.test(e))
                                           )
                                      .result()
                              );
@@ -85,8 +79,8 @@ public class TestErrors {
 //                "Timeout while receiving message}, caused by {java.net.SocketTimeoutException: Read timed out}}]
         Assertions.assertTrue(findOne.apply(FindOptions.ofFilter(obj))
                                      .then(o -> IO.TRUE,
-                                           e -> IO.succeed(Failures.CONNECTION_TIMEOUT
-                                                                   .test(e.getCause()))
+                                           e -> IO.succeed(MongoExceptions.CONNECTION_TIMEOUT
+                                                                   .test(e))
                                           )
                                      .result());
 

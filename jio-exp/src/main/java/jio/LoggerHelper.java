@@ -78,11 +78,10 @@ final class LoggerHelper {
                              final String expName,
                              final String context
                             ) {
-        return
-                debugExp(io,
-                         EventBuilder.<O>ofExp(expName)
-                                     .setContext(context)
-                        );
+        return debugExp(io,
+                        EventBuilder.<O>ofExp(expName)
+                                    .setContext(context)
+                       );
     }
 
 
@@ -91,7 +90,7 @@ final class LoggerHelper {
                              ) {
         return switch (o) {
             case Exp<O> exp -> exp.debugEach(builder);
-            case IO<O> val -> val.debug(builder);
+            case IO<O> val -> val.debugIO(builder);
         };
     }
 

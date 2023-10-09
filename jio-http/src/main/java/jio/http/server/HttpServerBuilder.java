@@ -1,8 +1,10 @@
 package jio.http.server;
 
+import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import jio.IO;
+import jio.http.client.MyHttpClientBuilder;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -26,7 +28,7 @@ import static java.util.Objects.requireNonNull;
  * <p>
  * This server builder is particularly useful for testing purposes. For each HTTP request, an event is created and sent
  * to the Java Flight Recorder (JFR) system, allowing you to capture and analyze request details for debugging and
- * performance analysis.
+ * performance analysis. Event recording is enabled by default but can be disabled if needed.
  *
  * @see ServerReqEvent
  */
@@ -36,6 +38,8 @@ public class HttpServerBuilder {
     private final Map<String, HttpHandler> handlers = new HashMap<>();
     private Executor executor;
     private int backlog = 0;
+
+    private boolean recordEvents = true;
 
     private static String headersToString(Map<String, List<String>> headers) {
         return
@@ -85,6 +89,17 @@ public class HttpServerBuilder {
      */
     public HttpServerBuilder setBacklog(final int backlog) {
         this.backlog = backlog;
+        return this;
+    }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events for HTTP requests handled by the server.
+     * By default, JFR events are recorded. Use this method to disable recording if needed.
+     *
+     * @return This builder with JFR event recording disable.
+     */
+    public HttpServerBuilder disableRecordEvents(){
+        this.recordEvents = false;
         return this;
     }
 
@@ -166,30 +181,8 @@ public class HttpServerBuilder {
                 for (final String key : keySet) {
                     server.createContext(key,
                                          exchange -> {
-                                             ServerReqEvent event = new ServerReqEvent();
-                                             event.reqCounter = counter.incrementAndGet();
-                                             event.remoteHostAddress = exchange.getRemoteAddress().getHostName();
-                                             event.remoteHostPort = exchange.getRemoteAddress().getPort();
-                                             event.protocol = exchange.getProtocol();
-                                             event.method = exchange.getRequestMethod();
-                                             event.uri = exchange.getRequestURI().toString();
-                                             event.reqHeaders = headersToString(exchange.getRequestHeaders());
-                                             event.begin();
-                                             try {
-                                                 handlers.get(key).handle(exchange);
-                                                 event.statusCode = exchange.getResponseCode();
-                                                 event.result = ServerReqEvent.RESULT.SUCCESS.name();
-                                             } catch (IOException e) {
-                                                 event.exception = String.format("%s:%s",
-                                                                                 e.getClass().getName(),
-                                                                                 e.getMessage()
-                                                                                );
-                                                 event.result = ServerReqEvent.RESULT.FAILURE.name();
-                                             } finally {
-                                                 event.commit();
-                                             }
-
-
+                                             if(recordEvents)jfrHandle(key, exchange);
+                                             else handlers.get(key).handle(exchange);
                                          }
                                         );
                 }
@@ -199,6 +192,31 @@ public class HttpServerBuilder {
                 return CompletableFuture.failedFuture(e);
             }
         });
+    }
+
+    private void jfrHandle(String key, HttpExchange exchange) {
+        ServerReqEvent event = new ServerReqEvent();
+        event.reqCounter = counter.incrementAndGet();
+        event.remoteHostAddress = exchange.getRemoteAddress().getHostName();
+        event.remoteHostPort = exchange.getRemoteAddress().getPort();
+        event.protocol = exchange.getProtocol();
+        event.method = exchange.getRequestMethod();
+        event.uri = exchange.getRequestURI().toString();
+        event.reqHeaders = headersToString(exchange.getRequestHeaders());
+        event.begin();
+        try {
+            handlers.get(key).handle(exchange);
+            event.statusCode = exchange.getResponseCode();
+            event.result = ServerReqEvent.RESULT.SUCCESS.name();
+        } catch (IOException e) {
+            event.exception = String.format("%s:%s",
+                                            e.getClass().getName(),
+                                            e.getMessage()
+                                           );
+            event.result = ServerReqEvent.RESULT.FAILURE.name();
+        } finally {
+            event.commit();
+        }
     }
 
     /**

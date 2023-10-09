@@ -20,12 +20,10 @@ import static jio.mongodb.MongoDBEvent.OP.REPLACE_ONE;
  *
  * @param <O> The type of the result.
  */
-public final class ReplaceOne<O> implements BiLambda<JsObj, JsObj, O> {
-    public static final ReplaceOptions DEFAULT_OPTIONS = new ReplaceOptions();
+public final class ReplaceOne<O> extends Op implements BiLambda<JsObj, JsObj, O> {
+    static final ReplaceOptions DEFAULT_OPTIONS = new ReplaceOptions();
     private final Function<UpdateResult, O> resultConverter;
-    private final CollectionSupplier collection;
     private final ReplaceOptions options;
-    private Executor executor;
 
     /**
      * Constructs a new ReplaceOne instance.
@@ -38,8 +36,8 @@ public final class ReplaceOne<O> implements BiLambda<JsObj, JsObj, O> {
                        final Function<UpdateResult, O> resultConverter,
                        final ReplaceOptions options
                       ) {
+        super(collection, true);
         this.resultConverter = requireNonNull(resultConverter);
-        this.collection = requireNonNull(collection);
         this.options = requireNonNull(options);
     }
 
@@ -110,17 +108,28 @@ public final class ReplaceOne<O> implements BiLambda<JsObj, JsObj, O> {
         Objects.requireNonNull(update);
 
         Supplier<O> supplier =
-                Fun.jfrEventWrapper(() -> {
-                                        var collection = requireNonNull(this.collection.get());
-                                        return resultConverter.apply(collection.replaceOne(jsObj2Bson.apply(filter),
-                                                                                           update,
-                                                                                           options
-                                                                                          ));
-                                    },
-                                    REPLACE_ONE
-                                   );
+                jfrEventWrapper(() -> {
+                                    var collection = requireNonNull(this.collection.get());
+                                    return resultConverter.apply(collection.replaceOne(jsObj2Bson.apply(filter),
+                                                                                       update,
+                                                                                       options
+                                                                                      ));
+                                },
+                                REPLACE_ONE
+                               );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier, executor);
+    }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
+     * the operation will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public ReplaceOne<O> disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
     }
 }

@@ -2,19 +2,18 @@ package jio.api.http.api;
 
 import com.sun.net.httpserver.HttpServer;
 import jio.IO;
-import jio.http.HttpExceptions;
+import jio.http.client.HttpExceptions;
 import jio.http.client.MyHttpClient;
 import jio.http.client.MyHttpClientBuilder;
 import jio.http.server.HttpServerBuilder;
 import jio.test.junit.Debugger;
-import jio.test.junit.DebugExp;
 import jio.test.stub.httpserver.BodyStub;
 import jio.test.stub.httpserver.GetStub;
 import jio.test.stub.httpserver.HeadersStub;
 import jio.test.stub.httpserver.StatusCodeStub;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -22,11 +21,11 @@ import java.net.http.HttpRequest;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-@ExtendWith(Debugger.class)
-@DebugExp(duration = 1000)
+
 public class TestErrors {
 
-
+    @RegisterExtension
+    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
     IO<HttpServer> server =
             new HttpServerBuilder().addContext("/foo",
                                                GetStub.of(BodyStub.consAfter("hi",

@@ -11,13 +11,15 @@ import java.util.function.Predicate;
  * using the builder {@link MyHttpClientBuilder}.
  * <p>
  * For every request, an event {@link ClientReqEvent} is created and written to the Flight Recorder system. This allows
- * you to capture request and response details for debugging and performance analysis.
+ * you to capture request and response details for debugging and performance analysis. Event recording is enabled by
+ * default.
  * <p>
  * You can also define a retry policy and a retry condition that will be applied to every request with the builder
  * options {@link MyHttpClientBuilder#setRetryPolicy(RetryPolicy)} and
  * {@link MyHttpClientBuilder#setRetryPredicate(Predicate)}.
  *
  * @see ClientReqEvent
+ * @see MyHttpClientBuilder#disableRecordEvents To disable event recording.
  */
 public interface MyHttpClient {
 

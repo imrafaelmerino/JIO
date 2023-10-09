@@ -27,4 +27,15 @@ public final class FindOne extends Find<JsObj> {
     public static FindOne of(final CollectionSupplier collection) {
         return new FindOne(collection);
     }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation
+     * will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public FindOne disableRecordEvents() {
+        this.recordEvents = false;
+        return this;
+    }
 }

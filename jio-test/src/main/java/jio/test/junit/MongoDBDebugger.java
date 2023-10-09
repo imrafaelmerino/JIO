@@ -1,24 +1,24 @@
 package jio.test.junit;
 
 import jdk.jfr.consumer.RecordedEvent;
-import jio.jfr.EventDebugger;
 import jio.test.Utils;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-class MongoDebugger extends EventDebugger {
+class MongoDBDebugger implements Consumer<RecordedEvent> {
     private static String FORMAT_SUC = """
             event: mongodb-op, op: %s, duration: %s, result: %s
-            op: %s, thread: %s,  start-time: %s
+            op: %s, thread: %s,  event-start-time: %s
             """;
     private static String FORMAT_ERR = """
             event: mongodb-op, op: %s, duration: %s, result: %s, exception: %s
-            thread: %s,  start-time: %s
+            thread: %s,  event-start-time: %s
             """;
 
-    static final Consumer<RecordedEvent> consumer = e -> {
+    @Override
+    public void accept(RecordedEvent e) {
         String exception = e.getValue("exception");
         boolean isSuccess = exception == null || "".equals(exception);
         var str = isSuccess ?
@@ -45,11 +45,5 @@ class MongoDebugger extends EventDebugger {
             System.out.println(str);
             System.out.flush();
         }
-    };
-
-    public MongoDebugger(String confName) {
-        super("jio.mongodb", confName, consumer);
     }
-
-
 }

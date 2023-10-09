@@ -26,51 +26,59 @@ class MyHttpClientImpl implements MyHttpClient {
     private final HttpLambda<Void> discardingLambda;
     private final HttpLambda<String> ofStringLambda;
 
+    private final boolean recordEvents;
+
 
     MyHttpClientImpl(final HttpClient client,
                      RetryPolicy reqRetryPolicy,
-                     Predicate<Throwable> reqRetryPredicate
+                     Predicate<Throwable> reqRetryPredicate,
+                     boolean recordEvents
                     ) {
         this.client = requireNonNull(client);
         this.reqRetryPolicy = reqRetryPolicy;
         this.reqRetryPredicate = reqRetryPredicate;
+        this.recordEvents = recordEvents;
         this.ofBytesLambda = bodyHandler(HttpResponse.BodyHandlers.ofByteArray());
         this.discardingLambda = bodyHandler(HttpResponse.BodyHandlers.discarding());
         this.ofStringLambda = bodyHandler(HttpResponse.BodyHandlers.ofString());
     }
 
-    static <O> CompletableFuture<HttpResponse<O>> requestWrapper(final MyHttpClientImpl myClient,
-                                                                 final HttpRequest request,
-                                                                 final HttpResponse.BodyHandler<O> handler
-                                                                ) {
+    <O> CompletableFuture<HttpResponse<O>> requestWrapper(final MyHttpClientImpl myClient,
+                                                          final HttpRequest request,
+                                                          final HttpResponse.BodyHandler<O> handler
+                                                         ) {
 
-        ClientReqEvent event = new ClientReqEvent(request.method(),
-                                                  request.uri()
-        );
-        event.begin();
+        if (recordEvents) {
 
-        event.reqCounter = myClient.counter.incrementAndGet();
+            ClientReqEvent event = new ClientReqEvent(request.method(),
+                                                      request.uri());
+            event.begin();
 
-        return myClient.client.sendAsync(request,
-                                         handler
-                                        )
-                              .whenComplete((resp, failure) -> {
-                                  try {
-                                      if (resp != null) {
-                                          event.statusCode = resp.statusCode();
-                                          event.result = SUCCESS.name();
-                                      } else {
-                                          Throwable cause = failure.getCause();
-                                          event.exception = String.format("%s:%s",
-                                                                          cause.getClass().getName(),
-                                                                          cause.getMessage()
-                                                                         );
-                                          event.result = FAILURE.name();
+            event.reqCounter = myClient.counter.incrementAndGet();
+
+            return myClient.client.sendAsync(request,
+                                             handler
+                                            )
+                                  .whenComplete((resp, failure) -> {
+                                      try {
+                                          if (resp != null) {
+                                              event.statusCode = resp.statusCode();
+                                              event.result = SUCCESS.name();
+                                          } else {
+                                              Throwable cause = failure.getCause();
+                                              event.exception = String.format("%s:%s",
+                                                                              cause.getClass().getName(),
+                                                                              cause.getMessage()
+                                                                             );
+                                              event.result = FAILURE.name();
+                                          }
+                                      } finally {
+                                          event.commit();
                                       }
-                                  } finally {
-                                      event.commit();
-                                  }
-                              });
+                                  });
+        } else return myClient.client.sendAsync(request,
+                                                handler
+                                               );
     }
 
     @Override

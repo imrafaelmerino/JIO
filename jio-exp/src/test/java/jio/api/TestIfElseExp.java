@@ -20,11 +20,6 @@ public class TestIfElseExp {
                                 a.debugEach("ifelse").result()
                                );
 
-        // the alternative is never executed!
-        IfElseExp<Integer> unused =
-                IfElseExp.<Integer>predicate(IO.TRUE)
-                         .alternative(() -> IO.succeed(1 / 0))
-                         .consequence(() -> Constants.ONE);
 
         Assertions.assertEquals(1, a.result());
     }

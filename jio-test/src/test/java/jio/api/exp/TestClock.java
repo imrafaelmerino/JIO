@@ -24,8 +24,6 @@ public class TestClock {
 
         Thread.sleep(1000);
 
-        System.out.println(Instant.ofEpochMilli(clock.get())
-                                  .toString());
 
         Thread.sleep(1000);
 

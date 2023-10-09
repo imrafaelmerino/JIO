@@ -27,8 +27,7 @@ Let's implement a service with the following requirements:
   database and the user does not exist in the LDAP system, the service initiates two additional asynchronous actions:
 
 1. The user is sent to the LDAP service, and an activation email is dispatched to the user. It's important to note that
-   these operations are executed asynchronously and do not block the main flow of the service. Data returned from these
-   operations is neither persisted nor shared with the end user.
+   the email is sent asynchronously and do not block the main flow of the service.
 
 * The signup service also provides information about the total number of existing clients in the MongoDB database. This
   information can be used by the frontend to display a welcoming message to the user, such as "You're the user number

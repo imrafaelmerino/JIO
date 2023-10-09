@@ -6,7 +6,6 @@ import jio.http.client.MyHttpClient;
 import jio.http.client.MyHttpClientBuilder;
 import jio.http.server.HttpServerBuilder;
 import jio.test.junit.Debugger;
-import jio.test.junit.DebugExp;
 import jio.test.stub.httpserver.BodyStub;
 import jio.test.stub.httpserver.GetStub;
 import jio.test.stub.httpserver.HeadersStub;
@@ -17,16 +16,18 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 
-@ExtendWith(Debugger.class)
-@DebugExp(duration = 1000)
 public class TestRespHandlers {
 
+    @RegisterExtension
+    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
     static int port;
     static MyHttpClient httpClient;
 

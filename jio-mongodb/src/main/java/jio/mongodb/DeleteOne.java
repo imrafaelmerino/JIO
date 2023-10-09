@@ -23,13 +23,11 @@ import static jio.mongodb.MongoDBEvent.OP.DELETE_ONE;
  *
  * @param <O> The type of result expected from the delete operation.
  */
-public final class DeleteOne<O> implements Lambda<JsObj, O> {
+public final class DeleteOne<O> extends Op implements Lambda<JsObj, O> {
 
     private static final DeleteOptions DEFAULT_OPTIONS = new DeleteOptions();
-    private final CollectionSupplier collection;
     private final Function<DeleteResult, O> resultConverter;
     private final DeleteOptions options;
-    private Executor executor;
 
     /**
      * Constructs a {@code DeleteOne} instance with the specified collection, result converter, and delete options.
@@ -42,7 +40,7 @@ public final class DeleteOne<O> implements Lambda<JsObj, O> {
                       final Function<DeleteResult, O> resultConverter,
                       final DeleteOptions options
                      ) {
-        this.collection = requireNonNull(collection);
+        super(collection, true);
         this.resultConverter = requireNonNull(resultConverter);
         this.options = requireNonNull(options);
     }
@@ -111,20 +109,31 @@ public final class DeleteOne<O> implements Lambda<JsObj, O> {
     public IO<O> apply(final JsObj query) {
         Objects.requireNonNull(query);
         Supplier<O> supplier =
-                Fun.jfrEventWrapper(() -> {
-                                        var collection = requireNonNull(this.collection.get());
-                                        final Bson result = jsObj2Bson.apply(requireNonNull(query));
-                                        return resultConverter.apply(
-                                                collection.deleteOne(result,
-                                                                     options
-                                                                    )
-                                                                    );
-                                    }, DELETE_ONE
-                                   );
+                jfrEventWrapper(() -> {
+                                    var collection = requireNonNull(this.collection.get());
+                                    final Bson result = jsObj2Bson.apply(requireNonNull(query));
+                                    return resultConverter.apply(
+                                            collection.deleteOne(result,
+                                                                 options
+                                                                )
+                                                                );
+                                }, DELETE_ONE
+                               );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
                         executor
                        );
+    }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
+     * the operation will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public DeleteOne<O> disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
     }
 }

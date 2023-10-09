@@ -4,8 +4,6 @@ import fun.gen.Combinators;
 import jio.BiLambda;
 import jio.http.client.MyHttpClient;
 import jio.http.client.MyHttpClientBuilder;
-import jio.test.junit.DebugExp;
-import jio.test.junit.DebugHttpClient;
 import jio.test.junit.Debugger;
 import jio.test.pbt.*;
 import jio.test.pbt.rest.CRDPropBuilder;
@@ -13,20 +11,22 @@ import jsonvalues.JsNull;
 import jsonvalues.JsObj;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Disabled
-@ExtendWith(Debugger.class)
-@DebugHttpClient(duration = 10000)
 public class Properties {
+
+    @RegisterExtension
+    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
 
     static MyHttpClient client = new MyHttpClientBuilder(HttpClient.newBuilder().build()).create();
 
@@ -127,8 +127,6 @@ public class Properties {
                              )
                           .par()
                           .result();
-
-        System.out.println(report);
 
         report.assertAllSuccess();
     }

@@ -23,10 +23,10 @@ import java.util.Objects;
  *     public class TestProperties {
  *
  *      {@literal @}Command
- *     static Property<A> prop1;
+ *     static Property prop1;
  *
  *      {@literal @}Command
- *     static Property<A> prop2;
+ *     static Property prop2;
  *
  *     public static void main(String[] args) throws IOException {
  *         new PropertyConsole(List.of(TestProperties.class)).start(args);

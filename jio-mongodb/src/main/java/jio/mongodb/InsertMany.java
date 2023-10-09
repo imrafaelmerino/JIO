@@ -20,13 +20,11 @@ import static jio.mongodb.MongoDBEvent.OP.INSERT_MANY;
  *
  * @param <R> The type of the result.
  */
-public final class InsertMany<R> implements Lambda<JsArray, R> {
+public final class InsertMany<R> extends Op implements Lambda<JsArray, R> {
 
     private static final InsertManyOptions DEFAULT_OPTIONS = new InsertManyOptions();
-    private final CollectionSupplier collection;
     private final InsertManyOptions options;
     private final Function<InsertManyResult, R> resultConverter;
-    private Executor executor;
 
     /**
      * Constructs a new InsertMany instance.
@@ -39,7 +37,7 @@ public final class InsertMany<R> implements Lambda<JsArray, R> {
                        final Function<InsertManyResult, R> resultConverter,
                        final InsertManyOptions options
                       ) {
-        this.collection = requireNonNull(collection);
+        super(collection, true);
         this.options = requireNonNull(options);
         this.resultConverter = requireNonNull(resultConverter);
     }
@@ -108,17 +106,28 @@ public final class InsertMany<R> implements Lambda<JsArray, R> {
         var event = new MongoDBEvent(INSERT_MANY);
         event.begin();
         Supplier<R> supplier =
-                Fun.jfrEventWrapper(() -> {
-                                        var docs = jsArray2ListOfJsObj.apply(message);
-                                        var col = requireNonNull(collection.get());
-                                        return resultConverter.apply(col
-                                                                             .insertMany(docs, options)
-                                                                    );
-                                    },
-                                    INSERT_MANY
-                                   );
+                jfrEventWrapper(() -> {
+                                    var docs = jsArray2ListOfJsObj.apply(message);
+                                    var col = requireNonNull(collection.get());
+                                    return resultConverter.apply(col
+                                                                         .insertMany(docs, options)
+                                                                );
+                                },
+                                INSERT_MANY
+                               );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier, executor);
+    }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
+     * the operation will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public InsertMany disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
     }
 }

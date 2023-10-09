@@ -3,14 +3,13 @@ package jio.api.exp;
 import fun.tuple.Pair;
 import fun.tuple.Triple;
 import jio.*;
-import jio.test.junit.DebugExp;
 import jio.test.junit.Debugger;
 import jsonvalues.JsArray;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -18,10 +17,11 @@ import java.util.List;
 
 import static jio.api.exp.Stubs.*;
 
-@ExtendWith(Debugger.class)
-@DebugExp(duration = 5000)
+
 public class StubSupplierTests {
 
+    @RegisterExtension
+    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
     @Test
     public void ifelse_exp_measuring_time() {
         long start = System.nanoTime();
@@ -179,7 +179,6 @@ public class StubSupplierTests {
                                        ),
                                 pair
                                );
-        System.out.println(duration);
         Assertions.assertTrue(duration < 2);
 
 
@@ -205,7 +204,6 @@ public class StubSupplierTests {
                                           ),
                                 arr
                                );
-        System.out.println(duration);
         Assertions.assertTrue(duration >= 2);
 
 

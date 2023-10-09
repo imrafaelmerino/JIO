@@ -5,13 +5,12 @@ import fun.gen.Gen;
 import fun.gen.IntGen;
 import fun.gen.StrGen;
 import jio.*;
-import jio.test.junit.DebugExp;
 import jio.test.junit.Debugger;
 import jio.test.stub.StubSupplier;
 import jio.time.Clock;
 import jsonvalues.*;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -49,9 +48,12 @@ import java.util.concurrent.Executors;
  * of errors to handle, the number of retry attempts, the time between each retry (retry policy), and the timeout for
  * each individual operation and for the overall service.
  */
-@ExtendWith(Debugger.class)
+
 public class TestExample {
 
+
+    @RegisterExtension
+    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
 
     static Lambda<Void, Integer> countUsers =
             n -> StubSupplier.ofGen(IntGen.arbitrary(0, 3))
@@ -87,11 +89,6 @@ public class TestExample {
         String context = String.format("signup-%s", email);
         return JsObjExp.par("number_users",
                             countUsers.apply(null)
-                                      .retry(e -> true,
-                                             RetryPolicies.constantDelay(Duration.ofMillis(20))
-                                                          .limitRetriesByCumulativeDelay(Duration.ofSeconds(2))
-                                            )
-                                      .recover(e -> -1)
                                       .map(JsInt::of),
                             "id",
                             persistMongo.apply(payload)
@@ -99,57 +96,47 @@ public class TestExample {
                                                              .consequence(() -> IO.succeed(id))
                                                              .alternative(() -> PairExp.par(persistLDAP.apply(payload),
                                                                                             sendEmail.apply(payload)
-                                                                                                     .repeat(e -> false,
-                                                                                                             RetryPolicies.incrementalDelay(Duration.ofSeconds(1))
-                                                                                                                          .append(RetryPolicies.limitRetries(5))
-                                                                                                            )
                                                                                            )
-
-                                                                                       .retryEach(e -> true,
-                                                                                                  RetryPolicies.constantDelay(Duration.ofMillis(20))
-                                                                                                               .limitRetriesByCumulativeDelay(Duration.ofSeconds(2))
-                                                                                                 )
-                                                                                       .discardFor(() -> id)
+                                                                                       .map(nill -> id)
                                                                          )
-                                                             .debugEach(context)
                                              )
                                         .map(JsStr::of),
                             "addresses",
-                            normalizeAddresses.apply(address)
-                                              .recover(e -> JsArray.empty()),
+                            normalizeAddresses.apply(address),
                             "timestamp",
                             IO.lazy(clock)
                               .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
-                           )
-                       .debugEach(context);
+                           ).debugEach("context");
 
     }
 
-    @DebugExp
+
     @Test
     public void test() {
 
         IO<JsObj> user = signup(JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
-                                         "address", JsStr.of("Elm's Street")),
-                                Clock.realTime);
+                                         "address", JsStr.of("Elm's Street")
+                                        ),
+                                Clock.realTime
+                               );
 
         user.result();
 
 
     }
 
-    @DebugExp
+
     @Test
     public void test2() {
-        PairExp.par(persistLDAP.apply(JsObj.empty()),
-                    sendEmail.apply(JsObj.empty())
-                             .repeat(e -> false,
-                                     RetryPolicies.incrementalDelay(Duration.ofSeconds(1))
-                                                  .append(RetryPolicies.limitRetries(5))
-                                    )
-                   )
-               .debugEach("context")
-               .result();
+        PairExp<Void, Void> p = PairExp.par(persistLDAP.apply(JsObj.empty()),
+                                                  sendEmail.apply(JsObj.empty())
+                                                           .repeat(e -> false,
+                                                                   RetryPolicies.incrementalDelay(Duration.ofSeconds(1))
+                                                                                .append(RetryPolicies.limitRetries(5))
+                                                                  )
+                                                 )
+                                             .debugEach("context");
+        p.get();
     }
 
 

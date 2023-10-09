@@ -21,18 +21,16 @@ import static jio.mongodb.MongoDBEvent.OP.FIND_ONE_AND_UPDATE;
  *
  * @see CollectionSupplier
  */
-public final class FindOneAndUpdate implements BiLambda<JsObj, JsObj, JsObj> {
+public final class FindOneAndUpdate extends Op implements BiLambda<JsObj, JsObj, JsObj> {
 
     private static final FindOneAndUpdateOptions DEFAULT_OPTIONS = new FindOneAndUpdateOptions();
     private final FindOneAndUpdateOptions options;
-    private final CollectionSupplier collectionSupplier;
-    private Executor executor;
 
 
     private FindOneAndUpdate(final CollectionSupplier collectionSupplier,
                              final FindOneAndUpdateOptions options
                             ) {
-        this.collectionSupplier = requireNonNull(collectionSupplier);
+        super(collectionSupplier, true);
         this.options = requireNonNull(options);
     }
 
@@ -80,22 +78,33 @@ public final class FindOneAndUpdate implements BiLambda<JsObj, JsObj, JsObj> {
         Objects.requireNonNull(update);
 
         Supplier<JsObj> supplier =
-                Fun.jfrEventWrapper(() -> {
-                                        var collection = requireNonNull(this.collectionSupplier.get());
-                                        return collection
-                                                .findOneAndUpdate(jsObj2Bson.apply(filter),
-                                                                  jsObj2Bson.apply(update),
-                                                                  options
-                                                                 );
-                                    },
-                                    FIND_ONE_AND_UPDATE
-                                   );
+                jfrEventWrapper(() -> {
+                                    var collection = requireNonNull(this.collection.get());
+                                    return collection
+                                            .findOneAndUpdate(jsObj2Bson.apply(filter),
+                                                              jsObj2Bson.apply(update),
+                                                              options
+                                                             );
+                                },
+                                FIND_ONE_AND_UPDATE
+                               );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
                         executor
                        );
 
+    }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
+     * the operation will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public FindOneAndUpdate disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
     }
 
 

@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 /**
  * Utility class for handling exceptions related to MongoDB operations
  */
-public final class Failures {
+public final class MongoExceptions {
 
 
     /**

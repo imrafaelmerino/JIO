@@ -21,13 +21,11 @@ import static jio.mongodb.MongoDBEvent.OP.DELETE_MANY;
  *
  * @param <O> The type of result expected from the delete operation.
  */
-public final class DeleteMany<O> implements Lambda<JsObj, O> {
+public final class DeleteMany<O> extends Op implements Lambda<JsObj, O> {
 
     private static final DeleteOptions DEFAULT_OPTIONS = new DeleteOptions();
-    private final CollectionSupplier collection;
     private final Function<DeleteResult, O> resultConverter;
     private final DeleteOptions options;
-    private Executor executor;
 
     /**
      * Constructs a {@code DeleteMany} instance with the specified collection, result converter, and delete options.
@@ -40,7 +38,7 @@ public final class DeleteMany<O> implements Lambda<JsObj, O> {
                        final Function<DeleteResult, O> resultConverter,
                        final DeleteOptions options
                       ) {
-        this.collection = requireNonNull(collection);
+        super(collection, true);
         this.resultConverter = requireNonNull(resultConverter);
         this.options = requireNonNull(options);
     }
@@ -109,20 +107,31 @@ public final class DeleteMany<O> implements Lambda<JsObj, O> {
     public IO<O> apply(final JsObj query) {
         Objects.requireNonNull(query);
         Supplier<O> supplier =
-                Fun.jfrEventWrapper(() -> {
-                                        var collection = requireNonNull(this.collection.get());
-                                        final DeleteResult result =
-                                                collection.deleteMany(jsObj2Bson.apply(query),
-                                                                      options
-                                                                     );
-                                        return resultConverter.apply(result);
-                                    },
-                                    DELETE_MANY
-                                   );
+                jfrEventWrapper(() -> {
+                                    var collection = requireNonNull(this.collection.get());
+                                    final DeleteResult result =
+                                            collection.deleteMany(jsObj2Bson.apply(query),
+                                                                  options
+                                                                 );
+                                    return resultConverter.apply(result);
+                                },
+                                DELETE_MANY
+                               );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
                         executor
                        );
+    }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
+     * the operation will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public DeleteMany<O> disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
     }
 }

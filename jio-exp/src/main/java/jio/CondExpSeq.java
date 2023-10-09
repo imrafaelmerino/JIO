@@ -3,7 +3,10 @@ package jio;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -98,8 +101,8 @@ final class CondExpSeq<O> extends CondExp<O> {
     @Override
     public CondExp<O> debugEach(final String context) {
         return debugEach(
-                EventBuilder.<O>ofExp(this.getClass().getSimpleName())
-                            .setContext(context)
+                new EventBuilder<O>(this.getClass().getSimpleName())
+                        .setContext(context)
                         );
 
     }

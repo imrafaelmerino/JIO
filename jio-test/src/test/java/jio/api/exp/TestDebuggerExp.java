@@ -3,7 +3,6 @@ package jio.api.exp;
 import fun.tuple.Pair;
 import fun.tuple.Triple;
 import jio.*;
-import jio.test.junit.DebugExp;
 import jio.test.junit.Debugger;
 import jio.test.stub.Gens;
 import jio.test.stub.StubSupplier;
@@ -13,14 +12,16 @@ import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
+import java.time.Duration;
 import java.util.List;
 
-@ExtendWith(Debugger.class)
-@DebugExp(duration = 1000)
+
 public class TestDebuggerExp {
 
+    @RegisterExtension
+    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
 
     @Test
     public void testAllExp() {
@@ -60,8 +61,8 @@ public class TestDebuggerExp {
         StubSupplier<Boolean> trueAfterFailure =
                 StubSupplier.ofIOGen(Gens.seq(
                         n -> n <= 1
-                        ? IO.fail(new RuntimeException(Integer.toString(n)))
-                        : IO.TRUE));
+                                ? IO.fail(new RuntimeException(Integer.toString(n)))
+                                : IO.TRUE));
 
 
         IO<Boolean> a = trueAfterFailure.get();

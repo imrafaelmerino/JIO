@@ -1,4 +1,4 @@
-package jio.http;
+package jio.http.client;
 
 import jio.http.client.oauth.AccessTokenNotFound;
 
@@ -12,51 +12,51 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
- * Class with different predicates to identify specify exceptions that comes up when connecting to a server: timeouts,
- * unresolved hosts etc
+ * A utility class containing predicates to identify specific exceptions that may occur when connecting to a server.
+ * These predicates help you classify exceptions, such as timeouts, unresolved hosts, network issues, and more.
  */
 public final class HttpExceptions {
 
+    private HttpExceptions(){}
+
     /**
-     * true when an attempt is made to invoke a network operation upon an unresolved socket address.
+     * Predicate that returns true when an attempt to invoke a network operation is made upon an unresolved socket address.
      */
     public final static Predicate<Throwable> UNRESOLVED_SOCKET_ADDRESS =
             exc -> exc instanceof ConnectException c
-                    && c.getCause() instanceof UnresolvedAddressException;
-
+                   && c.getCause() instanceof UnresolvedAddressException;
 
     /**
-     * Your connection to the network in question (presumably your Internet connection in this case) is not working,
-     * either because a cable is unplugged, a router is turned off or misconfigured, the last mile connection to your
-     * ISP is down, etc
+     * Predicate that returns true when the network connection is unreachable. This could happen due to various reasons,
+     * such as disconnected cables, router issues, or problems with the ISP's last-mile connection.
      */
     public final static Predicate<Throwable> NETWORK_UNREACHABLE =
             exc ->
                     exc instanceof ConnectException c
-                            && c.getCause() instanceof SocketException
-                            && Objects.equals("Network is unreachable", exc.getMessage());
+                    && c.getCause() instanceof SocketException
+                    && Objects.equals("Network is unreachable", exc.getMessage());
 
     /**
-     * true when a response is not received within a specified time period.
+     * Predicate that returns true when a response is not received from the server within a specified time period.
      */
     public static final Predicate<Throwable> REQUEST_TIMEOUT =
             exc -> exc instanceof HttpTimeoutException;
 
     /**
-     * true when a connection, over which an HttpRequest is intended to be sent, is not successfully established within
-     * a specified time period.
+     * Predicate that returns true when a connection, over which an HttpRequest is intended to be sent, is not
+     * successfully established within a specified time period.
      */
     public static final Predicate<Throwable> CONNECTION_TIMEOUT =
             exc -> exc instanceof HttpConnectTimeoutException;
+
     /**
-     * true when the authorization token is not found in the server response
+     * Predicate that returns true when the authorization token is not found in the server's response.
      */
     public static final Predicate<Throwable> OAUTH_TOKEN_NOT_FOUND =
             exc -> exc instanceof AccessTokenNotFound;
 
-
     /**
-     * true if the server reset the tcp connection
+     * Predicate that returns true if the server resets the TCP connection during the operation.
      */
     public static final Predicate<Throwable> CONNECTION_RESET =
             exc -> {
@@ -67,6 +67,4 @@ public final class HttpExceptions {
                 }
                 return false;
             };
-
-
 }

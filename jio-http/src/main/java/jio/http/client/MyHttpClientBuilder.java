@@ -10,11 +10,15 @@ import java.util.function.Predicate;
  * Builder for creating custom {@link MyHttpClient} instances with configurable options. This builder allows you to
  * customize the behavior of the HTTP client, including specifying a retry policy and a retry predicate for handling
  * exceptions during HTTP requests.
+ *
+ * <p>The builder also provides an option to disable the recording of Java Flight Recorder (JFR) events for
+ * HTTP requests. JFR event recording is enabled by default.</p>
  */
 public final class MyHttpClientBuilder {
     private final HttpClient client;
     private Predicate<Throwable> reqRetryPredicate;
     private RetryPolicy reqRetryPolicy;
+    private boolean recordEvents = true;
 
     /**
      * Constructs a MyHttpClientBuilder with the specified HTTP client.
@@ -52,6 +56,16 @@ public final class MyHttpClientBuilder {
         this.reqRetryPredicate = Objects.requireNonNull(reqRetryPredicate);
         return this;
     }
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events for HTTP requests performed by the client.
+     * By default, JFR events are recorded (enabled). Use this method to disable recording if needed.
+     *
+     * @return This builder with JFR event recording disable.
+     */
+    public MyHttpClientBuilder disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
+    }
 
 
     /**
@@ -64,8 +78,8 @@ public final class MyHttpClientBuilder {
     public MyHttpClient create() {
         return new MyHttpClientImpl(client,
                                     reqRetryPolicy,
-                                    reqRetryPredicate
-        );
+                                    reqRetryPredicate,
+                                    recordEvents);
     }
 
 

@@ -1,137 +1,99 @@
 package jio.test.junit;
 
-import jio.test.Utils;
+import jdk.jfr.Configuration;
+import jdk.jfr.consumer.EventStream;
+import jdk.jfr.consumer.RecordedEvent;
+import jdk.jfr.consumer.RecordingStream;
 import org.junit.jupiter.api.extension.AfterAllCallback;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * JUnit's extension for enabling debugging of various components in tests.
  *
  * <p>When used as a JUnit extension, this class allows you to enable and configure debugging for different
- * components, such as stub interactions, HTTP clients, HTTP servers, MongoDB clients, and expressions.
+ * components HTTP clients, HTTP servers, MongoDB clients, and expressions evaluation.
  *
  * <p>This extension offers the flexibility to enable debugging for specific components, control the duration
  * of debugging, and specify custom debugging configurations.
  *
- * <p>The `Debugger` extension can be applied at both the class and method levels using the following annotations:
- * - {@link DebugHttpClient} for enabling HTTP client debugging - {@link DebugHttpServer} for enabling HTTP server
- * debugging - {@link DebugMongoClient} for enabling MongoDB client debugging - {@link DebugExp} for enabling expression
- * debugging
  *
- * <p>By default, the duration for debugging is set to 1000 milliseconds (1 second) for each component. You can
- * customize the duration for each component individually using the corresponding annotation. The debugging duration
- * determines how long the test execution will be monitored for debugging events.
+ * <p>The debugging duration determines how long the test execution will be monitored for debugging events.
  *
- * <p>You can also specify a custom debugging configuration using the `conf` attribute in the respective
- * annotation. Custom configurations allow you to fine-tune debugging behavior for specific scenarios.
+ * <p>You can also specify a custom JFR configuration but most of the time leaving this parameter empty and using the
+ * default configuration is enough.
  *
  * <p>Usage example:
  *
  * <pre>
  * {@code
- * import org.junit.jupiter.api.Test;
- * import org.junit.jupiter.api.extension.ExtendWith;
- * import jio.test.junit.*;
+ * import jio.test.junit.Debugger;
+ * import org.junit.jupiter.api.extension.RegisterExtension;
+ * public class MyTest {
  *
- * @ExtendWith(Debugger.class)
- * @DebugStub(duration = 2000, conf = "custom-config")
- * public class MyStubTest {
- *     // Test methods involving stub interactions go here
+ *     @RegisterExtension
+ *     static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+ *
+ *    // Test methods involving go here
  * }
  * }
  * </pre>
  *
- * <p>In this example, stub debugging is enabled for 2 seconds using a custom debugging configuration named
- * "custom-config."
- *
- * <p>When a debugging duration is specified, the test execution may not finish until that duration has elapsed,
- * depending on the component being debugged. Therefore, it's important to set an appropriate debugging duration to
- * avoid unnecessary delays in test execution.
+ * <p>The test execution may not finish until the stream duration has elapsed. Therefore, it's important to set an
+ * appropriate debugging duration to avoid unnecessary delays in test execution.
  *
  * <p>Each component's debugging events are collected from the Java Flight Recorder (JFR) system via Jio, which
  * provides insights into component behavior during test execution.
- *
- * @see DebugHttpClient
- * @see DebugHttpServer
- * @see DebugMongoClient
- * @see DebugExp
  */
-public class Debugger implements BeforeEachCallback, AfterEachCallback, AfterAllCallback {
+public class Debugger implements AfterAllCallback, BeforeAllCallback {
 
-    private MongoDebugger mongoEventDebugger;
-    private ExpDebugger expEventDebugger;
-    private HttpClientDebugger httpClientDebugger;
-    private HttpServerDebugger httpServerDebugger;
+    String conf;
+    Duration duration;
+    EventStream stream;
+    Map<String, Consumer<RecordedEvent>> debuggers = new HashMap<>();
 
-    @Override
-    public void afterEach(ExtensionContext context) {
-        if (mongoEventDebugger != null) mongoEventDebugger.awaitTermination();
-        if (expEventDebugger != null) expEventDebugger.awaitTermination();
-        if (httpClientDebugger != null) httpClientDebugger.awaitTermination();
-        if (httpServerDebugger != null) httpServerDebugger.awaitTermination();
+    public Debugger(final String conf, final Duration duration) {
+        this.conf = Objects.requireNonNull(conf);
+        this.duration = Objects.requireNonNull(duration);
     }
 
-    @Override
-    public void beforeEach(ExtensionContext context) {
-        intDebuggers(context);
+    public Debugger(final Duration duration) {
+        this("default", duration);
     }
-
-    private void intDebuggers(ExtensionContext context) {
-        DebugExp debugExp = context.getRequiredTestMethod()
-                                   .getAnnotation(DebugExp.class);
-        if (debugExp == null)
-            debugExp = context.getRequiredTestClass()
-                              .getAnnotation(DebugExp.class);
-
-        if (debugExp != null) {
-            expEventDebugger = new ExpDebugger(debugExp.conf());
-            expEventDebugger.startAsync(debugExp.duration());
-            System.out.println(String.format("Registered eval-expressions debugger for %s\n", Utils.formatTime(debugExp.duration() * 1000_000)));
-        }
-
-        DebugHttpClient debugHttpClient = context.getRequiredTestMethod()
-                                                 .getAnnotation(DebugHttpClient.class);
-        if (debugHttpClient == null)
-            debugHttpClient = context.getRequiredTestClass()
-                                     .getAnnotation(DebugHttpClient.class);
-        if (debugHttpClient != null) {
-            httpClientDebugger = new HttpClientDebugger(debugHttpClient.conf());
-            httpClientDebugger.startAsync(debugHttpClient.duration());
-            System.out.println(String.format("Registered httpclient-req debugger for %s\n", Utils.formatTime(debugExp.duration() * 1000_000)));
-        }
-
-
-        DebugHttpServer debugHttpServer = context.getRequiredTestMethod()
-                                                 .getAnnotation(DebugHttpServer.class);
-        if (debugHttpServer == null)
-            debugHttpServer = context.getRequiredTestClass()
-                                     .getAnnotation(DebugHttpServer.class);
-        if (debugHttpServer != null) {
-            httpServerDebugger = new HttpServerDebugger(debugHttpServer.conf());
-            httpServerDebugger.startAsync(debugHttpServer.duration());
-            System.out.println(String.format("Registered httpserver-req debugger for %s\n", Utils.formatTime(debugExp.duration() * 1000_000)));
-        }
-
-        DebugMongoClient debugMongoClient = context.getRequiredTestMethod()
-                                                   .getAnnotation(DebugMongoClient.class);
-        if (debugMongoClient == null)
-            debugMongoClient = context.getRequiredTestClass()
-                                      .getAnnotation(DebugMongoClient.class);
-        if (debugMongoClient != null) {
-            mongoEventDebugger = new MongoDebugger(debugMongoClient.conf());
-            mongoEventDebugger.startAsync(debugMongoClient.duration());
-            System.out.println(String.format("Registered mongodb-op debugger for %s\n", Utils.formatTime(debugExp.duration() * 1000_000)));
-        }
-    }
-
 
     @Override
     public void afterAll(ExtensionContext extensionContext) throws Exception {
-        if (mongoEventDebugger != null) mongoEventDebugger.close();
-        if (expEventDebugger != null) expEventDebugger.close();
-        if (httpClientDebugger != null) httpClientDebugger.close();
-        if (httpServerDebugger != null) httpServerDebugger.close();
+        if (stream != null) {
+            stream.awaitTermination();
+            stream.close();
+        }
+    }
+
+
+    @Override
+    public void beforeAll(ExtensionContext context) throws Exception {
+        debuggers.put("jio.exp", new EvalExpDebugger());
+        debuggers.put("jio.httpclient", new HttpClientDebugger());
+        debuggers.put("jio.httpserver", new HttpServerDebugger());
+        debuggers.put("jio.mongodb", new MongoDBDebugger());
+        stream = new RecordingStream(Configuration.getConfiguration(conf));
+
+        for (var entry : debuggers.entrySet()) {
+            stream.onEvent(entry.getKey(), entry.getValue());
+        }
+        stream.setOrdered(true);
+        stream.setStartTime(Instant.now());
+        stream.setEndTime(Instant.now().plus(duration));
+        stream.startAsync();
+        System.out.println(String.format("Started JFR stream for %s ms in %s\n",
+                                         duration.toMillis(),
+                                         context.getDisplayName()));
     }
 }

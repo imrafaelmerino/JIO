@@ -20,17 +20,16 @@ import static jio.mongodb.MongoDBEvent.OP.FIND_ONE_AND_REPLACE;
  *
  * @see CollectionSupplier
  */
-public final class FindOneAndReplace implements BiLambda<JsObj, JsObj, JsObj> {
+public final class FindOneAndReplace extends Op implements BiLambda<JsObj, JsObj, JsObj> {
 
     private static final FindOneAndReplaceOptions DEFAULT_OPTIONS = new FindOneAndReplaceOptions();
     private final FindOneAndReplaceOptions options;
-    private final CollectionSupplier collection;
-    private Executor executor;
+
 
     private FindOneAndReplace(final CollectionSupplier collection,
                               final FindOneAndReplaceOptions options
                              ) {
-        this.collection = requireNonNull(collection);
+        super(collection, true);
         this.options = requireNonNull(options);
     }
 
@@ -77,19 +76,30 @@ public final class FindOneAndReplace implements BiLambda<JsObj, JsObj, JsObj> {
         Objects.requireNonNull(filter);
         Objects.requireNonNull(update);
         Supplier<JsObj> supplier =
-                Fun.jfrEventWrapper(() -> {
-                                        var collection = requireNonNull(this.collection.get());
-                                        return collection
-                                                .findOneAndReplace(Converters.jsObj2Bson.apply(filter),
-                                                                   update,
-                                                                   options
-                                                                  );
-                                    },
-                                    FIND_ONE_AND_REPLACE
-                                   );
+                jfrEventWrapper(() -> {
+                                    var collection = requireNonNull(this.collection.get());
+                                    return collection
+                                            .findOneAndReplace(Converters.jsObj2Bson.apply(filter),
+                                                               update,
+                                                               options
+                                                              );
+                                },
+                                FIND_ONE_AND_REPLACE
+                               );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier, executor);
 
+    }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
+     * the operation will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public FindOneAndReplace disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
     }
 }

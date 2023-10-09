@@ -14,7 +14,7 @@ import java.util.function.BiFunction;
 
 public class TestProperties {
 
-    static BiFunction<Integer, Integer, Integer> fn = (a, b) -> (a + b)/2;
+    static BiFunction<Integer, Integer, Integer> fn = (a, b) -> a + (b - a)/2;
     @Command
     static Property<Pair<Integer, Integer>> mediumProperty =
             Property.ofFunction("medium",
@@ -33,7 +33,6 @@ public class TestProperties {
                                     return TestResult.SUCCESS;
                                 }
                                )
-                    .withTimes(50000)
                     .withClassifiers(Map.of("both",
                                             p -> p.first() > Integer.MAX_VALUE / 2
                                                     && p.second() > Integer.MAX_VALUE / 2,

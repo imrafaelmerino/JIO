@@ -19,13 +19,12 @@ import static jio.mongodb.MongoDBEvent.OP.INSERT_ONE;
  *
  * @param <R> The type of the result.
  */
-public final class InsertOne<R> implements Lambda<JsObj, R> {
+public final class InsertOne<R> extends Op implements Lambda<JsObj, R> {
 
     private static final InsertOneOptions DEFAULT_OPTIONS = new InsertOneOptions();
-    private final CollectionSupplier collection;
     private final InsertOneOptions options;
     private final Function<InsertOneResult, R> resultConverter;
-    private Executor executor;
+
 
     /**
      * Constructs a new InsertOne instance.
@@ -38,7 +37,7 @@ public final class InsertOne<R> implements Lambda<JsObj, R> {
                      final Function<InsertOneResult, R> resultConverter,
                      final InsertOneOptions options
                     ) {
-        this.collection = requireNonNull(collection);
+        super(collection, true);
         this.options = requireNonNull(options);
         this.resultConverter = requireNonNull(resultConverter);
     }
@@ -104,14 +103,25 @@ public final class InsertOne<R> implements Lambda<JsObj, R> {
     public IO<R> apply(final JsObj message) {
         Objects.requireNonNull(message);
         Supplier<R> supplier =
-                Fun.jfrEventWrapper(() -> {
-                                        var collection = requireNonNull(this.collection.get());
-                                        return resultConverter.apply(collection.insertOne(message, options));
-                                    },
-                                    INSERT_ONE
-                                   );
+                jfrEventWrapper(() -> {
+                                    var collection = requireNonNull(this.collection.get());
+                                    return resultConverter.apply(collection.insertOne(message, options));
+                                },
+                                INSERT_ONE
+                               );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier, executor);
+    }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
+     * the operation will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public InsertOne<R> disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
     }
 }

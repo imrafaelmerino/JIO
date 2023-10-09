@@ -1,20 +1,20 @@
 package jio.test.junit;
 
 import jdk.jfr.consumer.RecordedEvent;
-import jio.jfr.EventDebugger;
 import jio.test.Utils;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-class ExpDebugger extends EventDebugger {
+class EvalExpDebugger implements Consumer<RecordedEvent> {
     private static String FORMAT = """
             event: eval-expression, expression: %s, result: %s, duration: %s, output: %s
-            context: %s, thread: %s,  start-time: %s
+            context: %s, thread: %s,  event-start-time: %s
             """;
 
-    static final Consumer<RecordedEvent> consumer = e -> {
+    @Override
+    public void accept(RecordedEvent e) {
         String exc = e.getValue("exception");
         boolean isSuccess = exc == null || "".equals(exc);
         var str = String.format(FORMAT,
@@ -34,12 +34,5 @@ class ExpDebugger extends EventDebugger {
             System.out.flush();
         }
 
-
-    };
-
-    public ExpDebugger(String confName) {
-        super("jio.exp", confName, consumer);
     }
-
-
 }

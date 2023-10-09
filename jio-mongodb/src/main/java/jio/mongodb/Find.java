@@ -29,11 +29,9 @@ import static jio.mongodb.MongoDBEvent.OP.FIND;
  * @see FindAll
  * @see FindOptions
  */
-sealed public class Find<O> implements Lambda<FindOptions, O> permits FindOne, FindAll {
+sealed public class Find<O> extends Op implements Lambda<FindOptions, O> permits FindOne, FindAll {
 
-    private final CollectionSupplier collection;
     private final Function<FindIterable<JsObj>, O> converter;
-    private Executor executor;
 
     /**
      * Constructs a {@code Find} instance for querying a MongoDB collection.
@@ -44,7 +42,7 @@ sealed public class Find<O> implements Lambda<FindOptions, O> permits FindOne, F
     Find(final CollectionSupplier collection,
          final Function<FindIterable<JsObj>, O> converter
         ) {
-        this.collection = requireNonNull(collection);
+        super(collection, true);
         this.converter = requireNonNull(converter);
     }
 
@@ -70,53 +68,55 @@ sealed public class Find<O> implements Lambda<FindOptions, O> permits FindOne, F
     public IO<O> apply(final FindOptions options) {
         Objects.requireNonNull(options);
         Supplier<O> supplier =
-                Fun.jfrEventWrapper(() -> {
-                                        var hint = options.hint != null ?
-                                                jsObj2Bson.apply(options.hint) :
-                                                null;
-                                        var max = options.max != null ?
-                                                jsObj2Bson.apply(options.max) :
-                                                null;
-                                        var projection = options.projection != null ?
-                                                jsObj2Bson.apply(options.projection) :
-                                                null;
-                                        var sort = options.sort != null ?
-                                                jsObj2Bson.apply(options.sort) :
-                                                null;
-                                        var min = options.min != null ?
-                                                jsObj2Bson.apply(options.min) :
-                                                null;
-                                        var collection = requireNonNull(this.collection.get());
-                                        return converter.apply(collection.find(jsObj2Bson.apply(options.filter))
-                                                                         .hint(hint)
-                                                                         .max(max)
-                                                                         .projection(projection)
-                                                                         .sort(sort)
-                                                                         .min(min)
-                                                                         .batchSize(options.batchSize)
-                                                                         .comment(options.comment)
-                                                                         .hintString(options.hintString)
-                                                                         .limit(options.limit)
-                                                                         .skip(options.skip)
-                                                                         .maxTime(options.maxTime,
-                                                                                  MILLISECONDS
-                                                                                 )
-                                                                         .maxAwaitTime(options.maxAwaitTime,
-                                                                                       MILLISECONDS
-                                                                                      )
-                                                                         .partial(options.partial)
-                                                                         .showRecordId(options.showRecordId)
-                                                                         .noCursorTimeout(options.noCursorTimeout)
+                jfrEventWrapper(() -> {
+                                    var hint = options.hint != null ?
+                                            jsObj2Bson.apply(options.hint) :
+                                            null;
+                                    var max = options.max != null ?
+                                            jsObj2Bson.apply(options.max) :
+                                            null;
+                                    var projection = options.projection != null ?
+                                            jsObj2Bson.apply(options.projection) :
+                                            null;
+                                    var sort = options.sort != null ?
+                                            jsObj2Bson.apply(options.sort) :
+                                            null;
+                                    var min = options.min != null ?
+                                            jsObj2Bson.apply(options.min) :
+                                            null;
+                                    var collection = requireNonNull(this.collection.get());
+                                    return converter.apply(collection.find(jsObj2Bson.apply(options.filter))
+                                                                     .hint(hint)
+                                                                     .max(max)
+                                                                     .projection(projection)
+                                                                     .sort(sort)
+                                                                     .min(min)
+                                                                     .batchSize(options.batchSize)
+                                                                     .comment(options.comment)
+                                                                     .hintString(options.hintString)
+                                                                     .limit(options.limit)
+                                                                     .skip(options.skip)
+                                                                     .maxTime(options.maxTime,
+                                                                              MILLISECONDS
+                                                                             )
+                                                                     .maxAwaitTime(options.maxAwaitTime,
+                                                                                   MILLISECONDS
+                                                                                  )
+                                                                     .partial(options.partial)
+                                                                     .showRecordId(options.showRecordId)
+                                                                     .noCursorTimeout(options.noCursorTimeout)
 
-                                                              );
-                                    },
-                                    FIND
-                                   );
+                                                          );
+                                },
+                                FIND
+                               );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
                         executor
                        );
     }
+
+
 
 }

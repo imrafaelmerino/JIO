@@ -16,12 +16,10 @@ import static jio.mongodb.MongoDBEvent.OP.COUNT;
 /**
  * A class for performing count operations on a MongoDB collection.
  */
-public final class Count implements Lambda<JsObj, Long> {
+public final class Count extends Op implements Lambda<JsObj, Long> {
 
     private static final CountOptions DEFAULT_OPTIONS = new CountOptions();
     private final CountOptions options;
-    private final CollectionSupplier collection;
-    private Executor executor;
 
     /**
      * Constructs a new Count instance.
@@ -30,8 +28,8 @@ public final class Count implements Lambda<JsObj, Long> {
      * @param options    The count options.
      */
     private Count(final CollectionSupplier collection, final CountOptions options) {
+        super(collection, true);
         this.options = requireNonNull(options);
-        this.collection = requireNonNull(collection);
     }
 
     /**
@@ -76,7 +74,7 @@ public final class Count implements Lambda<JsObj, Long> {
     public IO<Long> apply(final JsObj query) {
         Objects.requireNonNull(query);
         Supplier<Long> supplier =
-                Fun.jfrEventWrapper(() -> {
+                jfrEventWrapper(() -> {
                     var queryBson = jsObj2Bson.apply(requireNonNull(query));
                     var collection = requireNonNull(this.collection.get());
                     return collection.countDocuments(queryBson, options);
@@ -84,5 +82,16 @@ public final class Count implements Lambda<JsObj, Long> {
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier, executor);
+    }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
+     * the operation will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public Count disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
     }
 }

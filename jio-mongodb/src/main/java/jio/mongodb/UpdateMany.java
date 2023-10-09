@@ -20,13 +20,11 @@ import static jio.mongodb.MongoDBEvent.OP.UPDATE_MANY;
  *
  * @param <O> The type of the result.
  */
-public final class UpdateMany<O> implements BiLambda<JsObj, JsObj, O> {
+public final class UpdateMany<O> extends Op implements BiLambda<JsObj, JsObj, O> {
 
     private static final UpdateOptions DEFAULT_OPTIONS = new UpdateOptions();
     private final UpdateOptions options;
-    private final CollectionSupplier collection;
     private final Function<UpdateResult, O> resultConverter;
-    private Executor executor;
 
     /**
      * Constructs a new UpdateMany instance.
@@ -39,8 +37,8 @@ public final class UpdateMany<O> implements BiLambda<JsObj, JsObj, O> {
                        final Function<UpdateResult, O> resultConverter,
                        final UpdateOptions options
                       ) {
+        super(collection, true);
         this.options = requireNonNull(options);
-        this.collection = requireNonNull(collection);
         this.resultConverter = requireNonNull(resultConverter);
     }
 
@@ -101,17 +99,28 @@ public final class UpdateMany<O> implements BiLambda<JsObj, JsObj, O> {
         Objects.requireNonNull(update);
 
         Supplier<O> supplier =
-                Fun.jfrEventWrapper(() -> {
-                                        var collection = requireNonNull(this.collection.get());
-                                        return resultConverter.apply(collection.updateMany(jsObj2Bson.apply(filter),
-                                                                                           jsObj2Bson.apply(update),
-                                                                                           options
-                                                                                          ));
-                                    },
-                                    UPDATE_MANY
-                                   );
+                jfrEventWrapper(() -> {
+                                    var collection = requireNonNull(this.collection.get());
+                                    return resultConverter.apply(collection.updateMany(jsObj2Bson.apply(filter),
+                                                                                       jsObj2Bson.apply(update),
+                                                                                       options
+                                                                                      ));
+                                },
+                                UPDATE_MANY
+                               );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier, executor);
+    }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
+     * the operation will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public UpdateMany<O> disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
     }
 }

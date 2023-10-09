@@ -20,22 +20,13 @@ import static jio.mongodb.MongoDBEvent.OP.AGGREGATE;
  *
  * @param <O> The type of the result after aggregation.
  */
-public final class Aggregate<O> implements Lambda<JsArray, O> {
+public final class Aggregate<O> extends Op implements Lambda<JsArray, O> {
 
     /**
      * The function to convert the aggregate iterable result to the desired type.
      */
     public final Function<AggregateIterable<JsObj>, O> resultConverter;
 
-    /**
-     * The supplier for the MongoDB collection.
-     */
-    public final CollectionSupplier collection;
-
-    /**
-     * The executor to run the aggregation operation.
-     */
-    private Executor executor;
 
     /**
      * Constructs a new Aggregate instance with the specified collection supplier and result converter function.
@@ -46,8 +37,8 @@ public final class Aggregate<O> implements Lambda<JsArray, O> {
     public Aggregate(final CollectionSupplier collection,
                      final Function<AggregateIterable<JsObj>, O> resultConverter
                     ) {
+        super(collection, true);
         this.resultConverter = requireNonNull(resultConverter);
-        this.collection = requireNonNull(collection);
     }
 
     /**
@@ -71,18 +62,29 @@ public final class Aggregate<O> implements Lambda<JsArray, O> {
     public IO<O> apply(final JsArray stages) {
         Objects.requireNonNull(stages);
         Supplier<O> supplier =
-                Fun.jfrEventWrapper(() -> {
-                                        var pipeline = jsArray2ListOfBson.apply(stages);
-                                        var collection = requireNonNull(this.collection.get());
-                                        return resultConverter.apply(collection.aggregate(pipeline));
-                                    },
-                                    AGGREGATE
-                                   );
+                jfrEventWrapper(() -> {
+                                    var pipeline = jsArray2ListOfBson.apply(stages);
+                                    var collection = requireNonNull(this.collection.get());
+                                    return resultConverter.apply(collection.aggregate(pipeline));
+                                },
+                                AGGREGATE
+                               );
 
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier,
                         executor
                        );
+    }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
+     * the operation will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public Aggregate<O> disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
     }
 }

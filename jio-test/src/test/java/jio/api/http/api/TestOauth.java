@@ -8,29 +8,24 @@ import jio.http.client.oauth.ClientCredentialsHttpClientBuilder;
 import jio.http.client.oauth.GetAccessToken;
 import jio.http.client.oauth.MyOauthHttpClient;
 import jio.http.server.HttpServerBuilder;
-import jio.test.junit.DebugHttpClient;
-import jio.test.junit.DebugHttpServer;
 import jio.test.junit.Debugger;
-import jio.test.junit.DebugExp;
 import jio.test.stub.httpserver.GetStub;
 import jio.test.stub.httpserver.PostStub;
 import jio.test.stub.httpserver.StatusCodeStub;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 
-@ExtendWith(Debugger.class)
-@DebugExp
-@DebugHttpClient
-@DebugHttpServer
 public class TestOauth {
-
+    @RegisterExtension
+    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
 
     IO<HttpServer> io = new HttpServerBuilder()
             .addContext("/token", PostStub.of(n -> body -> uri -> headers -> JsObj.of("access_token",

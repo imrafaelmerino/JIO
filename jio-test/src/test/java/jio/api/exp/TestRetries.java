@@ -4,14 +4,13 @@ import fun.gen.Gen;
 import jio.IO;
 import jio.RetryPolicies;
 import jio.RetryPolicy;
-import jio.test.junit.DebugExp;
 import jio.test.junit.Debugger;
 import jio.test.stub.Gens;
 import jio.test.stub.StubSupplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -20,10 +19,10 @@ import java.util.concurrent.CompletionException;
 
 import static jio.RetryPolicies.incrementalDelay;
 
-@ExtendWith(Debugger.class)
-@DebugExp(duration = 5000)
 public class TestRetries {
 
+    @RegisterExtension
+    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
 
     @Test
     @Disabled
@@ -105,7 +104,6 @@ public class TestRetries {
 
         Assertions.assertTrue(duration >= 6);
 
-        System.out.println(duration);
         Assertions.assertEquals("b", result);
     }
 
@@ -131,7 +129,6 @@ public class TestRetries {
 
         Assertions.assertTrue(duration >= 3);
 
-        System.out.println(duration);
 
     }
 

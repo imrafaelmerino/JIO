@@ -25,8 +25,8 @@ public final class EventBuilder<O> {
     String exp;
     String context = "";
 
-    Function<O, String> successValue =
-            val -> val == null ? "null" : val.toString();
+
+    Function<O, String> successValue = val -> val == null ? "null" : val.toString();
 
     Function<Throwable, String> failureMessage =
             e -> String.format("%s:%s",

@@ -20,18 +20,16 @@ import static jio.mongodb.MongoDBEvent.OP.FIND_ONE_AND_DELETE;
  *
  * @see CollectionSupplier
  */
-public final class FindOneAndDelete implements Lambda<JsObj, JsObj> {
+public final class FindOneAndDelete extends Op implements Lambda<JsObj, JsObj> {
 
     private static final FindOneAndDeleteOptions DEFAULT_OPTIONS = new FindOneAndDeleteOptions();
-    private final CollectionSupplier collection;
     private final FindOneAndDeleteOptions options;
-    private Executor executor;
 
     private FindOneAndDelete(final CollectionSupplier collection,
                              final FindOneAndDeleteOptions options
                             ) {
+        super(collection, true);
         this.options = requireNonNull(options);
-        this.collection = requireNonNull(collection);
     }
 
     /**
@@ -39,6 +37,7 @@ public final class FindOneAndDelete implements Lambda<JsObj, JsObj> {
      * deletion options.
      *
      * @param collection the supplier of the MongoDB collection to perform the deletion operation
+     * @param options the options to control the operation
      * @return a new {@code FindOneAndDelete} instance with default deletion options
      */
     public static FindOneAndDelete of(final CollectionSupplier collection,
@@ -73,17 +72,28 @@ public final class FindOneAndDelete implements Lambda<JsObj, JsObj> {
     public IO<JsObj> apply(final JsObj query) {
         Objects.requireNonNull(query);
         Supplier<JsObj> supplier =
-                Fun.jfrEventWrapper(() -> {
-                                        var collection = requireNonNull(this.collection.get());
-                                        return collection.findOneAndDelete(jsObj2Bson.apply(query),
-                                                                           options
-                                                                          );
-                                    },
-                                    FIND_ONE_AND_DELETE
-                                   );
+                jfrEventWrapper(() -> {
+                                    var collection = requireNonNull(this.collection.get());
+                                    return collection.findOneAndDelete(jsObj2Bson.apply(query),
+                                                                       options
+                                                                      );
+                                },
+                                FIND_ONE_AND_DELETE
+                               );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier, executor);
 
+    }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
+     * the operation will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public FindOneAndDelete disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
     }
 }

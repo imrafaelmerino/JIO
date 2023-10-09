@@ -28,4 +28,15 @@ public final class FindAll extends Find<JsArray> {
     public static FindAll of(final CollectionSupplier collection) {
         return new FindAll(collection);
     }
+
+    /**
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
+     * the operation will not generate or log JFR events for its operations.
+     *
+     * @return This operation instance with JFR event recording disabled.
+     */
+    public FindAll disableRecordEvents(){
+        this.recordEvents = false;
+        return this;
+    }
 }

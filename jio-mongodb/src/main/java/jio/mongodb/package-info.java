@@ -5,8 +5,33 @@
  * <p>
  * Classes in this package are designed to work seamlessly with the MongoDB Java driver, providing a convenient and
  * type-safe way to interact with MongoDB databases. Additionally, each MongoDB operation performed using the classes in
- * this package creates a corresponding MongoDBEvent, which is sent to the Java Flight Recorder (JFR) system.
+ * this package creates a corresponding MongoDBEvent, which is sent to the Java Flight Recorder (JFR) system. Recording
+ * of JFR events is activated by default but can be disabled using the
+ * {@link jio.mongodb.Aggregate#disableRecordEvents()} method.
  * </p>
+ * <p>
+ * To work with JSON objects from the json-values library, it's necessary to register the codecs from mongo-values.
+ * Here's an example of how to create a MongoDB client with JSON codec support:
+ * <pre>
+ * {@code
+ *
+ * import mongovalues.JsValuesRegistry;
+ * import jio.mongodb.DatabaseSupplier;
+ * import jio.mongodb.CollectionSupplier;
+ *
+ * ConnectionString connString = new ConnectionString("mongodb://localhost:27017/");
+ *
+ * MongoClientSettings settings = MongoClientSettings.builder()
+ *                                                   .applyConnectionString(connString)
+ *                                                   .codecRegistry(JsValuesRegistry.INSTANCE)
+ *                                                   .build();
+ *
+ * MongoClient mongoClient = MongoClients.create(settings);
+ * DatabaseSupplier database = new DatabaseSupplier(mongoClient, "test");
+ * CollectionSupplier collectionSupplier = new CollectionSupplier(database, "Data");
+ *
+ * }
+ * </pre>
  * <p>
  * The core classes and interfaces in this package include:
  * <ul>
@@ -23,9 +48,8 @@
  *     that match a specified filter.</li>
  *     <li>{@link jio.mongodb.Aggregate}: A class for performing aggregation operations on a MongoDB collection.</li>
  *     <li>{@link jio.mongodb.Watcher}: A class for setting up a change stream on a MongoDB collection to monitor changes.</li>
- *     <li>{@link jio.mongodb.Failures}: A utility class containing predicates for MongoDB-specific exception handling.</li>
+ *     <li>{@link jio.mongodb.MongoExceptions}: A utility class containing predicates for MongoDB-specific exception handling.</li>
  * </ul>
- * </p>
  * <p>
  * Additionally, this package provides various utility classes and converters to facilitate data conversion
  * between JSON values and BSON, which is the native format used by MongoDB.
