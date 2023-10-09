@@ -13,9 +13,9 @@ import static java.util.Objects.requireNonNull;
 final class AnyExpSeq extends AnyExp {
 
     public AnyExpSeq(final List<IO<Boolean>> exps,
-                     final Function<ExpEvent, BiConsumer<Boolean, Throwable>> logger
+                     final Function<ExpEvent, BiConsumer<Boolean, Throwable>> debugger
                     ) {
-        super(logger, exps);
+        super(debugger, exps);
     }
 
 
@@ -51,23 +51,19 @@ final class AnyExpSeq extends AnyExp {
     }
 
     @Override
-    public AnyExp debugEach(final EventBuilder<Boolean> messageBuilder) {
-        Objects.requireNonNull(messageBuilder);
+    public AnyExp debugEach(final EventBuilder<Boolean> eventBuilder) {
+        Objects.requireNonNull(eventBuilder);
         return new AnyExpSeq(LoggerHelper.debugConditions(exps,
-                                                          this.getClass().getSimpleName(),
-                                                          messageBuilder.context
+                                                          eventBuilder
                                                          ),
-                             getJFRPublisher(messageBuilder)
+                             getJFRPublisher(eventBuilder)
         );
     }
 
 
     @Override
     public AnyExp debugEach(final String context) {
-        return debugEach(
-                EventBuilder.<Boolean>ofExp(this.getClass().getSimpleName())
-                            .setContext(context)
-                        );
+        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
 
     }
 }

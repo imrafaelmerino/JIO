@@ -25,9 +25,9 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
     final List<IO<? extends JsValue>> list;
 
     JsArrayExp(List<IO<? extends JsValue>> list,
-               Function<ExpEvent, BiConsumer<JsArray, Throwable>> logger
+               Function<ExpEvent, BiConsumer<JsArray, Throwable>> debugger
               ) {
-        super(logger);
+        super(debugger);
         this.list = list;
     }
 
@@ -61,15 +61,15 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
     }
 
     List<IO<? extends JsValue>> debugJsArray(List<IO<? extends JsValue>> exps,
-                                             String context
+                                             EventBuilder<JsArray> eventBuilder
                                             ) {
         return IntStream.range(0, exps.size())
                         .mapToObj(i -> LoggerHelper.debugIO(exps.get(i),
                                                             String.format("%s[%s]",
-                                                                          this.getClass().getSimpleName(),
+                                                                          eventBuilder.exp,
                                                                           i
                                                                          ),
-                                                            context
+                                                            eventBuilder.context
 
                                                            )
                                  )

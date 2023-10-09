@@ -25,9 +25,9 @@ public final class SwitchExp<I, O> extends Exp<O> {
               final List<Predicate<I>> predicates,
               final List<Lambda<I, O>> lambdas,
               final Lambda<I, O> otherwise,
-              final Function<ExpEvent, BiConsumer<O, Throwable>> logger
+              final Function<ExpEvent, BiConsumer<O, Throwable>> debugger
              ) {
-        super(logger);
+        super(debugger);
         this.val = val;
         this.predicates = predicates;
         this.lambdas = lambdas;
@@ -110,32 +110,24 @@ public final class SwitchExp<I, O> extends Exp<O> {
         );
     }
 
-    /**
-     * Creates a new SwitchExp that will write to the given logger information about every computation evaluated to
-     * reduce this expression (like {@link #debugEach(String)} does). A final log message created with the specified
-     * builder is written after reducing the whole expression
-     *
-     * @param builder the builder to create the log message from the result of the expression
-     * @return a new SwitchExp
-     * @see #debugEach(String) debugEach
-     */
+
     @Override
-    public SwitchExp<I, O> debugEach(final EventBuilder<O> builder
+    public SwitchExp<I, O> debugEach(final EventBuilder<O> eventBuilder
                                     ) {
         return new SwitchExp<>(LoggerHelper.debugIO(val,
-                                                    String.format("%s-eval", this.getClass().getSimpleName()),
-                                                    builder.context
+                                                    "%s-eval".formatted(eventBuilder.exp),
+                                                    eventBuilder.context
                                                    ),
                                predicates,
                                LoggerHelper.debugLambdas(lambdas,
-                                                         this.getClass().getSimpleName() + "-branch",
-                                                         builder.context
+                                                         "%s-branch".formatted(eventBuilder.exp),
+                                                         eventBuilder.context
                                                         ),
                                LoggerHelper.debugLambda(otherwise,
-                                                        String.format("%s-otherwise", this.getClass().getSimpleName()),
-                                                        builder.context
+                                                        "%s-otherwise".formatted(eventBuilder.exp),
+                                                        eventBuilder.context
                                                        ),
-                               getJFRPublisher(builder)
+                               getJFRPublisher(eventBuilder)
 
         );
     }
@@ -147,42 +139,9 @@ public final class SwitchExp<I, O> extends Exp<O> {
     }
 
 
-    /**
-     * Creates a new SwitchExp that will print out on the console information about every computation evaluated to
-     * reduce this expression. The given context will be associated to every subexpression and printed out to correlate
-     * all the evaluations (contextual logging).
-     * <p>
-     * The line format is the following:
-     * <p>
-     * datetime thread logger [context] elapsed_time success|exception expression|subexpression result?
-     * <p>
-     * Find bellow an example:
-     *
-     * <pre>
-     * {@code
-     *
-     *           SwitchExp.<Integer, String>eval(IO.succeed(2))
-     *                                     .match(1, i -> IO.succeed("one"),
-     *                                            2, i -> IO.succeed("two"),
-     *                                            i -> IO.succeed("default")
-     *                                           )
-     *                                     .debugEach("context")
-     *                                     .join()
-     *
-     *
-     * }
-     * </pre>
-     * <p>
-     * 2023-02-04T17:58:43.148662+01:00 main DEBUGGER [context] 7299292 success SwitchExp-eval 2
-     * 2023-02-04T17:58:43.157197+01:00 main DEBUGGER [context] 60417 success SwitchExp-branch[1]
-     * 2023-02-04T17:58:43.157785+01:00 main DEBUGGER [context] 11846250 success SwitchExp two
-     *
-     * @param context the context shared by all the subexpressions that will be printed out
-     * @return a new SwitchExp
-     */
     @Override
     public SwitchExp<I, O> debugEach(final String context) {
-        return debugEach(EventBuilder.<O>ofExp(this.getClass().getSimpleName()).setContext(context));
+        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
 
 
     }

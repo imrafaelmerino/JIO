@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 class EvalExpDebugger implements Consumer<RecordedEvent> {
     private static String FORMAT = """
             event: eval-expression, expression: %s, result: %s, duration: %s, output: %s
-            context: %s, thread: %s,  event-start-time: %s
+            context: %s, thread: %s, event-start-time: %s
             """;
 
     @Override

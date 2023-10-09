@@ -28,9 +28,9 @@ public abstract sealed class TripleExp<A, B, C> extends Exp<Triple<A, B, C>> per
     TripleExp(final IO<A> _1,
               final IO<B> _2,
               final IO<C> _3,
-              final Function<ExpEvent, BiConsumer<Triple<A, B, C>, Throwable>> logger
+              final Function<ExpEvent, BiConsumer<Triple<A, B, C>, Throwable>> debugger
              ) {
-        super(logger);
+        super(debugger);
         this._1 = _1;
         this._2 = _2;
         this._3 = _3;

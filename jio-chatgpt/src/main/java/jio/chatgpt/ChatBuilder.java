@@ -85,7 +85,7 @@ public final class ChatBuilder {
      */
     public ChatBuilder setTemperature(double value) {
         if (value > MAX_CHAT_COMPLETION_TEMPERATURE)
-            throw new IllegalArgumentException("temperature > " + MAX_CHAT_COMPLETION_TEMPERATURE);
+            throw new IllegalArgumentException("temperature > %d".formatted(MAX_CHAT_COMPLETION_TEMPERATURE));
         if (value < MIN_CHAT_COMPLETION_TEMPERATURE)
             throw new IllegalArgumentException("temperature < " + MIN_CHAT_COMPLETION_TEMPERATURE);
         this.temperature = value;
@@ -114,7 +114,7 @@ public final class ChatBuilder {
      * @return this builder
      */
     public ChatBuilder setNChoices(int n) {
-        if (n < MIN_CHAT_COMPLETION_CHOICES) throw new IllegalArgumentException("n < " + MIN_CHAT_COMPLETION_CHOICES);
+        if (n < MIN_CHAT_COMPLETION_CHOICES) throw new IllegalArgumentException("n < %d".formatted(MIN_CHAT_COMPLETION_CHOICES));
         this.n = n;
         return this;
     }

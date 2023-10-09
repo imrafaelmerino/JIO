@@ -19,9 +19,9 @@ public abstract sealed class ListExp<O> extends Exp<List<O>> permits ListExpPar,
     List<IO<O>> list;
 
     ListExp(List<IO<O>> list,
-            Function<ExpEvent, BiConsumer<List<O>, Throwable>> logger
+            Function<ExpEvent, BiConsumer<List<O>, Throwable>> debugger
            ) {
-        super(logger);
+        super(debugger);
         this.list = list;
     }
 

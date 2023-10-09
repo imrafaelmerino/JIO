@@ -103,7 +103,7 @@ public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder
                                     })
                                     .map(resp -> resp.statusCode() == 404 ?
                                             TestResult.SUCCESS :
-                                            TestFailure.reason("Entity found after being deleted successfully.Status code received " + resp.statusCode()));
+                                            TestFailure.reason("Entity found after being deleted successfully.Status code received %d".formatted(resp.statusCode())));
 
         return Property.ofLambda(name, gen, lambda);
     }

@@ -13,9 +13,9 @@ import static java.util.Objects.requireNonNull;
 final class PairExpPar<A, B> extends PairExp<A, B> {
 
     public PairExpPar(final IO<A> _1, IO<B> _2,
-                      final Function<ExpEvent, BiConsumer<Pair<A, B>, Throwable>> logger
+                      final Function<ExpEvent, BiConsumer<Pair<A, B>, Throwable>> debugger
                      ) {
-        super(logger, _1, _2);
+        super(debugger, _1, _2);
     }
 
     @Override
@@ -45,37 +45,32 @@ final class PairExpPar<A, B> extends PairExp<A, B> {
 
 
     @Override
-    public PairExp<A, B> debugEach(final EventBuilder<Pair<A, B>> messageBuilder
+    public PairExp<A, B> debugEach(final EventBuilder<Pair<A, B>> eventBuilder
                                   ) {
-        Objects.requireNonNull(messageBuilder);
+        Objects.requireNonNull(eventBuilder);
         return new PairExpPar<>(LoggerHelper.debugIO(_1,
                                                      String.format("%s[1]",
-                                                                   this.getClass().getSimpleName()
+                                                                   eventBuilder.exp
                                                                   ),
-                                                     messageBuilder.context
+                                                     eventBuilder.context
                                                     ),
                                 LoggerHelper.debugIO(_2,
                                                      String.format("%s[2]",
-                                                                   this.getClass().getSimpleName()
+                                                                   eventBuilder.exp
                                                                   ),
-                                                     messageBuilder.context
+                                                     eventBuilder.context
 
                                                     ),
-                                getJFRPublisher(messageBuilder
-                                               )
+                                getJFRPublisher(eventBuilder)
         );
     }
 
 
     @Override
     public PairExp<A, B> debugEach(final String context) {
-        return this.debugEach(EventBuilder.<Pair<A, B>>ofExp(this.getClass().getSimpleName())
-                                          .setContext(context)
-                             );
+        return this.debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
 
     }
-
-
 
 
 }

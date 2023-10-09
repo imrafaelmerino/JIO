@@ -63,13 +63,12 @@ final class LoggerHelper {
     }
 
     static List<IO<Boolean>> debugConditions(final List<IO<Boolean>> exps,
-                                             final String expName,
-                                             final String context
+                                             final EventBuilder<Boolean> eventBuilder
                                             ) {
         return IntStream.range(0, exps.size())
                         .mapToObj(i -> debugIO(exps.get(i),
-                                               expName + "[" + i + "]",
-                                               context
+                                               "%s[%d]".formatted(eventBuilder.exp, i),
+                                               eventBuilder.context
                                               ))
                         .toList();
     }
@@ -78,10 +77,7 @@ final class LoggerHelper {
                              final String expName,
                              final String context
                             ) {
-        return debugExp(io,
-                        EventBuilder.<O>ofExp(expName)
-                                    .setContext(context)
-                       );
+        return debugExp(io, new EventBuilder<>(expName,context));
     }
 
 
@@ -90,7 +86,7 @@ final class LoggerHelper {
                              ) {
         return switch (o) {
             case Exp<O> exp -> exp.debugEach(builder);
-            case IO<O> val -> val.debugIO(builder);
+            case IO<O> val -> val.debug(builder);
         };
     }
 

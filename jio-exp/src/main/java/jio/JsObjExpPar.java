@@ -14,17 +14,16 @@ import java.util.stream.Collectors;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents a supplier of a completable future which result is a json object. It has the same
- * recursive structure as a json object. Each key has a completable future associated that it's
- * executed asynchronously. When all the futures are completed, all the results are combined into
- * a json object.
+ * Represents a supplier of a completable future which result is a json object. It has the same recursive structure as a
+ * json object. Each key has a completable future associated that it's executed asynchronously. When all the futures are
+ * completed, all the results are combined into a json object.
  */
 final class JsObjExpPar extends JsObjExp {
 
     public JsObjExpPar(Map<String, IO<? extends JsValue>> bindings,
-                       Function<ExpEvent, BiConsumer<JsObj, Throwable>> logger
+                       Function<ExpEvent, BiConsumer<JsObj, Throwable>> debugger
                       ) {
-        super(bindings, logger);
+        super(bindings, debugger);
     }
 
     JsObjExpPar() {
@@ -101,22 +100,20 @@ final class JsObjExpPar extends JsObjExp {
     }
 
     @Override
-    public JsObjExp debugEach(EventBuilder<JsObj> messageBuilder
+    public JsObjExp debugEach(EventBuilder<JsObj> eventBuilder
                              ) {
-        Objects.requireNonNull(messageBuilder);
+        Objects.requireNonNull(eventBuilder);
         return new JsObjExpPar(debugJsObj(bindings,
-                                          messageBuilder.context
+                                          eventBuilder
                                          ),
-                               getJFRPublisher(messageBuilder)
+                               getJFRPublisher(eventBuilder)
         );
     }
 
 
     @Override
     public JsObjExp debugEach(String context) {
-        return debugEach(EventBuilder.<JsObj>ofExp(this.getClass().getSimpleName())
-                                     .setContext(context)
-                        );
+        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
 
 
     }

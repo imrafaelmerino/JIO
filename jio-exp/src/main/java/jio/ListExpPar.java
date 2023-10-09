@@ -6,7 +6,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -15,9 +18,9 @@ import static java.util.Objects.requireNonNull;
 final class ListExpPar<O> extends ListExp<O> {
 
     public ListExpPar(final List<IO<O>> list,
-                      final Function<ExpEvent, BiConsumer<List<O>, Throwable>> logger
+                      final Function<ExpEvent, BiConsumer<List<O>, Throwable>> debugger
                      ) {
-        super(list, logger);
+        super(list, debugger);
     }
 
     @Override
@@ -65,15 +68,14 @@ final class ListExpPar<O> extends ListExp<O> {
     }
 
     @Override
-    public ListExp<O> debugEach(final EventBuilder<List<O>> messageBuilder
+    public ListExp<O> debugEach(final EventBuilder<List<O>> eventBuilder
                                ) {
-        Objects.requireNonNull(messageBuilder);
+        Objects.requireNonNull(eventBuilder);
         return new ListExpPar<>(LoggerHelper.debugList(list,
-                                                       this.getClass().getSimpleName(),
-                                                       messageBuilder.context
+                                                       eventBuilder.exp,
+                                                       eventBuilder.context
                                                       ),
-                                getJFRPublisher(messageBuilder
-                                               )
+                                getJFRPublisher(eventBuilder)
         );
     }
 
@@ -81,9 +83,7 @@ final class ListExpPar<O> extends ListExp<O> {
     @Override
     public ListExp<O> debugEach(String context) {
         return debugEach(
-                EventBuilder.<List<O>>ofExp(this.getClass().getSimpleName())
-                            .setContext(context)
-                        );
+                new EventBuilder<>(this.getClass().getSimpleName(), context));
 
     }
 }

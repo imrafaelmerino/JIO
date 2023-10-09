@@ -21,8 +21,8 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondExpSeq {
 
-    CondExp(Function<ExpEvent, BiConsumer<O, Throwable>> logger) {
-        super(logger);
+    CondExp(Function<ExpEvent, BiConsumer<O, Throwable>> debugger) {
+        super(debugger);
     }
 
     /**
@@ -505,9 +505,7 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
 
 
     @Override
-    public abstract CondExp<O> debugEach(
-            final EventBuilder<O> messageBuilder
-                                        );
+    public abstract CondExp<O> debugEach(final EventBuilder<O> messageBuilder);
 
 
     @Override

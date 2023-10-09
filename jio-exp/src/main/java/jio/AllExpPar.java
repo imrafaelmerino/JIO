@@ -15,9 +15,9 @@ final class AllExpPar extends AllExp {
 
 
     public AllExpPar(final List<IO<Boolean>> exps,
-                     final Function<ExpEvent, BiConsumer<Boolean, Throwable>> logger
+                     final Function<ExpEvent, BiConsumer<Boolean, Throwable>> debugger
                     ) {
-        super(logger,
+        super(debugger,
               exps
              );
     }
@@ -59,8 +59,7 @@ final class AllExpPar extends AllExp {
     public AllExp debugEach(final EventBuilder<Boolean> builder) {
         Objects.requireNonNull(builder);
         return new AllExpPar(LoggerHelper.debugConditions(exps,
-                                                          this.getClass().getSimpleName(),
-                                                          builder.context
+                                                          builder
                                                          ),
                              getJFRPublisher(builder)
         );
@@ -68,9 +67,7 @@ final class AllExpPar extends AllExp {
 
     @Override
     public AllExp debugEach(final String context) {
-        return debugEach(EventBuilder.<Boolean>ofExp(this.getClass().getSimpleName())
-                                     .setContext(context)
-                        );
+        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
 
     }
 

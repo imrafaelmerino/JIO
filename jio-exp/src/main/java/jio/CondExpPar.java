@@ -21,9 +21,9 @@ final class CondExpPar<O> extends CondExp<O> {
 
     public CondExpPar(final List<IO<Boolean>> tests, List<Supplier<IO<O>>> consequences,
                       final Supplier<IO<O>> otherwise,
-                      final Function<ExpEvent, BiConsumer<O, Throwable>> logger
+                      final Function<ExpEvent, BiConsumer<O, Throwable>> debugger
                      ) {
-        super(logger);
+        super(debugger);
         this.tests = tests;
         this.consequences = consequences;
         this.otherwise = otherwise;
@@ -72,37 +72,30 @@ final class CondExpPar<O> extends CondExp<O> {
 
 
     @Override
-    public CondExp<O> debugEach(final EventBuilder<O> messageBuilder
+    public CondExp<O> debugEach(final EventBuilder<O> eventBuilder
                                ) {
-        Objects.requireNonNull(messageBuilder);
-        return new CondExpPar<>(LoggerHelper.debugConditions(
-                tests,
-                this.getClass().getSimpleName() + "-test",
-                messageBuilder.context
+        Objects.requireNonNull(eventBuilder);
+        return new CondExpPar<>(LoggerHelper.debugConditions(tests,
+                                                             new EventBuilder<>("%s-test".formatted(eventBuilder.exp),
+                                                                                eventBuilder.context)
                                                             ),
-                                LoggerHelper.debugSuppliers(
-                                        consequences,
-                                        this.getClass().getSimpleName() + "-consequence",
-                                        messageBuilder.context
+                                LoggerHelper.debugSuppliers(consequences,
+                                                            "%s-consequence".formatted(eventBuilder.exp),
+                                                            eventBuilder.context
                                                            ),
                                 LoggerHelper.debugSupplier(
                                         otherwise,
-                                        this.getClass().getSimpleName() + "-otherwise",
-                                        messageBuilder.context
+                                        "%s-otherwise".formatted(eventBuilder.exp),
+                                        eventBuilder.context
                                                           ),
-                                getJFRPublisher(
-                                        messageBuilder
-                                               )
+                                getJFRPublisher(eventBuilder)
         );
     }
 
 
     @Override
     public CondExp<O> debugEach(final String context) {
-        return debugEach(
-                new EventBuilder<O>(this.getClass().getSimpleName())
-                        .setContext(context)
-                        );
+        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
 
 
     }

@@ -23,8 +23,8 @@ public abstract sealed class PairExp<A, B> extends Exp<Pair<A, B>> permits PairE
     final IO<A> _1;
     final IO<B> _2;
 
-    PairExp(Function<ExpEvent, BiConsumer<Pair<A, B>, Throwable>> logger, IO<A> _1, IO<B> _2) {
-        super(logger);
+    PairExp(Function<ExpEvent, BiConsumer<Pair<A, B>, Throwable>> debugger, IO<A> _1, IO<B> _2) {
+        super(debugger);
         this._1 = _1;
         this._2 = _2;
     }

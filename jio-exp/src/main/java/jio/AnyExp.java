@@ -19,10 +19,10 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
 
     final List<IO<Boolean>> exps;
 
-    AnyExp(Function<ExpEvent, BiConsumer<Boolean, Throwable>> logger,
+    AnyExp(Function<ExpEvent, BiConsumer<Boolean, Throwable>> debugger,
            List<IO<Boolean>> exps
           ) {
-        super(logger);
+        super(debugger);
         this.exps = exps;
     }
 
@@ -122,9 +122,7 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
 
 
     @Override
-    public abstract AnyExp debugEach(
-            final EventBuilder<Boolean> messageBuilder
-                                    );
+    public abstract AnyExp debugEach(final EventBuilder<Boolean> messageBuilder);
 
     @Override
     public abstract AnyExp debugEach(final String context);

@@ -33,7 +33,7 @@ public final class GptConsole {
         File confFile = new File(confArg);
 
         if (!confFile.exists() || !confFile.isFile())
-            throw new IllegalArgumentException(confArg + " is not a file");
+            throw new IllegalArgumentException("%s is not a file".formatted(confArg));
 
         JsObj confJson = JsObj.parse(Files.readString(confFile.toPath()));
         String authHeader = confJson.getStr("auth_header");
@@ -77,7 +77,7 @@ public final class GptConsole {
                     String purpose = tokens[2];
                     File file = new File(path);
                     return !file.exists() || !file.isFile() ?
-                            IO.fail(new IllegalArgumentException(path + " is not a file")) :
+                            IO.fail(new IllegalArgumentException("%s is not a file".formatted(path))) :
                             services.fileService.upload(file, purpose).map(JsObj::toString);
                 };
             }
@@ -289,7 +289,7 @@ public final class GptConsole {
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
-                        return IO.succeed("loaded messages from " + path);
+                        return IO.succeed("loaded messages from %s".formatted(path));
                     };
 
                     if (tokens.length == 1)

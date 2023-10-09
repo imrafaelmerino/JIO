@@ -17,9 +17,9 @@ final class JsArrayExpPar extends JsArrayExp {
 
 
     public JsArrayExpPar(List<IO<? extends JsValue>> list,
-                         Function<ExpEvent, BiConsumer<JsArray, Throwable>> logger
+                         Function<ExpEvent, BiConsumer<JsArray, Throwable>> debugger
                         ) {
-        super(list, logger);
+        super(list, debugger);
     }
 
     /**
@@ -58,23 +58,21 @@ final class JsArrayExpPar extends JsArrayExp {
 
 
     @Override
-    public JsArrayExp debugEach(final EventBuilder<JsArray> messageBuilder
+    public JsArrayExp debugEach(final EventBuilder<JsArray> eventBuilder
                                ) {
-        Objects.requireNonNull(messageBuilder);
+        Objects.requireNonNull(eventBuilder);
         return new JsArrayExpPar(debugJsArray(list,
-                                              messageBuilder.context
+                                              eventBuilder
                                              ),
-                                 getJFRPublisher(messageBuilder
-                                                )
+                                 getJFRPublisher(eventBuilder)
         );
     }
 
 
     @Override
     public JsArrayExp debugEach(final String context) {
-        return this.debugEach(EventBuilder.<JsArray>ofExp(this.getClass().getSimpleName())
-                                          .setContext(context)
-                             );
+        return this.debugEach(new EventBuilder<>(this.getClass().getSimpleName(),
+                                                 context));
 
     }
 }

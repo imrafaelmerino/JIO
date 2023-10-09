@@ -22,10 +22,10 @@ public sealed abstract class AllExp extends Exp<Boolean> permits AllExpPar, AllE
      */
     protected final List<IO<Boolean>> exps;
 
-    AllExp(Function<ExpEvent, BiConsumer<Boolean, Throwable>> logger,
+    AllExp(Function<ExpEvent, BiConsumer<Boolean, Throwable>> debugger,
            List<IO<Boolean>> exps
           ) {
-        super(logger);
+        super(debugger);
         this.exps = exps;
     }
 
@@ -128,49 +128,11 @@ public sealed abstract class AllExp extends Exp<Boolean> permits AllExpPar, AllE
                                     );
 
 
-    /**
-     * Creates a new AllExp that will write to the given logger information about every computation evaluated to reduce
-     * this expression (like {@link #debugEach(String)} does). A final log message created with the specified log
-     * builder is written after reducing the whole expression
-     *
-     * @param builder the builder to create the log message from the result of the expression
-     * @return a new AllExp
-     * @see #debugEach(String) debugEach
-     */
+
     @Override
     public abstract Exp<Boolean> debugEach(final EventBuilder<Boolean> builder);
 
-    /**
-     * Creates a new AllExp that will print out on the console information about every computation evaluated to reduce
-     * this expression. The given context will be associated to every subexpression and printed out to correlate all the
-     * evaluations (contextual logging).
-     * <p>
-     * The line format is the following:
-     * <p>
-     * datetime thread logger [context] elapsed_time success|exception expression|subexpression result?
-     * <p>
-     * Find bellow an example:
-     *
-     * <pre>
-     * {@code
-     *
-     * AllExp.seq(IO.TRUE,
-     *            IO.TRUE
-     *           )
-     *       .debugEach("context")
-     *       .join()
-     *
-     *
-     * }
-     * </pre>
-     * <p>
-     * 2023-02-04T18:04:21.459985+01:00 main DEBUGGER [context] 7712125 success AllExpPar[0] true
-     * 2023-02-04T18:04:21.468211+01:00 main DEBUGGER [context] 73834 success AllExpPar[1] true
-     * 2023-02-04T18:04:21.469131+01:00 main DEBUGGER [context] 12266834 success AllExpPar true
-     *
-     * @param context the context shared by all the subexpressions that will be printed out
-     * @return a new AllExp
-     */
+
     @Override
     public abstract AllExp debugEach(final String context);
 

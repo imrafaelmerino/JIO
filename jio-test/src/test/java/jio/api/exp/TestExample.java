@@ -99,6 +99,7 @@ public class TestExample {
                                                                                            )
                                                                                        .map(nill -> id)
                                                                          )
+                                                             .debugEach(context)
                                              )
                                         .map(JsStr::of),
                             "addresses",
@@ -123,20 +124,6 @@ public class TestExample {
         user.result();
 
 
-    }
-
-
-    @Test
-    public void test2() {
-        PairExp<Void, Void> p = PairExp.par(persistLDAP.apply(JsObj.empty()),
-                                                  sendEmail.apply(JsObj.empty())
-                                                           .repeat(e -> false,
-                                                                   RetryPolicies.incrementalDelay(Duration.ofSeconds(1))
-                                                                                .append(RetryPolicies.limitRetries(5))
-                                                                  )
-                                                 )
-                                             .debugEach("context");
-        p.get();
     }
 
 

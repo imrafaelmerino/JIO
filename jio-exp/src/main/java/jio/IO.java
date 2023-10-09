@@ -1056,7 +1056,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @see ExpEvent
      */
     public IO<O> debug() {
-        return debugIO(EventBuilder.ofExp(getClass().getSimpleName()));
+        return debug(new EventBuilder<O>(getClass().getSimpleName()));
     }
 
     /**
@@ -1070,20 +1070,12 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      */
     public IO<O> debug(final EventBuilder<O> builder) {
         requireNonNull(builder);
-        //the exp field can only be changed by JIO. Expressions set their own name.
-        //If it's not ane expression, it's a value
-        builder.exp = getClass().getSimpleName();
-        return debugIO(builder);
-    }
-
-    //internal use. Always the field exp of the builder is set
-    IO<O> debugIO(EventBuilder<O> builder) {
-        assert builder.exp != null;
         return IO.lazy(ExpEvent::new)
                  .then(event -> this.peek(val -> builder.updateAndCommit(val, event),
                                           exc -> builder.updateAndCommit(exc, event)
                                          )
                       );
     }
+
 
 }

@@ -15,9 +15,9 @@ final class TripleExpSeq<A, B, C> extends TripleExp<A, B, C> {
     public TripleExpSeq(final IO<A> _1,
                         final IO<B> _2,
                         final IO<C> _3,
-                        final Function<ExpEvent, BiConsumer<Triple<A, B, C>, Throwable>> logger
+                        final Function<ExpEvent, BiConsumer<Triple<A, B, C>, Throwable>> debugger
                        ) {
-        super(_1, _2, _3, logger);
+        super(_1, _2, _3, debugger);
     }
 
     @Override
@@ -54,31 +54,29 @@ final class TripleExpSeq<A, B, C> extends TripleExp<A, B, C> {
     }
 
     @Override
-    public TripleExp<A, B, C> debugEach(
-            final EventBuilder<Triple<A, B, C>> builder
-                                       ) {
-        Objects.requireNonNull(builder);
+    public TripleExp<A, B, C> debugEach(final EventBuilder<Triple<A, B, C>> eventBuilder) {
+        Objects.requireNonNull(eventBuilder);
         return new TripleExpSeq<>(LoggerHelper.debugIO(_1,
                                                        String.format("%s[1]",
-                                                                     this.getClass().getSimpleName()
+                                                                     eventBuilder.exp
                                                                     ),
-                                                       builder.context
+                                                       eventBuilder.context
 
                                                       ),
                                   LoggerHelper.debugIO(_2,
                                                        String.format("%s[2]",
-                                                                     this.getClass().getSimpleName()
+                                                                     eventBuilder.exp
                                                                     ),
-                                                       builder.context
+                                                       eventBuilder.context
 
                                                       ),
                                   LoggerHelper.debugIO(_3,
                                                        String.format("%s[3]",
-                                                                     this.getClass().getSimpleName()
+                                                                     eventBuilder.exp
                                                                     ),
-                                                       builder.context
+                                                       eventBuilder.context
                                                       ),
-                                  getJFRPublisher(builder)
+                                  getJFRPublisher(eventBuilder)
         );
     }
 
@@ -86,9 +84,7 @@ final class TripleExpSeq<A, B, C> extends TripleExp<A, B, C> {
     @Override
     public TripleExp<A, B, C> debugEach(final String context) {
         return this.debugEach(
-                EventBuilder.<Triple<A, B, C>>ofExp(this.getClass().getSimpleName())
-                            .setContext(context)
-                             );
+                new EventBuilder<>(this.getClass().getSimpleName(), context));
 
     }
 }

@@ -12,9 +12,9 @@ import static java.util.Objects.requireNonNull;
 final class AllExpSeq extends AllExp {
 
     public AllExpSeq(List<IO<Boolean>> exps,
-                     Function<ExpEvent, BiConsumer<Boolean, Throwable>> logger
+                     Function<ExpEvent, BiConsumer<Boolean, Throwable>> debugger
                     ) {
-        super(logger, exps);
+        super(debugger, exps);
     }
 
     @Override
@@ -59,10 +59,8 @@ final class AllExpSeq extends AllExp {
     public AllExp debugEach(final EventBuilder<Boolean> builder) {
         Objects.requireNonNull(builder);
         return new AllExpSeq(
-                LoggerHelper.debugConditions(
-                        exps,
-                        this.getClass().getSimpleName(),
-                        builder.context),
+                LoggerHelper.debugConditions(exps,
+                                             builder),
                 getJFRPublisher(builder)
         );
     }
@@ -70,8 +68,7 @@ final class AllExpSeq extends AllExp {
 
     @Override
     public AllExp debugEach(final String context) {
-        return debugEach(EventBuilder.<Boolean>ofExp(this.getClass().getSimpleName())
-                                     .setContext(context));
+        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
 
     }
 }

@@ -20,9 +20,9 @@ final class CondExpSeq<O> extends CondExp<O> {
     public CondExpSeq(List<IO<Boolean>> tests,
                       List<Supplier<IO<O>>> consequences,
                       Supplier<IO<O>> otherwise,
-                      Function<ExpEvent, BiConsumer<O, Throwable>> logger
+                      Function<ExpEvent, BiConsumer<O, Throwable>> debugger
                      ) {
-        super(logger);
+        super(debugger);
         this.tests = tests;
         this.consequences = consequences;
         this.otherwise = otherwise;
@@ -72,28 +72,21 @@ final class CondExpSeq<O> extends CondExp<O> {
     }
 
     @Override
-    public CondExp<O> debugEach(
-            final EventBuilder<O> messageBuilder
-                               ) {
-        Objects.requireNonNull(messageBuilder);
-        return new CondExpSeq<>(LoggerHelper.debugConditions(
-                tests,
-                this.getClass().getSimpleName() + "-test",
-                messageBuilder.context
+    public CondExp<O> debugEach(final EventBuilder<O> eventBuilder) {
+        Objects.requireNonNull(eventBuilder);
+        return new CondExpSeq<>(LoggerHelper.debugConditions(tests,
+                                                             new EventBuilder<>("%s-test".formatted(eventBuilder.exp),
+                                                                                eventBuilder.context)
                                                             ),
-                                LoggerHelper.debugSuppliers(
-                                        consequences,
-                                        this.getClass().getSimpleName() + "-consequence",
-                                        messageBuilder.context
+                                LoggerHelper.debugSuppliers(consequences,
+                                                            "%s-consequence".formatted(eventBuilder.exp),
+                                                            eventBuilder.context
                                                            ),
-                                LoggerHelper.debugSupplier(
-                                        otherwise,
-                                        this.getClass().getSimpleName() + "-otherwise",
-                                        messageBuilder.context
+                                LoggerHelper.debugSupplier(otherwise,
+                                                           "%s-otherwise".formatted(eventBuilder.exp),
+                                                           eventBuilder.context
                                                           ),
-                                getJFRPublisher(
-                                        messageBuilder
-                                               )
+                                getJFRPublisher(eventBuilder)
         );
     }
 
@@ -101,9 +94,7 @@ final class CondExpSeq<O> extends CondExp<O> {
     @Override
     public CondExp<O> debugEach(final String context) {
         return debugEach(
-                new EventBuilder<O>(this.getClass().getSimpleName())
-                        .setContext(context)
-                        );
+                new EventBuilder<>(this.getClass().getSimpleName(), context));
 
     }
 

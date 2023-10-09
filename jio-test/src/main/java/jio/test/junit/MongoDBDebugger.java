@@ -10,11 +10,11 @@ import java.util.function.Consumer;
 class MongoDBDebugger implements Consumer<RecordedEvent> {
     private static String FORMAT_SUC = """
             event: mongodb-op, op: %s, duration: %s, result: %s
-            op: %s, thread: %s,  event-start-time: %s
+            op: %s, thread: %s, event-start-time: %s
             """;
     private static String FORMAT_ERR = """
             event: mongodb-op, op: %s, duration: %s, result: %s, exception: %s
-            thread: %s,  event-start-time: %s
+            thread: %s, event-start-time: %s
             """;
 
     @Override

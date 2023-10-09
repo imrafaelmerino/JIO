@@ -14,9 +14,9 @@ import static java.util.Objects.requireNonNull;
 final class ListExpSeq<O> extends ListExp<O> {
 
     public ListExpSeq(final List<IO<O>> list,
-                      final Function<ExpEvent, BiConsumer<List<O>, Throwable>> logger
+                      final Function<ExpEvent, BiConsumer<List<O>, Throwable>> debugger
                      ) {
-        super(list, logger);
+        super(list, debugger);
     }
 
     @Override
@@ -68,22 +68,19 @@ final class ListExpSeq<O> extends ListExp<O> {
 
 
     @Override
-    public ListExp<O> debugEach(final EventBuilder<List<O>> builder
-                               ) {
+    public ListExp<O> debugEach(final EventBuilder<List<O>> eventBuilder) {
         return new ListExpSeq<>(LoggerHelper.debugList(list,
-                                                       this.getClass().getSimpleName(),
-                                                       Objects.requireNonNull(builder).context
+                                                       eventBuilder.exp,
+                                                       Objects.requireNonNull(eventBuilder).context
                                                       ),
-                                getJFRPublisher(builder)
+                                getJFRPublisher(eventBuilder)
         );
     }
 
 
     @Override
     public ListExp<O> debugEach(final String context) {
-        return debugEach(EventBuilder.<List<O>>ofExp(this.getClass().getSimpleName())
-                                     .setContext(context)
-                        );
+        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
 
     }
 }
