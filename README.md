@@ -82,13 +82,13 @@ public IO<JsObj> apply(JsObj user) {
                "id",
                persistMongo.apply(user)
                            .then(id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
-                                            .consequence(() -> IO.succeed(id))
-                                            .alternative(() -> PairExp.seq(persistLDAP.apply(user),
-                                                                           sendEmail.apply(user)
-                                                                          )
-                                                                      .map(_ -> id)
+                                          .consequence(() -> IO.succeed(id))
+                                          .alternative(() -> PairExp.seq(persistLDAP.apply(user),
+                                                                         sendEmail.apply(user)
+                                                                         )
+                                                                     .map(_ -> id)
                                                            )
-                                            .debugEach(email)
+                                          .debugEach(email)
                                  )
                            .map(JsStr::of),
                "addresses", normalizeAddresses.apply(address),
