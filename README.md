@@ -17,17 +17,15 @@
 Let's implement a service with the following requirements:
 
 * The signup service processes a JSON input containing at least two fields: email and address, both of which are
-  expected as strings. Initially, the provided address is in string format, and the service proceeds to validate and
-  standardize it using the Google Geocode API. The results obtained from Google are then presented to the frontend for
-  the user's selection or rejection. In the event of any errors occurring during this process, the service will return
-  an empty array of addresses.
+  expected as strings. The service proceeds to validate and standardize it using the Google Geocode API. The results
+  obtained from Google are then presented to the frontend for the user's selection or rejection. In the event of any
+  errors occurring during this process, the service will return an empty array of addresses.
 
 * Additionally, the service stores the client's information in a MongoDB database. The identifier returned by MongoDB
   serves as the client identifier, which must be sent back to the frontend. If the client is successfully saved in the
   database and the user does not exist in the LDAP system, the service initiates two additional actions:
-
-1. The user is sent to the LDAP service.
-2. If the operation succeeds, an activation email is dispatched to the user.
+    * The user is sent to the LDAP service.
+    * If the operation succeeds, an activation email is dispatched to the user.
 
 * The signup service also provides information about the total number of existing clients in the MongoDB database. This
   information can be used by the frontend to display a welcoming message to the user, such as "You're the user number
@@ -70,47 +68,33 @@ public class SignupService implements Lambda<JsObj, JsObj> {
     final Lambda<String, Boolean> existsInLDAP;
     final Clock clock;
 
-    public SignupService(Lambda<JsObj, Void> persistLDAP,
-                         Lambda<String, JsArray> normalizeAddresses,
-                         Lambda<Void, Integer> countUsers,
-                         Lambda<JsObj, String> persistMongo,
-                         Lambda<JsObj, Void> sendEmail,
-                         Lambda<String, Boolean> existsInLDAP,
-                         Clock clock
-                        ) {
-        this.persistLDAP = requireNonNull(persistLDAP);
-        this.normalizeAddresses = requireNonNull(normalizeAddresses);
-        this.countUsers = requireNonNull(countUsers);
-        this.persistMongo = requireNonNull(persistMongo);
-        this.sendEmail = requireNonNull(sendEmail);
-        this.existsInLDAP = requireNonNull(existsInLDAP);
-        this.clock = requireNonNull(clock);
-    }
+    //constructor
 
     @Override
     public IO<JsObj> apply(JsObj user) {
         String email = user.getStr("email");
         String address = user.getStr("address");
 
-        return JsObjExp.par("number_users", countUsers.apply(null)
-                                                      .map(JsInt::of),
-                            "id",
-                            persistMongo.apply(user)
-                                        .then(id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
-                                                             .consequence(() -> IO.succeed(id))
-                                                             .alternative(() -> PairExp.seq(persistLDAP.apply(user),
-                                                                                            sendEmail.apply(user)
-                                                                                           )
-                                                                                       .map(nill -> id)
-                                                                         )
-                                                             .debugEach(email)
-                                             )
-                                        .map(JsStr::of),
-                            "addresses", normalizeAddresses.apply(address),
-                            "timestamp", IO.lazy(clock)
-                                           .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
-                           )
-                        .debugEach(email);
+    return 
+    JsObjExp.par("number_users", countUsers.apply(null)
+                                           .map(JsInt::of),
+                 "id",
+                 persistMongo.apply(user)
+                             .then(id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
+                                                  .consequence(() -> IO.succeed(id))
+                                                  .alternative(() -> PairExp.seq(persistLDAP.apply(user),
+                                                                                 sendEmail.apply(user)
+                                                                                 )
+                                                                             .map(_ -> id)
+                                                              )
+                                                  .debugEach(email)
+                                  )
+                             .map(JsStr::of),
+                 "addresses", normalizeAddresses.apply(address),
+                 "timestamp", IO.lazy(clock)
+                                .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
+                )
+                .debugEach(email);
     }
 }
 
@@ -307,7 +291,6 @@ context: imrafaelmerino@gmail.com, thread: virtual-37, event-start-time: 2023-10
 ```
 
 Now we can see how the computation is in parallel from the thread fields.
-
 
 But, to make our code resilient, let's add some retry logic. For `countUsers`, we want to make retries with a 50 ms
 delay after an error, but not more than 300 ms in total for retries. On the other hand, for `persistLDAP`

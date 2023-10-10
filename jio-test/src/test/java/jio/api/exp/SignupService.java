@@ -41,23 +41,25 @@ public class SignupService implements Lambda<JsObj, JsObj> {
         String email = user.getStr("email");
         String address = user.getStr("address");
 
-        return JsObjExp.seq("number_users", countUsers.apply(null)
-                                                      .map(JsInt::of),
-                            "id",
-                            persistMongo.apply(user)
-                                        .then(id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
-                                                             .consequence(() -> IO.succeed(id))
-                                                             .alternative(() -> PairExp.seq(persistLDAP.apply(user),
-                                                                                            sendEmail.apply(user)
-                                                                                           ).debugEach(email)
-                                                                                       .map(nill -> id)
-                                                                         ).debugEach(email)
+        return
+                JsObjExp.par("number_users",
+                             countUsers.apply(null)
+                                       .map(JsInt::of),
+                             "id",
+                             persistMongo.apply(user)
+                                         .then(id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
+                                                              .consequence(() -> IO.succeed(id))
+                                                              .alternative(() -> PairExp.seq(persistLDAP.apply(user),
+                                                                                             sendEmail.apply(user)
+                                                                                            ).debugEach(email)
+                                                                                        .map(_ -> id)
+                                                                          ).debugEach(email)
 
-                                             )
-                                        .map(JsStr::of),
-                            "addresses", normalizeAddresses.apply(address),
-                            "timestamp", IO.lazy(clock)
-                                           .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
-                           ).debugEach(email);
+                                              )
+                                         .map(JsStr::of),
+                             "addresses", normalizeAddresses.apply(address),
+                             "timestamp", IO.lazy(clock)
+                                            .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
+                            ).debugEach(email);
     }
 }
