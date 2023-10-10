@@ -70,31 +70,32 @@ public class SignupService implements Lambda<JsObj, JsObj> {
 
     //constructor
 
-    @Override
-    public IO<JsObj> apply(JsObj user) {
-        String email = user.getStr("email");
-        String address = user.getStr("address");
+@Override
+public IO<JsObj> apply(JsObj user) {
+  
+  String email = user.getStr("email");
+  String address = user.getStr("address");
 
-    return 
-    JsObjExp.par("number_users", countUsers.apply(null)
-                                           .map(JsInt::of),
-                 "id",
-                 persistMongo.apply(user)
-                             .then(id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
-                                                  .consequence(() -> IO.succeed(id))
-                                                  .alternative(() -> PairExp.seq(persistLDAP.apply(user),
-                                                                                 sendEmail.apply(user)
-                                                                                 )
-                                                                             .map(_ -> id)
-                                                              )
-                                                  .debugEach(email)
-                                  )
-                             .map(JsStr::of),
-                 "addresses", normalizeAddresses.apply(address),
-                 "timestamp", IO.lazy(clock)
-                                .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
-                )
-                .debugEach(email);
+  return 
+  JsObjExp.par("number_users", countUsers.apply(null)
+                                         .map(JsInt::of),
+               "id",
+               persistMongo.apply(user)
+                           .then(id->IfElseExp.<String>predicate(existsInLDAP.apply(email))
+                                              .consequence(() -> IO.succeed(id))
+                                              .alternative(() -> PairExp.seq(persistLDAP.apply(user),
+                                                                             sendEmail.apply(user)
+                                                                             )
+                                                                         .map(_ -> id)
+                                                           )
+                                              .debugEach(email)
+                                 )
+                           .map(JsStr::of),
+               "addresses", normalizeAddresses.apply(address),
+               "timestamp", IO.lazy(clock)
+                              .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
+               )
+          .debugEach(email);
     }
 }
 
