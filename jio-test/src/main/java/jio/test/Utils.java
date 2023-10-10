@@ -19,9 +19,10 @@ public final class Utils {
      */
     public static String formatTime(long time) {
         if (time < 0) throw new IllegalArgumentException("time < 0");
-        if (time >= 1000_000_000) return Duration.ofNanos(time).toSeconds() + " sg";
-        if (time >= 1000_1000) return Duration.ofNanos(time).toMillis() + " ms";
-        return time + " ns";
+        if (time >= 1000_000_000) return "%.3f sg".formatted(time/1000_000_000d);
+        if (time >= 1000_0000) return "%.3f ms".formatted(time/1000_000d);
+        if (time >= 1000) return "%.3f µs".formatted(time/1000d);
+        return "%d ns".formatted(time);
     }
 
     /**

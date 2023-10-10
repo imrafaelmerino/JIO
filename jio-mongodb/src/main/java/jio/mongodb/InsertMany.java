@@ -103,8 +103,6 @@ public final class InsertMany<R> extends Op implements Lambda<JsArray, R> {
     @Override
     public IO<R> apply(final JsArray message) {
         Objects.requireNonNull(message);
-        var event = new MongoDBEvent(INSERT_MANY);
-        event.begin();
         Supplier<R> supplier =
                 jfrEventWrapper(() -> {
                                     var docs = jsArray2ListOfJsObj.apply(message);

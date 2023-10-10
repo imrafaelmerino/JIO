@@ -52,6 +52,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${MAVEN-JAVADOC-PLUGIN.VERSION}</version>
                 <configuration>
+                    <sourcepath>src/main/java</sourcepath>
                     <source>${MAVEN-COMPILER-PLUGIN.SOURCE}</source>
                     <additionalOptions>--enable-preview</additionalOptions>
                 </configuration>

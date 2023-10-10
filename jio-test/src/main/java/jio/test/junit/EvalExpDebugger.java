@@ -9,8 +9,8 @@ import java.util.function.Consumer;
 
 class EvalExpDebugger implements Consumer<RecordedEvent> {
     private static String FORMAT = """
-            event: eval-expression, expression: %s, result: %s, duration: %s, output: %s
-            context: %s, thread: %s, event-start-time: %s
+            event: eval, expression: %s, result: %s, output: %s
+            duration: %s, context: %s, thread: %s, event-start-time: %s
             """;
 
     @Override
@@ -20,8 +20,8 @@ class EvalExpDebugger implements Consumer<RecordedEvent> {
         var str = String.format(FORMAT,
                                 e.getValue("expression"),
                                 e.getValue("result"),
-                                Utils.formatTime(e.getDuration().toNanos()),
                                 isSuccess ? e.getValue("value") : exc,
+                                Utils.formatTime(e.getDuration().toNanos()),
                                 e.getValue("context"),
                                 DebuggerUtils.getThreadName(e.getThread()),
                                 e.getStartTime()

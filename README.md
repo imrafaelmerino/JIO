@@ -14,59 +14,67 @@
 
 ## <a name="cwa"><a/> Code wins arguments
 
-Let's implement a service with the following requirements:
+The age-old "Hello world" example has outlived its usefulness. While it once served as a foundational teaching tool, its
+simplicity no longer suffices in today's world. In the current landscape, where real-world scenarios are markedly more
+intricate, we proudly present a "Hello world" example that truly mirrors the complexity of modern development.
 
-* The signup service processes a JSON input containing at least two fields: email and address, both of which are
-  expected as strings. The service proceeds to validate and standardize it using the Google Geocode API. The results
-  obtained from Google are then presented to the frontend for the user's selection or rejection. In the event of any
-  errors occurring during this process, the service will return an empty array of addresses.
+### Signup Service specification
 
-* Additionally, the service stores the client's information in a MongoDB database. The identifier returned by MongoDB
-  serves as the client identifier, which must be sent back to the frontend. If the client is successfully saved in the
-  database and the user does not exist in the LDAP system, the service initiates two additional actions:
-    * The user is sent to the LDAP service.
-    * If the operation succeeds, an activation email is dispatched to the user.
+Let's delve into the implementation of a signup service with the following requirements:
 
-* The signup service also provides information about the total number of existing clients in the MongoDB database. This
-  information can be used by the frontend to display a welcoming message to the user, such as "You're the user number
-  3000!" However, if any errors occur, the service will return -1, and the frontend will not display the message.
+1. The signup service takes a JSON input containing at least two fields: email and address, both expected as strings.
+   The service's first step is to validate and standardize the address using the Google Geocode API. The results
+   obtained from Google are then presented to the frontend for user selection or rejection.
+2. In addition to address validation, the service stores the client's information in a MongoDB database. The MongoDB
+   identifier returned becomes the client identifier, which must be sent back to the frontend. If the client is
+   successfully saved in the database and the user doesn't exist in the LDAP system, two additional actions occur:
+    - The user is sent to the LDAP service.
+    - If the operation succeeds, an activation email is sent to the user.
+3. The signup service also provides information about the total number of existing clients in the MongoDB database. This
+   information can be utilized by the frontend to display a welcoming message to the user, such as "You're the user
+   number 3000!" However, if any errors occur, the service returns -1, and the frontend will not display the message.
+4. Crucially, the signup service is designed to perform all these operations in parallel. This includes the request to
+   Google for address validation and the MongoDB operations, which encompass both data persistence and counting.
 
-* Crucially, the signup service is designed to perform all these operations in parallel. This includes the request to
-  Google for address validation and the MongoDB operations, including both persistence and counting.
+### Response Structure
 
-* The response from the signup service follows this structure:
+The response from the signup service follows this structure:
 
-```code
+```json
 {
-  "number_users": integer, // Total number of existing clients in the DB (from MongoDB)
-  "id": string, // MongoDB ID
-  "timestamp": instant, // Timestamp indicating when the server begins processing the frontend request
-  "addresses": array // Client addresses returned by Google Geocode API
+  "number_users": integer,
+  // Total number of existing clients in the DB or -1
+  "id": string,
+  // MongoDB ID
+  "timestamp": instant,
+  // Timestamp indicating when the server begins processing the frontend request
+  "addresses": array
+  // Client addresses returned by Google Geocode API
 }
 ```
 
-The signup service constructor accepts some lambdas as input parameters. Think of a Lambda as a function that takes an
-input and produces an output. However, unlike traditional functions, Lambdas don't throw exceptions (thank goodness!).
-Instead, they can return exceptions as normal values.
+### Signup Service implementation
+
+The `SignupService` orchestrates all the operations with elegance and efficiency. This service is constructed with a set
+of lambdas, where a lambda is essentially a function that takes an input and produces an output. Unlike traditional
+functions, lambdas won't throw exceptions; instead, they gracefully return exceptions as regular values.
 
 ```code
-
 import jio.*;
-package jio.api.exp;
 import jio.time.Clock;
 import jsonvalues.*;
 import java.time.Instant;
 import static java.util.Objects.requireNonNull;
 
 public class SignupService implements Lambda<JsObj, JsObj> {
-
-    final Lambda<JsObj, Void> persistLDAP;
-    final Lambda<String, JsArray> normalizeAddresses;
-    final Lambda<Void, Integer> countUsers;
-    final Lambda<JsObj, String> persistMongo;
-    final Lambda<JsObj, Void> sendEmail;
-    final Lambda<String, Boolean> existsInLDAP;
-    final Clock clock;
+  
+    Lambda<JsObj, Void> persistLDAP;
+    Lambda<String, JsArray> normalizeAddresses;
+    Lambda<Void, Integer> countUsers;
+    Lambda<JsObj, String> persistMongo;
+    Lambda<JsObj, Void> sendEmail;
+    Lambda<String, Boolean> existsInLDAP;
+    Clock clock;
 
     //constructor
 
@@ -78,6 +86,7 @@ public IO<JsObj> apply(JsObj user) {
 
   return 
   JsObjExp.par("number_users", countUsers.apply(null)
+                                         .recover(exc -> -1)
                                          .map(JsInt::of),
                "id",
                persistMongo.apply(user)
@@ -86,7 +95,8 @@ public IO<JsObj> apply(JsObj user) {
                                           .alternative(() -> PairExp.seq(persistLDAP.apply(user),
                                                                          sendEmail.apply(user)
                                                                          )
-                                                                     .map(_ -> id)
+                                                                     .debugEach(email)    
+                                                                     .map(pair -> id)
                                                            )
                                           .debugEach(email)
                                  )
@@ -101,34 +111,60 @@ public IO<JsObj> apply(JsObj user) {
 
 ```
 
-A few important points to note:
+Noteworthy points:
 
-- Using `Instant.now()` directly all around your code is not a good practice as it introduces a side effect. It's better
-  to use clocks, as I'll explain later. Think of a clock as a functional alternative to the widespread use
-  of `Instant.now()`.
+- **Clocks**: In modern programming, managing time is critical, and using `Instant.now()` directly throughout your code
+  can introduce side effects. We advocate using clocks, represented by the `clock` instance in our `SignupService`. A
+  clock is a functional alternative to the widespread use of `Instant.now()`. It provides better control and makes your
+  code more predictable.
 
-- The `par` constructor from the `JsObjExp` expression ensures that all the operations are performed in
-  parallel: `countUsers`, `normalizeAddresses`, and `persistMongo`. If you want to execute them sequentially, simply
-  use `JsObjExp.seq` instead.
 
-- The `recover` functions provide an alternative value to be returned in case of any errors (-1 for `countUsers` and an
-  empty array for `normalizeAddresses`, according to the specifications).
+- **JsObjExp**: The `JsObjExp` expression is highly expressive when building JSON objects. It allows us to define the
+  structure of the resulting JSON object in a clear and declarative manner. In our code, we use it to construct a JSON
+  object with multiple key-value pairs, each representing a specific piece of
+  information (`"number_users"`, `"id"`, `"addresses"`, `"timestamp"`, etc.). This approach simplifies the creation of
+  complex JSON structures and enhances code readability.
 
-- `IfElseExp` is just a conditional expression, where the consequence is evaluated if the predicate is true, and the
-  alternative if the predicate is false.
 
-- `PairExp` is another expression that computes a tuple of two elements. Since we want to send the email after
-  persisting successfully the user in the LDAP, we use the `seq` constructor. The `par` constructor would run both
-  operations in parallel.
+- Error handling is handled gracefully with the `recover` functions, providing alternative values (e.g., -1
+  for `countUsers`) in case of errors.
 
-- `debugEach` is like magic. Contextual logging is a piece of cake with JIO and you can get all the information
-  as you will see just registering the extension Debugger in your test. It uses JFR and send events whenever a
-  computation happens.
+- **IfElseExp**: The `IfElseExp` expression is a clear and concise way to handle conditional logic. It enables us to
+  specify the consequence and alternative branches based on a predicate (`existsInLDAP.apply(email)` in this case). This
+  expressiveness makes it evident that if the user exists in LDAP, we succeed with an ID, otherwise, we perform a
+  sequence of operations using `PairExp`. It enhances the readability of the code, making it easy to understand the
+  branching logic.
 
-- `IO` class is the most important one in JIO. You'll learn how to use it in the next section.
+- **PairExp**: The `PairExp` expression simplifies the creation of tuples or pairs of values. In our case, we
+  use `PairExp.seq` to execute two operations (`persistLDAP.apply(user)` and `sendEmail.apply(user)`) sequentially and
+  obtain a pair result. This expressive construct encapsulates the idea of combining two operations into a sequence and
+  mapping the result to an ID, making the code more self-explanatory.
 
-Since Lambdas are just functions, it's really simple to test the previous code. For now, let's just return constants,
-but with jio-test you can create more elaborated stubs (from generators, with delays, simulating errors, you name it!).
+- **debugEach**: Debugging is an essential part of software development, and contextual logging is a powerful tool for
+  diagnosing issues. JIO simplifies debugging with its `debug` and `debugEach` methods, which allows you to log
+  information at various points in your code effortlessly. In our `SignupService`, we utilize `debugEach(email)` to
+  provide context-specific logging for the email variable. This aids in understanding the flow of data and helps
+  pinpoint any potential problems.
+
+- **JFR (Java Flight Recorder)**: JIO leverages JFR for logging purposes. This choice offers several advantages. First,
+  it's Java-native, which means it seamlessly integrates with the Java ecosystem, ensuring compatibility and
+  performance. Second, it avoids the complexities and potential conflicts associated with using external logging
+  libraries, of which there are many in the Java landscape. By relying on JFR, we maintain a lightweight and efficient
+  approach to logging that is both reliable and highly effective.
+
+- The backbone of JIO is the `IO` class, a versatile type that we'll explore further in the next section.
+
+### Testing the Signup Service with JIO
+
+JIO offers an elegant and efficient approach to testing, especially when it comes to working with lambdas. It eliminates
+the need for external libraries like Mockito, making your testing experience smoother and more expressive.
+
+### Simplified Lambda Testing
+
+In your test class, JIO allows you to implement lambda functions directly. This approach enables you to tailor the
+behavior of each lambda to your specific test scenario, making your tests highly adaptable and expressive.
+
+Let's see how to test the `SignupService` using JIO:
 
 ```code
 
@@ -141,12 +177,13 @@ public class SignupTests {
     @Test
     public void test() {
 
-        final Lambda<JsObj, Void> persistLDAP = user -> IO.NULL();
-        final Lambda<String, JsArray> normalizeAddresses = address -> IO.succeed(JsArray.of("address1", "address2"));
-        final Lambda<Void, Integer> countUsers = nill -> IO.succeed(3);
-        final Lambda<JsObj, String> persistMongo = user -> IO.succeed("id");
-        final Lambda<JsObj, Void> sendEmail = user -> IO.NULL();
-        final Lambda<String, Boolean> existsInLDAP = email -> IO.TRUE;
+        Lambda<JsObj, Void> persistLDAP = user -> IO.NULL();
+        Lambda<String, JsArray> normalizeAddresses = 
+                                address -> IO.succeed(JsArray.of("address1", "address2"));
+        Lambda<Void, Integer> countUsers = nill -> IO.succeed(3);
+        Lambda<JsObj, String> persistMongo = user -> IO.succeed("id");
+        Lambda<JsObj, Void> sendEmail = user -> IO.NULL();
+        Lambda<String, Boolean> existsInLDAP = email -> IO.TRUE;
 
         JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
                               "address", JsStr.of("Elm's Street")
@@ -162,9 +199,10 @@ public class SignupTests {
                 .apply(user)
                 .result();
 
-        Assertions.assertEquals(3,resp.getInt("number_users"));
-        Assertions.assertEquals("id",resp.getStr("id"));
-        Assertions.assertTrue(resp.getArray("addresses").size() == 2);
+        Assertions.assertTrue(resp.containsKey("number_users"));
+        Assertions.assertTrue(resp.containsKey("id"));
+        Assertions.assertTrue(resp.containsKey("addresses"));
+        Assertions.assertTrue(resp.containsKey("timestamp"));
 
     }
 
@@ -172,174 +210,343 @@ public class SignupTests {
 
 ```
 
-And thanks to `debugEach` and the debugger extension the following information will be printed out in the console:
+### Debugging with the Debugger Extension
+
+When it comes to debugging your code during testing, having access to detailed information is invaluable. JIO's Debugger
+extension simplifies this process by creating an event stream for a specified duration and printing all the events sent
+to the Java Flight Recorder (JFR) system during that period.
+
+Here's a breakdown of how it works:
+
+1. **Debugger Extension Registration**: In your test class, you register the Debugger extension using
+   the `@RegisterExtension` annotation. You specify the duration for which the debugger captures events, such
+   as `Duration.ofSeconds(2)`.
+
+2. **Using `debug` and `debugEach`**: Within your code, you utilize the `debug` and `debugEach` methods provided by JIO.
+   These methods allow you to send events to the JFR system, providing crucial context about the execution flow.
+
+3. **Event Stream Creation**: When you run your test, the Debugger extension starts recording events. Every time
+   a `debug` or `debugEach` method is called, it sends the corresponding computation details to the JFR system.
+
+4. **Event Printing**: At the end of the specified duration, the Debugger extension prints out all the events that were
+   sent to the JFR system. These events include information about the expressions being evaluated, their results,
+   execution durations, contextual data, and more.
+
+5. **Stream Ordering**: Importantly, the event stream is ordered. Events are printed in the order in which they
+   occurred, providing a clear chronological view of your code's execution.
+
+6. **Pinpointing Bugs and Issues**: With the event stream and detailed logs in hand, you can easily pinpoint any bugs,
+   unexpected behavior, or performance bottlenecks. The chronological order of events helps you understand the sequence
+   of actions in your code.
+
+In summary, the Debugger extension in JIO transforms the testing and debugging process into a streamlined and
+informative experience. It empowers developers to gain deep insights into their code's behavior without relying on
+external logging libraries or complex setups.
+
+Here is the information that is printed out during testing:
 
 ```code
 
 Started JFR stream for 2000 ms in SignupTests
 
-event: eval-expression, expression: JsObjExpPar[number_users], result: SUCCESS, duration: 0 ns, output: 3
-context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.567551959+02:00
+event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: 3
+duration: 1727,208 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.679769708+02:00
 
-event: eval-expression, expression: JsObjExpPar[addresses], result: SUCCESS, duration: 0 ns, output: ["address1","address2"]
-context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.573194042+02:00
+event: eval, expression: JsObjExpPar[addresses], result: SUCCESS, output: ["address1","address2"]
+duration: 2553,292 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.681656208+02:00
 
-event: eval-expression, expression: IfElseExp-predicate, result: SUCCESS, duration: 0 ns, output: false
-context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.574709459+02:00
+event: eval, expression: IfElseExp-predicate, result: SUCCESS, output: false
+duration: 10,125 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.68531675+02:00
 
-event: eval-expression, expression: PairExpSeq[1], result: SUCCESS, duration: 0 ns, output: null
-context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.5763505+02:00
+event: eval, expression: PairExpSeq[1], result: SUCCESS, output: null
+duration: 7,292 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.686446041+02:00
 
-event: eval-expression, expression: PairExpSeq[2], result: SUCCESS, duration: 0 ns, output: null
-context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.576501292+02:00
+event: eval, expression: PairExpSeq[2], result: SUCCESS, output: null
+duration: 5,125 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.686579083+02:00
 
-event: eval-expression, expression: PairExpSeq, result: SUCCESS, duration: 383792 ns, output: (null, null)
-context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.57634025+02:00
+event: eval, expression: PairExpSeq, result: SUCCESS, output: (null, null)
+duration: 332,000 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.686444458+02:00
 
-event: eval-expression, expression: IfElseExp-alternative, result: SUCCESS, duration: 0 ns, output: id
-context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.57674+02:00
+event: eval, expression: IfElseExp-alternative, result: SUCCESS, output: id
+duration: 352,875 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.686435583+02:00
 
-event: eval-expression, expression: IfElseExp, result: SUCCESS, duration: 2073625 ns, output: id
-context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.57467925+02:00
+event: eval, expression: IfElseExp, result: SUCCESS, output: id
+duration: 1485,333 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.685313958+02:00
 
-event: eval-expression, expression: JsObjExpPar[id], result: SUCCESS, duration: 0 ns, output: id
-context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.576769917+02:00
+event: eval, expression: JsObjExpPar[id], result: SUCCESS, output: id
+duration: 2555,583 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.684258833+02:00
 
-event: eval-expression, expression: JsObjExpPar[timestamp], result: SUCCESS, duration: 0 ns, output: 2023-10-09T16:33:38.576Z
-context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.577138459+02:00
+event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-10T09:34:36.686Z
+duration: 290,042 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.686827166+02:00
 
-event: eval-expression, expression: JsObjExpPar, result: SUCCESS, duration: 16 ms, output: {"addresses":["address1","address2"],"number_users":3,"timestamp":"2023-10-09T16:33:38.576Z","id":"id"}
-context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.564300084+02:00
+event: eval, expression: JsObjExpPar, result: SUCCESS, output: {"addresses":["address1","address2"],"number_users":3,"timestamp":"2023-10-10T09:34:36.686Z","id":"id"}
+duration: 11,663 ms, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.679046958+02:00
 
 ```
 
-As you can see all the evaluations are performed by the main thread even when the operator `JsObjExp.par`
-was used. Well, it's because the IO effects returned by the lambdas are just constants.
-Let's use a more elaborated stubs using the jio-test library:
+where:
+
+- **event**: This field indicates the type of event being traced. For example, "eval" signifies an evaluation event,
+  where an expression or value is being evaluated.
+
+- **expression**: The "expression" field specifies the expression or subexpression that is currently under evaluation.
+  It gives you a clear indication of which part of your code is being processed.
+
+- **result**: The "result" field shows the outcome of the expression evaluation, either SUCCESS OR FAILURE.
+-
+- **output**: The final value an expression is reduced to
+
+- **duration**: The "duration" field indicates the time taken for the expression to be evaluated. It's helps in
+  profiling and performance analysis.
+
+- **context**: This field is especially valuable as it provides context-specific information. In your example, it's used
+  to display the email value being processed. This context data is essential for understanding how different inputs
+  affect the execution flow.
+
+- **thread**: It shows the thread in which the event is occurring. Understanding which thread is executing each part of
+  your code can be crucial for debugging concurrent or multi-threaded applications.
+
+- **event-start-time**: This timestamp indicates when the event started, providing a chronological view of event
+  execution.
+
+These traces serve several important purposes:
+
+1. **Debugging**: Traces help you trace the flow of execution through your code. If something goes wrong, you can
+   identify the exact point where an issue occurred and examine the relevant context.
+
+2. **Performance Profiling**: The "duration" field allows you to identify performance bottlenecks. You can see which
+   expressions take the most time to execute and focus optimization efforts accordingly.
+
+3. **Contextual Understanding**: The "context" field is particularly helpful for understanding how data flows through
+   your code. It clarifies which values are being processed at each step.
+
+4. **Event Ordering**: Timestamps help establish a chronological order of events, which is crucial for understanding the
+   sequence of actions in your code.
+
+In summary, these traces are like breadcrumbs that guide you through your code, making testing and debugging more
+efficient and effective. They enable you to pinpoint issues, optimize performance, and gain a deeper understanding of
+how your code behaves during testing.
+
+In the previous example, you might have noticed that all the evaluations are performed by the main thread, even when
+the `JsObjExp.par` operator was used. This behavior occurs because the IO effects returned by the lambdas are just
+constants, and no Executor is specified. Even if you were to specify one, there are instances when the
+CompletableFuture framework (which JIO relies on extensively) may not switch context between threads if it deems it
+unnecessary, especially when dealing with constant values.
+
+But don't worry, we can introduce some random delays and leverage fibers to create a more realistic example. To do this,
+let's use more elaborate stubs with the `StubSupplier` class from the `jio-test` library:
 
 ```code 
 
+ Gen<Duration> delayGen = IntGen.arbitrary(0, 200)
+                                .map(Duration::ofMillis);
 
  Lambda<Void, Integer> countUsers =
-            n -> StubSupplier.ofGen(IntGen.arbitrary(0, 100000))
-                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                             .get();
+            nill -> StubSupplier.ofDelayedGen(IntGen.arbitrary(0, 100000),
+                                              delayGen
+                                             )
+                                .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                .get();
  
  Lambda<JsObj, String> persistMongo =
-            obj -> StubSupplier.ofGen(StrGen.alphabetic(20, 20))
+            user -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
+                                              delayGen
+                                             )
                                .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                                .get();
  
  Lambda<JsObj, Void> sendEmail =
-            obj -> StubSupplier.<Void>ofGen(Gen.cons(null))
+            user -> StubSupplier.ofDelayedGen(Gen.cons(null),
+                                              delayGen
+                                             )
                                .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                                .get();
 
  Lambda<String, Boolean> existsInLDAP =
-            email -> StubSupplier.ofGen(BoolGen.arbitrary())
+            email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
+                                               delayGen
+                                              )
                                  .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                                  .get();
  Lambda<JsObj, Void> persistLDAP =
-            obj -> StubSupplier.<Void>ofGen(Gen.cons(null))
+            obj -> StubSupplier.ofDelayedGen(Gen.cons(null),
+                                             delayGen
+                                            )
                                .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                                .get();
  
  Lambda<String, JsArray> normalizeAddresses =
-            address -> StubSupplier.ofGen(JsArrayGen.ofN(JsStrGen.alphabetic(),10))
+            address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(),3),
+                                                 delayGen
+                                                )
                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                                    .get();
 
 ```
 
-and the result is
+In this updated example, we've introduced random delays to simulate more realistic scenarios. We're using
+the `StubSupplier` class to generate delayed values and associating each lambda with an Executor that uses virtual
+threads (`Executors.newVirtualThreadPerTaskExecutor()`). This approach ensures that evaluations occur asynchronously and
+may involve multiple threads, providing a more realistic representation of concurrent operations:
 
 ```code
 Started JFR stream for 2000 ms in SignupTests
 
-{"address":"Elm's Street","email":"imrafaelmerino@gmail.com"}
-event: eval-expression, expression: JsObjExpSeq[number_users], result: SUCCESS, duration: 0 ns, output: 12653
-context: imrafaelmerino@gmail.com, thread: virtual-32, event-start-time: 2023-10-10T08:59:48.058587167+02:00
+event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-10T09:41:27.520Z
+duration: 861,417 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:41:27.5204015+02:00
 
-event: eval-expression, expression: JsObjExpSeq[timestamp], result: SUCCESS, duration: 0 ns, output: 2023-10-10T06:59:48.058Z
-context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T08:59:48.059148042+02:00
+event: eval, expression: IfElseExp-predicate, result: SUCCESS, output: false
+duration: 31,238 ms, context: imrafaelmerino@gmail.com, thread: virtual-40, event-start-time: 2023-10-10T11:41:27.549069042+02:00
 
-event: eval-expression, expression: IfElseExp-predicate, result: SUCCESS, duration: 0 ns, output: false
-context: imrafaelmerino@gmail.com, thread: virtual-43, event-start-time: 2023-10-10T08:59:48.061517209+02:00
+event: eval, expression: JsObjExpPar[addresses], result: SUCCESS, output: ["u","d","f"]
+duration: 77,856 ms, context: imrafaelmerino@gmail.com, thread: virtual-34, event-start-time: 2023-10-10T11:41:27.520052167+02:00
 
-event: eval-expression, expression: PairExpSeq[1], result: SUCCESS, duration: 0 ns, output: null
-context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T08:59:48.064076917+02:00
+event: eval, expression: PairExpSeq[1], result: SUCCESS, output: null
+duration: 111,441 ms, context: imrafaelmerino@gmail.com, thread: virtual-42, event-start-time: 2023-10-10T11:41:27.582186792+02:00
 
-event: eval-expression, expression: PairExpSeq[2], result: SUCCESS, duration: 0 ns, output: null
-context: imrafaelmerino@gmail.com, thread: virtual-45, event-start-time: 2023-10-10T08:59:48.064270209+02:00
+event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: 32914
+duration: 180,810 ms, context: imrafaelmerino@gmail.com, thread: virtual-32, event-start-time: 2023-10-10T11:41:27.513371334+02:00
 
-event: eval-expression, expression: PairExpSeq, result: SUCCESS, duration: 673250 ns, output: (null, null)
-context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T08:59:48.063858417+02:00
+event: eval, expression: PairExpSeq[2], result: SUCCESS, output: null
+duration: 141,523 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.693663125+02:00
 
-event: eval-expression, expression: IfElseExp-alternative, result: SUCCESS, duration: 0 ns, output: FPmqgYeFZckMFnqHtrXj
-context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T08:59:48.064554542+02:00
+event: eval, expression: PairExpSeq, result: SUCCESS, output: (null, null)
+duration: 253,256 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.582184959+02:00
 
-event: eval-expression, expression: IfElseExp, result: SUCCESS, duration: 3122583 ns, output: FPmqgYeFZckMFnqHtrXj
-context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T08:59:48.061444542+02:00
+event: eval, expression: IfElseExp-alternative, result: SUCCESS, output: JOYfTGftYQXYNFGROgNp
+duration: 253,302 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.582176584+02:00
 
-event: eval-expression, expression: JsObjExpSeq[id], result: SUCCESS, duration: 0 ns, output: FPmqgYeFZckMFnqHtrXj
-context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T08:59:48.064584042+02:00
+event: eval, expression: IfElseExp, result: SUCCESS, output: JOYfTGftYQXYNFGROgNp
+duration: 286,460 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.549066834+02:00
 
-event: eval-expression, expression: JsObjExpSeq[addresses], result: SUCCESS, duration: 0 ns, output: ["m","r","E","k","l","u","P","q","U","F"]
-context: imrafaelmerino@gmail.com, thread: virtual-37, event-start-time: 2023-10-10T08:59:48.066244125+02:00
+event: eval, expression: JsObjExpPar[id], result: SUCCESS, output: JOYfTGftYQXYNFGROgNp
+duration: 315,203 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.520363459+02:00
 
-event: eval-expression, expression: JsObjExpSeq, result: SUCCESS, duration: 17 ms, output: {"addresses":["m","r","E","k","l","u","P","q","U","F"],"number_users":12653,"timestamp":"2023-10-10T06:59:48.058Z","id":"FPmqgYeFZckMFnqHtrXj"}
-context: imrafaelmerino@gmail.com, thread: virtual-37, event-start-time: 2023-10-10T08:59:48.051649417+02:00
-```
+event: eval, expression: JsObjExpPar, result: SUCCESS, output: {"addresses":["u","d","f"],"number_users":32914,"timestamp":"2023-10-10T09:41:27.520Z","id":"JOYfTGftYQXYNFGROgNp"}
+duration: 331,995 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.512854042+02:00
 
-Now we can see how the computation is in parallel from the thread fields.
-
-But, to make our code resilient, let's add some retry logic. For `countUsers`, we want to make retries with a 50 ms
-delay after an error, but not more than 300 ms in total for retries. On the other hand, for `persistLDAP`
-and `sendEmail`, which run asynchronously, let's make retries every 200 ms for 5 seconds (they are legacy systems and
-can be slow). Oh, I almost forgot, the `sendEmail` service sometimes doesn't fail but gives a response saying, "system
-too busy, please wait." In this case will make up to five retries, waiting 1 second for the first retry, 2 seconds for
-the second and so on.
-How do we implement this? It's a piece of cake with JIO.
 
 ```
 
-          
+To enhance the resilience of our code, let's introduce some retry logic for the countUsers lambda. We want to allow up
+to three retries and, in case of failure, return -1.
 
-countUsers.apply(null)
-          .retry(exception -> true,
-                 RetryPolicies.constantDelay(Duration.ofMillis(50))
-                              .limitRetriesByCumulativeDelay(Duration.ofMillis(300))
-                )
-          .recover(e -> -1)
-          .map(JsInt::of)   
+``` code
+                                    
+        // let's add up to three retries 
+        countUsers.apply(null)
+                  .debug(new EventBuilder<>("count_users", email)) 
+                  .retry(RetryPolicies.limitRetries(3))
+                  .recover(e -> -1)
+                  .map(JsInt::of),                            
           
-Predicate<HttpResponse<String> isSystemBusy = ...        
-PairExp.par(persistLDAP.apply(payload),
-            sendEmail.apply(payload)
-                      .repeat(isSystemBusy,
-                              RetryPolicies.incrementalDelay(Duration.ofSeconds(1))
-                                           .append(RetryPolicies.limitRetries(5))
-                             )
-             )
-        .retryEach(e -> true,
-                   RetryPolicies.constantDelay(Duration.ofMillis(20))
-                                .limitRetriesByCumulativeDelay(Duration.ofSeconds(2)))
+```
+
+In this code:
+
+- The `countUsers` lambda is executed, and for each execution, the `debug` method creates an event. The `EventBuilder`
+  allows you to specify the name of the expression being evaluated ("count_users") and the context ("email").
+  This helps customize the events for debugging purposes.
+
+- The `retry` method is used to introduce retry logic. In case of failure, `countUser` will be retried up to three
+  times.
+
+- The `recover` method specifies what value to return in case of a failure. In this case, it returns -1.
+
+And to test it, let's change the stub for the `countUser` lambda:
+
+```code
+
+        //let's change the delay of every stub to 1 sec, for the sake of clarity
+        Gen<Duration> delayGen = Gen.cons(1).map(Duration::ofSeconds);
+        
+        Lambda<Void, Integer> countUsers =
+                nill -> StubSupplier.ofDelayedIOGen(Gens.seq(n -> n <= 4 ?
+                                                                     IO.fail(new RuntimeException(n + "")) :
+                                                                     IO.succeed(n)
+                                                            ),
+                                                    delayGen)
+                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                    .get();
+
+```
+
+In this code:
+
+- The `Gen.cons(1).map(Duration::ofSeconds)` defines a generator `delayGen` that provides a constant delay of 1 second.
+
+- The `countUsers` lambda is defined to use the `StubSupplier` with a sequence generator (`Gens.seq`) that allows you to
+  choose different values for each call. In this case the firs four calls triggers a failure, which is treated as a
+  value
+  that can be returned.
+
+This setup allows you to test and observe the retry logic in action:
+
+```code
+
+Started JFR stream for 10000 ms in SignupTests
+
+event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-10T11:32:31.361Z
+duration: 1183,875 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T13:32:31.361439584+02:00
+
+event: eval, expression: count_users, result: FAILURE, output: java.lang.RuntimeException:1
+duration: 1,008 sg, context: imrafaelmerino@gmail.com, thread: virtual-32, event-start-time: 2023-10-10T13:32:31.358466292+02:00
+
+event: eval, expression: JsObjExpPar[addresses], result: SUCCESS, output: ["H","E","N"]
+duration: 1,009 sg, context: imrafaelmerino@gmail.com, thread: virtual-34, event-start-time: 2023-10-10T13:32:31.361287042+02:00
+
+event: eval, expression: IfElseExp-predicate, result: SUCCESS, output: true
+duration: 1,005 sg, context: imrafaelmerino@gmail.com, thread: virtual-45, event-start-time: 2023-10-10T13:32:32.36795925+02:00
+
+event: eval, expression: count_users, result: FAILURE, output: java.lang.RuntimeException:2
+duration: 1,006 sg, context: imrafaelmerino@gmail.com, thread: virtual-32, event-start-time: 2023-10-10T13:32:32.366728167+02:00
+
+event: eval, expression: IfElseExp-consequence, result: SUCCESS, output: fNUAsXflwFYPNaRnMCfN
+duration: 16,083 µs, context: imrafaelmerino@gmail.com, thread: virtual-45, event-start-time: 2023-10-10T13:32:33.372809459+02:00
+
+event: eval, expression: IfElseExp, result: SUCCESS, output: fNUAsXflwFYPNaRnMCfN
+duration: 1,005 sg, context: imrafaelmerino@gmail.com, thread: virtual-45, event-start-time: 2023-10-10T13:32:32.36795675+02:00
+
+event: eval, expression: JsObjExpPar[id], result: SUCCESS, output: fNUAsXflwFYPNaRnMCfN
+duration: 2,012 sg, context: imrafaelmerino@gmail.com, thread: virtual-45, event-start-time: 2023-10-10T13:32:31.361416292+02:00
+
+event: eval, expression: count_users, result: FAILURE, output: java.lang.RuntimeException:3
+duration: 1,001 sg, context: imrafaelmerino@gmail.com, thread: not recorded, event-start-time: 2023-10-10T13:32:33.372799375+02:00
+
+event: eval, expression: count_users, result: FAILURE, output: java.lang.RuntimeException:4
+duration: 1,006 sg, context: imrafaelmerino@gmail.com, thread: virtual-47, event-start-time: 2023-10-10T13:32:34.374127542+02:00
+
+event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: -1
+duration: 4,025 sg, context: imrafaelmerino@gmail.com, thread: virtual-47, event-start-time: 2023-10-10T13:32:31.356712292+02:00
+
+event: eval, expression: JsObjExpPar, result: SUCCESS, output: {"addresses":["H","E","N"],"number_users":-1,"timestamp":"2023-10-10T11:32:31.361Z","id":"fNUAsXflwFYPNaRnMCfN"}
+duration: 4,036 sg, context: imrafaelmerino@gmail.com, thread: virtual-47, event-start-time: 2023-10-10T13:32:31.355501792+02:00
 
 ```
 
 Key points:
 
-- retry takes in a predicate to specify which errors to consider, in this we'll retry no matter the error is
-- Sometimes you want to make retries when the response is not a failure. That's exactly the purpose of the
-  repeat function
-- Retry policies are composable and very idiomatic!
-- JIO scales very well. the more complex the logic doesn translate in a very complex expression, like it happends
-  with the callback hell.
-- `retryEach` is a powerful feature in JIO that allows you to individually retry every element of an expression that
-  produces multiple results. In this case, it's being used to retry both the first and second elements of the tuple (
-  composed of `persistLDAP.apply(payload)` and `sendEmail.apply(payload)`), providing granular control over retry
-  behavior for each component of the operation. This fine-grained retry capability adds flexibility to handle different
-  retry strategies for distinct parts of a complex operation.
+1. The `retry` method can accept a predicate, allowing you to specify which errors should trigger a retry. This
+   fine-grained control is valuable for handling specific error scenarios.
+
+2. Retry policies in JIO are composable, making it easy to build complex retry strategies. For example, you can create a
+   policy like this:
+
+   ```code
+   RetryPolicies.constantDelay(Duration.ofMillis(50))
+                .limitRetriesByCumulativeDelay(Duration.ofMillis(300))
+   ```
+
+   This policy specifies a constant delay of 50 milliseconds between retries and limits retries by a cumulative delay of
+   300 milliseconds.
+
+3. JIO excels at scalability. Even when dealing with complex logic, it maintains simplicity in the expressions you
+   write, avoiding the complexities of callback hell or other frameworks.
+
+4. JIO offers a high signal-to-noise ratio. It reduces verbosity, allowing you to express complex operations succinctly
+   and clearly.
+
+
 
 ## <a name="Introduction"><a/> Introduction
 

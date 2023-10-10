@@ -3,6 +3,7 @@ package jio.test.stub;
 import fun.gen.Gen;
 import jio.IO;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
@@ -48,6 +49,35 @@ public class StubSupplier<O> implements Supplier<IO<O>> {
     public static <O> StubSupplier<O> ofIOGen(final Gen<IO<O>> gen) {
         return new StubSupplier<>(Objects.requireNonNull(gen));
     }
+    /**
+     * Creates a new stub using the provided generator of values with a specified delay generator.
+     *
+     * @param gen      The generator for creating values of type O.
+     * @param delayGen The generator for creating durations to delay the `IO` operations.
+     * @param <O>      The type of value to generate.
+     * @return A new stub instance.
+     */
+    public static <O> StubSupplier<O> ofDelayedGen(final Gen<O> gen,
+                                                   final Gen<Duration> delayGen
+                                                  ) {
+        Supplier<Duration> delayed = delayGen.sample();
+        return new StubSupplier<>(gen.map(n -> IO.succeed(n).sleep(delayed.get())));
+    }
+    /**
+     * Creates a new stub using the provided generator of IO effects with a specified delay generator.
+     *
+     * @param gen      The generator for creating `IO` instances.
+     * @param delayGen The generator for creating durations to delay the `IO` operations.
+     * @param <O>      The type of value to generate.
+     * @return A new stub instance.
+     */
+    public static <O> StubSupplier<O> ofDelayedIOGen(final Gen<IO<O>> gen,
+                                                     final Gen<Duration> delayGen
+                                                    ) {
+        Supplier<Duration> delayed = delayGen.sample();
+        return new StubSupplier<>(gen.map(io -> io.sleep(delayed.get())));
+    }
+
 
     /**
      * Creates a new stub using the provided generator of values.
@@ -71,6 +101,7 @@ public class StubSupplier<O> implements Supplier<IO<O>> {
         this.executor = Objects.requireNonNull(executor);
         return this;
     }
+
 
     /**
      * Generates an `IO` instance using the specified generator, allowing for lazy execution and composition.

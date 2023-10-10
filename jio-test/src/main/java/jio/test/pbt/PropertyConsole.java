@@ -92,6 +92,7 @@ public final class PropertyConsole {
 
     }
 
+    @SuppressWarnings("rawtypes")
     private List<Property> getPropertiesCommand() {
         return
                 propertyClasses.stream()

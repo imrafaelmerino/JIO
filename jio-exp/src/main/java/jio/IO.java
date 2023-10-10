@@ -1070,11 +1070,39 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      */
     public IO<O> debug(final EventBuilder<O> builder) {
         requireNonNull(builder);
-        return IO.lazy(ExpEvent::new)
+        return IO.lazy(() -> {
+                     ExpEvent expEvent = new ExpEvent();
+                     expEvent.begin();
+                     return expEvent;
+                 })
                  .then(event -> this.peek(val -> builder.updateAndCommit(val, event),
                                           exc -> builder.updateAndCommit(exc, event)
                                          )
                       );
+    }
+
+    /**
+     * Sleeps for the specified duration before evaluating this effect.
+     * <p>This method introduces a pause in the execution flow for the specified duration using the
+     * {@link Thread#sleep(long)} method.
+     * It can be useful for testing purposes, or when working with virtual threads. However, it should be used with
+     * caution, as introducing delays in a program's execution blocking threads can impact performance and behavior.
+     *
+     * @param duration The duration to sleep for.
+     * @return An {@code IO<O>} representing the delayed operation.
+     */
+    public IO<O> sleep(final Duration duration) {
+        Objects.requireNonNull(duration);
+        return IO.lazy(() -> {
+            try {
+                Thread.sleep(duration.toMillis());
+                return null;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+        }).then(nill -> this);
+
     }
 
 
