@@ -35,8 +35,8 @@
         <JACOCO-MAVEN-PLUGIN.VERSION>0.8.8</JACOCO-MAVEN-PLUGIN.VERSION>
         <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
         <MAVEN-COMPILER-PLUGIN.VERSION>3.10.1</MAVEN-COMPILER-PLUGIN.VERSION>
-        <MAVEN-COMPILER-PLUGIN.SOURCE>17</MAVEN-COMPILER-PLUGIN.SOURCE>
-        <MAVEN-COMPILER-PLUGIN.TARGET>17</MAVEN-COMPILER-PLUGIN.TARGET>
+        <MAVEN-COMPILER-PLUGIN.SOURCE>21</MAVEN-COMPILER-PLUGIN.SOURCE>
+        <MAVEN-COMPILER-PLUGIN.TARGET>21</MAVEN-COMPILER-PLUGIN.TARGET>
         <MAVEN-SUREFIRE-PLUGIN.VERSION>3.0.0-M6</MAVEN-SUREFIRE-PLUGIN.VERSION>
         <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
         <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
@@ -71,11 +71,13 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <release>17</release>
+                    <source>${MAVEN-COMPILER-PLUGIN.SOURCE}</source>
+                    <target>${MAVEN-COMPILER-PLUGIN.TARGET}</target>
                     <showWarnings>true</showWarnings>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                     <compilerArgs>
                         <arg>-XDcompilePolicy=simple</arg>
+                        <arg>-Xplugin:ErrorProne</arg>
                         <arg>--enable-preview</arg>
                         <arg>-Xlint:all</arg>
                     </compilerArgs>

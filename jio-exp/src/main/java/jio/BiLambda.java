@@ -25,7 +25,7 @@ public interface BiLambda<A, B, O> extends BiFunction<A, B, IO<O>> {
      * @param <B>       the type of the second parameter of the predicate
      * @return a 'BiLambda' that produces boolean 'IO' effects
      */
-    static <A, B> BiLambda<A, B, Boolean> lift(final BiPredicate<A, B> predicate) {
+    static <A, B> BiLambda<A, B, Boolean> liftPredicate(final BiPredicate<A, B> predicate) {
         requireNonNull(predicate);
         return (a, b) -> {
             try {
@@ -45,7 +45,7 @@ public interface BiLambda<A, B, O> extends BiFunction<A, B, IO<O>> {
      * @param <O> the type of the result produced by the function
      * @return a 'BiLambda' that produces 'IO' effects with a result of type 'O'
      */
-    static <A, B, O> BiLambda<A, B, O> lift(final BiFunction<A, B, O> fn) {
+    static <A, B, O> BiLambda<A, B, O> liftFunction(final BiFunction<A, B, O> fn) {
         requireNonNull(fn);
         return (a, b) -> {
             try {

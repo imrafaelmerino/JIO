@@ -6,8 +6,9 @@ import java.util.function.Predicate;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents the result of evaluating an effect with the method {@link SwitchExp#eval(Object)} of a SwitchExp.
- * This result will be matched against different branches using the {@link #match(Object, Lambda, Object, Lambda, Lambda) match methods}.
+ * Represents the result of evaluating an effect with the method {@link SwitchExp#eval(Object)} of a SwitchExp. This
+ * result will be matched against different branches using the
+ * {@link #match(Object, Lambda, Object, Lambda, Lambda) match methods}.
  *
  * <pre>
  * {@code
@@ -40,9 +41,9 @@ public final class SwitchMatcher<I, O> {
     }
 
     /**
-     * Matcher made up of two branches and a default effect. Each branch consists of a value
-     * that will be used to match the result with the <code>equals</code> method, and an associated lambda
-     * that will be computed in case of success. Branches predicates are evaluated sequentially.
+     * Matcher made up of two branches and a default effect. Each branch consists of a value that will be used to match
+     * the result with the <code>equals</code> method, and an associated lambda that will be computed in case of
+     * success. Branches predicates are evaluated sequentially.
      *
      * @param pattern1  the first value
      * @param lambda1   the lambda associated to the first value
@@ -65,15 +66,13 @@ public final class SwitchMatcher<I, O> {
                                       ),
                                List.of(requireNonNull(lambda1), requireNonNull(lambda2)),
                                requireNonNull(otherwise),
-                               null
-        );
+                               null);
     }
 
     /**
-     * Matcher made up of two branches and a default effect. Each branch consists of a predicate
-     * that will be used to test the result, and an associated lambda
-     * that will be computed in case of the predicate returns true. Branches predicates are
-     * evaluated sequentially in the order they are passed in the method.
+     * Matcher made up of two branches and a default effect. Each branch consists of a predicate that will be used to
+     * test the result, and an associated lambda that will be computed in case of the predicate returns true. Branches
+     * predicates are evaluated sequentially in the order they are passed in the method.
      *
      * @param pattern1  the first value
      * @param lambda1   the lambda associated to the first value
@@ -93,16 +92,17 @@ public final class SwitchMatcher<I, O> {
                                List.of(requireNonNull(pattern1),
                                        requireNonNull(pattern2)
                                       ),
-                               List.of(requireNonNull(lambda1), requireNonNull(lambda2)),
+                               List.of(requireNonNull(lambda1),
+                                       requireNonNull(lambda2)),
                                requireNonNull(otherwise),
                                null
         );
     }
 
     /**
-     * Matcher made up of four branches and a default effect. Each branch consists of a list of values
-     * that will be used to match the result with the <code>contains</code> method, and an associated lambda
-     * that will be computed in case of success. Branches predicates are evaluated sequentially.
+     * Matcher made up of four branches and a default effect. Each branch consists of a list of values that will be used
+     * to match the result with the <code>contains</code> method, and an associated lambda that will be computed in case
+     * of success. Branches predicates are evaluated sequentially.
      *
      * @param pattern1  the first list
      * @param lambda1   the lambda associated to the first value
@@ -130,9 +130,9 @@ public final class SwitchMatcher<I, O> {
     }
 
     /**
-     * Matcher made up of four branches and a default effect. Each branch consists of a list of values
-     * that will be used to match the result with the <code>contains</code> method, and an associated lambda
-     * that will be computed in case of success. Branches predicates are evaluated sequentially.
+     * Matcher made up of four branches and a default effect. Each branch consists of a list of values that will be used
+     * to match the result with the <code>contains</code> method, and an associated lambda that will be computed in case
+     * of success. Branches predicates are evaluated sequentially.
      *
      * @param pattern1  the first list
      * @param lambda1   the lambda associated to the first value
@@ -169,9 +169,9 @@ public final class SwitchMatcher<I, O> {
     }
 
     /**
-     * Matcher made up of three branches and a default effect. Each branch consists of a value
-     * that will be used to match the result with the <code>equals</code> method, and an associated lambda
-     * that will be computed in case of success. Branches predicates are evaluated sequentially.
+     * Matcher made up of three branches and a default effect. Each branch consists of a value that will be used to
+     * match the result with the <code>equals</code> method, and an associated lambda that will be computed in case of
+     * success. Branches predicates are evaluated sequentially.
      *
      * @param pattern1  the first value
      * @param lambda1   the lambda associated to the first value
@@ -209,10 +209,9 @@ public final class SwitchMatcher<I, O> {
     }
 
     /**
-     * Matcher made up of three branches and a default effect. Each branch consists of a predicate
-     * that will be used to test the result, and an associated lambda
-     * that will be computed in case of the predicate returns true. Branches predicates are
-     * evaluated sequentially in the order they are passed in the method.
+     * Matcher made up of three branches and a default effect. Each branch consists of a predicate that will be used to
+     * test the result, and an associated lambda that will be computed in case of the predicate returns true. Branches
+     * predicates are evaluated sequentially in the order they are passed in the method.
      *
      * @param pattern1  the first value
      * @param lambda1   the lambda associated to the first value
@@ -248,9 +247,9 @@ public final class SwitchMatcher<I, O> {
     }
 
     /**
-     * Matcher made up of four branches and a default effect. Each branch consists of a value
-     * that will be used to match the result with the <code>equals</code> method, and an associated lambda
-     * that will be computed in case of success. Branches predicates are evaluated sequentially.
+     * Matcher made up of four branches and a default effect. Each branch consists of a value that will be used to match
+     * the result with the <code>equals</code> method, and an associated lambda that will be computed in case of
+     * success. Branches predicates are evaluated sequentially.
      *
      * @param pattern1  the first value
      * @param lambda1   the lambda associated to the first value
@@ -295,10 +294,9 @@ public final class SwitchMatcher<I, O> {
     }
 
     /**
-     * Matcher made up of four branches and a default effect. Each branch consists of a predicate
-     * that will be used to test the result, and an associated lambda
-     * that will be computed in case of the predicate returns true. Branches predicates are
-     * evaluated sequentially in the order they are passed in the method.
+     * Matcher made up of four branches and a default effect. Each branch consists of a predicate that will be used to
+     * test the result, and an associated lambda that will be computed in case of the predicate returns true. Branches
+     * predicates are evaluated sequentially in the order they are passed in the method.
      *
      * @param pattern1  the first value
      * @param lambda1   the lambda associated to the first value
@@ -342,9 +340,9 @@ public final class SwitchMatcher<I, O> {
 
 
     /**
-     * Matcher made up of four branches and a default effect. Each branch consists of a list of values
-     * that will be used to match the result with the <code>contains</code> method, and an associated lambda
-     * that will be computed in case of success. Branches predicates are evaluated sequentially.
+     * Matcher made up of four branches and a default effect. Each branch consists of a list of values that will be used
+     * to match the result with the <code>contains</code> method, and an associated lambda that will be computed in case
+     * of success. Branches predicates are evaluated sequentially.
      *
      * @param pattern1  the first list
      * @param lambda1   the lambda associated to the first value
@@ -388,9 +386,9 @@ public final class SwitchMatcher<I, O> {
     }
 
     /**
-     * Matcher made up of four branches and a default effect. Each branch consists of a list of values
-     * that will be used to match the result with the <code>contains</code> method, and an associated lambda
-     * that will be computed in case of success. Branches predicates are evaluated sequentially.
+     * Matcher made up of four branches and a default effect. Each branch consists of a list of values that will be used
+     * to match the result with the <code>contains</code> method, and an associated lambda that will be computed in case
+     * of success. Branches predicates are evaluated sequentially.
      *
      * @param pattern1  the first list
      * @param lambda1   the lambda associated to the first value
@@ -442,9 +440,9 @@ public final class SwitchMatcher<I, O> {
     }
 
     /**
-     * Matcher made up of four branches and a default effect. Each branch consists of a list of values
-     * that will be used to match the result with the <code>contains</code> method, and an associated lambda
-     * that will be computed in case of success. Branches predicates are evaluated sequentially.
+     * Matcher made up of four branches and a default effect. Each branch consists of a list of values that will be used
+     * to match the result with the <code>contains</code> method, and an associated lambda that will be computed in case
+     * of success. Branches predicates are evaluated sequentially.
      *
      * @param pattern1  the first list
      * @param lambda1   the lambda associated to the first value
@@ -503,9 +501,9 @@ public final class SwitchMatcher<I, O> {
 
 
     /**
-     * Matcher made up of five branches and a default effect. Each branch consists of a value
-     * that will be used to match the result with the <code>equals</code> method, and an associated lambda
-     * that will be computed in case of success. Branches predicates are evaluated sequentially.
+     * Matcher made up of five branches and a default effect. Each branch consists of a value that will be used to match
+     * the result with the <code>equals</code> method, and an associated lambda that will be computed in case of
+     * success. Branches predicates are evaluated sequentially.
      *
      * @param pattern1  the first value
      * @param lambda1   the lambda associated to the first value
@@ -555,9 +553,9 @@ public final class SwitchMatcher<I, O> {
     }
 
     /**
-     * Matcher made up of six branches and a default effect. Each branch consists of a value
-     * that will be used to match the result with the <code>equals</code> method, and an associated lambda
-     * that will be computed in case of success. Branches predicates are evaluated sequentially.
+     * Matcher made up of six branches and a default effect. Each branch consists of a value that will be used to match
+     * the result with the <code>equals</code> method, and an associated lambda that will be computed in case of
+     * success. Branches predicates are evaluated sequentially.
      *
      * @param pattern1  the first value
      * @param lambda1   the lambda associated to the first value
@@ -614,10 +612,9 @@ public final class SwitchMatcher<I, O> {
     }
 
     /**
-     * Matcher made up of six branches and a default effect. Each branch consists of a predicate
-     * that will be used to test the result, and an associated lambda
-     * that will be computed in case of the predicate returns true. Branches predicates are
-     * evaluated sequentially in the order they are passed in the method.
+     * Matcher made up of six branches and a default effect. Each branch consists of a predicate that will be used to
+     * test the result, and an associated lambda that will be computed in case of the predicate returns true. Branches
+     * predicates are evaluated sequentially in the order they are passed in the method.
      *
      * @param pattern1  the first value
      * @param lambda1   the lambda associated to the first value
@@ -663,10 +660,9 @@ public final class SwitchMatcher<I, O> {
     }
 
     /**
-     * Matcher made up of six branches and a default effect. Each branch consists of a predicate
-     * that will be used to test the result, and an associated lambda
-     * that will be computed in case of the predicate returns true. Branches predicates are
-     * evaluated sequentially in the order they are passed in the method.
+     * Matcher made up of six branches and a default effect. Each branch consists of a predicate that will be used to
+     * test the result, and an associated lambda that will be computed in case of the predicate returns true. Branches
+     * predicates are evaluated sequentially in the order they are passed in the method.
      *
      * @param pattern1  the first value
      * @param lambda1   the lambda associated to the first value

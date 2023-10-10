@@ -109,7 +109,6 @@ public abstract sealed class TripleExp<A, B, C> extends Exp<Triple<A, B, C>> per
         return _3;
     }
 
-
     @Override
     public abstract TripleExp<A, B, C> retryEach(final Predicate<Throwable> predicate,
                                                  final RetryPolicy policy

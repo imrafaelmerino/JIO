@@ -1,5 +1,7 @@
 package jio.test;
 
+import jdk.jfr.consumer.RecordedThread;
+
 import java.time.Duration;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -35,6 +37,5 @@ public final class Utils {
         if(code < 500) return "CLIENT_ERROR";
         return "SERVER_ERROR";
     }
-
 
 }

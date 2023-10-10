@@ -17,8 +17,7 @@ import java.time.Duration;
 
 public record RetryStatus(int counter,
                           Duration cumulativeDelay,
-                          Duration previousDelay
-) {
+                          Duration previousDelay) {
 
     /**
      * The initial retry status representing no retries.

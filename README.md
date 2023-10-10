@@ -24,10 +24,10 @@ Let's implement a service with the following requirements:
 
 * Additionally, the service stores the client's information in a MongoDB database. The identifier returned by MongoDB
   serves as the client identifier, which must be sent back to the frontend. If the client is successfully saved in the
-  database and the user does not exist in the LDAP system, the service initiates two additional asynchronous actions:
+  database and the user does not exist in the LDAP system, the service initiates two additional actions:
 
-1. The user is sent to the LDAP service, and an activation email is dispatched to the user. It's important to note that
-   the email is sent asynchronously and do not block the main flow of the service.
+1. The user is sent to the LDAP service.
+2. If the operation succeeds, an activation email is dispatched to the user.
 
 * The signup service also provides information about the total number of existing clients in the MongoDB database. This
   information can be used by the frontend to display a welcoming message to the user, such as "You're the user number
@@ -47,66 +47,72 @@ Let's implement a service with the following requirements:
 }
 ```
 
-Let's assume that we've already implemented the following Lambdas (which you'll soon learn how to create). Think of a
-Lambda as a function that takes an input and produces an output. However, unlike traditional functions, Lambdas don't
-throw exceptions (thank goodness!). Instead, they can return exceptions as normal values.
+The signup service constructor accepts some lambdas as input parameters. Think of a Lambda as a function that takes an
+input and produces an output. However, unlike traditional functions, Lambdas don't throw exceptions (thank goodness!).
+Instead, they can return exceptions as normal values.
 
 ```code
 
-// Returns the number of users in the database (doesn't take any input)
-static Lambda<Void, Integer> countUsers;
+import jio.*;
+package jio.api.exp;
+import jio.time.Clock;
+import jsonvalues.*;
+import java.time.Instant;
+import static java.util.Objects.requireNonNull;
 
-// Save the user in the database
-static Lambda<JsObj, Integer> persistMongo;
+public class SignupService implements Lambda<JsObj, JsObj> {
 
-// Send an email to the user to verify their email
-static Lambda<JsObj, Void> sendEmail;
+    final Lambda<JsObj, Void> persistLDAP;
+    final Lambda<String, JsArray> normalizeAddresses;
+    final Lambda<Void, Integer> countUsers;
+    final Lambda<JsObj, String> persistMongo;
+    final Lambda<JsObj, Void> sendEmail;
+    final Lambda<String, Boolean> existsInLDAP;
+    final Clock clock;
 
-// Check if the email is already in the LDAP system
-static Lambda<String, Boolean> existsInLDAP;
-
-// Save the user in the LDAP
-static Lambda<JsObj, Void> persistLDAP;
-
-// Normalize an address using the Geocode API from Google 
-// May produce several addresses
-static Lambda<String, JsArray> normalizeAddresses;
-
-
-```
-
-Now, using these code blocks, let's construct the final implementation of the signup service using expressions from JIO:
-
-```code
-public static IO<JsObj> signup(JsObj payload, Clock clock) {
-
-  String email = payload.getStr("email");
-  String address = payload.getStr("address");
-
-  return JsObjExp.par("number_users", countUsers.apply(null)
-                                                .recover(e -> -1)
-                                                .map(JsInt::of),
-                      "id", persistMongo.apply(payload)
-                                        .then(id -> IfElseExp.<Integer>predicate(existsInLDAP.apply(email))
-                                                             .consequence(() -> IO.succeed(id))
-                                                             .alternative(() -> PairExp.par(persistLDAP.apply(payload),
-                                                                                            sendEmail.apply(payload)
-                                                                                           )
-                                                                                       .discardFor(() -> id)
-                                                                         )
-                                             )
-                                        .map(JsInt::of),
-                      "addresses", normalizeAddresses.apply(address)
-                                                     .recover(e -> JsArray.empty()),
-                      "timestamp", IO.lazy(clock)
-                                     .map(JsLong::of)
-                      );      
+    public SignupService(Lambda<JsObj, Void> persistLDAP,
+                         Lambda<String, JsArray> normalizeAddresses,
+                         Lambda<Void, Integer> countUsers,
+                         Lambda<JsObj, String> persistMongo,
+                         Lambda<JsObj, Void> sendEmail,
+                         Lambda<String, Boolean> existsInLDAP,
+                         Clock clock
+                        ) {
+        this.persistLDAP = requireNonNull(persistLDAP);
+        this.normalizeAddresses = requireNonNull(normalizeAddresses);
+        this.countUsers = requireNonNull(countUsers);
+        this.persistMongo = requireNonNull(persistMongo);
+        this.sendEmail = requireNonNull(sendEmail);
+        this.existsInLDAP = requireNonNull(existsInLDAP);
+        this.clock = requireNonNull(clock);
     }
-  
-JsObj response = signup(payload,
-                        Clock.realtime
-                       ).result();
 
+    @Override
+    public IO<JsObj> apply(JsObj user) {
+        String email = user.getStr("email");
+        String address = user.getStr("address");
+
+        return JsObjExp.par("number_users", countUsers.apply(null)
+                                                      .map(JsInt::of),
+                            "id",
+                            persistMongo.apply(user)
+                                        .then(id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
+                                                             .consequence(() -> IO.succeed(id))
+                                                             .alternative(() -> PairExp.seq(persistLDAP.apply(user),
+                                                                                            sendEmail.apply(user)
+                                                                                           )
+                                                                                       .map(nill -> id)
+                                                                         )
+                                                             .debugEach(email)
+                                             )
+                                        .map(JsStr::of),
+                            "addresses", normalizeAddresses.apply(address),
+                            "timestamp", IO.lazy(clock)
+                                           .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
+                           )
+                        .debugEach(email);
+    }
+}
 
 ```
 
@@ -123,12 +129,185 @@ A few important points to note:
 - The `recover` functions provide an alternative value to be returned in case of any errors (-1 for `countUsers` and an
   empty array for `normalizeAddresses`, according to the specifications).
 
-- `IfElseExp` is just a conditional expression, and I think it doesn't need much explanation.
+- `IfElseExp` is just a conditional expression, where the consequence is evaluated if the predicate is true, and the
+  alternative if the predicate is false.
 
-- `PairExp` is another expression that computes a tuple of two elements. Since we want to compute the values in
-  parallel, we use the `par` constructor. However, since we don't want to wait for them because we don't need their
-  result, we use the `discardFor` operator to say: "Run this in the background but return immediately with the provided
-  value, in this case, the `id`."
+- `PairExp` is another expression that computes a tuple of two elements. Since we want to send the email after
+  persisting successfully the user in the LDAP, we use the `seq` constructor. The `par` constructor would run both
+  operations in parallel.
+
+- `debugEach` is like magic. Contextual logging is a piece of cake with JIO and you can get all the information
+  as you will see just registering the extension Debugger in your test. It uses JFR and send events whenever a
+  computation happens.
+
+- `IO` class is the most important one in JIO. You'll learn how to use it in the next section.
+
+Since Lambdas are just functions, it's really simple to test the previous code. For now, let's just return constants,
+but with jio-test you can create more elaborated stubs (from generators, with delays, simulating errors, you name it!).
+
+```code
+
+
+public class SignupTests {
+
+    @RegisterExtension
+    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+
+    @Test
+    public void test() {
+
+        final Lambda<JsObj, Void> persistLDAP = user -> IO.NULL();
+        final Lambda<String, JsArray> normalizeAddresses = address -> IO.succeed(JsArray.of("address1", "address2"));
+        final Lambda<Void, Integer> countUsers = nill -> IO.succeed(3);
+        final Lambda<JsObj, String> persistMongo = user -> IO.succeed("id");
+        final Lambda<JsObj, Void> sendEmail = user -> IO.NULL();
+        final Lambda<String, Boolean> existsInLDAP = email -> IO.TRUE;
+
+        JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
+                              "address", JsStr.of("Elm's Street")
+                             );
+
+        var resp = new SignupService(persistLDAP,
+                                     normalizeAddresses,
+                                     countUsers,
+                                     persistMongo,
+                                     sendEmail,
+                                     existsInLDAP,
+                                     Clock.realTime)
+                .apply(user)
+                .result();
+
+        Assertions.assertEquals(3,resp.getInt("number_users"));
+        Assertions.assertEquals("id",resp.getStr("id"));
+        Assertions.assertTrue(resp.getArray("addresses").size() == 2);
+
+    }
+
+}
+
+```
+
+And thanks to `debugEach` and the debugger extension the following information will be printed out in the console:
+
+```code
+
+Started JFR stream for 2000 ms in SignupTests
+
+event: eval-expression, expression: JsObjExpPar[number_users], result: SUCCESS, duration: 0 ns, output: 3
+context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.567551959+02:00
+
+event: eval-expression, expression: JsObjExpPar[addresses], result: SUCCESS, duration: 0 ns, output: ["address1","address2"]
+context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.573194042+02:00
+
+event: eval-expression, expression: IfElseExp-predicate, result: SUCCESS, duration: 0 ns, output: false
+context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.574709459+02:00
+
+event: eval-expression, expression: PairExpSeq[1], result: SUCCESS, duration: 0 ns, output: null
+context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.5763505+02:00
+
+event: eval-expression, expression: PairExpSeq[2], result: SUCCESS, duration: 0 ns, output: null
+context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.576501292+02:00
+
+event: eval-expression, expression: PairExpSeq, result: SUCCESS, duration: 383792 ns, output: (null, null)
+context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.57634025+02:00
+
+event: eval-expression, expression: IfElseExp-alternative, result: SUCCESS, duration: 0 ns, output: id
+context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.57674+02:00
+
+event: eval-expression, expression: IfElseExp, result: SUCCESS, duration: 2073625 ns, output: id
+context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.57467925+02:00
+
+event: eval-expression, expression: JsObjExpPar[id], result: SUCCESS, duration: 0 ns, output: id
+context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.576769917+02:00
+
+event: eval-expression, expression: JsObjExpPar[timestamp], result: SUCCESS, duration: 0 ns, output: 2023-10-09T16:33:38.576Z
+context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.577138459+02:00
+
+event: eval-expression, expression: JsObjExpPar, result: SUCCESS, duration: 16 ms, output: {"addresses":["address1","address2"],"number_users":3,"timestamp":"2023-10-09T16:33:38.576Z","id":"id"}
+context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-09T18:33:38.564300084+02:00
+
+```
+
+As you can see all the evaluations are performed by the main thread even when the operator `JsObjExp.par`
+was used. Well, it's because the IO effects returned by the lambdas are just constants.
+Let's use a more elaborated stubs using the jio-test library:
+
+```code 
+
+
+ Lambda<Void, Integer> countUsers =
+            n -> StubSupplier.ofGen(IntGen.arbitrary(0, 100000))
+                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                             .get();
+ 
+ Lambda<JsObj, String> persistMongo =
+            obj -> StubSupplier.ofGen(StrGen.alphabetic(20, 20))
+                               .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                               .get();
+ 
+ Lambda<JsObj, Void> sendEmail =
+            obj -> StubSupplier.<Void>ofGen(Gen.cons(null))
+                               .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                               .get();
+
+ Lambda<String, Boolean> existsInLDAP =
+            email -> StubSupplier.ofGen(BoolGen.arbitrary())
+                                 .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                 .get();
+ Lambda<JsObj, Void> persistLDAP =
+            obj -> StubSupplier.<Void>ofGen(Gen.cons(null))
+                               .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                               .get();
+ 
+ Lambda<String, JsArray> normalizeAddresses =
+            address -> StubSupplier.ofGen(JsArrayGen.ofN(JsStrGen.alphabetic(),10))
+                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                   .get();
+
+```
+
+and the result is
+
+```code
+Started JFR stream for 2000 ms in SignupTests
+
+{"address":"Elm's Street","email":"imrafaelmerino@gmail.com"}
+event: eval-expression, expression: JsObjExpSeq[number_users], result: SUCCESS, duration: 0 ns, output: 12653
+context: imrafaelmerino@gmail.com, thread: virtual-32, event-start-time: 2023-10-10T08:59:48.058587167+02:00
+
+event: eval-expression, expression: JsObjExpSeq[timestamp], result: SUCCESS, duration: 0 ns, output: 2023-10-10T06:59:48.058Z
+context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T08:59:48.059148042+02:00
+
+event: eval-expression, expression: IfElseExp-predicate, result: SUCCESS, duration: 0 ns, output: false
+context: imrafaelmerino@gmail.com, thread: virtual-43, event-start-time: 2023-10-10T08:59:48.061517209+02:00
+
+event: eval-expression, expression: PairExpSeq[1], result: SUCCESS, duration: 0 ns, output: null
+context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T08:59:48.064076917+02:00
+
+event: eval-expression, expression: PairExpSeq[2], result: SUCCESS, duration: 0 ns, output: null
+context: imrafaelmerino@gmail.com, thread: virtual-45, event-start-time: 2023-10-10T08:59:48.064270209+02:00
+
+event: eval-expression, expression: PairExpSeq, result: SUCCESS, duration: 673250 ns, output: (null, null)
+context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T08:59:48.063858417+02:00
+
+event: eval-expression, expression: IfElseExp-alternative, result: SUCCESS, duration: 0 ns, output: FPmqgYeFZckMFnqHtrXj
+context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T08:59:48.064554542+02:00
+
+event: eval-expression, expression: IfElseExp, result: SUCCESS, duration: 3122583 ns, output: FPmqgYeFZckMFnqHtrXj
+context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T08:59:48.061444542+02:00
+
+event: eval-expression, expression: JsObjExpSeq[id], result: SUCCESS, duration: 0 ns, output: FPmqgYeFZckMFnqHtrXj
+context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T08:59:48.064584042+02:00
+
+event: eval-expression, expression: JsObjExpSeq[addresses], result: SUCCESS, duration: 0 ns, output: ["m","r","E","k","l","u","P","q","U","F"]
+context: imrafaelmerino@gmail.com, thread: virtual-37, event-start-time: 2023-10-10T08:59:48.066244125+02:00
+
+event: eval-expression, expression: JsObjExpSeq, result: SUCCESS, duration: 17 ms, output: {"addresses":["m","r","E","k","l","u","P","q","U","F"],"number_users":12653,"timestamp":"2023-10-10T06:59:48.058Z","id":"FPmqgYeFZckMFnqHtrXj"}
+context: imrafaelmerino@gmail.com, thread: virtual-37, event-start-time: 2023-10-10T08:59:48.051649417+02:00
+```
+
+Now we can see how the computation is in parallel from the thread fields.
+
 
 But, to make our code resilient, let's add some retry logic. For `countUsers`, we want to make retries with a 50 ms
 delay after an error, but not more than 300 ms in total for retries. On the other hand, for `persistLDAP`
@@ -152,7 +331,7 @@ countUsers.apply(null)
           
 Predicate<HttpResponse<String> isSystemBusy = ...        
 PairExp.par(persistLDAP.apply(payload),
-             sendEmail.apply(payload)
+            sendEmail.apply(payload)
                       .repeat(isSystemBusy,
                               RetryPolicies.incrementalDelay(Duration.ofSeconds(1))
                                            .append(RetryPolicies.limitRetries(5))
@@ -161,8 +340,6 @@ PairExp.par(persistLDAP.apply(payload),
         .retryEach(e -> true,
                    RetryPolicies.constantDelay(Duration.ofMillis(20))
                                 .limitRetriesByCumulativeDelay(Duration.ofSeconds(2)))
-        .discardFor(() -> id)             
-
 
 ```
 
@@ -179,8 +356,6 @@ Key points:
   composed of `persistLDAP.apply(payload)` and `sendEmail.apply(payload)`), providing granular control over retry
   behavior for each component of the operation. This fine-grained retry capability adds flexibility to handle different
   retry strategies for distinct parts of a complex operation.
-
-
 
 ## <a name="Introduction"><a/> Introduction
 

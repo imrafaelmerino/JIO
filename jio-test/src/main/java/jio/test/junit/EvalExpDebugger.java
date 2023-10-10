@@ -23,7 +23,7 @@ class EvalExpDebugger implements Consumer<RecordedEvent> {
                                 Utils.formatTime(e.getDuration().toNanos()),
                                 isSuccess ? e.getValue("value") : exc,
                                 e.getValue("context"),
-                                e.getThread().getJavaName(),
+                                DebuggerUtils.getThreadName(e.getThread()),
                                 e.getStartTime()
                                  .atZone(ZoneId.systemDefault())
                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)

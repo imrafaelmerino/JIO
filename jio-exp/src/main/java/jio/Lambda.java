@@ -20,7 +20,7 @@ public interface Lambda<I, O> extends Function<I, IO<O>> {
      * @param predicate the predicate to be transformed
      * @return a Lambda that produces boolean effects
      */
-    static <O> Lambda<O, Boolean> lift(final Predicate<O> predicate) {
+    static <O> Lambda<O, Boolean> liftPredicate(final Predicate<O> predicate) {
         requireNonNull(predicate);
         return o -> {
             try {
@@ -39,7 +39,7 @@ public interface Lambda<I, O> extends Function<I, IO<O>> {
      * @param fn  the function to be transformed
      * @return a Lambda that produces effects of type O
      */
-    static <I, O> Lambda<I, O> lift(final Function<I, O> fn) {
+    static <I, O> Lambda<I, O> liftFunction(final Function<I, O> fn) {
         requireNonNull(fn);
         return o -> {
             try {

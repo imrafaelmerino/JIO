@@ -113,7 +113,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                                                              ) {
         try (var r = resource.call()) {
             return map.apply(r);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             return IO.fail(e);
         }
     }
@@ -1056,7 +1056,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @see ExpEvent
      */
     public IO<O> debug() {
-        return debug(new EventBuilder<O>(getClass().getSimpleName()));
+        return debug(new EventBuilder<>(getClass().getSimpleName()));
     }
 
     /**

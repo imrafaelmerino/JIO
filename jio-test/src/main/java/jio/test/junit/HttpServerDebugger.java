@@ -41,7 +41,7 @@ class HttpServerDebugger implements Consumer<RecordedEvent> {
                                 e.getValue("remoteHostAddress"),
                                 e.getValue("remoteHostPort"),
                                 e.getValue("reqHeaders"),
-                                e.getThread().getJavaName(),
+                                DebuggerUtils.getThreadName(e.getThread()),
                                 e.getStartTime()
                                  .atZone(ZoneId.systemDefault())
                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)

@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
 public final class EventBuilder<O> {
 
     final String exp;
-    String context;
+    final String context;
     Function<O, String> successValue = val -> val == null ? "null" : val.toString();
     Function<Throwable, String> failureMessage =
             e -> String.format("%s:%s",
@@ -35,7 +35,9 @@ public final class EventBuilder<O> {
         this(exp, "");
     }
 
-    public EventBuilder(String exp, String context) {
+    public EventBuilder(final String exp,
+                        final String context
+                       ) {
         this.exp = requireNonNull(exp);
         if (exp.isBlank() || exp.isEmpty()) throw new IllegalArgumentException("exp must be a legible string");
         this.context = requireNonNull(context);
@@ -83,12 +85,10 @@ public final class EventBuilder<O> {
     }
 
     void updateAndCommit(final O o, final ExpEvent event) {
-        assert exp != null;
         updateEvent(o, event).commit();
     }
 
     void updateAndCommit(final Throwable exc, final ExpEvent event) {
-        assert exp != null;
         updateEvent(exc, event).commit();
     }
 }

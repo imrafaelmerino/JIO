@@ -35,7 +35,7 @@ class HttpClientDebugger implements Consumer<RecordedEvent> {
                                 e.getValue("method"),
                                 e.getValue("uri"),
                                 e.getValue("reqCounter"),
-                                e.getThread().getJavaName(),
+                                DebuggerUtils.getThreadName(e.getThread()),
                                 e.getStartTime()
                                  .atZone(ZoneId.systemDefault())
                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)

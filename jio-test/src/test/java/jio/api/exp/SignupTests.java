@@ -4,16 +4,21 @@ import fun.gen.BoolGen;
 import fun.gen.Gen;
 import fun.gen.IntGen;
 import fun.gen.StrGen;
-import jio.*;
+import jio.IO;
+import jio.Lambda;
 import jio.test.junit.Debugger;
 import jio.test.stub.StubSupplier;
 import jio.time.Clock;
-import jsonvalues.*;
+import jsonvalues.JsArray;
+import jsonvalues.JsObj;
+import jsonvalues.JsStr;
+import jsonvalues.gen.JsArrayGen;
+import jsonvalues.gen.JsStrGen;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.concurrent.Executors;
 
 /**
@@ -49,11 +54,12 @@ import java.util.concurrent.Executors;
  * each individual operation and for the overall service.
  */
 
-public class TestExample {
+public class SignupTests {
 
 
     @RegisterExtension
     static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+
 
     static Lambda<Void, Integer> countUsers =
             n -> StubSupplier.ofGen(IntGen.arbitrary(0, 3))
@@ -81,49 +87,83 @@ public class TestExample {
                                    .withExecutor(Executors.newSingleThreadExecutor())
                                    .get();
 
-    public static IO<JsObj> signup(JsObj payload, Clock clock) {
-
-        String email = payload.getStr("email");
-        String address = payload.getStr("address");
-
-        String context = String.format("signup-%s", email);
-        return JsObjExp.par("number_users",
-                            countUsers.apply(null)
-                                      .map(JsInt::of),
-                            "id",
-                            persistMongo.apply(payload)
-                                        .then(id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
-                                                             .consequence(() -> IO.succeed(id))
-                                                             .alternative(() -> PairExp.par(persistLDAP.apply(payload),
-                                                                                            sendEmail.apply(payload)
-                                                                                           )
-                                                                                       .map(nill -> id)
-                                                                         )
-                                                             .debugEach(context)
-                                             )
-                                        .map(JsStr::of),
-                            "addresses",
-                            normalizeAddresses.apply(address),
-                            "timestamp",
-                            IO.lazy(clock)
-                              .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
-                           ).debugEach("context");
-
-    }
-
 
     @Test
     public void test() {
 
-        IO<JsObj> user = signup(JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
-                                         "address", JsStr.of("Elm's Street")
-                                        ),
-                                Clock.realTime
-                               );
+        final Lambda<JsObj, Void> persistLDAP = user -> IO.NULL();
+        final Lambda<String, JsArray> normalizeAddresses = address -> IO.succeed(JsArray.of("address1", "address2"));
+        final Lambda<Void, Integer> countUsers = nill -> IO.succeed(3);
+        final Lambda<JsObj, String> persistMongo = user -> IO.succeed("id");
+        final Lambda<JsObj, Void> sendEmail = user -> IO.NULL();
+        final Lambda<String, Boolean> existsInLDAP = email -> IO.FALSE;
 
-        user.result();
+        JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
+                              "address", JsStr.of("Elm's Street")
+                             );
+
+        var resp = new SignupService(persistLDAP,
+                                     normalizeAddresses,
+                                     countUsers,
+                                     persistMongo,
+                                     sendEmail,
+                                     existsInLDAP,
+                                     Clock.realTime)
+                .apply(user)
+                .result();
+
+        Assertions.assertEquals(3,resp.getInt("number_users"));
+        Assertions.assertEquals("id",resp.getStr("id"));
+        Assertions.assertTrue(resp.getArray("addresses").size() == 2);
 
 
+    }
+
+    @Test
+    public void test2(){
+
+        Lambda<Void, Integer> countUsers =
+                n -> StubSupplier.ofGen(IntGen.arbitrary(0, 100000))
+                                 .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                 .get();
+
+        Lambda<JsObj, String> persistMongo =
+                obj -> StubSupplier.ofGen(StrGen.alphabetic(20, 20))
+                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                   .get();
+
+        Lambda<JsObj, Void> sendEmail =
+                obj -> StubSupplier.<Void>ofGen(Gen.cons(null))
+                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                   .get();
+
+        Lambda<String, Boolean> existsInLDAP =
+                email -> StubSupplier.ofGen(BoolGen.arbitrary())
+                                     .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                     .get();
+        Lambda<JsObj, Void> persistLDAP =
+                obj -> StubSupplier.<Void>ofGen(Gen.cons(null))
+                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                   .get();
+
+        Lambda<String, JsArray> normalizeAddresses =
+                address -> StubSupplier.ofGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 10))
+                                       .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                       .get();
+        JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
+                              "address", JsStr.of("Elm's Street")
+                             );
+        var resp = new SignupService(persistLDAP,
+                                     normalizeAddresses,
+                                     countUsers,
+                                     persistMongo,
+                                     sendEmail,
+                                     existsInLDAP,
+                                     Clock.realTime)
+                .apply(user)
+                .result();
+
+        System.out.println(user);
     }
 
 
