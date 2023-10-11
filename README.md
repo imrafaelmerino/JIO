@@ -15,20 +15,28 @@
     - [Requirements and dependencies](#Requirements-and-dependencies)
 - [jio-http](#jio-http)
     - [http-client](#httpclient)
-    - [oauth-http-client](#oauth)   
+    - [oauth-http-client](#oauth)
     - [http-server](#httpserver)
     - [Debugging and JFR integration](#Http-Debugging-and-JFR-integration)
+    - [Installation](#Installation)
+    - [Requirements and dependencies](#Requirements-and-dependencies)
 - [jio-mongodb](#jio-mongodb)
     - [API](#mongodb-api)
-    - [Debugging and JFR integration](#Http-Debugging-and-JFR-integration)  
+    - [Debugging and JFR integration](#Http-Debugging-and-JFR-integration)
+    - [Installation](#Installation)
+    - [Requirements and dependencies](#Requirements-and-dependencies)
 - [jio-test](#jio-test)
     - [Junit integration](#junit)
     - [Stubs](#stubs)
-       -[IO stubs](#iostubs)
-       -[Clock stubs](#clockstubs)
-       -[Http Server Stubs](#httpserverstubs) 
+      -[IO stubs](#iostubs)
+      -[Clock stubs](#clockstubs)
+      -[Http Server Stubs](#httpserverstubs)
     - [Property based testing](#pbs)
-  
+    - [Installation](#Installation)
+    - [Requirements and dependencies](#Requirements-and-dependencies)
+- [jio-console](#console)
+- [jio-chatgpt](#jio-chatgpt)
+
 ## <a name="cwa"><a/> Code wins arguments
 
 The age-old "Hello world" example has outlived its usefulness. While it once served as a foundational teaching tool, its
@@ -75,15 +83,16 @@ of lambdas, where a lambda is essentially a function that takes an input and pro
 functions, lambdas won't throw exceptions; instead, they gracefully return exceptions as regular values.
 
 ```java
-
 import jio.*;
 import jio.time.Clock;
 import jsonvalues.*;
+
 import java.time.Instant;
+
 import static java.util.Objects.requireNonNull;
 
 public class SignupService implements Lambda<JsObj, JsObj> {
-  
+
     Lambda<JsObj, Void> persistLDAP;
     Lambda<String, JsArray> normalizeAddresses;
     Lambda<Void, Integer> countUsers;
@@ -94,34 +103,34 @@ public class SignupService implements Lambda<JsObj, JsObj> {
 
     //constructor
 
-@Override
-public IO<JsObj> apply(JsObj user) {
-  
-  String email = user.getStr("email");
-  String address = user.getStr("address");
+    @Override
+    public IO<JsObj> apply(JsObj user) {
 
-  return 
-  JsObjExp.par("number_users", countUsers.apply(null)
-                                         .recover(exc -> -1)
-                                         .map(JsInt::of),
-               "id",
-               persistMongo.apply(user)
-                           .then(id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
-                                          .consequence(() -> IO.succeed(id))
-                                          .alternative(() -> PairExp.seq(persistLDAP.apply(user),
-                                                                         sendEmail.apply(user)
-                                                                         )
-                                                                    .debugEach(email)    
-                                                                    .map(pair -> id)
-                                                           )
-                                          .debugEach(email)
-                                 )
-                           .map(JsStr::of),
-               "addresses", normalizeAddresses.apply(address),
-               "timestamp", IO.lazy(clock)
-                              .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
-               )
-          .debugEach(email);
+        String email = user.getStr("email");
+        String address = user.getStr("address");
+
+        Lambda<String, String> LDAPFlow =
+                id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
+                               .consequence(() -> IO.succeed(id))
+                               .alternative(() -> PairExp.seq(persistLDAP.apply(user),
+                                                              sendEmail.apply(user)
+                                                             )
+                                                         .debugEach(email)
+                                                         .map(n -> id)
+                                           )
+                               .debugEach(email);
+
+        return JsObjExp.par("number_users", countUsers.apply(null)
+                                                      .recover(exc -> -1)
+                                                      .map(JsInt::of),
+                            "id", persistMongo.apply(user)
+                                              .then(LDAPFlow)
+                                              .map(JsStr::of),
+                            "addresses", normalizeAddresses.apply(address),
+                            "timestamp", IO.lazy(clock)
+                                           .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
+                           )
+                       .debugEach(email);
     }
 }
 
@@ -242,8 +251,9 @@ Here's a breakdown of how it works:
 2. **Using `debug` and `debugEach`**: Within your code, you utilize the `debug` and `debugEach` methods provided by JIO.
    These methods allow you to send events to the JFR system, providing crucial context about the execution flow.
 
-3. **Event Printing**: During the execution of the test for the specified duration, the Debugger extension prints out all 
-   the events that were sent to the JFR system. These events include information about the expressions being evaluated, 
+3. **Event Printing**: During the execution of the test for the specified duration, the Debugger extension prints out
+   all
+   the events that were sent to the JFR system. These events include information about the expressions being evaluated,
    their results, execution durations, contextual data, and more.
 
 4. **Stream Ordering**: Importantly, the event stream is ordered. Events are printed in the order in which they
@@ -885,6 +895,7 @@ Lambda<Boolean,Integer> l2 = Lambda.liftPredicate(isOdd);
 BiLambda<Integer,Integer,Integer> l3 = BiLambda.liftFunction(sum);
 
 ```
+
   
 ---  
 
@@ -1474,8 +1485,6 @@ bottlenecks that may arise during execution. All the subexpressions and the fina
 same context, making it easier to relate them and analyze their interactions.  
 JIO's logging and JFR integration features provide valuable tools for contextual logging, debugging, profiling, and  
 monitoring your functional effects and expressions, helping you build robust and reliable applications.
-
-
 
 ## <a name="Installation"><a/> Installation
 

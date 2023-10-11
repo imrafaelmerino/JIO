@@ -4,7 +4,6 @@ import jio.*;
 import jio.time.Clock;
 import jsonvalues.*;
 
-import java.time.Duration;
 import java.time.Instant;
 
 import static java.util.Objects.requireNonNull;
@@ -42,27 +41,26 @@ public class SignupService implements Lambda<JsObj, JsObj> {
         String email = user.getStr("email");
         String address = user.getStr("address");
 
-        return
-                JsObjExp.par("number_users",
-                             countUsers.apply(null)
-                                       .debug(new EventBuilder<>("retry_number_users", email))
-                                       .retry(RetryPolicies.limitRetries(3))
-                                       .recover(e -> -1)
-                                       .map(JsInt::of),
-                             "id",
-                             persistMongo.apply(user)
-                                         .then(id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
-                                                              .consequence(() -> IO.succeed(id))
-                                                              .alternative(() -> PairExp.seq(persistLDAP.apply(user),
-                                                                                             sendEmail.apply(user)
-                                                                                            )
-                                                                                        .debugEach(email)
-                                                                                        .map(n -> id)
-                                                                          )
-                                                              .debugEach(email)
+        Lambda<String, String> LDAPFlow =
+                id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
+                               .consequence(() -> IO.succeed(id))
+                               .alternative(() -> PairExp.seq(persistLDAP.apply(user),
+                                                              sendEmail.apply(user)
+                                                             )
+                                                         .debugEach(email)
+                                                         .map(n -> id)
+                                           )
+                               .debugEach(email);
 
-                                              )
-                                         .map(JsStr::of),
+        return
+                JsObjExp.par("number_users", countUsers.apply(null)
+                                                       .debug(new EventBuilder<>("retry_number_users", email))
+                                                       .retry(RetryPolicies.limitRetries(3))
+                                                       .recover(e -> -1)
+                                                       .map(JsInt::of),
+                             "id", persistMongo.apply(user)
+                                               .then(LDAPFlow)
+                                               .map(JsStr::of),
                              "addresses", normalizeAddresses.apply(address),
                              "timestamp", IO.lazy(clock)
                                             .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
