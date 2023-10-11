@@ -225,17 +225,14 @@ Here's a breakdown of how it works:
 2. **Using `debug` and `debugEach`**: Within your code, you utilize the `debug` and `debugEach` methods provided by JIO.
    These methods allow you to send events to the JFR system, providing crucial context about the execution flow.
 
-3. **Event Stream Creation**: When you run your test, the Debugger extension starts recording events. Every time
-   a `debug` or `debugEach` method is called, it sends the corresponding computation details to the JFR system.
+3. **Event Printing**: During the execution of the test for the specified duration, the Debugger extension prints out all 
+   the events that were sent to the JFR system. These events include information about the expressions being evaluated, 
+   their results, execution durations, contextual data, and more.
 
-4. **Event Printing**: At the end of the specified duration, the Debugger extension prints out all the events that were
-   sent to the JFR system. These events include information about the expressions being evaluated, their results,
-   execution durations, contextual data, and more.
-
-5. **Stream Ordering**: Importantly, the event stream is ordered. Events are printed in the order in which they
+4. **Stream Ordering**: Importantly, the event stream is ordered. Events are printed in the order in which they
    occurred, providing a clear chronological view of your code's execution.
 
-6. **Pinpointing Bugs and Issues**: With the event stream and detailed logs in hand, you can easily pinpoint any bugs,
+5. **Pinpointing Bugs and Issues**: With the event stream and detailed logs in hand, you can easily pinpoint any bugs,
    unexpected behavior, or performance bottlenecks. The chronological order of events helps you understand the sequence
    of actions in your code.
 
