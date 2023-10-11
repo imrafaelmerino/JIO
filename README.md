@@ -115,7 +115,7 @@ public IO<JsObj> apply(JsObj user) {
 Noteworthy points:
 
 - **Clocks**: In modern programming, managing time is critical, and using `Instant.now()` directly throughout your code
-  can introduce side effects. We advocate using clocks, represented by the `clock` instance in our `SignupService`. A
+  introduces side effects. I advocate using clocks, represented by the `clock` instance in our `SignupService`. A
   clock is a functional alternative to the widespread use of `Instant.now()`. It provides better control and makes your
   code more predictable.
 
