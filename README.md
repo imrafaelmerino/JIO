@@ -141,9 +141,7 @@ Noteworthy points:
 
 - **debugEach**: Debugging is an essential part of software development, and contextual logging is a powerful tool for
   diagnosing issues. JIO simplifies debugging with its `debug` and `debugEach` methods, which allows you to log
-  information at various points in your code effortlessly. In our `SignupService`, we utilize `debugEach(email)` to
-  provide context-specific logging for the email variable. This aids in understanding the flow of data and helps
-  pinpoint any potential problems.
+  information at various points in your code effortlessly.
 
 - **JFR (Java Flight Recorder)**: JIO leverages JFR for logging purposes. This choice offers several advantages. First,
   it's Java-native, which means it seamlessly integrates with the Java ecosystem, ensuring compatibility and
@@ -151,7 +149,7 @@ Noteworthy points:
   libraries, of which there are many in the Java landscape. By relying on JFR, we maintain a lightweight and efficient
   approach to logging that is both reliable and highly effective.
 
-- The backbone of JIO is the `IO` class, a versatile type that we'll explore further in the next section.
+- The backbone of JIO is the `IO` class that we'll explore in detail in the next section.
 
 ### Testing the Signup Service with JIO
 
@@ -187,7 +185,7 @@ public class SignupTests {
         
         Lambda<JsObj, Void> sendEmail = user -> IO.NULL();
         
-        Lambda<String, Boolean> existsInLDAP = email -> IO.TRUE;
+        Lambda<String, Boolean> existsInLDAP = email -> IO.FALSE;
 
         JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
                               "address", JsStr.of("Elm's Street")
