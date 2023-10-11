@@ -1415,16 +1415,7 @@ generates a `RecordedEvent` and sends it to the Flight Recorder system. You can 
 
 ```code  
   
-/**  
-* Creates a copy of this effect that generates an {@link jdk.jfr.consumer.RecordedEvent} from the result of the  
-* computation and sends it to the Flight Recorder system. Customization of the event can be achieved using the  
-* provided {@link EventBuilder}.  
-*  
-* @param builder the builder used to customize the event.  
-* @return a new effect with debugging enabled.  
-* @see ExpEvent  
-*/  
-public IO<O> debug(final EventBuilder<O> builder);  
+IO<O> debug(final EventBuilder<O> builder);  
   
 ```  
 
@@ -1440,23 +1431,10 @@ The provided `EventBuilder` or a descriptive context can be used to customize th
 
 ```code  
   
-/**  
-* Attaches a debug mechanism to each operand of this expression, allowing you to monitor and log the execution of  
-* each operand individually.  
-*  
-* @param messageBuilder the builder for creating debug events for each operand.  
-* @return a new expression with debug behavior applied to each operand.  
-*/  
-abstract Exp<O> debugEach(final EventBuilder<O> messageBuilder);  
+
+Exp<O> debugEach(final EventBuilder<O> builder);  
   
-/**  
-* Attaches a debug mechanism to each operand of this expression, allowing you to monitor and log the execution of  
-* each operand individually.  
-*  
-* @param context a descriptive context for the debug events of each operand.  
-* @return a new expression with debug behavior applied to each operand.  
-*/  
-abstract Exp<O> debugEach(final String context);  
+Exp<O> debugEach(final String context);  
   
 ```  
 
@@ -1466,135 +1444,7 @@ same context, making it easier to relate them and analyze their interactions.
 JIO's logging and JFR integration features provide valuable tools for contextual logging, debugging, profiling, and  
 monitoring your functional effects and expressions, helping you build robust and reliable applications.
 
-### Streaming JFR Events
 
-JIO also provides the `EventDebugger` class, which allows you to stream through the events recorded in JFR. This class  
-simplifies event recording and provides methods for configuring event handling and duration.
-
-```code  
-  
-package jio.jfr;  
-  
-import jdk.jfr.consumer.EventStream;  
-import jdk.jfr.consumer.RecordedEvent;  
-import jdk.jfr.consumer.RecordingStream;  
-  
-import java.io.IOException;  
-import java.text.ParseException;  
-import java.time.Duration;  
-import java.time.Instant;  
-import java.util.Objects;  
-import java.util.function.Consumer;  
-  
-/**  
-* An abstract base class for debugging events using Java Flight Recorder (JFR).  
-* Provides methods for configuring event recording and handling recorded events.  
-*/  
-public abstract class EventDebugger {  
-  
-    // ... (constructor and other methods)  
-      
-    /**  
-    * Starts asynchronous event recording for the specified duration.  
-    *  
-    * @param duration The duration (in milliseconds) for which to capture events.  
-    */  
-    public void startAsync(final int duration);  
-      
-    /**  
-    * Closes the EventStream, stopping event recording.  
-    */  
-    public void close();  
-      
-    /**  
-    * Blocks until event recording is terminated.  
-    * Throws a RuntimeException if interrupted.  
-    */  
-    public void awaitTermination();  
-}  
-  
-  
-```  
-
-With EventDebugger, you can seamlessly integrate JFR event streaming into your debugging and profiling workflows,  
-allowing you to analyze the recorded events in detail.
-
-JIO's logging and JFR integration features provide valuable tools for contextual logging, debugging, profiling, and  
-monitoring your functional effects and expressions, helping you build robust and reliable applications.
-
-### EventDebugger example
-
-Here's an example of how to use the `EventDebugger`.
-
-Suppose you have a JIO-based application with various effects and expressions that perform complex computations. You  
-want to gain insights into the execution of these effects and expressions by capturing and analyzing events using Java  
-Flight Recorder (JFR).
-
-1. **Create a Custom EventDebugger Class**: First, create a custom `EventDebugger` class that extends  
-   the `EventDebugger` base class provided by JIO. This custom class allows you to specify the events you want to  
-   capture and define how you handle recorded events.
-
-```code  
-import jio.jfr.EventDebugger;  
-import jdk.jfr.consumer.RecordedEvent;  
-  
-public class MyEventDebugger extends EventDebugger {  
-  
-    public MyEventDebugger() {  
-        // Initialize the EventDebugger with the event name and event consumer.  
-        super("MyAppEvents", event -> handleEvent(event));  
-    }  
-      
-    private void handleEvent(RecordedEvent event) {  
-        // Handle the recorded event here.  
-        // You can log, analyze, or take any actions based on the event data.  
-        System.out.println("Recorded Event: " + event);  
-    }  
-}  
-```  
-
-In this example, we've created a custom `MyEventDebugger` class that captures events with the name "MyAppEvents" and  
-defines how to handle each recorded event.
-
-2. **Instrument Your Application**: Next, you need to instrument your application with the `MyEventDebugger` class to  
-   start event recording. You can do this in your application's entry point or any relevant location.
-
-```code  
-public class MyApp {  
-  
-    public static void main(String[] args) {  
-        // Create an instance of MyEventDebugger to start event recording.  
-        MyEventDebugger eventDebugger = new MyEventDebugger();  
-          
-        // ...  
-          
-        // Optionally, specify a duration for event recording (e.g., 5000 milliseconds).  
-        eventDebugger.startAsync(5000);  
-          
-        // Ensure the event recording is properly closed when your application exits.  
-        eventDebugger.awaitTermination();  
-    }  
-}  
-```  
-
-In this example, we create an instance of `MyEventDebugger` to start event recording. You can perform various
-operations and effects within your application, and the `MyEventDebugger` will capture events during this period.
-
-3. **Analyzing Captured Events**: As your application runs, events are captured and handled by the `MyEventDebugger`.  
-   You can customize the event handling logic to log, analyze, or perform any actions you need based on the recorded  
-   events.
-
-The `handleEvent` method in the `MyEventDebugger` class defines how to handle each recorded event. You can access
-event data and decide how to utilize it for debugging, profiling, or monitoring purposes.
-
-By using the `EventDebugger` class, you can gain valuable insights into the behavior of your JIO-based application,  
-identify performance bottlenecks, and troubleshoot issues effectively. This approach allows for contextual logging and  
-monitoring of events related to your functional effects and expressions.
-
-Feel free to customize the `MyEventDebugger` class and event handling logic to suit your specific debugging and  
-monitoring needs.
-  
----  
 
 ## <a name="Installation"><a/> Installation
 
