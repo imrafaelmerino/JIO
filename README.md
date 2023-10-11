@@ -34,7 +34,7 @@ Let's delve into the implementation of a signup service with the following requi
     - If the operation succeeds, an activation email is sent to the user.
 3. The signup service also provides information about the total number of existing clients in the MongoDB database. This
    information can be utilized by the frontend to display a welcoming message to the user, such as "You're the user
-   number 3000!" If an error occurs, we must retry up to three times. However, if the error persists, the service returns -1, and the frontend will not display the message.
+   number 3000!" If an error occurs the service returns -1, and the frontend will not display the message.
 4. Crucially, the signup service is designed to perform all these operations in parallel. This includes the request to
    Google for address validation and the MongoDB operations, which encompass both data persistence and counting.
 
