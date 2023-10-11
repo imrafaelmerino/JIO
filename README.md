@@ -138,8 +138,8 @@ Noteworthy points:
 
 - **PairExp**: The `PairExp` expression simplifies the creation of tuples or pairs of values. In our case, we
   use `PairExp.seq` to execute two operations (`persistLDAP.apply(user)` and `sendEmail.apply(user)`) sequentially,
-  although it's important to note that we are not interested in the pair result, as both of these operations return 
-  `void`. 
+  although it's important to note that we are not interested in the pair result, as both of these operations return
+  `void`.
 
 - **debugEach**: Debugging is an essential part of software development, and contextual logging is a powerful tool for
   diagnosing issues. JIO simplifies debugging with its `debug` and `debugEach` methods, which allows you to log
@@ -179,8 +179,8 @@ public class SignupTests {
     public void test() {
 
         Lambda<JsObj, Void> persistLDAP = user -> IO.NULL();
-        Lambda<String, JsArray> normalizeAddresses = 
-                                address -> IO.succeed(JsArray.of("address1", "address2"));
+        Lambda<String, JsArray> normalizeAddresses =
+                address -> IO.succeed(JsArray.of("address1", "address2"));
         Lambda<Void, Integer> countUsers = nill -> IO.succeed(3);
         Lambda<JsObj, String> persistMongo = user -> IO.succeed("id");
         Lambda<JsObj, Void> sendEmail = user -> IO.NULL();
@@ -241,16 +241,16 @@ Here's a breakdown of how it works:
    of actions in your code.
 
 In summary, the Debugger extension in JIO transforms the testing and debugging process into a streamlined and
-informative experience. It empowers developers to gain deep insights into their code's behavior without relying on
-external logging libraries or complex setups.
+informative experience with minimal effort from developers. It empowers developers to gain deep insights into their
+code's behavior without relying on external logging libraries or complex setups.
 
 Here is the information that is printed out during testing:
 
-```text
+```
 
 Started JFR stream for 2000 ms in SignupTests
 
-event: eval, expression: JsObjExpPar\[number_users\], result: SUCCESS, output: 3
+event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: 3
 duration: 1727,208 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.679769708+02:00
 
 event: eval, expression: JsObjExpPar[addresses], result: SUCCESS, output: ["address1","address2"]
@@ -332,56 +332,59 @@ In the previous example, you might have noticed that all the evaluations are per
 the `JsObjExp.par` operator was used. This behavior occurs because the IO effects returned by the lambdas are just
 constants, and no Executor is specified. Even if you were to specify one, there are instances when the
 CompletableFuture framework (which JIO relies on extensively) may not switch context between threads if it deems it
-unnecessary, especially when dealing with constant values.
+unnecessary.
 
 But don't worry, we can introduce some random delays and leverage fibers to create a more realistic example. To do this,
 let's use more elaborate stubs with the `StubSupplier` class from the `jio-test` library:
 
-```java 
+```java
 
- Gen<Duration> delayGen = IntGen.arbitrary(0, 200)
-                                .map(Duration::ofMillis);
+@Test
+public void test(){
 
- Lambda<Void, Integer> countUsers =
-            nill -> StubSupplier.ofDelayedGen(IntGen.arbitrary(0, 100000),
-                                              delayGen
-                                             )
-                                .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                .get();
- 
- Lambda<JsObj, String> persistMongo =
-            user -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
-                                              delayGen
-                                             )
-                               .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                               .get();
- 
- Lambda<JsObj, Void> sendEmail =
-            user -> StubSupplier.ofDelayedGen(Gen.cons(null),
-                                              delayGen
-                                             )
-                               .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                               .get();
+        Gen<Duration> delayGen = IntGen.arbitrary(0, 200)
+                                       .map(Duration::ofMillis);
 
- Lambda<String, Boolean> existsInLDAP =
-            email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
-                                               delayGen
-                                              )
-                                 .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                 .get();
- Lambda<JsObj, Void> persistLDAP =
-            obj -> StubSupplier.ofDelayedGen(Gen.cons(null),
-                                             delayGen
-                                            )
-                               .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                               .get();
- 
- Lambda<String, JsArray> normalizeAddresses =
-            address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(),3),
+        Lambda<Void, Integer> countUsers =
+                nill -> StubSupplier.ofDelayedGen(IntGen.arbitrary(0, 100000),
+                                                  delayGen
+                                                 )
+                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                    .get();
+
+        Lambda<JsObj, String> persistMongo =
+                user -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
+                                                  delayGen
+                                                 )
+                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                    .get();
+
+        Lambda<JsObj, Void> sendEmail =
+                user -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+                                                  delayGen
+                                                 )
+                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                    .get();
+
+        Lambda<String, Boolean> existsInLDAP =
+                email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
+                                                   delayGen
+                                                  )
+                                     .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                     .get();
+        Lambda<JsObj, Void> persistLDAP =
+                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
                                                  delayGen
                                                 )
                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                                    .get();
+
+        Lambda<String, JsArray> normalizeAddresses =
+                address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
+                                                     delayGen
+                                                    )
+                                       .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                       .get();    
 
 ```
 
@@ -390,7 +393,7 @@ the `StubSupplier` class to generate delayed values and associating each lambda 
 threads (`Executors.newVirtualThreadPerTaskExecutor()`). This approach ensures that evaluations occur asynchronously and
 may involve multiple threads, providing a more realistic representation of concurrent operations:
 
-```text
+```code
 Started JFR stream for 2000 ms in SignupTests
 
 event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-10T09:41:27.520Z
@@ -432,7 +435,7 @@ duration: 331,995 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, eve
 To enhance the resilience of our code, let's introduce some retry logic for the countUsers lambda. We want to allow up
 to three retries and, in case of failure, return -1.
 
-``` java
+``` code
                                     
         // let's add up to three retries 
         countUsers.apply(null)
@@ -456,7 +459,7 @@ In this code:
 
 And to test it, let's change the stub for the `countUser` lambda:
 
-```java
+```code
 
         //let's change the delay of every stub to 1 sec, for the sake of clarity
         Gen<Duration> delayGen = Gen.cons(1).map(Duration::ofSeconds);
@@ -483,7 +486,7 @@ In this code:
 
 This setup allows you to test and observe the retry logic in action:
 
-```text
+```code
 
 Started JFR stream for 10000 ms in SignupTests
 
@@ -533,7 +536,7 @@ Key points:
 2. Retry policies in JIO are composable, making it easy to build complex retry strategies. For example, you can create a
    policy like this:
 
-   ```java
+   ```code
    RetryPolicies.constantDelay(Duration.ofMillis(50))
                 .limitRetriesByCumulativeDelay(Duration.ofMillis(300))
    ```

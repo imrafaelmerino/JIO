@@ -208,5 +208,53 @@ public class SignupTests {
         System.out.println(resp);
     }
 
+    @Test
+    public void test() {
+
+        Gen<Duration> delayGen = IntGen.arbitrary(0, 200)
+                                       .map(Duration::ofMillis);
+
+        Lambda<Void, Integer> countUsers =
+                nill -> StubSupplier.ofDelayedGen(IntGen.arbitrary(0, 100000),
+                                                  delayGen
+                                                 )
+                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                    .get();
+
+        Lambda<JsObj, String> persistMongo =
+                user -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
+                                                  delayGen
+                                                 )
+                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                    .get();
+
+        Lambda<JsObj, Void> sendEmail =
+                user -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+                                                        delayGen
+                                                       )
+                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                    .get();
+
+        Lambda<String, Boolean> existsInLDAP =
+                email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
+                                                   delayGen
+                                                  )
+                                     .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                     .get();
+        Lambda<JsObj, Void> persistLDAP =
+                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+                                                       delayGen
+                                                      )
+                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                   .get();
+
+        Lambda<String, JsArray> normalizeAddresses =
+                address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
+                                                     delayGen
+                                                    )
+                                       .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                       .get();
+    }
+
 
 }
