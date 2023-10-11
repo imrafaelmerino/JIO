@@ -13,7 +13,22 @@
     - [Debugging and JFR integration](#Debugging-and-JFR-integration)
     - [Installation](#Installation)
     - [Requirements and dependencies](#Requirements-and-dependencies)
-
+- [jio-http](#jio-http)
+    - [http-client](#httpclient)
+    - [oauth-http-client](#oauth)   
+    - [http-server](#httpserver)
+    - [Debugging and JFR integration](#Http-Debugging-and-JFR-integration)
+- [jio-mongodb](#jio-mongodb)
+    - [API](#mongodb-api)
+    - [Debugging and JFR integration](#Http-Debugging-and-JFR-integration)  
+- [jio-test](#jio-test)
+    - [Junit integration](#junit)
+    - [Stubs](#stubs)
+       -[IO stubs](#iostubs)
+       -[Clock stubs](#clockstubs)
+       -[Http Server Stubs](#httpserverstubs) 
+    - [Property based testing](#pbs)
+  
 ## <a name="cwa"><a/> Code wins arguments
 
 The age-old "Hello world" example has outlived its usefulness. While it once served as a foundational teaching tool, its
@@ -855,7 +870,21 @@ interface BiLambda<A, B, O> extends BiFunction<A, B, IO<O>> {}
   
 ```  
 
-We'll use them all the time.
+We'll use them all the time. Lambdas are like functions, but they never throw exceptions. Exceptions are
+first class citizens in JIO, just like regular values. Sometimes you want to turn regular functions or
+predicates into Lambdas. This can be accomplished with the `lift` methods:
+
+```
+
+Function<Integer,Integer> opposite = n -> -n;
+BiFunction<Integer,Integer,Integer> sum = (a,b) -> a + b;
+Predicate<Integer> isOdd = n -> n % 2 == 1;
+
+Lambda<Integer,Integer> l1 = Lambda.liftFunction(opposite);
+Lambda<Boolean,Integer> l2 = Lambda.liftPredicate(isOdd);
+BiLambda<Integer,Integer,Integer> l3 = BiLambda.liftFunction(sum);
+
+```
   
 ---  
 
@@ -1467,3 +1496,5 @@ monitoring your functional effects and expressions, helping you build robust and
 
 - Java 17 or greater
 - [json-values](https://github.com/imrafaelmerino/json-values)
+
+
