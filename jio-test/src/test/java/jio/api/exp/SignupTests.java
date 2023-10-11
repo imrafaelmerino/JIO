@@ -55,206 +55,208 @@ import java.util.concurrent.Executors;
  * each individual operation and for the overall service.
  */
 
+
+//only for java 21
 public class SignupTests {
 
 
-    @RegisterExtension
-    static Debugger debugger = new Debugger(Duration.ofSeconds(10));
-
-
-    @Test
-    public void test() {
-
-        final Lambda<JsObj, Void> persistLDAP = a -> IO.NULL();
-        final Lambda<String, JsArray> normalizeAddresses = a -> IO.succeed(JsArray.of("address1", "address2"));
-        final Lambda<Void, Integer> countUsers = a -> IO.succeed(3);
-        final Lambda<JsObj, String> persistMongo = a -> IO.succeed("id");
-        final Lambda<JsObj, Void> sendEmail = a -> IO.NULL();
-        final Lambda<String, Boolean> existsInLDAP = a -> IO.FALSE;
-
-        JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
-                              "address", JsStr.of("Elm's Street")
-                             );
-
-        var resp = new SignupService(persistLDAP,
-                                     normalizeAddresses,
-                                     countUsers,
-                                     persistMongo,
-                                     sendEmail,
-                                     existsInLDAP,
-                                     Clock.realTime)
-                .apply(user)
-                .result();
-
-        Assertions.assertTrue(resp.containsKey("number_users"));
-        Assertions.assertTrue(resp.containsKey("id"));
-        Assertions.assertTrue(resp.containsKey("addresses"));
-        Assertions.assertTrue(resp.containsKey("timestamp"));
-
-
-    }
-
-    @Test
-    public void test2() {
-
-        Gen<Duration> delayGen = Gen.cons(1000).map(Duration::ofMillis);
-        Lambda<Void, Integer> countUsers =
-                nill -> StubSupplier.ofDelayedGen(IntGen.arbitrary(0, 100000),
-                                                  delayGen)
-                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                    .get();
-
-        Lambda<JsObj, String> persistMongo =
-                obj -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
-                                                 delayGen)
-                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                   .get();
-
-        Lambda<JsObj, Void> sendEmail =
-                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
-                                                       delayGen)
-                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                   .get();
-
-        Lambda<String, Boolean> existsInLDAP =
-                email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
-                                                   delayGen)
-                                     .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                     .get();
-        Lambda<JsObj, Void> persistLDAP =
-                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
-                                                       delayGen)
-                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                   .get();
-
-        Lambda<String, JsArray> normalizeAddresses =
-                address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
-                                                     delayGen)
-                                       .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                       .get();
-
-        JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
-                              "address", JsStr.of("Elm's Street")
-                             );
-        var resp = new SignupService(persistLDAP,
-                                     normalizeAddresses,
-                                     countUsers,
-                                     persistMongo,
-                                     sendEmail,
-                                     existsInLDAP,
-                                     Clock.realTime)
-                .apply(user)
-                .result();
-
-        System.out.println(resp);
-    }
-
-
-    @Test
-    public void test3() {
-
-        Gen<Duration> delayed = Gen.cons(1).map(Duration::ofSeconds);
-        Lambda<Void, Integer> countUsers =
-                nill -> StubSupplier.ofDelayedIOGen(Gens.seq(n -> n <= 4 ?
-                                                                     IO.fail(new RuntimeException(n + "")) :
-                                                                     IO.succeed(n)
-                                                            ),
-                                                    delayed)
-                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                    .get();
-
-        Lambda<JsObj, String> persistMongo =
-                obj -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
-                                                 delayed)
-                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                   .get();
-
-        Lambda<JsObj, Void> sendEmail =
-                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
-                                                       delayed)
-                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                   .get();
-
-        Lambda<String, Boolean> existsInLDAP =
-                email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
-                                                   delayed)
-                                     .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                     .get();
-        Lambda<JsObj, Void> persistLDAP =
-                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
-                                                       delayed)
-                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                   .get();
-
-        Lambda<String, JsArray> normalizeAddresses =
-                address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
-                                                     delayed)
-                                       .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                       .get();
-
-        JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
-                              "address", JsStr.of("Elm's Street")
-                             );
-        var resp = new SignupService(persistLDAP,
-                                     normalizeAddresses,
-                                     countUsers,
-                                     persistMongo,
-                                     sendEmail,
-                                     existsInLDAP,
-                                     Clock.realTime)
-                .apply(user)
-                .result();
-
-        System.out.println(resp);
-    }
-
-    @Test
-    public void test() {
-
-        Gen<Duration> delayGen = IntGen.arbitrary(0, 200)
-                                       .map(Duration::ofMillis);
-
-        Lambda<Void, Integer> countUsers =
-                nill -> StubSupplier.ofDelayedGen(IntGen.arbitrary(0, 100000),
-                                                  delayGen
-                                                 )
-                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                    .get();
-
-        Lambda<JsObj, String> persistMongo =
-                user -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
-                                                  delayGen
-                                                 )
-                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                    .get();
-
-        Lambda<JsObj, Void> sendEmail =
-                user -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
-                                                        delayGen
-                                                       )
-                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                    .get();
-
-        Lambda<String, Boolean> existsInLDAP =
-                email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
-                                                   delayGen
-                                                  )
-                                     .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                     .get();
-        Lambda<JsObj, Void> persistLDAP =
-                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
-                                                       delayGen
-                                                      )
-                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                   .get();
-
-        Lambda<String, JsArray> normalizeAddresses =
-                address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
-                                                     delayGen
-                                                    )
-                                       .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                       .get();
-    }
+//    @RegisterExtension
+//    static Debugger debugger = new Debugger(Duration.ofSeconds(10));
+//
+//
+//    @Test
+//    public void test() {
+//
+//        final Lambda<JsObj, Void> persistLDAP = a -> IO.NULL();
+//        final Lambda<String, JsArray> normalizeAddresses = a -> IO.succeed(JsArray.of("address1", "address2"));
+//        final Lambda<Void, Integer> countUsers = a -> IO.succeed(3);
+//        final Lambda<JsObj, String> persistMongo = a -> IO.succeed("id");
+//        final Lambda<JsObj, Void> sendEmail = a -> IO.NULL();
+//        final Lambda<String, Boolean> existsInLDAP = a -> IO.FALSE;
+//
+//        JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
+//                              "address", JsStr.of("Elm's Street")
+//                             );
+//
+//        var resp = new SignupService(persistLDAP,
+//                                     normalizeAddresses,
+//                                     countUsers,
+//                                     persistMongo,
+//                                     sendEmail,
+//                                     existsInLDAP,
+//                                     Clock.realTime)
+//                .apply(user)
+//                .result();
+//
+//        Assertions.assertTrue(resp.containsKey("number_users"));
+//        Assertions.assertTrue(resp.containsKey("id"));
+//        Assertions.assertTrue(resp.containsKey("addresses"));
+//        Assertions.assertTrue(resp.containsKey("timestamp"));
+//
+//
+//    }
+//
+//    @Test
+//    public void test2() {
+//
+//        Gen<Duration> delayGen = Gen.cons(1000).map(Duration::ofMillis);
+//        Lambda<Void, Integer> countUsers =
+//                nill -> StubSupplier.ofDelayedGen(IntGen.arbitrary(0, 100000),
+//                                                  delayGen)
+//                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                    .get();
+//
+//        Lambda<JsObj, String> persistMongo =
+//                obj -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
+//                                                 delayGen)
+//                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                   .get();
+//
+//        Lambda<JsObj, Void> sendEmail =
+//                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+//                                                       delayGen)
+//                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                   .get();
+//
+//        Lambda<String, Boolean> existsInLDAP =
+//                email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
+//                                                   delayGen)
+//                                     .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                     .get();
+//        Lambda<JsObj, Void> persistLDAP =
+//                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+//                                                       delayGen)
+//                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                   .get();
+//
+//        Lambda<String, JsArray> normalizeAddresses =
+//                address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
+//                                                     delayGen)
+//                                       .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                       .get();
+//
+//        JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
+//                              "address", JsStr.of("Elm's Street")
+//                             );
+//        var resp = new SignupService(persistLDAP,
+//                                     normalizeAddresses,
+//                                     countUsers,
+//                                     persistMongo,
+//                                     sendEmail,
+//                                     existsInLDAP,
+//                                     Clock.realTime)
+//                .apply(user)
+//                .result();
+//
+//        System.out.println(resp);
+//    }
+//
+//
+//    @Test
+//    public void test3() {
+//
+//        Gen<Duration> delayed = Gen.cons(1).map(Duration::ofSeconds);
+//        Lambda<Void, Integer> countUsers =
+//                nill -> StubSupplier.ofDelayedIOGen(Gens.seq(n -> n <= 4 ?
+//                                                                     IO.fail(new RuntimeException(n + "")) :
+//                                                                     IO.succeed(n)
+//                                                            ),
+//                                                    delayed)
+//                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                    .get();
+//
+//        Lambda<JsObj, String> persistMongo =
+//                obj -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
+//                                                 delayed)
+//                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                   .get();
+//
+//        Lambda<JsObj, Void> sendEmail =
+//                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+//                                                       delayed)
+//                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                   .get();
+//
+//        Lambda<String, Boolean> existsInLDAP =
+//                email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
+//                                                   delayed)
+//                                     .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                     .get();
+//        Lambda<JsObj, Void> persistLDAP =
+//                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+//                                                       delayed)
+//                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                   .get();
+//
+//        Lambda<String, JsArray> normalizeAddresses =
+//                address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
+//                                                     delayed)
+//                                       .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                       .get();
+//
+//        JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
+//                              "address", JsStr.of("Elm's Street")
+//                             );
+//        var resp = new SignupService(persistLDAP,
+//                                     normalizeAddresses,
+//                                     countUsers,
+//                                     persistMongo,
+//                                     sendEmail,
+//                                     existsInLDAP,
+//                                     Clock.realTime)
+//                .apply(user)
+//                .result();
+//
+//        System.out.println(resp);
+//    }
+//
+//    @Test
+//    public void test() {
+//
+//        Gen<Duration> delayGen = IntGen.arbitrary(0, 200)
+//                                       .map(Duration::ofMillis);
+//
+//        Lambda<Void, Integer> countUsers =
+//                nill -> StubSupplier.ofDelayedGen(IntGen.arbitrary(0, 100000),
+//                                                  delayGen
+//                                                 )
+//                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                    .get();
+//
+//        Lambda<JsObj, String> persistMongo =
+//                user -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
+//                                                  delayGen
+//                                                 )
+//                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                    .get();
+//
+//        Lambda<JsObj, Void> sendEmail =
+//                user -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+//                                                        delayGen
+//                                                       )
+//                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                    .get();
+//
+//        Lambda<String, Boolean> existsInLDAP =
+//                email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
+//                                                   delayGen
+//                                                  )
+//                                     .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                     .get();
+//        Lambda<JsObj, Void> persistLDAP =
+//                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+//                                                       delayGen
+//                                                      )
+//                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                   .get();
+//
+//        Lambda<String, JsArray> normalizeAddresses =
+//                address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
+//                                                     delayGen
+//                                                    )
+//                                       .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+//                                       .get();
+//    }
 
 
 }

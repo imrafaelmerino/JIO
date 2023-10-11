@@ -32,7 +32,7 @@ Let's delve into the implementation of a signup service with the following requi
     - If the operation succeeds, an activation email is sent to the user.
 3. The signup service also provides information about the total number of existing clients in the MongoDB database. This
    information can be utilized by the frontend to display a welcoming message to the user, such as "You're the user
-   number 3000!" However, if any errors occur, the service returns -1, and the frontend will not display the message.
+   number 3000!" If an error occurs, we must retry up to three times. However, if the error persists, the service returns -1, and the frontend will not display the message.
 4. Crucially, the signup service is designed to perform all these operations in parallel. This includes the request to
    Google for address validation and the MongoDB operations, which encompass both data persistence and counting.
 
@@ -43,13 +43,9 @@ The response from the signup service follows this structure:
 ```code
 {
   "number_users": integer,
-  // Total number of existing clients in the DB or -1
   "id": string,
-  // MongoDB ID
   "timestamp": instant,
-  // Timestamp indicating when the server begins processing the frontend request
   "addresses": array
-  // Client addresses returned by Google Geocode API
 }
 ```
 
@@ -96,8 +92,8 @@ public IO<JsObj> apply(JsObj user) {
                                           .alternative(() -> PairExp.seq(persistLDAP.apply(user),
                                                                          sendEmail.apply(user)
                                                                          )
-                                                                     .debugEach(email)    
-                                                                     .map(pair -> id)
+                                                                    .debugEach(email)    
+                                                                    .map(pair -> id)
                                                            )
                                           .debugEach(email)
                                  )
@@ -167,7 +163,7 @@ behavior of each lambda to your specific test scenario, making your tests highly
 
 Let's see how to test the `SignupService` using JIO:
 
-```java
+```code
 
 
 public class SignupTests {
@@ -179,32 +175,35 @@ public class SignupTests {
     public void test() {
 
         Lambda<JsObj, Void> persistLDAP = user -> IO.NULL();
+        
         Lambda<String, JsArray> normalizeAddresses =
                 address -> IO.succeed(JsArray.of("address1", "address2"));
+        
         Lambda<Void, Integer> countUsers = nill -> IO.succeed(3);
+        
         Lambda<JsObj, String> persistMongo = user -> IO.succeed("id");
+        
         Lambda<JsObj, Void> sendEmail = user -> IO.NULL();
+        
         Lambda<String, Boolean> existsInLDAP = email -> IO.TRUE;
 
         JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
                               "address", JsStr.of("Elm's Street")
                              );
 
-        var resp = new SignupService(persistLDAP,
-                                     normalizeAddresses,
-                                     countUsers,
-                                     persistMongo,
-                                     sendEmail,
-                                     existsInLDAP,
-                                     Clock.realTime)
-                .apply(user)
-                .result();
-
+        JsObj resp = new SignupService(persistLDAP,
+                                       normalizeAddresses,
+                                       countUsers,
+                                       persistMongo,
+                                       sendEmail,
+                                       existsInLDAP,
+                                       Clock.realTime
+                                       )
+                                      .apply(user)
+                                      .result();
+        //Junit assertions
         Assertions.assertTrue(resp.containsKey("number_users"));
-        Assertions.assertTrue(resp.containsKey("id"));
-        Assertions.assertTrue(resp.containsKey("addresses"));
-        Assertions.assertTrue(resp.containsKey("timestamp"));
-
+        
     }
 
 }
@@ -337,7 +336,7 @@ unnecessary.
 But don't worry, we can introduce some random delays and leverage fibers to create a more realistic example. To do this,
 let's use more elaborate stubs with the `StubSupplier` class from the `jio-test` library:
 
-```java
+```code
 
 @Test
 public void test(){
