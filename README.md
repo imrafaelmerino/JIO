@@ -16,7 +16,7 @@
 
 The age-old "Hello world" example has outlived its usefulness. While it once served as a foundational teaching tool, its
 simplicity no longer suffices in today's world. In the current landscape, where real-world scenarios are markedly more
-intricate, we proudly present a "Hello world" example that truly mirrors the complexity of modern development.
+intricate, I present a "Hello world" example that truly mirrors the complexity of modern development.
 
 ### Signup Service specification
 
@@ -40,7 +40,7 @@ Let's delve into the implementation of a signup service with the following requi
 
 The response from the signup service follows this structure:
 
-```json
+```code
 {
   "number_users": integer,
   // Total number of existing clients in the DB or -1
@@ -59,7 +59,8 @@ The `SignupService` orchestrates all the operations with elegance and efficiency
 of lambdas, where a lambda is essentially a function that takes an input and produces an output. Unlike traditional
 functions, lambdas won't throw exceptions; instead, they gracefully return exceptions as regular values.
 
-```code
+```java
+
 import jio.*;
 import jio.time.Clock;
 import jsonvalues.*;
@@ -136,9 +137,9 @@ Noteworthy points:
   branching logic.
 
 - **PairExp**: The `PairExp` expression simplifies the creation of tuples or pairs of values. In our case, we
-  use `PairExp.seq` to execute two operations (`persistLDAP.apply(user)` and `sendEmail.apply(user)`) sequentially and
-  obtain a pair result. This expressive construct encapsulates the idea of combining two operations into a sequence and
-  mapping the result to an ID, making the code more self-explanatory.
+  use `PairExp.seq` to execute two operations (`persistLDAP.apply(user)` and `sendEmail.apply(user)`) sequentially,
+  although it's important to note that we are not interested in the pair result, as both of these operations return 
+  `void`. 
 
 - **debugEach**: Debugging is an essential part of software development, and contextual logging is a powerful tool for
   diagnosing issues. JIO simplifies debugging with its `debug` and `debugEach` methods, which allows you to log
@@ -166,7 +167,7 @@ behavior of each lambda to your specific test scenario, making your tests highly
 
 Let's see how to test the `SignupService` using JIO:
 
-```code
+```java
 
 
 public class SignupTests {
@@ -245,11 +246,11 @@ external logging libraries or complex setups.
 
 Here is the information that is printed out during testing:
 
-```code
+```text
 
 Started JFR stream for 2000 ms in SignupTests
 
-event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: 3
+event: eval, expression: JsObjExpPar\[number_users\], result: SUCCESS, output: 3
 duration: 1727,208 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.679769708+02:00
 
 event: eval, expression: JsObjExpPar[addresses], result: SUCCESS, output: ["address1","address2"]
@@ -336,7 +337,7 @@ unnecessary, especially when dealing with constant values.
 But don't worry, we can introduce some random delays and leverage fibers to create a more realistic example. To do this,
 let's use more elaborate stubs with the `StubSupplier` class from the `jio-test` library:
 
-```code 
+```java 
 
  Gen<Duration> delayGen = IntGen.arbitrary(0, 200)
                                 .map(Duration::ofMillis);
@@ -389,7 +390,7 @@ the `StubSupplier` class to generate delayed values and associating each lambda 
 threads (`Executors.newVirtualThreadPerTaskExecutor()`). This approach ensures that evaluations occur asynchronously and
 may involve multiple threads, providing a more realistic representation of concurrent operations:
 
-```code
+```text
 Started JFR stream for 2000 ms in SignupTests
 
 event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-10T09:41:27.520Z
@@ -431,7 +432,7 @@ duration: 331,995 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, eve
 To enhance the resilience of our code, let's introduce some retry logic for the countUsers lambda. We want to allow up
 to three retries and, in case of failure, return -1.
 
-``` code
+``` java
                                     
         // let's add up to three retries 
         countUsers.apply(null)
@@ -455,7 +456,7 @@ In this code:
 
 And to test it, let's change the stub for the `countUser` lambda:
 
-```code
+```java
 
         //let's change the delay of every stub to 1 sec, for the sake of clarity
         Gen<Duration> delayGen = Gen.cons(1).map(Duration::ofSeconds);
@@ -482,7 +483,7 @@ In this code:
 
 This setup allows you to test and observe the retry logic in action:
 
-```code
+```text
 
 Started JFR stream for 10000 ms in SignupTests
 
@@ -532,7 +533,7 @@ Key points:
 2. Retry policies in JIO are composable, making it easy to build complex retry strategies. For example, you can create a
    policy like this:
 
-   ```code
+   ```java
    RetryPolicies.constantDelay(Duration.ofMillis(50))
                 .limitRetriesByCumulativeDelay(Duration.ofMillis(300))
    ```
@@ -545,8 +546,6 @@ Key points:
 
 4. JIO offers a high signal-to-noise ratio. It reduces verbosity, allowing you to express complex operations succinctly
    and clearly.
-
-
 
 ## <a name="Introduction"><a/> Introduction
 
