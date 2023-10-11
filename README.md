@@ -22,7 +22,7 @@ intricate, I present a "Hello world" example that truly mirrors the complexity o
 
 ### Signup Service specification
 
-Let's delve into the implementation of a signup service with the following requirements:
+Let's jump into the implementation of a signup service with the following requirements:
 
 1. The signup service takes a JSON input containing at least two fields: email and address, both expected as strings.
    The service's first step is to validate and standardize the address using the Google Geocode API. The results
@@ -37,6 +37,8 @@ Let's delve into the implementation of a signup service with the following requi
    number 3000!" If an error occurs the service returns -1, and the frontend will not display the message.
 4. Crucially, the signup service is designed to perform all these operations in parallel. This includes the request to
    Google for address validation and the MongoDB operations, which encompass both data persistence and counting.
+5. The signup service also returns a timestamp indicating the instant the user became a member. This timestamp can be
+   used by the frontend to show the user the exact date and time they joined.
 
 ### Response Structure
 
