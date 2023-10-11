@@ -4,6 +4,7 @@ import jdk.jfr.Configuration;
 import jdk.jfr.consumer.EventStream;
 import jdk.jfr.consumer.RecordedEvent;
 import jdk.jfr.consumer.RecordingStream;
+import jio.test.Utils;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -92,8 +93,8 @@ public class Debugger implements AfterAllCallback, BeforeAllCallback {
         stream.setStartTime(Instant.now());
         stream.setEndTime(Instant.now().plus(duration));
         stream.startAsync();
-        System.out.println(String.format("Started JFR stream for %s ms in %s\n",
-                                         duration.toMillis(),
+        System.out.println(String.format("Started JFR stream for %s in %s\n",
+                                         Utils.formatTime(duration.toNanos()),
                                          context.getDisplayName()));
     }
 }

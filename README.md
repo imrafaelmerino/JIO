@@ -240,11 +240,11 @@ In summary, the Debugger extension in JIO transforms the testing and debugging p
 informative experience with minimal effort from developers. It empowers developers to gain deep insights into their
 code's behavior without relying on external logging libraries or complex setups.
 
-Here is the information that is printed out during testing:
+Here is the information that is printed out during the previous test:
 
 ```
 
-Started JFR stream for 2000 ms in SignupTests
+Started JFR stream for 2 sg in SignupTests
 
 event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: 3
 duration: 1727,208 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.679769708+02:00
@@ -390,7 +390,7 @@ threads (`Executors.newVirtualThreadPerTaskExecutor()`). This approach ensures t
 may involve multiple threads, providing a more realistic representation of concurrent operations:
 
 ```code
-Started JFR stream for 2000 ms in SignupTests
+Started JFR stream for 2 sg in SignupTests
 
 event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-10T09:41:27.520Z
 duration: 861,417 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:41:27.5204015+02:00
@@ -484,7 +484,7 @@ This setup allows you to test and observe the retry logic in action:
 
 ```code
 
-Started JFR stream for 10000 ms in SignupTests
+Started JFR stream for 5 sg in SignupTests
 
 event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-10T11:32:31.361Z
 duration: 1183,875 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T13:32:31.361439584+02:00
