@@ -182,9 +182,9 @@ Noteworthy points:
 ### Testing the Signup Service with JIO
 
 JIO offers an elegant and efficient approach to testing. It eliminates the need for external libraries like Mockito,
-making your testing experience smoother and more expressive. In your test class, you can implement lambda functions
-directly. This approach enables you to tailor the behavior of each lambda to your specific test scenario, making your
-tests highly adaptable and expressive:
+making your testing experience smoother and more expressive. Since Lambdas are just functions, you can implement them
+in your test class, directly. This approach enables you to tailor the behavior of each lambda to your specific test
+scenario, making your tests highly adaptable and expressive:
 
 ```code
 
@@ -241,11 +241,11 @@ to the Java Flight Recorder (JFR) system during that period.
 
 Here's a breakdown of how it works:
 
-1. **Debugger Extension Registration**: In your test class, you register the Debugger extension using
+1. **Debugger Extension Registration**: In your test class, you register the Debugger JUnit extension using
    the `@RegisterExtension` annotation. You specify the duration for which the debugger captures events.
 
 2. **Using `debug` and `debugEach`**: Within your code, you utilize the `debug` and `debugEach` methods provided by JIO.
-   These methods allow you to send events to the JFR system.
+   These methods allow you to send events to the JFR system after a value or expression is being evaluated.
 
 3. **Event Printing**: During the execution of the test for the specified duration, the Debugger extension prints out
    all the events that were sent to the JFR system. These events include information about the expressions being
@@ -261,7 +261,7 @@ In summary, the Debugger extension in JIO transforms the testing and debugging p
 informative experience with minimal effort from developers. It empowers developers to gain deep insights into their
 code's behavior without relying on external logging libraries or complex setups.
 
-And finally, find below all the events that are printed out during the previous test.
+And finally, find below all the events that are printed out during the execution of the previous JUnit test.
 
 ```
 Started JFR stream for 10,000 sg in SignupTests
@@ -306,70 +306,71 @@ In summary, these traces are like breadcrumbs that guide you through your code, 
 efficient and effective. They enable you to pinpoint issues, optimize performance, and gain a deeper understanding of
 how your code behaves during testing.
 
-In the previous example, you might have noticed that all the evaluations are performed by the main thread, even when
-the `JsObjExp.par` operator was used. This behavior occurs because the IO effects returned by the lambdas are just
-constants, and no `Executor` is specified. Even if you were to specify one, there are instances when the
-CompletableFuture framework (which JIO relies on extensively) may not switch context between threads if it deems it
-unnecessary.
+In the previous example, you may have observed that all evaluations were performed by the main thread. This is because
+the IO effects returned by the lambdas were essentially constants, and no specific `Executor` was defined. Even if
+an `Executor` were specified, there are cases where the CompletableFuture framework, heavily relied upon by JIO, may
+choose not to switch contexts between threads if it deems it unnecessary.
 
-But don't worry, we can introduce some random delays and leverage virtual threads to create a more realistic example.
-To do this, let's use more elaborate stubs with the `StubSupplier` class from the `jio-test` library:
+However, you can introduce random delays and leverage virtual threads to create a more realistic example. To achieve
+this, more complex stubs are used from the `jio-test` library through the `StubSupplier` class. These stubs allow you to
+specify generators for their creation, ensuring different values are returned every time. Here's how you can utilize
+them:
 
 ```code
-
 @Test
 public void test(){
 
-        Gen<Duration> delayGen = IntGen.arbitrary(0, 200)
-                                       .map(Duration::ofMillis);
+    Gen<Duration> delayGen = IntGen.arbitrary(0, 200)
+                                   .map(Duration::ofMillis);
 
-        Lambda<Void, Integer> countUsers =
-                nill -> StubSupplier.ofDelayedGen(IntGen.arbitrary(0, 100000),
-                                                  delayGen
-                                                 )
-                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                    .get();
+    Lambda<Void, Integer> countUsers =
+            nill -> StubSupplier.ofDelayedGen(IntGen.arbitrary(0, 100000),
+                                              delayGen
+                                             )
+                                .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                .get();
 
-        Lambda<JsObj, String> persistMongo =
-                user -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
-                                                  delayGen
-                                                 )
-                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                    .get();
+    Lambda<JsObj, String> persistMongo =
+            user -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
+                                              delayGen
+                                             )
+                                .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                .get();
 
-        Lambda<JsObj, Void> sendEmail =
-                user -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
-                                                  delayGen
-                                                 )
-                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                    .get();
+    Lambda<JsObj, Void> sendEmail =
+            user -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+                                              delayGen
+                                             )
+                                .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                .get();
 
-        Lambda<String, Boolean> existsInLDAP =
-                email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
-                                                   delayGen
-                                                  )
-                                     .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                     .get();
-        Lambda<JsObj, Void> persistLDAP =
-                obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+    Lambda<String, Boolean> existsInLDAP =
+            email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
+                                               delayGen
+                                              )
+                                 .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                 .get();
+    Lambda<JsObj, Void> persistLDAP =
+            obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+                                             delayGen
+                                            )
+                               .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                               .get();
+
+    Lambda<String, JsArray> normalizeAddresses =
+            address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
                                                  delayGen
                                                 )
                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                   .get();
-
-        Lambda<String, JsArray> normalizeAddresses =
-                address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
-                                                     delayGen
-                                                    )
-                                       .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                       .get();    
-
+                                   .get();    
+}
 ```
 
-In this updated example, we've introduced random delays to simulate more realistic scenarios. We're using
-the `StubSupplier` class to generate delayed values and associating each lambda with an Executor that uses virtual
-threads (`Executors.newVirtualThreadPerTaskExecutor()`). This approach ensures that evaluations occur asynchronously and
-may involve multiple threads, providing a more realistic representation of concurrent operations:
+These `StubSupplier` instances are essentially Java suppliers that return IO stubs. They allow you to introduce
+variability and randomness into your tests, making them more realistic and ensuring your code can handle different
+scenarios effectively.
+
+Using that stubs the following events were printed out:
 
 ```code
 Started JFR stream for 2 sg in SignupTests
@@ -410,46 +411,44 @@ duration: 331,995 ms, context: signup, thread: virtual-44, event-start-time: 202
 
 ```
 
-To enhance the resilience of our code, let's introduce some retry logic for the countUsers lambda. We want to allow up
-to three retries and, in case of failure, return -1.
+To enhance the resilience of our code, let's introduce some retry logic for the `countUsers` lambda. We want to allow up
+to three retries:
 
-``` code
-                                    
+``` code                                
         // let's add up to three retries 
         countUsers.apply(null)
                   .debug(new EventBuilder<>("count_users", context)) 
                   .retry(RetryPolicies.limitRetries(3))
-                  .recover(e -> -1)
-                  .map(JsInt::of),                            
-          
+                  .recover(e -> -1)                                                 
 ```
 
 In this code:
 
 - The `countUsers` lambda is executed, and for each execution, the `debug` method creates an event. The `EventBuilder`
-  allows you to specify the name of the expression being evaluated ("count_users") and the context ("email").
-  This helps customize the events for debugging purposes.
+  allows you to specify the name of the expression being evaluated ("count_users") and the context. This helps customize 
+  the events sent to the JFR system.
 
 - The `retry` method is used to introduce retry logic. In case of failure, `countUser` will be retried up to three
   times.
 
-- The `recover` method specifies what value to return in case of a failure. In this case, it returns -1.
+- The `recover` method specifies what value to return in case of a failure.
 
 And to test it, let's change the stub for the `countUser` lambda:
 
 ```code
 
         //let's change the delay of every stub to 1 sec, for the sake of clarity
-        Gen<Duration> delayGen = Gen.cons(1).map(Duration::ofSeconds);
+Gen<Duration> delayGen = Gen.cons(1).map(Duration::ofSeconds);
         
-        Lambda<Void, Integer> countUsers =
-                nill -> StubSupplier.ofDelayedIOGen(Gens.seq(n -> n <= 4 ?
-                                                                     IO.fail(new RuntimeException(n + "")) :
-                                                                     IO.succeed(n)
-                                                            ),
-                                                    delayGen)
-                                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                    .get();
+Lambda<Void, Integer> countUsers =
+        nill -> StubSupplier.ofDelayedIOGen(Gens.seq(n -> n <= 4 ?
+                                                     IO.fail(new RuntimeException(n + "")) :
+                                                     IO.succeed(n)
+                                                     ),
+                                            delayGen
+                                            )
+                            .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                            .get();
 
 ```
 
@@ -458,7 +457,7 @@ In this code:
 - The `Gen.cons(1).map(Duration::ofSeconds)` defines a generator `delayGen` that provides a constant delay of 1 second.
 
 - The `countUsers` lambda is defined to use the `StubSupplier` with a sequence generator (`Gens.seq`) that allows you to
-  choose different values for each call. In this case the firs four calls triggers a failure, which is treated as a
+  choose different values for each call. In this case the first four calls triggers a failure, which is treated as a
   value that can be returned.
 
 This setup allows you to test and observe the retry logic in action:
@@ -507,10 +506,12 @@ duration: 4,036 sg, context: signup, thread: virtual-47, event-start-time: 2023-
 
 Key points:
 
-1. The `retry` method can accept a predicate, allowing you to specify which errors should trigger a retry. This
+1. After the first failure and three retries, the value -1 from the recover function is returned
+
+2. The `retry` method can accept a predicate, allowing you to specify which errors should trigger a retry. This
    fine-grained control is valuable for handling specific error scenarios.
 
-2. Retry policies in JIO are composable, making it easy to build complex retry strategies. For example, you can create a
+3. Retry policies in JIO are composable, making it easy to build complex retry strategies. For example, you can create a
    policy like this:
 
    ```code
@@ -521,10 +522,10 @@ Key points:
    This policy specifies a constant delay of 50 milliseconds between retries and limits retries by a cumulative delay of
    300 milliseconds.
 
-3. JIO excels at scalability. Even when dealing with complex logic, it maintains simplicity in the expressions you
+4. JIO excels at scalability. Even when dealing with complex logic, it maintains simplicity in the expressions you
    write, avoiding the complexities of callback hell or other frameworks.
 
-4. JIO offers a high signal-to-noise ratio. It reduces verbosity, allowing you to express complex operations succinctly
+5. JIO offers a high signal-to-noise ratio. It reduces verbosity, allowing you to express complex operations succinctly
    and clearly.
 
 ## <a name="Introduction"><a/> Introduction
