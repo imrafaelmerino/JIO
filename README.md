@@ -1514,6 +1514,7 @@ serverBuilder.withBacklog(backlog);
 ```
 
 **Enabling SSL**
+
 If you want to accept only SSL connections:
 
 ```code
@@ -1535,6 +1536,7 @@ serverBuilder.withoutRecordedEvents();
 ```
 
 **Building the server on a Specific Port**
+
 The build methods return IO effects that allow you to create and start the HTTP server at your convenience. These IO
 effects give you control over when to initiate the server. You can use the IO.get or IO.result methods to start the
 server and obtain the HttpServer instance.
