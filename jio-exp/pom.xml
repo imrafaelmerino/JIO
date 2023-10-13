@@ -118,11 +118,7 @@
             <version>${JUNIT-JUPITER-ENGINE.VERSION}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.github.imrafaelmerino</groupId>
-            <artifactId>java-fun</artifactId>
-            <version>1.3.2</version>
-        </dependency>
+
     </dependencies>
     <profiles>
         <profile>

@@ -12,27 +12,23 @@
     - [Clocks](#Clocks)
     - [Debugging and JFR integration](#Debugging-and-JFR-integration)
     - [Installation](#Installation)
-    - [Requirements and dependencies](#Requirements-and-dependencies)
 - [jio-http](#jio-http)
-    - [http-server](#httpserver)
-    - [http-client](#httpclient)
-    - [oauth-http-client](#oauth)
+    - [HTTP server](#httpserver)
+    - [HTTP client](#httpclient)
+    - [OAUTH HTTP client](#oauth)
     - [Installation](#http-Installation)
-    - [Requirements and dependencies](#Http-Requirements-and-dependencies)
 - [jio-mongodb](#jio-mongodb)
     - [API](#mongodb-api)
     - [Debugging and JFR integration](#mongo-Debugging-and-JFR-integration)
     - [Installation](#mongo-Installation)
-    - [Requirements and dependencies](#Mongo-Requirements-and-dependencies)
 - [jio-test](#jio-test)
     - [Junit integration](#junit)
     - [Stubs](#stubs)
-      -[IO stubs](#iostubs)
-      -[Clock stubs](#clockstubs)
-      -[Http Server Stubs](#httpserverstubs)
+       -[IO stubs](#iostubs)
+       -[Clock stubs](#clockstubs)
+       -[Http Server Stubs](#httpserverstubs)
     - [Property based testing](#pbs)
     - [Installation](#test-Installation)
-    - [Requirements and dependencies](#test-Requirements-and-dependencies)
 - [jio-console](#console)
 - [jio-chatgpt](#jio-chatgpt)
 
@@ -1452,6 +1448,8 @@ monitoring your functional effects and expressions, helping you build robust and
 
 ## <a name="Installation"><a/> Installation
 
+It requires Java 17 or greater
+
 ```code  
   
 <dependency>  
@@ -1461,6 +1459,8 @@ monitoring your functional effects and expressions, helping you build robust and
 </dependency>  
   
 ```  
+
+[json-values](https://github.com/imrafaelmerino/json-values) is the only dependency
 
 ## <a name="jio-http"><a/> jio-http
 
@@ -1908,6 +1908,8 @@ the exact values we added when creating the ClientCredentialsHttpClientBuilder
 
 ### <a name="http-Installation"><a/> Installation
 
+It requires Java 17 or greater
+  
 ```code  
   
 <dependency>  
@@ -1918,8 +1920,9 @@ the exact values we added when creating the ClientCredentialsHttpClientBuilder
   
 ```  
 
+[jio-exp](#Installation) is the only dependency
+  
+
 ---
 
-### <a name="Http-Requirements-and-dependencies"><a/> Requirements and dependencies
 
----
