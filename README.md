@@ -14,10 +14,9 @@
     - [Installation](#Installation)
     - [Requirements and dependencies](#Requirements-and-dependencies)
 - [jio-http](#jio-http)
+    - [http-server](#httpserver)
     - [http-client](#httpclient)
     - [oauth-http-client](#oauth)
-    - [http-server](#httpserver)
-    - [Debugging and JFR integration](#Http-Debugging-and-JFR-integration)
     - [Installation](#http-Installation)
     - [Requirements and dependencies](#Http-Requirements-and-dependencies)
 - [jio-mongodb](#jio-mongodb)
@@ -183,7 +182,7 @@ Noteworthy points:
 
 JIO offers an elegant and efficient approach to testing. It eliminates the need for external libraries like Mockito,
 making your testing experience smoother and more expressive. In your test class, you can implement lambda functions
-directly. This approach enables you to tailor the behavior of each lambda to your specific test scenario, making your 
+directly. This approach enables you to tailor the behavior of each lambda to your specific test scenario, making your
 tests highly adaptable and expressive:
 
 ```code
@@ -249,7 +248,8 @@ Here's a breakdown of how it works:
    These methods allow you to send events to the JFR system, providing crucial context about the execution flow.
 
 3. **Event Printing**: During the execution of the test for the specified duration, the Debugger extension prints out
-   all the events that were sent to the JFR system. These events include information about the expressions being evaluated,
+   all the events that were sent to the JFR system. These events include information about the expressions being
+   evaluated,
    their results, execution durations, contextual data, and more.
 
 4. **Stream Ordering**: Importantly, the event stream is ordered. Events are printed in the order in which they
@@ -316,7 +316,7 @@ constants, and no `Executor` is specified. Even if you were to specify one, ther
 CompletableFuture framework (which JIO relies on extensively) may not switch context between threads if it deems it
 unnecessary.
 
-But don't worry, we can introduce some random delays and leverage virtual threads to create a more realistic example. 
+But don't worry, we can introduce some random delays and leverage virtual threads to create a more realistic example.
 To do this, let's use more elaborate stubs with the `StubSupplier` class from the `jio-test` library:
 
 ```code
@@ -1469,11 +1469,9 @@ monitoring your functional effects and expressions, helping you build robust and
 
 ### <a name="httpserver"><a/> HTTP server
 
-**HttpServerBuilder and Creating an HttpServer**
-
 In JIO, you can build and deploy HTTP servers using the `HttpServerBuilder`. This builder is a versatile tool for
 defining and launching HTTP servers for various purposes, including testing. The `HttpServerBuilder` allows you to
-create `HttpServer` instances with ease.
+create `HttpServer` or `HttpsServer` instances with ease.
 
 **Specifying an Executor**
 
@@ -1482,9 +1480,11 @@ be handled in tasks provided to this executor. You can set the executor using th
 method.
 
 ```code
-Executor executor = ...; // Your custom executor
+Executor executor = Executors.newVirtualThreadPerTaskExecutor(); 
+
 HttpServerBuilder serverBuilder = new HttpServerBuilder();
-serverBuilder.setExecutor(executor);
+
+serverBuilder.withExecutor(executor);
 ```
 
 **Adding Request Handlers**
@@ -1493,21 +1493,24 @@ To handle specific URI paths, you can associate each path with an HTTP request h
 that will be invoked for incoming requests.
 
 ```code
-HttpHandler handler = ...; // Your custom HttpHandler
-HttpHandler handler1 = ...; // Your custom HttpHandler
+HttpHandler handler = ...; 
+
+HttpHandler handler1 = ...; 
 
 serverBuilder.addContext("/your-path",handler);
+
 serverBuilder.addContext("/your-path1",handler1);
 ```
 
 **Setting the Socket Backlog**
 
 The `HttpServerBuilder` allows you to specify the socket backlog, which defines the number of incoming connections that
-can be queued for acceptance. You can set the backlog using the `setBacklog(int backlog)` method.
+can be queued for acceptance. You can set the backlog using the `withBacklog(int backlog)` method.
 
 ```code
 int backlog = ...; // Your desired backlog value
-serverBuilder.setBacklog(backlog);
+
+serverBuilder.withBacklog(backlog);
 ```
 
 **Enabling SSL**
@@ -1540,7 +1543,7 @@ server and obtain the HttpServer instance.
 String host="localhost"; // Host name
 int port=8080; // Port number
 
-IO<HttpServer> server = serverBuilder.build(host,port);
+IO<HttpServer> io = serverBuilder.build(host,port);
 ```
 
 **Building the server on a Random Available Port**
@@ -1549,8 +1552,10 @@ You can even pick a random port, which is useful for local testing as we'll see 
 
 ```code
 int startPort = 8000; // Starting port
-int endPort = 9000; // Ending port
-IO<HttpServer> server = serverBuilder.buildAtRandom(startPort, endPort);
+
+int endPort = 9000;   // Ending port
+
+IO<HttpServer> io = serverBuilder.buildAtRandom(startPort, endPort);
 ```
 
 **Starting the HttpServer**
@@ -1563,12 +1568,12 @@ port, and you'll get an error.
 
 ```code
 
-HttpServer server = server.result();
+HttpServer server = io.result();
 
-....
-....
-int FIVE_SECONDS = 5;
-server.stop(FIVE_SECONDS);
+//you can stop the server, 
+
+int AFTER_FIVE_SECONDS = 5;
+server.stop(AFTER_FIVE_SECONDS);
 
 ```
 
@@ -1662,8 +1667,7 @@ requests and responses. JFR event recording is enabled by default:
 
 - `withRetryPolicy`: Sets a default retry policy for handling exceptions during requests.
 - `withRetryPredicate`: Sets a default predicate for selectively applying the retry policy based on the type or
-  condition
-  of the exception.
+  condition of the exception.
 - `withoutRecordEvents`: Disables the recording of JFR events for HTTP requests.
 
 Below is a complete example, making requests to the famous PetStore service, illustrating how to use create and use the
@@ -1739,14 +1743,16 @@ thread: ForkJoinPool.commonPool-worker-1, event-start-time: 2023-10-11T20:30:12.
 
 ```
 
-Explain the result: connect timeout happens but retries save the day!
+Some errors occurred due to the connection timeout being too short for this particular scenario. Thankfully, the
+retry mechanism came to the rescue! Additionally, the `HttpExceptions` class provides numerous predicates to help identify
+the most common errors that can occur during request execution.
 
 ---
 
 ### <a name="oauth"><a/> OAUTH HTTP client
 
 jio-http provides support for client credentials flow OAuth.
-Here are the possible customizations for the ClientCredentialsHttpClientBuilder builder:
+Here are the possible customizations for the `ClientCredentialsHttpClientBuilder` builder:
 
 1. The request sent to the server to get the access token:
     - `accessTokenReq` parameter: A lambda that takes the regular HTTP client and returns the HTTP request to get the
@@ -1842,8 +1848,9 @@ public class TestOauthHttpClient {
                                                                           "token", //uri
                                                                           false),  //ssl false
                                                    GetAccessToken.DEFAULT, //token in access_token key in a JSON
-                                                   resp -> resp.statusCode() == 401) // if 401 go for a new token
-                                                                                     .build();
+                                                   resp -> resp.statusCode() == 401 // if 401 go for a new token
+                                                   ) 
+                                                   .build();
 
     @Test
     public void testOuth() {
@@ -1899,11 +1906,17 @@ the exact values we added when creating the ClientCredentialsHttpClientBuilder
 
 ---
 
-### <a name="Http-Debugging-and-JFR-integration"><a/> Debugging and JFR integration
-
----
-
 ### <a name="http-Installation"><a/> Installation
+
+```code  
+  
+<dependency>  
+    <groupId>com.github.imrafaelmerino</groupId>  
+    <artifactId>jio-http</artifactId>  
+    <version>1.0.0-RC1</version>  
+</dependency>  
+  
+```  
 
 ---
 
