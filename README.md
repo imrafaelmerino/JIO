@@ -79,7 +79,7 @@ The response from the signup service follows this structure:
 
 The `SignupService` orchestrates all the operations with elegance and efficiency. This service is constructed with a set
 of [lambdas](#Lambdas), where a lambda is essentially a function that takes an input and produces an output. Unlike
-traditional functions, lambdas won't throw exceptions; instead, they gracefully return exceptions as regular values.
+traditional functions, lambdas don't throw exceptions; instead, they gracefully return exceptions as regular values.
 
 ```java
 import jio.*;
@@ -142,17 +142,14 @@ public class SignupService implements Lambda<JsObj, JsObj> {
 Noteworthy points:
 
 - **Clocks**: In modern programming, managing time is critical, and using `Instant.now()` directly throughout your code
-  introduces side effects. I advocate using clocks, represented by the `clock` instance in our `SignupService`. A
-  clock is a functional alternative to the widespread use of `Instant.now()`. It provides better control and makes your
-  code more predictable.
+  introduces side effects. I advocate using clocks, represented by the `clock` instance in our `SignupService`. They
+  provide better control and makes your code more predictable.
 
-
-- **JsObjExp**: The `JsObjExp` expression is highly expressive when building JSON objects. It allows us to define the
+- **JsObjExp**: The `JsObjExp` expression is highly expressive. It allows us to define the
   structure of the resulting JSON object in a clear and declarative manner. In our code, we use it to construct a JSON
-  object with multiple key-value pairs, each representing a specific piece of
-  information (`"number_users"`, `"id"`, `"addresses"`, `"timestamp"`, etc.). This approach simplifies the creation of
-  complex JSON structures and enhances code readability.
-
+  object with multiple key-value pairs, each representing a specific piece of information
+  (`"number_users"`, `"id"`, `"addresses"`, `"timestamp"`, etc.). This approach simplifies the creation of complex JSON
+  structures and enhances code readability.
 
 - Error handling is handled gracefully with the `recover` functions, providing alternative values (e.g., -1
   for `countUsers`) in case of errors.
@@ -163,17 +160,18 @@ Noteworthy points:
   sequence of operations using `PairExp`. It enhances the readability of the code, making it easy to understand the
   branching logic.
 
-- **PairExp**: The `PairExp` expression simplifies the creation of tuples or pairs of values. In our case, we
-  use `PairExp.seq` to execute two operations (`persistLDAP.apply(user)` and `sendEmail.apply(user)`) sequentially,
-  although it's important to note that we are not interested in the pair result, as both of these operations return
-  `void`.
+- **PairExp**: The `PairExp` expression streamlines the execution of two effects, either sequentially or in
+  parallel, and then combines their results into a pair. In this scenario, we utilize `PairExp.seq` to execute
+  the `persistLDAP` and `sendEmail` operations sequentially. However, it's essential to emphasize that in this
+  particular example, our primary concern is the successful completion of both operations. Therefore, in the absence of
+  any failures, the result will be a pair containing two `null` values: (null, null), as both operations return `Void`.
 
-- **debugEach**: Debugging is an essential part of software development and also, in real world applications, messages
-  come from different users and requests. When a problem occurs, it can be difficult to determine which log events are
-  related to the issue, especially under load. JIO simplifies debugging and contextual logging with its `debug`
-  and `debugEach` methods.
+- **debugEach**: Debugging plays a pivotal role in software development, and real-world applications often handle a
+  multitude of messages from various users and requests. When issues arise, identifying which log events are pertinent
+  to the problem can be challenging, particularly in high-traffic scenarios. JIO streamlines the debugging process and
+  enhances contextual logging through its `debug` and `debugEach` methods.
 
-- **JFR (Java Flight Recorder)**: JIO leverages JFR for logging and debuging purposes. This choice offers several
+- **JFR (Java Flight Recorder)**: JIO leverages JFR for logging and debugging purposes. This choice offers several
   advantages. First, it's Java-native, which means it seamlessly integrates with the Java ecosystem, ensuring
   compatibility and performance. Second, it avoids the complexities and potential conflicts associated with using
   external logging libraries, of which there are many in the Java landscape. By relying on JFR, we maintain a
@@ -730,7 +728,9 @@ since the effect method takes in a `Supplier`.
 In all the above examples, when the `get` or `result`methods are invoked, the values **will be computed on the caller  
 thread**. Sometimes we need to control on what thread to perform a computation, especially when it's blocking.  
 Whe can specify an executor, or to make use of the **ForkJoin** pool, which is not a problem since **JIO uses
-internally the [ManagedBlocker](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ForkJoinPool.ManagedBlocker.html)** interface, or you can even get benefit from the Loom project and use fibers!
+internally
+the [ManagedBlocker](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ForkJoinPool.ManagedBlocker.html)**
+interface, or you can even get benefit from the Loom project and use fibers!
 
 **From a lazy computation or supplier that has to be executed on a specific pool**
 
