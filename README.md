@@ -79,8 +79,7 @@ The response from the signup service follows this structure:
 
 The `SignupService` orchestrates all the operations with elegance and efficiency. This service is constructed with a set
 of [lambdas](#Lambdas), where a lambda is essentially a function that takes an input and produces an output. Unlike
-traditional
-functions, lambdas won't throw exceptions; instead, they gracefully return exceptions as regular values.
+traditional functions, lambdas won't throw exceptions; instead, they gracefully return exceptions as regular values.
 
 ```java
 import jio.*;
@@ -108,6 +107,7 @@ public class SignupService implements Lambda<JsObj, JsObj> {
 
         String email = user.getStr("email");
         String address = user.getStr("address");
+        String context = "signup";
 
         Lambda<String, String> LDAPFlow =
                 id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
@@ -115,22 +115,25 @@ public class SignupService implements Lambda<JsObj, JsObj> {
                                .alternative(() -> PairExp.seq(persistLDAP.apply(user),
                                                               sendEmail.apply(user)
                                                              )
-                                                         .debugEach(email)
+                                                         .debugEach(context)
                                                          .map(n -> id)
                                            )
-                               .debugEach(email);
+                               .debugEach(context);
 
         return JsObjExp.par("number_users", countUsers.apply(null)
                                                       .recover(exc -> -1)
                                                       .map(JsInt::of),
+
                             "id", persistMongo.apply(user)
                                               .then(LDAPFlow)
                                               .map(JsStr::of),
+
                             "addresses", normalizeAddresses.apply(address),
+
                             "timestamp", IO.lazy(clock)
                                            .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
                            )
-                       .debugEach(email);
+                       .debugEach(context);
     }
 }
 
@@ -170,11 +173,11 @@ Noteworthy points:
   related to the issue, especially under load. JIO simplifies debugging and contextual logging with its `debug`
   and `debugEach` methods.
 
-- **JFR (Java Flight Recorder)**: JIO leverages JFR for logging purposes. This choice offers several advantages. First,
-  it's Java-native, which means it seamlessly integrates with the Java ecosystem, ensuring compatibility and
-  performance. Second, it avoids the complexities and potential conflicts associated with using external logging
-  libraries, of which there are many in the Java landscape. By relying on JFR, we maintain a lightweight and efficient
-  approach to logging that is both reliable and highly effective.
+- **JFR (Java Flight Recorder)**: JIO leverages JFR for logging and debuging purposes. This choice offers several
+  advantages. First, it's Java-native, which means it seamlessly integrates with the Java ecosystem, ensuring
+  compatibility and performance. Second, it avoids the complexities and potential conflicts associated with using
+  external logging libraries, of which there are many in the Java landscape. By relying on JFR, we maintain a
+  lightweight and efficient approach to logging that is both reliable and highly effective.
 
 - Last but not least, the backbone of JIO is the `IO` class that we'll explore in detail in the next section.
 
@@ -241,70 +244,65 @@ to the Java Flight Recorder (JFR) system during that period.
 Here's a breakdown of how it works:
 
 1. **Debugger Extension Registration**: In your test class, you register the Debugger extension using
-   the `@RegisterExtension` annotation. You specify the duration for which the debugger captures events, such
-   as `Duration.ofSeconds(2)`.
+   the `@RegisterExtension` annotation. You specify the duration for which the debugger captures events.
 
 2. **Using `debug` and `debugEach`**: Within your code, you utilize the `debug` and `debugEach` methods provided by JIO.
-   These methods allow you to send events to the JFR system, providing crucial context about the execution flow.
+   These methods allow you to send events to the JFR system.
 
 3. **Event Printing**: During the execution of the test for the specified duration, the Debugger extension prints out
    all the events that were sent to the JFR system. These events include information about the expressions being
-   evaluated,
-   their results, execution durations, contextual data, and more.
+   evaluated, their results, execution durations, contextual data, and more.
 
 4. **Stream Ordering**: Importantly, the event stream is ordered. Events are printed in the order in which they
    occurred, providing a clear chronological view of your code's execution.
 
 5. **Pinpointing Bugs and Issues**: With the event stream and detailed logs in hand, you can easily pinpoint any bugs,
-   unexpected behavior, or performance bottlenecks. The chronological order of events helps you understand the sequence
-   of actions in your code.
+   unexpected behavior, or performance bottlenecks.
 
 In summary, the Debugger extension in JIO transforms the testing and debugging process into a streamlined and
 informative experience with minimal effort from developers. It empowers developers to gain deep insights into their
 code's behavior without relying on external logging libraries or complex setups.
 
-Here is the information that is printed out during the previous test:
+And finally, find below all the events that are printed out during the previous test.
 
 ```
-
-Started JFR stream for 2 sg in SignupTests
+Started JFR stream for 10,000 sg in SignupTests
 
 event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: 3
-duration: 1727,208 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.679769708+02:00
+duration: 1,856 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.540570333+02:00
 
 event: eval, expression: JsObjExpPar[addresses], result: SUCCESS, output: ["address1","address2"]
-duration: 2553,292 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.681656208+02:00
+duration: 3,512 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.542459458+02:00
 
 event: eval, expression: IfElseExp-predicate, result: SUCCESS, output: false
-duration: 10,125 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.68531675+02:00
+duration: 37,375 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.54713175+02:00
 
 event: eval, expression: PairExpSeq[1], result: SUCCESS, output: null
-duration: 7,292 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.686446041+02:00
+duration: 6,917 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548552375+02:00
 
 event: eval, expression: PairExpSeq[2], result: SUCCESS, output: null
-duration: 5,125 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.686579083+02:00
+duration: 5,000 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548692083+02:00
 
 event: eval, expression: PairExpSeq, result: SUCCESS, output: (null, null)
-duration: 332,000 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.686444458+02:00
+duration: 368,375 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548550667+02:00
 
 event: eval, expression: IfElseExp-alternative, result: SUCCESS, output: id
-duration: 352,875 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.686435583+02:00
+duration: 391,209 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548540458+02:00
 
 event: eval, expression: IfElseExp, result: SUCCESS, output: id
-duration: 1485,333 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.685313958+02:00
+duration: 1,816 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.547128042+02:00
 
 event: eval, expression: JsObjExpPar[id], result: SUCCESS, output: id
-duration: 2555,583 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.684258833+02:00
+duration: 2,927 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.546031+02:00
 
-event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-10T09:34:36.686Z
-duration: 290,042 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.686827166+02:00
+event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-13T11:41:34.548Z
+duration: 531,833 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548970375+02:00
 
-event: eval, expression: JsObjExpPar, result: SUCCESS, output: {"addresses":["address1","address2"],"number_users":3,"timestamp":"2023-10-10T09:34:36.686Z","id":"id"}
-duration: 11,663 ms, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:34:36.679046958+02:00
-
+event: eval, expression: JsObjExpPar, result: SUCCESS, output: {"addresses":["address1","address2"],"number_users":3,"timestamp":"2023-10-13T11:41:34.548Z","id":"id"}
+duration: 14,280 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.539958042+02:00
 ```
 
-I think the events printed out speak for itself.
+The events printed out are self-explanatory.
 
 In summary, these traces are like breadcrumbs that guide you through your code, making testing and debugging more
 efficient and effective. They enable you to pinpoint issues, optimize performance, and gain a deeper understanding of
@@ -379,37 +377,37 @@ may involve multiple threads, providing a more realistic representation of concu
 Started JFR stream for 2 sg in SignupTests
 
 event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-10T09:41:27.520Z
-duration: 861,417 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T11:41:27.5204015+02:00
+duration: 861,417 µs, context: signup, thread: main, event-start-time: 2023-10-10T11:41:27.5204015+02:00
 
 event: eval, expression: IfElseExp-predicate, result: SUCCESS, output: false
-duration: 31,238 ms, context: imrafaelmerino@gmail.com, thread: virtual-40, event-start-time: 2023-10-10T11:41:27.549069042+02:00
+duration: 31,238 ms, context: signup, thread: virtual-40, event-start-time: 2023-10-10T11:41:27.549069042+02:00
 
 event: eval, expression: JsObjExpPar[addresses], result: SUCCESS, output: ["u","d","f"]
-duration: 77,856 ms, context: imrafaelmerino@gmail.com, thread: virtual-34, event-start-time: 2023-10-10T11:41:27.520052167+02:00
+duration: 77,856 ms, context: signup, thread: virtual-34, event-start-time: 2023-10-10T11:41:27.520052167+02:00
 
 event: eval, expression: PairExpSeq[1], result: SUCCESS, output: null
-duration: 111,441 ms, context: imrafaelmerino@gmail.com, thread: virtual-42, event-start-time: 2023-10-10T11:41:27.582186792+02:00
+duration: 111,441 ms, context: signup, thread: virtual-42, event-start-time: 2023-10-10T11:41:27.582186792+02:00
 
 event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: 32914
-duration: 180,810 ms, context: imrafaelmerino@gmail.com, thread: virtual-32, event-start-time: 2023-10-10T11:41:27.513371334+02:00
+duration: 180,810 ms, context: signup, thread: virtual-32, event-start-time: 2023-10-10T11:41:27.513371334+02:00
 
 event: eval, expression: PairExpSeq[2], result: SUCCESS, output: null
-duration: 141,523 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.693663125+02:00
+duration: 141,523 ms, context: signup, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.693663125+02:00
 
 event: eval, expression: PairExpSeq, result: SUCCESS, output: (null, null)
-duration: 253,256 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.582184959+02:00
+duration: 253,256 ms, context: signup, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.582184959+02:00
 
 event: eval, expression: IfElseExp-alternative, result: SUCCESS, output: JOYfTGftYQXYNFGROgNp
-duration: 253,302 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.582176584+02:00
+duration: 253,302 ms, context: signup, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.582176584+02:00
 
 event: eval, expression: IfElseExp, result: SUCCESS, output: JOYfTGftYQXYNFGROgNp
-duration: 286,460 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.549066834+02:00
+duration: 286,460 ms, context: signup, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.549066834+02:00
 
 event: eval, expression: JsObjExpPar[id], result: SUCCESS, output: JOYfTGftYQXYNFGROgNp
-duration: 315,203 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.520363459+02:00
+duration: 315,203 ms, context: signup, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.520363459+02:00
 
 event: eval, expression: JsObjExpPar, result: SUCCESS, output: {"addresses":["u","d","f"],"number_users":32914,"timestamp":"2023-10-10T09:41:27.520Z","id":"JOYfTGftYQXYNFGROgNp"}
-duration: 331,995 ms, context: imrafaelmerino@gmail.com, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.512854042+02:00
+duration: 331,995 ms, context: signup, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.512854042+02:00
 
 
 ```
@@ -421,7 +419,7 @@ to three retries and, in case of failure, return -1.
                                     
         // let's add up to three retries 
         countUsers.apply(null)
-                  .debug(new EventBuilder<>("count_users", email)) 
+                  .debug(new EventBuilder<>("count_users", context)) 
                   .retry(RetryPolicies.limitRetries(3))
                   .recover(e -> -1)
                   .map(JsInt::of),                            
@@ -472,40 +470,40 @@ This setup allows you to test and observe the retry logic in action:
 Started JFR stream for 5 sg in SignupTests
 
 event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-10T11:32:31.361Z
-duration: 1183,875 µs, context: imrafaelmerino@gmail.com, thread: main, event-start-time: 2023-10-10T13:32:31.361439584+02:00
+duration: 1183,875 µs, context: signup, thread: main, event-start-time: 2023-10-10T13:32:31.361439584+02:00
 
 event: eval, expression: count_users, result: FAILURE, output: java.lang.RuntimeException:1
-duration: 1,008 sg, context: imrafaelmerino@gmail.com, thread: virtual-32, event-start-time: 2023-10-10T13:32:31.358466292+02:00
+duration: 1,008 sg, context: signup, thread: virtual-32, event-start-time: 2023-10-10T13:32:31.358466292+02:00
 
 event: eval, expression: JsObjExpPar[addresses], result: SUCCESS, output: ["H","E","N"]
-duration: 1,009 sg, context: imrafaelmerino@gmail.com, thread: virtual-34, event-start-time: 2023-10-10T13:32:31.361287042+02:00
+duration: 1,009 sg, context: signup, thread: virtual-34, event-start-time: 2023-10-10T13:32:31.361287042+02:00
 
 event: eval, expression: IfElseExp-predicate, result: SUCCESS, output: true
-duration: 1,005 sg, context: imrafaelmerino@gmail.com, thread: virtual-45, event-start-time: 2023-10-10T13:32:32.36795925+02:00
+duration: 1,005 sg, context: signup, thread: virtual-45, event-start-time: 2023-10-10T13:32:32.36795925+02:00
 
 event: eval, expression: count_users, result: FAILURE, output: java.lang.RuntimeException:2
-duration: 1,006 sg, context: imrafaelmerino@gmail.com, thread: virtual-32, event-start-time: 2023-10-10T13:32:32.366728167+02:00
+duration: 1,006 sg, context: signup, thread: virtual-32, event-start-time: 2023-10-10T13:32:32.366728167+02:00
 
 event: eval, expression: IfElseExp-consequence, result: SUCCESS, output: fNUAsXflwFYPNaRnMCfN
-duration: 16,083 µs, context: imrafaelmerino@gmail.com, thread: virtual-45, event-start-time: 2023-10-10T13:32:33.372809459+02:00
+duration: 16,083 µs, context: signup, thread: virtual-45, event-start-time: 2023-10-10T13:32:33.372809459+02:00
 
 event: eval, expression: IfElseExp, result: SUCCESS, output: fNUAsXflwFYPNaRnMCfN
-duration: 1,005 sg, context: imrafaelmerino@gmail.com, thread: virtual-45, event-start-time: 2023-10-10T13:32:32.36795675+02:00
+duration: 1,005 sg, context: signup, thread: virtual-45, event-start-time: 2023-10-10T13:32:32.36795675+02:00
 
 event: eval, expression: JsObjExpPar[id], result: SUCCESS, output: fNUAsXflwFYPNaRnMCfN
-duration: 2,012 sg, context: imrafaelmerino@gmail.com, thread: virtual-45, event-start-time: 2023-10-10T13:32:31.361416292+02:00
+duration: 2,012 sg, context: signup, thread: virtual-45, event-start-time: 2023-10-10T13:32:31.361416292+02:00
 
 event: eval, expression: count_users, result: FAILURE, output: java.lang.RuntimeException:3
-duration: 1,001 sg, context: imrafaelmerino@gmail.com, thread: not recorded, event-start-time: 2023-10-10T13:32:33.372799375+02:00
+duration: 1,001 sg, context: signup, thread: not recorded, event-start-time: 2023-10-10T13:32:33.372799375+02:00
 
 event: eval, expression: count_users, result: FAILURE, output: java.lang.RuntimeException:4
-duration: 1,006 sg, context: imrafaelmerino@gmail.com, thread: virtual-47, event-start-time: 2023-10-10T13:32:34.374127542+02:00
+duration: 1,006 sg, context: signup, thread: virtual-47, event-start-time: 2023-10-10T13:32:34.374127542+02:00
 
 event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: -1
-duration: 4,025 sg, context: imrafaelmerino@gmail.com, thread: virtual-47, event-start-time: 2023-10-10T13:32:31.356712292+02:00
+duration: 4,025 sg, context: signup, thread: virtual-47, event-start-time: 2023-10-10T13:32:31.356712292+02:00
 
 event: eval, expression: JsObjExpPar, result: SUCCESS, output: {"addresses":["H","E","N"],"number_users":-1,"timestamp":"2023-10-10T11:32:31.361Z","id":"fNUAsXflwFYPNaRnMCfN"}
-duration: 4,036 sg, context: imrafaelmerino@gmail.com, thread: virtual-47, event-start-time: 2023-10-10T13:32:31.355501792+02:00
+duration: 4,036 sg, context: signup, thread: virtual-47, event-start-time: 2023-10-10T13:32:31.355501792+02:00
 
 ```
 
@@ -732,9 +730,7 @@ since the effect method takes in a `Supplier`.
 In all the above examples, when the `get` or `result`methods are invoked, the values **will be computed on the caller  
 thread**. Sometimes we need to control on what thread to perform a computation, especially when it's blocking.  
 Whe can specify an executor, or to make use of the **ForkJoin** pool, which is not a problem since **JIO uses
-internally
-the [ManagedBlocker](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ForkJoinPool.ManagedBlocker.html)**
-interface, or you can even get benefit from the Loom project and use fibers!
+internally the [ManagedBlocker](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ForkJoinPool.ManagedBlocker.html)** interface, or you can even get benefit from the Loom project and use fibers!
 
 **From a lazy computation or supplier that has to be executed on a specific pool**
 
@@ -1746,7 +1742,8 @@ thread: ForkJoinPool.commonPool-worker-1, event-start-time: 2023-10-11T20:30:12.
 ```
 
 Some errors occurred due to the connection timeout being too short for this particular scenario. Thankfully, the
-retry mechanism came to the rescue! Additionally, the `HttpExceptions` class provides numerous predicates to help identify
+retry mechanism came to the rescue! Additionally, the `HttpExceptions` class provides numerous predicates to help
+identify
 the most common errors that can occur during request execution.
 
 ---
@@ -1851,8 +1848,8 @@ public class TestOauthHttpClient {
                                                                           false),  //ssl false
                                                    GetAccessToken.DEFAULT, //token in access_token key in a JSON
                                                    resp -> resp.statusCode() == 401 // if 401 go for a new token
-                                                   ) 
-                                                   .build();
+            )
+                    .build();
 
     @Test
     public void testOuth() {

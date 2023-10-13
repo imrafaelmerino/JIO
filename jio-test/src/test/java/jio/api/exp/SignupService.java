@@ -41,20 +41,22 @@ public class SignupService implements Lambda<JsObj, JsObj> {
         String email = user.getStr("email");
         String address = user.getStr("address");
 
+        String context = "signup";
         Lambda<String, String> LDAPFlow =
                 id -> IfElseExp.<String>predicate(existsInLDAP.apply(email))
                                .consequence(() -> IO.succeed(id))
                                .alternative(() -> PairExp.seq(persistLDAP.apply(user),
                                                               sendEmail.apply(user)
                                                              )
-                                                         .debugEach(email)
+                                                         .debugEach(context)
                                                          .map(n -> id)
                                            )
-                               .debugEach(email);
+                               .debugEach(context);
 
         return
                 JsObjExp.par("number_users", countUsers.apply(null)
-                                                       .debug(new EventBuilder<>("retry_number_users", email))
+                                                       .debug(new EventBuilder<>("count_number_users",
+                                                                                 context))
                                                        .retry(RetryPolicies.limitRetries(3))
                                                        .recover(e -> -1)
                                                        .map(JsInt::of),
@@ -64,6 +66,6 @@ public class SignupService implements Lambda<JsObj, JsObj> {
                              "addresses", normalizeAddresses.apply(address),
                              "timestamp", IO.lazy(clock)
                                             .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
-                            ).debugEach(email);
+                            ).debugEach(context);
     }
 }
