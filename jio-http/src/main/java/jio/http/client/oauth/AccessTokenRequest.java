@@ -8,7 +8,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
@@ -64,7 +63,7 @@ public final class AccessTokenRequest implements Lambda<MyOauthHttpClient, HttpR
      * @param clientSecret the client secret
      * @param host         the host server
      * @param port         the port the server is listening on
-     * @param uri          the uri
+     * @param uri          the uri (without the first slash)
      * @param ssl          if true the protocols is https, otherwise http
      */
     public AccessTokenRequest(final String clientId,
@@ -74,7 +73,7 @@ public final class AccessTokenRequest implements Lambda<MyOauthHttpClient, HttpR
                               final String uri,
                               final boolean ssl
                              ) {
-        String credentials = Objects.requireNonNull(clientId) + ":" + Objects.requireNonNull(clientSecret);
+        String credentials = requireNonNull(clientId) + ":" + requireNonNull(clientSecret);
         this.authorizationHeader = Base64.getEncoder()
                                          .encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
         this.host = requireNonNull(host);
@@ -107,7 +106,7 @@ public final class AccessTokenRequest implements Lambda<MyOauthHttpClient, HttpR
                               final int port
                              ) {
         this.uri = DEFAULT_URI;
-        String credentials = Objects.requireNonNull(clientId) + ":" + Objects.requireNonNull(clientSecret);
+        String credentials = requireNonNull(clientId) + ":" + requireNonNull(clientSecret);
         this.authorizationHeader = Base64.getEncoder()
                                          .encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
         this.port = port;
@@ -119,28 +118,28 @@ public final class AccessTokenRequest implements Lambda<MyOauthHttpClient, HttpR
     @Override
     public IO<HttpResponse<String>> apply(final MyOauthHttpClient client) {
         var body = "grant_type=client_credentials";
-        return Objects.requireNonNull(client).ofString()
-                      .apply(HttpRequest.newBuilder()
-                                        .header("Accept",
-                                                "application/json"
-                                               )
-                                        .header("Authorization",
-                                                String.format("Basic %s",
-                                                              authorizationHeader
-                                                             )
-                                               )
-                                        .header("Content-Type",
-                                                "application/x-www-form-urlencoded"
-                                               )
-                                        .uri(URI.create(String.format("%s://%s:%s/%s",
-                                                                      ssl ? "https" : "http",
-                                                                      host,
-                                                                      port,
-                                                                      uri
-                                                                     )
-                                                       )
-                                            )
-                                        .POST(HttpRequest.BodyPublishers.ofString(body)));
+        return requireNonNull(client).ofString()
+                                     .apply(HttpRequest.newBuilder()
+                                                       .header("Accept",
+                                                               "application/json"
+                                                              )
+                                                       .header("Authorization",
+                                                               String.format("Basic %s",
+                                                                             authorizationHeader
+                                                                            )
+                                                              )
+                                                       .header("Content-Type",
+                                                               "application/x-www-form-urlencoded"
+                                                              )
+                                                       .uri(URI.create(String.format("%s://%s:%s/%s",
+                                                                                     ssl ? "https" : "http",
+                                                                                     host,
+                                                                                     port,
+                                                                                     uri
+                                                                                    )
+                                                                      )
+                                                           )
+                                                       .POST(HttpRequest.BodyPublishers.ofString(body)));
 
     }
 

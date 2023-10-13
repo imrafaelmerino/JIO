@@ -18,13 +18,13 @@
     - [oauth-http-client](#oauth)
     - [http-server](#httpserver)
     - [Debugging and JFR integration](#Http-Debugging-and-JFR-integration)
-    - [Installation](#Installation)
-    - [Requirements and dependencies](#Requirements-and-dependencies)
+    - [Installation](#http-Installation)
+    - [Requirements and dependencies](#Http-Requirements-and-dependencies)
 - [jio-mongodb](#jio-mongodb)
     - [API](#mongodb-api)
-    - [Debugging and JFR integration](#Http-Debugging-and-JFR-integration)
-    - [Installation](#Installation)
-    - [Requirements and dependencies](#Requirements-and-dependencies)
+    - [Debugging and JFR integration](#mongo-Debugging-and-JFR-integration)
+    - [Installation](#mongo-Installation)
+    - [Requirements and dependencies](#Mongo-Requirements-and-dependencies)
 - [jio-test](#jio-test)
     - [Junit integration](#junit)
     - [Stubs](#stubs)
@@ -32,16 +32,16 @@
       -[Clock stubs](#clockstubs)
       -[Http Server Stubs](#httpserverstubs)
     - [Property based testing](#pbs)
-    - [Installation](#Installation)
-    - [Requirements and dependencies](#Requirements-and-dependencies)
+    - [Installation](#test-Installation)
+    - [Requirements and dependencies](#test-Requirements-and-dependencies)
 - [jio-console](#console)
 - [jio-chatgpt](#jio-chatgpt)
 
 ## <a name="cwa"><a/> Code wins arguments
 
-The age-old "Hello world" example has outlived its usefulness. While it once served as a foundational teaching tool, its
-simplicity no longer suffices in today's world. In the current landscape, where real-world scenarios are markedly more
-intricate, I present a "Hello world" example that truly mirrors the complexity of modern development.
+I think the age-old "Hello world" example has outlived its usefulness. While it once served as a foundational teaching
+tool, its simplicity no longer suffices in today's world. In the current landscape, where real-world scenarios are
+markedly more intricate, I present a "Hello world" example that truly mirrors the complexity of modern development.
 
 ### Signup Service specification
 
@@ -52,16 +52,16 @@ Let's jump into the implementation of a signup service with the following requir
    obtained from Google are then presented to the frontend for user selection or rejection.
 2. In addition to address validation, the service stores the client's information in a MongoDB database. The MongoDB
    identifier returned becomes the client identifier, which must be sent back to the frontend. If the client is
-   successfully saved in the database and the user doesn't exist in the LDAP system, two additional actions occur:
+   successfully saved in the database and the user doesn't exist in an LDAP system, two additional actions occur:
     - The user is sent to the LDAP service.
-    - If the operation succeeds, an activation email is sent to the user.
+    - If the previous operation succeeds, an activation email is sent to the user.
 3. The signup service also provides information about the total number of existing clients in the MongoDB database. This
    information can be utilized by the frontend to display a welcoming message to the user, such as "You're the user
    number 3000!" If an error occurs the service returns -1, and the frontend will not display the message.
 4. Crucially, the signup service is designed to perform all these operations in parallel. This includes the request to
    Google for address validation and the MongoDB operations, which encompass both data persistence and counting.
-5. The signup service also returns a timestamp indicating the instant the user became a member. This timestamp can be
-   used by the frontend to show the user the exact date and time they joined.
+5. The signup service also returns a timestamp indicating the instant the service started composing the response. This
+   timestamp can be used by the frontend to show the user the exact date and time they joined.
 
 ### Response Structure
 
@@ -79,7 +79,8 @@ The response from the signup service follows this structure:
 ### Signup Service implementation
 
 The `SignupService` orchestrates all the operations with elegance and efficiency. This service is constructed with a set
-of lambdas, where a lambda is essentially a function that takes an input and produces an output. Unlike traditional
+of [lambdas](#Lambdas), where a lambda is essentially a function that takes an input and produces an output. Unlike
+traditional
 functions, lambdas won't throw exceptions; instead, they gracefully return exceptions as regular values.
 
 ```java
@@ -165,9 +166,10 @@ Noteworthy points:
   although it's important to note that we are not interested in the pair result, as both of these operations return
   `void`.
 
-- **debugEach**: Debugging is an essential part of software development, and contextual logging is a powerful tool for
-  diagnosing issues. JIO simplifies debugging with its `debug` and `debugEach` methods, which allows you to log
-  information at various points in your code effortlessly.
+- **debugEach**: Debugging is an essential part of software development and also, in real world applications, messages
+  come from different users and requests. When a problem occurs, it can be difficult to determine which log events are
+  related to the issue, especially under load. JIO simplifies debugging and contextual logging with its `debug`
+  and `debugEach` methods.
 
 - **JFR (Java Flight Recorder)**: JIO leverages JFR for logging purposes. This choice offers several advantages. First,
   it's Java-native, which means it seamlessly integrates with the Java ecosystem, ensuring compatibility and
@@ -175,19 +177,14 @@ Noteworthy points:
   libraries, of which there are many in the Java landscape. By relying on JFR, we maintain a lightweight and efficient
   approach to logging that is both reliable and highly effective.
 
-- The backbone of JIO is the `IO` class that we'll explore in detail in the next section.
+- Last but not least, the backbone of JIO is the `IO` class that we'll explore in detail in the next section.
 
 ### Testing the Signup Service with JIO
 
-JIO offers an elegant and efficient approach to testing, especially when it comes to working with lambdas. It eliminates
-the need for external libraries like Mockito, making your testing experience smoother and more expressive.
-
-### Simplified Lambda Testing
-
-In your test class, JIO allows you to implement lambda functions directly. This approach enables you to tailor the
-behavior of each lambda to your specific test scenario, making your tests highly adaptable and expressive.
-
-Let's see how to test the `SignupService` using JIO:
+JIO offers an elegant and efficient approach to testing. It eliminates the need for external libraries like Mockito,
+making your testing experience smoother and more expressive. In your test class, you can implement lambda functions
+directly. This approach enables you to tailor the behavior of each lambda to your specific test scenario, making your 
+tests highly adaptable and expressive:
 
 ```code
 
@@ -252,8 +249,7 @@ Here's a breakdown of how it works:
    These methods allow you to send events to the JFR system, providing crucial context about the execution flow.
 
 3. **Event Printing**: During the execution of the test for the specified duration, the Debugger extension prints out
-   all
-   the events that were sent to the JFR system. These events include information about the expressions being evaluated,
+   all the events that were sent to the JFR system. These events include information about the expressions being evaluated,
    their results, execution durations, contextual data, and more.
 
 4. **Stream Ordering**: Importantly, the event stream is ordered. Events are printed in the order in which they
@@ -308,44 +304,7 @@ duration: 11,663 ms, context: imrafaelmerino@gmail.com, thread: main, event-star
 
 ```
 
-where:
-
-- **event**: This field indicates the type of event being traced. For example, "eval" signifies an evaluation event,
-  where an expression or value is being evaluated.
-
-- **expression**: The "expression" field specifies the expression or subexpression that is currently under evaluation.
-  It gives you a clear indication of which part of your code is being processed.
-
-- **result**: The "result" field shows the outcome of the expression evaluation, either SUCCESS OR FAILURE.
--
-- **output**: The final value an expression is reduced to
-
-- **duration**: The "duration" field indicates the time taken for the expression to be evaluated. It's helps in
-  profiling and performance analysis.
-
-- **context**: This field is especially valuable as it provides context-specific information. In your example, it's used
-  to display the email value being processed. This context data is essential for understanding how different inputs
-  affect the execution flow.
-
-- **thread**: It shows the thread in which the event is occurring. Understanding which thread is executing each part of
-  your code can be crucial for debugging concurrent or multi-threaded applications.
-
-- **event-start-time**: This timestamp indicates when the event started, providing a chronological view of event
-  execution.
-
-These traces serve several important purposes:
-
-1. **Debugging**: Traces help you trace the flow of execution through your code. If something goes wrong, you can
-   identify the exact point where an issue occurred and examine the relevant context.
-
-2. **Performance Profiling**: The "duration" field allows you to identify performance bottlenecks. You can see which
-   expressions take the most time to execute and focus optimization efforts accordingly.
-
-3. **Contextual Understanding**: The "context" field is particularly helpful for understanding how data flows through
-   your code. It clarifies which values are being processed at each step.
-
-4. **Event Ordering**: Timestamps help establish a chronological order of events, which is crucial for understanding the
-   sequence of actions in your code.
+I think the events printed out speak for itself.
 
 In summary, these traces are like breadcrumbs that guide you through your code, making testing and debugging more
 efficient and effective. They enable you to pinpoint issues, optimize performance, and gain a deeper understanding of
@@ -353,12 +312,12 @@ how your code behaves during testing.
 
 In the previous example, you might have noticed that all the evaluations are performed by the main thread, even when
 the `JsObjExp.par` operator was used. This behavior occurs because the IO effects returned by the lambdas are just
-constants, and no Executor is specified. Even if you were to specify one, there are instances when the
+constants, and no `Executor` is specified. Even if you were to specify one, there are instances when the
 CompletableFuture framework (which JIO relies on extensively) may not switch context between threads if it deems it
 unnecessary.
 
-But don't worry, we can introduce some random delays and leverage fibers to create a more realistic example. To do this,
-let's use more elaborate stubs with the `StubSupplier` class from the `jio-test` library:
+But don't worry, we can introduce some random delays and leverage virtual threads to create a more realistic example. 
+To do this, let's use more elaborate stubs with the `StubSupplier` class from the `jio-test` library:
 
 ```code
 
@@ -504,8 +463,7 @@ In this code:
 
 - The `countUsers` lambda is defined to use the `StubSupplier` with a sequence generator (`Gens.seq`) that allows you to
   choose different values for each call. In this case the firs four calls triggers a failure, which is treated as a
-  value
-  that can be returned.
+  value that can be returned.
 
 This setup allows you to test and observe the retry logic in action:
 
@@ -869,8 +827,16 @@ succeed with `true` and `false`, respectively.
 
 ### <a name="Lambdas"><a/> Lambdas
 
-Since we are going to work with effects all the time, I've defined two functions that take one or two inputs and produce
-an effect and call them Lambda and BiLambda respectively:
+In the world of JIO, working with effectful functions is a common practice. These functions return effects, and you'll
+often encounter them in your code:
+
+```code
+Function<I, IO<O>>
+
+BiFunction<A,B, IO<O>>
+```
+
+To make our code more concise and readable, we can give these effectful functions an alias. Let's call them "Lambdas":
 
 ```code  
   
@@ -880,9 +846,10 @@ interface BiLambda<A, B, O> extends BiFunction<A, B, IO<O>> {}
   
 ```  
 
-We'll use them all the time. Lambdas are like functions, but they never throw exceptions. Exceptions are
-first class citizens in JIO, just like regular values. Sometimes you want to turn regular functions or
-predicates into Lambdas. This can be accomplished with the `lift` methods:
+Lambdas are similar to regular functions, but there's one key difference: they never throw exceptions. In JIO,
+exceptions are treated as first-class citizens, just like regular values.
+
+Converting regular functions or predicates into Lambdas is straightforward using the lift methods:
 
 ```
 
@@ -1498,12 +1465,448 @@ monitoring your functional effects and expressions, helping you build robust and
   
 ```  
 
+## <a name="jio-http"><a/> jio-http
+
+### <a name="httpserver"><a/> HTTP server
+
+**HttpServerBuilder and Creating an HttpServer**
+
+In JIO, you can build and deploy HTTP servers using the `HttpServerBuilder`. This builder is a versatile tool for
+defining and launching HTTP servers for various purposes, including testing. The `HttpServerBuilder` allows you to
+create `HttpServer` instances with ease.
+
+**Specifying an Executor**
+
+When creating an `HttpServer` is possible to specify an `Executor`. All HTTP requests received by the server will
+be handled in tasks provided to this executor. You can set the executor using the `setExecutor(Executor executor)`
+method.
+
+```code
+Executor executor = ...; // Your custom executor
+HttpServerBuilder serverBuilder = new HttpServerBuilder();
+serverBuilder.setExecutor(executor);
+```
+
+**Adding Request Handlers**
+
+To handle specific URI paths, you can associate each path with an HTTP request handler. For each path, specify a handler
+that will be invoked for incoming requests.
+
+```code
+HttpHandler handler = ...; // Your custom HttpHandler
+HttpHandler handler1 = ...; // Your custom HttpHandler
+
+serverBuilder.addContext("/your-path",handler);
+serverBuilder.addContext("/your-path1",handler1);
+```
+
+**Setting the Socket Backlog**
+
+The `HttpServerBuilder` allows you to specify the socket backlog, which defines the number of incoming connections that
+can be queued for acceptance. You can set the backlog using the `setBacklog(int backlog)` method.
+
+```code
+int backlog = ...; // Your desired backlog value
+serverBuilder.setBacklog(backlog);
+```
+
+**Enabling SSL**
+If you want to accept only SSL connections:
+
+```code
+
+HttpsConfigurator httpsConfigurator = ...;
+
+serverBuilder.withSSL(httpsConfigurator);
+
+```
+
+**Recording JFR Events (Java Flight Recorder)**
+
+By default, the `HttpServer` records Java Flight Recorder (JFR) events for HTTP requests, which can be helpful for
+debugging and performance analysis. However, you can disable this feature if needed using the `disableRecordEvents()`
+method.
+
+```code
+serverBuilder.withoutRecordedEvents();
+```
+
+**Building the server on a Specific Port**
+The build methods return IO effects that allow you to create and start the HTTP server at your convenience. These IO
+effects give you control over when to initiate the server. You can use the IO.get or IO.result methods to start the
+server and obtain the HttpServer instance.
+
+```code
+String host="localhost"; // Host name
+int port=8080; // Port number
+
+IO<HttpServer> server = serverBuilder.build(host,port);
+```
+
+**Building the server on a Random Available Port**
+
+You can even pick a random port, which is useful for local testing as we'll see later.
+
+```code
+int startPort = 8000; // Starting port
+int endPort = 9000; // Ending port
+IO<HttpServer> server = serverBuilder.buildAtRandom(startPort, endPort);
+```
+
+**Starting the HttpServer**
+
+To start the `HttpServer`, you need to compute the effect with the method `get` or `result`.
+The server will start in a new background thread and listen for incoming HTTP requests. If
+no executor is specified, this thread will be the one handling the requests. Notice you
+can only call those methods once, otherwise you'll try to start the same server in the same
+port, and you'll get an error.
+
+```code
+
+HttpServer server = server.result();
+
+....
+....
+int FIVE_SECONDS = 5;
+server.stop(FIVE_SECONDS);
+
+```
+
+In conclusion, with the `HttpServerBuilder`, you can easily create and deploy HTTP servers in your JIO applications,
+making it convenient for testing and development. Whether you need to specify an executor, add request handlers, or
+start on specific or random ports, this builder provides the flexibility and functionality to meet your server
+deployment needs.
+
+Find below a complete example and the events sent to the JFR system:
+
+```code
+ import com.sun.net.httpserver.HttpHandler;
+ 
+ HttpHandler tokenHandler = 
+            PostStub.of(BodyStub.gen(JsObjGen.of("access_token", JsStrGen.alphanumeric(10, 10))
+                                             .map(JsObj::toString)),
+                        StatusCodeStub.cons(200)
+                        );
+ HttpHandler thankHandler = 
+        GetStub.of(BodyStub.cons("your welcome!"),
+                   StatusCodeStub.gen(Combinators.freq(Pair.of(5, IntGen.arbitrary(200, 299)),
+                                                       Pair.of(1, Gen.cons(401))))
+                  );
+ 
+ HttpServer server = new HttpServerBuilder()
+            .addContext("/token",tokenHandler)
+            .addContext("/thanks", thankHandler )
+            .buildAtRandom(8000, 9000)
+            .peekSuccess(s -> System.out.println("Server listening on port %d".formatted(s.getAddress().getPort())))
+            .result();
+
+```
+
+The example code sets up a test environment for a HTTP client with OAuth support (Client Credentials flow). It uses
+stubs from JIO-Test to create HTTP handlers for testing different scenarios. The `tokenHandler` simulates an OAuth token
+request, and the `thankHandler` simulates a response that includes a "your welcome!" message. The status code for
+the `thankHandler` is generated to return a 401 response approximately 1 out of 6 times, simulating the case where the
+access token has expired. The `HttpServerBuilder` is used to create an HTTP server on a random port to handle these
+requests. This setup allows testing of various scenarios, including token expiration handling.
+
   
 ---  
 
-## <a name="Requirements and dependencies"><a/> Requirements and dependencies
+### <a name="httpclient"><a/> HTTP client
 
-- Java 17 or greater
-- [json-values](https://github.com/imrafaelmerino/json-values)
+In JIO, I create an HTTP client on top of the Java HttpClient introduced in Java 11. JIO's goal is to work with Java's
+native objects (no abstraction on top of them) while treating errors as normal values (Lambdas can help us here!). This
+approach allows us to define an HTTP exchange as a function, where the input is an HTTP request (modeled
+using `java.net.http.HttpRequest.Builder`), and the output is an `IO` object representing the response. The function
+signature for this is as follows:
+
+```code
+
+<R> Lambda<HttpRequest.Builder, HttpResponse<R>>
+
+```
+
+To make this type more concise, we give it an alias in JIO-HTTP. We call the previous function an `HttpLambda<O>`,
+where `O` represents the response body type (typically `String` or `byte[]`):
+
+```code
+interface HttpLambda<O> extends Lambda<HttpRequest.Builder, HttpResponse<O>> {
+}
+```
+
+JIO-HTTP offers an HTTP client with various options for handling different response types. Depending on your desired
+response type, you can use one of the following methods:
+
+```java
+
+public interface MyHttpClient {
 
 
+    HttpLambda<String> ofString();
+
+    HttpLambda<byte[]> ofBytes();
+
+    HttpLambda<Void> discarding();
+
+    <T> HttpLambda<T> bodyHandler(final HttpResponse.BodyHandler<T> handler);
+
+}
+
+
+```
+
+You can create and configure a `MyHttpClient` using the builder `MyHttpClientBuilder`.
+This builder allows you to customize the HTTP client, including specifying a retry policy, a retry predicate for
+selecting what errors to retry, and enabling or disabling the recording of Java Flight Recorder (JFR) events for HTTP
+requests and responses. JFR event recording is enabled by default:
+
+- `withRetryPolicy`: Sets a default retry policy for handling exceptions during requests.
+- `withRetryPredicate`: Sets a default predicate for selectively applying the retry policy based on the type or
+  condition
+  of the exception.
+- `withoutRecordEvents`: Disables the recording of JFR events for HTTP requests.
+
+Below is a complete example, making requests to the famous PetStore service, illustrating how to use create and use the
+JIO HTTP client.
+
+```java
+
+public class TestHttpClient {
+
+    @RegisterExtension
+    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+
+    static MyHttpClient client =
+            new MyHttpClientBuilder(HttpClient.newBuilder()
+                                              .connectTimeout(Duration.ofMillis(300))
+            )
+                    .setRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
+                                                 .append(RetryPolicies.limitRetries(5)))
+                    .setRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE))
+                    .build();
+
+    static BiFunction<String, String, HttpRequest.Builder> GET =
+            (entity, id) -> HttpRequest.newBuilder()
+                                       .GET()
+                                       .uri(URI.create("https://petstore.swagger.io/v2/%s/%s".formatted(entity,
+                                                                                                        id)));
+
+
+    @Test
+    public void testGetPetStoreMethods() {
+
+        IO<HttpResponse<String>> getPet = client.ofString().apply(GET.apply("pet", "1"));
+
+        IO<HttpResponse<String>> getOrder = client.ofString().apply(GET.apply("store/order", "1"));
+
+        List<Integer> status = ListExp.par(getPet, getOrder)
+                                      .map(responses -> responses.stream()
+                                                                 .map(HttpResponse::statusCode)
+                                                                 .toList()
+                                          )
+                                      .result();
+
+        Assertions.assertTrue(status.size() == 2);
+
+
+    }
+
+}
+
+```
+
+One possible outcome is
+
+```text
+Started JFR stream for 2,000 sg in Properties
+
+event: httpclient-req, result: FAILURE, exception: java.net.http.HttpConnectTimeoutException:HTTP connect timed out
+duration: 321,280 ms method: GET, uri: https://petstore.swagger.io/v2/store/order/1, req-counter: 2
+thread: ForkJoinPool.commonPool-worker-1, event-start-time: 2023-10-11T20:30:12.33834325+02:00
+
+event: httpclient-req, result: FAILURE, exception: java.net.http.HttpConnectTimeoutException:HTTP connect timed out
+duration: 332,082 ms method: GET, uri: https://petstore.swagger.io/v2/pet/1, req-counter: 1
+thread: ForkJoinPool.commonPool-worker-2, event-start-time: 2023-10-11T20:30:12.327645459+02:00
+
+event: httpclient-req, result: SUCCESS, status-code: 200
+duration: 382,032 ms method: GET, uri: https://petstore.swagger.io/v2/store/order/1, req-counter: 3
+thread: ForkJoinPool.commonPool-worker-1, event-start-time: 2023-10-11T20:30:12.671884375+02:00
+
+event: httpclient-req, result: SUCCESS, status-code: 200
+duration: 382,203 ms method: GET, uri: https://petstore.swagger.io/v2/pet/1, req-counter: 4
+thread: ForkJoinPool.commonPool-worker-1, event-start-time: 2023-10-11T20:30:12.67190275+02:00
+
+
+```
+
+Explain the result: connect timeout happens but retries save the day!
+
+---
+
+### <a name="oauth"><a/> OAUTH HTTP client
+
+jio-http provides support for client credentials flow OAuth.
+Here are the possible customizations for the ClientCredentialsHttpClientBuilder builder:
+
+1. The request sent to the server to get the access token:
+    - `accessTokenReq` parameter: A lambda that takes the regular HTTP client and returns the HTTP request to get the
+      token. There are several constructors to build this request in the class `AccessTokenRequest`. For example one
+      that takes in the client id and secret, the host and the uri to create the following request:
+      ```shell
+
+      curl -X POST -H "Accept: application/json" \
+                   -H "Authorization: Basic ${Base64(ClientId:ClientSecret)}" \
+                   -H "Content-Type: application/x-www-form-urlencoded" \
+                   -d "grant_type=client_credentials" \
+                   https://host:port/token
+
+      ```
+
+2. A function to read the access token from the server response:
+    - `getAccessToken` parameter: A lambda that takes the server response and returns the OAuth token. You can use the
+      existing implementation `GetAccessToken`, which parses the response into a `JsObj` and returns the access token
+      located at the "access_token" field. If the token is not found, the lambda fails with the
+      exception `AccessTokenNotFound`. The `GetAccessToken` class is a singleton with a private constructor, and you can
+      use the `GetAccessToken.DEFAULT` instance for this purpose.
+
+3. A predicate that checks if the access token needs to be refreshed:
+    - `refreshTokenPredicate` parameter: A predicate that checks the response to determine if the access token needs to
+      be refreshed.
+
+4. The authorization header name:
+    - `authorizationHeaderName` field: The name of the authorization header, which is set to "Authorization" by default.
+
+5. A function to create the authorization header value from the access token:
+    - `authorizationHeaderValue` field: A function that takes the access token and returns the authorization header
+      value. By default, it is set to "Bearer ${Access Token}".
+
+You can customize these options when creating an instance of `ClientCredentialsHttpClientBuilder` to configure the
+behavior of the OAuth client credentials flow support in your HTTP client. Since you need a MyHttpClientBuilder
+instance to create `ClientCredentialsHttpClientBuilder`, you can specify retry policies and predicates, and of course
+you can disable the recording of JFR events for every exchange.
+
+The builder returns an instance of ClientCredentialsHttpClient, which is an implementation of MyOauthHttpClient:
+
+```code
+package jio.http.client.oauth;
+
+import jio.http.client.HttpLambda;
+import jio.http.client.MyHttpClient;
+
+import java.net.http.HttpResponse;
+
+public interface MyOauthHttpClient extends MyHttpClient {
+
+   // since it extends MyHttpClient: ofString() ofBytes() and so on are available as well!
+
+    HttpLambda<String> oauthOfString();
+
+    HttpLambda<byte[]> oauthOfBytes();
+
+    HttpLambda<Void> oauthDiscarding();
+
+    <T> HttpLambda<T> oauthBodyHandler(final HttpResponse.BodyHandler<T> handler);
+
+
+}
+
+
+```
+
+The good thing about the methods oauthXXX is that all the request to get and refresh tokens are performed by
+the client and the developer doesn't have to worry about implementing them!
+
+Find below an example
+
+```java
+public class TestOauthHttpClient {
+
+    @RegisterExtension
+    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+
+    //HttpServer creation from one of the previous examples!!!
+
+    static MyHttpClientBuilder myHttpClientBuilder =
+            new MyHttpClientBuilder(HttpClient.newBuilder()
+                                              .connectTimeout(Duration.ofMillis(300)))
+                    .withRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
+                                                  .append(RetryPolicies.limitRetries(5)))
+                    .withRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE));
+
+    static MyOauthHttpClient client =
+            new ClientCredentialsHttpClientBuilder(myHttpClientBuilder,
+                                                   new AccessTokenRequest("client_id",
+                                                                          "client_secret",
+                                                                          "localhost",
+                                                                          server.getAddress().getPort(),
+                                                                          "token", //uri
+                                                                          false),  //ssl false
+                                                   GetAccessToken.DEFAULT, //token in access_token key in a JSON
+                                                   resp -> resp.statusCode() == 401) // if 401 go for a new token
+                                                                                     .build();
+
+    @Test
+    public void testOuth() {
+        client.oauthOfString()
+              .apply(HttpRequest.newBuilder().GET().uri(URI.create("http://localhost:%s/thanks".formatted(port))))
+              .repeat(resp -> true, RetryPolicies.limitRetries(10))
+              .result();
+    }
+
+}
+
+```
+
+Let's pick some events from the console. Notice that both the events from the server and the client are
+printed.
+
+```text
+
+event: httpserver-req, result: CLIENT_ERROR, status-code: 401, duration: 156,500 µs
+protocol: HTTP/1.1, method: GET, uri: /thanks, req-counter: 8
+remoteHostAddress: localhost, remoteHostPort: 62102, headers: Connection:Upgrade, HTTP2-Settings, Http2-settings:AAEAAEAAAAIAAAABAAMAAABkAAQBAAAAAAUAAEAA, Host:localhost:8000, User-agent:Java-http-client/21, Upgrade:h2c, Authorization:Bearer Rm281jv4I9
+thread: HTTP-Dispatcher, event-start-time: 2023-10-13T10:50:23.505934208+02:00
+
+event: httpclient-req, result: CLIENT_ERROR, status-code: 401
+duration: 1521,083 µs method: GET, uri: http://localhost:8000/thanks, req-counter: 8
+thread: ForkJoinPool.commonPool-worker-1, event-start-time: 2023-10-13T10:50:23.505256+02:00
+
+event: httpserver-req, result: SUCCESS, status-code: 200, duration: 302,250 µs
+protocol: HTTP/1.1, method: POST, uri: /token, req-counter: 9
+remoteHostAddress: localhost, remoteHostPort: 62102, headers: Accept:application/json, Connection:Upgrade, HTTP2-Settings, Http2-settings:AAEAAEAAAAIAAAABAAMAAABkAAQBAAAAAAUAAEAA, Host:localhost:8000, User-agent:Java-http-client/21, Upgrade:h2c, Authorization:Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=, Content-type:application/x-www-form-urlencoded, Content-length:29
+thread: HTTP-Dispatcher, event-start-time: 2023-10-13T10:50:23.507630458+02:00
+
+event: httpclient-req, result: SUCCESS, status-code: 200
+duration: 1359,459 µs method: POST, uri: http://localhost:8000/token, req-counter: 9
+thread: ForkJoinPool.commonPool-worker-1, event-start-time: 2023-10-13T10:50:23.506893833+02:00
+
+event: httpserver-req, result: SUCCESS, status-code: 210, duration: 117,459 µs
+protocol: HTTP/1.1, method: GET, uri: /thanks, req-counter: 10
+remoteHostAddress: localhost, remoteHostPort: 62102, headers: Connection:Upgrade, HTTP2-Settings, Http2-settings:AAEAAEAAAAIAAAABAAMAAABkAAQBAAAAAAUAAEAA, Host:localhost:8000, User-agent:Java-http-client/21, Upgrade:h2c, Authorization:Bearer O389KKC467
+thread: HTTP-Dispatcher, event-start-time: 2023-10-13T10:50:23.508969833+02:00
+
+event: httpclient-req, result: SUCCESS, status-code: 210
+duration: 1222,042 µs method: GET, uri: http://localhost:8000/thanks, req-counter: 10
+thread: ForkJoinPool.commonPool-worker-1, event-start-time: 2023-10-13T10:50:23.50832375+02:00
+
+
+
+```
+
+In the server event from the token request, you can see the Authorization header sent by the client which value is
+"Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=". If we decode in base64 the value we get client_id:client_secret,
+the exact values we added when creating the ClientCredentialsHttpClientBuilder
+
+---
+
+### <a name="Http-Debugging-and-JFR-integration"><a/> Debugging and JFR integration
+
+---
+
+### <a name="http-Installation"><a/> Installation
+
+---
+
+### <a name="Http-Requirements-and-dependencies"><a/> Requirements and dependencies
+
+---

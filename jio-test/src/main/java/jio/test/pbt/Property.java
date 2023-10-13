@@ -65,10 +65,13 @@ public non-sealed class Property<O> implements Testable {
     private Property(final String name, final BiFunction<JsObj, O, TestResult> fn, Gen<O> gen) {
         if (name == null || name.isBlank() || name.isEmpty())
             throw new IllegalArgumentException("property name missing");
-        this.lambda = (conf, o) -> switch (fn.apply(conf, o)) {
-            case TestSuccess r -> IO.succeed(r);
-            case TestFailure f -> IO.fail(f);
-            case TestException e -> IO.fail(e);
+        this.lambda = (conf, o) -> {
+            TestResult result = fn.apply(conf, o);
+            if (result instanceof TestFailure f)
+                return IO.fail(f);
+            if (result instanceof TestException e)
+                return IO.fail(e);
+            return IO.succeed(result);
         };
         this.name = requireNonNull(name);
         this.gen = gen;
@@ -184,42 +187,33 @@ public non-sealed class Property<O> implements Testable {
                                             Throwable exc,
                                             Context context
                                            ) {
-        return switch (exc) {
-            case TestFailure tf -> {
-                report.addFailure(new FailureContext(context,
-                                                     tf));
-                yield IO.succeed(tf);
-            }
-
-            case Throwable error -> {
-                report.addException(new ExceptionContext(context,
-                                                         error));
-                yield IO.succeed(new TestException(error));
-            }
-
-        };
+        if (requireNonNull(exc) instanceof TestFailure tf) {
+            report.addFailure(new FailureContext(context,
+                                                 tf));
+            return IO.succeed(tf);
+        } else if (exc instanceof TestException error) {
+            report.addException(new ExceptionContext(context,
+                                                     error));
+            return IO.succeed(new TestException(error));
+        }
+        throw new IllegalArgumentException("Either TestFailure or TestException expected");
     }
 
     private static IO<TestResult> handleResult(Report report,
                                                TestResult tr,
                                                Context context
                                               ) {
-        return switch (tr) {
-            case TestFailure tf -> {
-                report.addFailure(new FailureContext(context,
-                                                     tf));
-                yield IO.succeed(tf);
-            }
+        if (requireNonNull(tr) instanceof TestFailure tf) {
+            report.addFailure(new FailureContext(context,
+                                                 tf));
+            return IO.succeed(tf);
+        } else if (tr instanceof TestException tf) {
+            report.addException(new ExceptionContext(context,
+                                                     tf.getCause()));
+            return IO.succeed(tf);
+        } else
+            return IO.succeed(tr);
 
-            case TestException tf -> {
-                report.addException(new ExceptionContext(context,
-                                                         tf.getCause()));
-                yield IO.succeed(tf);
-            }
-
-            case TestSuccess ts -> IO.succeed(ts);
-
-        };
     }
 
     //todo property immutable

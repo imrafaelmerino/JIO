@@ -5,7 +5,10 @@ import fun.tuple.Pair;
 import jio.BiLambda;
 import jio.IO;
 import jio.Lambda;
-import jio.test.pbt.*;
+import jio.test.pbt.Property;
+import jio.test.pbt.TestException;
+import jio.test.pbt.TestFailure;
+import jio.test.pbt.TestResult;
 import jsonvalues.JsObj;
 
 import java.net.http.HttpResponse;
@@ -77,29 +80,43 @@ public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder
     public Property<O> create() {
         BiLambda<JsObj, O, TestResult> lambda =
                 (conf, body) -> post.apply(conf, body)
-                                    .then(resp -> switch (postAssert.apply(resp)) {
-                                        case TestException exc -> IO.fail(exc);
-                                        case TestFailure failure -> IO.fail(failure);
-                                        case TestSuccess $ -> getId.apply(body, resp)
-                                                                   .then(id -> get.apply(conf, id)
-                                                                                  .map(r -> Pair.of(id, r)));
+                                    .then(resp -> {
+                                        TestResult apply = postAssert.apply(resp);
+                                        if (Objects.requireNonNull(apply) instanceof TestException exc)
+                                            return IO.fail(exc);
+                                        if (apply instanceof TestFailure failure)
+                                            return IO.fail(failure);
+                                        return getId.apply(body, resp)
+                                                    .then(id -> get.apply(conf, id)
+                                                                   .map(r -> Pair.of(id, r)));
                                     })
-                                    .then(pair -> switch (getAssert.apply(pair.second())) {
-                                        case TestException exc -> IO.fail(exc);
-                                        case TestFailure failure -> IO.fail(failure);
-                                        case TestSuccess $ -> update.apply(conf, pair.second())
-                                                                    .map(r -> Pair.of(pair.first(), r));
+                                    .then(pair -> {
+                                        TestResult apply = getAssert.apply(pair.second());
+                                        if (Objects.requireNonNull(apply) instanceof TestException exc)
+                                            return IO.fail(exc);
+                                        if (apply instanceof TestFailure failure)
+                                            return IO.fail(failure);
+                                        return update.apply(conf, pair.second())
+                                                     .map(r -> Pair.of(pair.first(), r));
                                     })
-                                    .then(pair -> switch (updateAssert.apply(pair.second())) {
-                                        case TestException exc -> IO.fail(exc);
-                                        case TestFailure failure -> IO.fail(failure);
-                                        case TestSuccess $ -> delete.apply(conf, pair.first())
-                                                                    .map(r -> Pair.of(pair.first(), r));
+                                    .then(pair -> {
+                                        TestResult apply = updateAssert.apply(pair.second());
+                                        if (Objects.requireNonNull(apply) instanceof TestException exc)
+                                            return IO.fail(exc);
+                                        if (apply instanceof TestFailure failure)
+                                            return IO.fail(failure);
+
+                                        return delete.apply(conf, pair.first())
+                                                     .map(r -> Pair.of(pair.first(), r));
+
                                     })
-                                    .then(pair -> switch (deleteAssert.apply(pair.second())) {
-                                        case TestException exc -> IO.fail(exc);
-                                        case TestFailure failure -> IO.fail(failure);
-                                        case TestSuccess $ -> get.apply(conf, pair.first());
+                                    .then(pair -> {
+                                        TestResult apply = deleteAssert.apply(pair.second());
+                                        if (Objects.requireNonNull(apply) instanceof TestException exc)
+                                            return IO.fail(exc);
+                                        if (apply instanceof TestFailure failure)
+                                            return IO.fail(failure);
+                                        return get.apply(conf, pair.first());
                                     })
                                     .map(resp -> resp.statusCode() == 404 ?
                                             TestResult.SUCCESS :

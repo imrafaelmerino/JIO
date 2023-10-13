@@ -15,11 +15,11 @@ import java.util.function.Predicate;
  * default.
  * <p>
  * You can also define a retry policy and a retry condition that will be applied to every request with the builder
- * options {@link MyHttpClientBuilder#setRetryPolicy(RetryPolicy)} and
- * {@link MyHttpClientBuilder#setRetryPredicate(Predicate)}.
+ * options {@link MyHttpClientBuilder#withRetryPolicy(RetryPolicy)} and
+ * {@link MyHttpClientBuilder#withRetryPredicate(Predicate)}.
  *
  * @see ClientReqEvent
- * @see MyHttpClientBuilder#disableRecordEvents To disable event recording.
+ * @see MyHttpClientBuilder#withoutRecordedEvents To disable event recording.
  */
 public interface MyHttpClient {
 

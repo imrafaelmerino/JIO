@@ -19,7 +19,7 @@ public class Examples {
             String secret = "";
 
             MyHttpClient client =
-                    new MyHttpClientBuilder(HttpClient.newHttpClient()).create();
+                    new MyHttpClientBuilder(HttpClient.newBuilder()).build();
 
             Services services =
                     new Services(new ConfBuilder(secret.getBytes(StandardCharsets.UTF_8)),

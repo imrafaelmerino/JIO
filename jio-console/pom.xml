@@ -52,7 +52,6 @@
                 <version>${MAVEN-JAVADOC-PLUGIN.VERSION}</version>
                 <configuration>
                     <source>${MAVEN-COMPILER-PLUGIN.SOURCE}</source>
-                    <additionalOptions>--enable-preview</additionalOptions>
                 </configuration>
                 <executions>
                     <execution>
@@ -74,7 +73,6 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <compilerArgs>
                         <arg>-XDcompilePolicy=simple</arg>
-                        <arg>--enable-preview</arg>
                         <arg>-Xlint:all</arg>
                     </compilerArgs>
                 </configuration>
@@ -83,9 +81,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${MAVEN-SUREFIRE-PLUGIN.VERSION}</version>
-                <configuration>
-                    <argLine>--enable-preview</argLine>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

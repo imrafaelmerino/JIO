@@ -42,7 +42,7 @@ public final class GptConsole {
             throw new IllegalArgumentException(confArg + "auth_header is missing in " + confArg);
 
         var services = new Services(new ConfBuilder(authHeader.getBytes(StandardCharsets.UTF_8)),
-                                    new MyHttpClientBuilder(HttpClient.newHttpClient()).create()
+                                    new MyHttpClientBuilder(HttpClient.newBuilder()).build()
         );
 
         List<Command> commands = new ArrayList<>();

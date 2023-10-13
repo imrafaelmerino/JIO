@@ -6,7 +6,7 @@ import java.util.Objects;
  * Exception that represents that the oauth access token is not found.
  */
 @SuppressWarnings("serial")
-public class AccessTokenNotFound extends Exception {
+public final class AccessTokenNotFound extends Exception {
 
     AccessTokenNotFound(String message) {
         super(Objects.requireNonNull(message));

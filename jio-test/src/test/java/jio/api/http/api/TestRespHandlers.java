@@ -15,7 +15,6 @@ import jsonvalues.JsStr;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.net.URI;
@@ -53,7 +52,7 @@ public class TestRespHandlers {
                                                    getJsonReqHandler
                                                   );
 
-        IO<HttpServer> server = builder.startAtRandom("localhost",
+        IO<HttpServer> server = builder.buildAtRandom("localhost",
                                                       8000,
                                                       9000
                                                      );
@@ -62,8 +61,7 @@ public class TestRespHandlers {
                      .getAddress()
                      .getPort();
 
-        httpClient = new MyHttpClientBuilder(HttpClient.newBuilder()
-                                                       .build()).create();
+        httpClient = new MyHttpClientBuilder(HttpClient.newBuilder()).build();
 
     }
 

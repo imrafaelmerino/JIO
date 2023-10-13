@@ -77,17 +77,18 @@ final class LoggerHelper {
                              final String expName,
                              final String context
                             ) {
-        return debugExp(io, new EventBuilder<>(expName,context));
+        return debugExp(io, new EventBuilder<>(expName, context));
     }
 
 
     static <O> IO<O> debugExp(IO<O> o,
                               EventBuilder<O> builder
                              ) {
-        return switch (o) {
-            case Exp<O> exp -> exp.debugEach(builder);
-            case IO<O> val -> val.debug(builder);
-        };
+        return o instanceof Exp<O> exp ?
+                exp.debugEach(builder) :
+                o.debug(builder);
+
+
     }
 
     static <O> List<IO<O>> debugList(List<IO<O>> list,

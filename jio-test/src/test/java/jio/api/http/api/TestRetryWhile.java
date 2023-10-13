@@ -42,7 +42,7 @@ public class TestRetryWhile {
                                                    getStrReqHandler
                                                   );
 
-        IO<HttpServer> server = builder.startAtRandom("localhost",
+        IO<HttpServer> server = builder.buildAtRandom("localhost",
                                                       8000,
                                                       9000
                                                      );
@@ -51,8 +51,7 @@ public class TestRetryWhile {
                      .getAddress()
                      .getPort();
 
-        httpClient = new MyHttpClientBuilder(HttpClient.newBuilder()
-                                                       .build()).create();
+        httpClient = new MyHttpClientBuilder(HttpClient.newBuilder()).build();
 
     }
 

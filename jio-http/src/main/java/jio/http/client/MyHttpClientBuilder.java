@@ -15,7 +15,7 @@ import java.util.function.Predicate;
  * HTTP requests. JFR event recording is enabled by default.</p>
  */
 public final class MyHttpClientBuilder {
-    private final HttpClient client;
+    private final HttpClient.Builder client;
     private Predicate<Throwable> reqRetryPredicate;
     private RetryPolicy reqRetryPolicy;
     private boolean recordEvents = true;
@@ -23,11 +23,11 @@ public final class MyHttpClientBuilder {
     /**
      * Constructs a MyHttpClientBuilder with the specified HTTP client.
      *
-     * @param client The HTTP client to be used for building MyHttpClient instances.
+     * @param builder The HTTP client builder to be used for building MyHttpClient instances.
      * @see HttpClient
      */
-    public MyHttpClientBuilder(HttpClient client) {
-        this.client = Objects.requireNonNull(client);
+    public MyHttpClientBuilder(HttpClient.Builder builder) {
+        this.client = Objects.requireNonNull(builder);
     }
 
 
@@ -38,21 +38,21 @@ public final class MyHttpClientBuilder {
      * @param reqRetryPolicy The retry policy to be applied to HTTP requests (if null, no requests are retried).
      * @return This builder with the specified retry policy.
      */
-    public MyHttpClientBuilder setRetryPolicy(RetryPolicy reqRetryPolicy) {
+    public MyHttpClientBuilder withRetryPolicy(RetryPolicy reqRetryPolicy) {
         this.reqRetryPolicy = Objects.requireNonNull(reqRetryPolicy);
         return this;
     }
 
     /**
      * Sets a predicate that takes an exception and returns true if the retry policy specified with
-     * {@link #setRetryPolicy(RetryPolicy)} should be applied. This predicate allows you to selectively apply the retry
+     * {@link #withRetryPolicy(RetryPolicy)} should be applied. This predicate allows you to selectively apply the retry
      * policy based on the type or condition of the exception.
      *
      * @param reqRetryPredicate The predicate to determine if the retry policy should be applied (if null, the retry
      *                          policy is applied to all exceptions).
      * @return This builder with the specified retry predicate.
      */
-    public MyHttpClientBuilder setRetryPredicate(Predicate<Throwable> reqRetryPredicate) {
+    public MyHttpClientBuilder withRetryPredicate(Predicate<Throwable> reqRetryPredicate) {
         this.reqRetryPredicate = Objects.requireNonNull(reqRetryPredicate);
         return this;
     }
@@ -62,7 +62,7 @@ public final class MyHttpClientBuilder {
      *
      * @return This builder with JFR event recording disable.
      */
-    public MyHttpClientBuilder disableRecordEvents(){
+    public MyHttpClientBuilder withoutRecordedEvents(){
         this.recordEvents = false;
         return this;
     }
@@ -75,7 +75,7 @@ public final class MyHttpClientBuilder {
      * @see MyHttpClient
      */
 
-    public MyHttpClient create() {
+    public MyHttpClient build() {
         return new MyHttpClientImpl(client,
                                     reqRetryPolicy,
                                     reqRetryPredicate,

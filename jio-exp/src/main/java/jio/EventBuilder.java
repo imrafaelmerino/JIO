@@ -8,9 +8,9 @@ import static java.util.Objects.requireNonNull;
 /**
  * Represents a builder to create JFR {@link jdk.jfr.consumer.RecordedEvent} from computations performed by the JIO API.
  * Some event fields can be customized. The event message of a successful computation is by default the string
- * representation of the result and can be customized with the method {@link #setSuccessMessage(Function)}. The failure
+ * representation of the result and can be customized with the method {@link #withSuccessOutput(Function)}. The failure
  * message of a fail computation is by default <code>exception.getClass().getName():exception.getMessage()</code> and
- * can be customized with the method {@link #seFailureMessage(Function)}.
+ * can be customized with the method {@link #withFailureOutput(Function)}.
  * <p>
  * Expressions made up of different subexpressions generate different JFR events that can be correlated with a context
  * specified with the constructor {@link EventBuilder#EventBuilder(String, String)}.
@@ -50,7 +50,7 @@ public final class EventBuilder<O> {
      * @param successValue a function that takes the result of the expression and produces the event value
      * @return this event builder
      */
-    public EventBuilder<O> setSuccessMessage(final Function<O, String> successValue) {
+    public EventBuilder<O> withSuccessOutput(final Function<O, String> successValue) {
         this.successValue = requireNonNull(successValue);
         return this;
     }
@@ -62,7 +62,7 @@ public final class EventBuilder<O> {
      * @param failureMessage a function that produces the event failure message from the exception
      * @return this event builder
      */
-    public EventBuilder<O> seFailureMessage(final Function<Throwable, String> failureMessage) {
+    public EventBuilder<O> withFailureOutput(final Function<Throwable, String> failureMessage) {
         this.failureMessage = requireNonNull(failureMessage);
         return this;
     }

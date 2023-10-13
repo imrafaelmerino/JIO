@@ -134,10 +134,10 @@ public class TestConstructors {
         String a = IO.resource(() -> {
                                    File file = File.createTempFile("example", "text");
                                    Files.writeString(file.toPath(), "hola");
-                                   return new BufferedReader(new FileReader(file,StandardCharsets.UTF_8));
+                                   BufferedReader bufferedReader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8));
+                                   return bufferedReader;
                                },
-                               it -> IO.succeed(it.lines().collect(Collectors.joining()))
-                                  )
+                               it -> IO.succeed(it.lines().collect(Collectors.joining())))
                      .result();
 
 

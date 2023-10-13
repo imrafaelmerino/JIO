@@ -7,7 +7,7 @@ import jdk.jfr.*;
 @Name("jio.httpserver")
 @Category("JIO")
 @Description("Http request received by the JIO http server and it's response.")
-class ServerReqEvent extends Event {
+final class ServerReqEvent extends Event {
     @Label("remoteHostAddress")
     String remoteHostAddress;
     @Label("remoteHostPort")

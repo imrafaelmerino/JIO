@@ -38,7 +38,7 @@ public class TestOauth {
             .addContext("/service", GetStub.of(n -> body -> uri -> headers -> n == 2 ? "" : String.valueOf(n),
                                                n -> body -> uri -> headers -> n == 2 ? 401 : 200
                                               ))
-            .start(7777);
+            .build(7777);
 
 
     @Test
@@ -47,7 +47,7 @@ public class TestOauth {
         HttpServer server = io.result();
 
         ClientCredentialsHttpClientBuilder builder =
-                new ClientCredentialsHttpClientBuilder(new MyHttpClientBuilder(HttpClient.newHttpClient()).create(),
+                new ClientCredentialsHttpClientBuilder(new MyHttpClientBuilder(HttpClient.newBuilder()),
                                                        new AccessTokenRequest("client_id",
                                                                               "client_secret",
                                                                               "localhost",
@@ -60,7 +60,7 @@ public class TestOauth {
 
                 );
 
-        MyOauthHttpClient client = builder.create();
+        MyOauthHttpClient client = builder.build();
 
         HttpResponse<String> resp = client.oauthOfString()
                                           .apply(HttpRequest.newBuilder()

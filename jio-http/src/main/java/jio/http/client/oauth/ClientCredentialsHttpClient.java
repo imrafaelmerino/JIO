@@ -4,6 +4,7 @@ import jio.IO;
 import jio.Lambda;
 import jio.http.client.HttpLambda;
 import jio.http.client.MyHttpClient;
+import jio.http.client.MyHttpClientBuilder;
 
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -31,14 +32,14 @@ final class ClientCredentialsHttpClient implements MyOauthHttpClient {
     private final HttpLambda<Void> oauthDiscardingLambda;
     private volatile String accessToken;
 
-    ClientCredentialsHttpClient(final MyHttpClient client,
+    ClientCredentialsHttpClient(final MyHttpClientBuilder client,
                                 final Function<MyOauthHttpClient, IO<HttpResponse<String>>> accessTokenReq,
                                 final String authorizationHeaderName,
                                 final Function<String, String> authorizationHeaderValue,
                                 final Lambda<HttpResponse<String>, String> getAccessToken,
                                 final Predicate<HttpResponse<?>> refreshTokenPredicate
                                ) {
-        this.httpClient = client;
+        this.httpClient = client.build();
         this.accessTokenReq = accessTokenReq;
         this.authorizationHeaderName = authorizationHeaderName;
         this.authorizationHeaderValue = authorizationHeaderValue;

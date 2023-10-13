@@ -3,7 +3,7 @@ package jio.http.client.oauth;
 
 import jio.IO;
 import jio.Lambda;
-import jio.http.client.MyHttpClient;
+import jio.http.client.MyHttpClientBuilder;
 
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
@@ -26,14 +26,14 @@ import static java.util.Objects.requireNonNull;
  *
  * @see AccessTokenRequest
  * @see GetAccessToken
- * @see #setAuthorizationHeaderName(String)
- * @see #setAuthorizationHeaderValue(Function)
+ * @see #withAuthorizationHeaderName(String)
+ * @see #withAuthorizationHeaderValue(Function)
  */
 public final class ClientCredentialsHttpClientBuilder {
     private final Function<MyOauthHttpClient, IO<HttpResponse<String>>> accessTokenReq;
     private final Lambda<HttpResponse<String>, String> getAccessToken;
     private final Predicate<HttpResponse<?>> refreshTokenPredicate;
-    private final MyHttpClient client;
+    private final MyHttpClientBuilder client;
     String authorizationHeaderName = "Authorization";
     Function<String, String> authorizationHeaderValue =
             token -> String.format("Bearer %s",
@@ -60,7 +60,7 @@ public final class ClientCredentialsHttpClientBuilder {
      * service that both return 401 codes for different circumstances. In this case you need another condition to make
      * sure the 401 response is from the api gateway indicating you need to refresh the token
      *
-     * @param client                the regular {@link HttpClient http client}
+     * @param builder                the regular {@link HttpClient http client}
      * @param accessTokenReq        lambda that takes the regular http client and sends a http request to the server,
      *                              returning the response.
      * @param getAccessToken        lambda that takes the server response and returns the oauth token
@@ -68,12 +68,12 @@ public final class ClientCredentialsHttpClientBuilder {
      * @see AccessTokenRequest
      * @see GetAccessToken
      */
-    public ClientCredentialsHttpClientBuilder(final MyHttpClient client,
+    public ClientCredentialsHttpClientBuilder(final MyHttpClientBuilder builder,
                                               final Lambda<MyOauthHttpClient, HttpResponse<String>> accessTokenReq,
                                               final Lambda<HttpResponse<String>, String> getAccessToken,
                                               final Predicate<HttpResponse<?>> refreshTokenPredicate
                                              ) {
-        this.client = client;
+        this.client = builder;
         this.accessTokenReq = requireNonNull(accessTokenReq);
         this.getAccessToken = requireNonNull(getAccessToken);
         this.refreshTokenPredicate = requireNonNull(refreshTokenPredicate);
@@ -84,7 +84,7 @@ public final class ClientCredentialsHttpClientBuilder {
      *
      * @return a ClientCredentialsHttpClient
      */
-    public MyOauthHttpClient create() {
+    public MyOauthHttpClient build() {
         return new ClientCredentialsHttpClient(client,
                                                accessTokenReq,
                                                authorizationHeaderName,
@@ -101,7 +101,7 @@ public final class ClientCredentialsHttpClientBuilder {
      * @param authorizationHeaderName the name of the authorization header
      * @return this builder
      */
-    public ClientCredentialsHttpClientBuilder setAuthorizationHeaderName(final String authorizationHeaderName) {
+    public ClientCredentialsHttpClientBuilder withAuthorizationHeaderName(final String authorizationHeaderName) {
         this.authorizationHeaderName = requireNonNull(authorizationHeaderName);
         return this;
     }
@@ -113,7 +113,7 @@ public final class ClientCredentialsHttpClientBuilder {
      * @param fn function that takes the access token and returns the authorization header value
      * @return this builder
      */
-    public ClientCredentialsHttpClientBuilder setAuthorizationHeaderValue(final Function<String, String> fn) {
+    public ClientCredentialsHttpClientBuilder withAuthorizationHeaderValue(final Function<String, String> fn) {
         this.authorizationHeaderValue = requireNonNull(fn);
         return this;
     }

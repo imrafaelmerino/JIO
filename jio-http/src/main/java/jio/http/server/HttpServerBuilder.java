@@ -1,10 +1,7 @@
 package jio.http.server;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.*;
 import jio.IO;
-import jio.http.client.MyHttpClientBuilder;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -21,8 +18,8 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * Builder to create {@link HttpServer http servers}. The start method of the server is wrapped into a {@link IO}. It
- * allows you to define some interesting methods like {@link #startAtRandom(int, int)}, which sets the server to listen
- * on the first available port it finds. An Executor must be established with {@link #setExecutor(Executor)}, so that
+ * allows you to define some interesting methods like {@link #buildAtRandom(int, int)}, which sets the server to listen
+ * on the first available port it finds. An Executor must be established with {@link #withExecutor(Executor)}, so that
  * all HTTP requests are handled in tasks given to the executor. If no executor is defined, then a default
  * implementation is used, which uses the thread created by the start() method.
  * <p>
@@ -31,8 +28,10 @@ import static java.util.Objects.requireNonNull;
  * performance analysis. Event recording is enabled by default but can be disabled if needed.
  *
  * @see ServerReqEvent
+ * @see HttpServer
+ * @see HttpsServer
  */
-public class HttpServerBuilder {
+public final class HttpServerBuilder {
 
     private final AtomicLong counter = new AtomicLong(0);
     private final Map<String, HttpHandler> handlers = new HashMap<>();
@@ -40,6 +39,7 @@ public class HttpServerBuilder {
     private int backlog = 0;
 
     private boolean recordEvents = true;
+    private HttpsConfigurator httpsConfigurator;
 
     private static String headersToString(Map<String, List<String>> headers) {
         return
@@ -47,7 +47,7 @@ public class HttpServerBuilder {
                        .stream()
                        .map(e -> String.format("%s:%s",
                                                e.getKey(),
-                                               e.getValue()
+                                               e.getValue().size() == 1 ? e.getValue().get(0) : e.getValue()
                                               )
                            )
                        .collect(Collectors.joining(", "));
@@ -59,8 +59,24 @@ public class HttpServerBuilder {
      * @param executor the executor
      * @return this builder
      */
-    public HttpServerBuilder setExecutor(final Executor executor) {
+    public HttpServerBuilder withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
+        return this;
+    }
+
+
+    /**
+     * Sets an HttpsConfigurator for configuring SSL settings for the HTTP server. The HttpsConfigurator allows you to
+     * specify SSL-related settings such as SSLContext, SSLParameters, and more for secure connections. This is useful
+     * for setting up HTTPS for the HTTP server.
+     *
+     * @param configurator the HttpsConfigurator to configure SSL settings
+     * @return this builder
+     * @see HttpsConfigurator
+     */
+
+    public HttpServerBuilder withSSL(final HttpsConfigurator configurator) {
+        this.httpsConfigurator = requireNonNull(configurator);
         return this;
     }
 
@@ -87,18 +103,18 @@ public class HttpServerBuilder {
      * @param backlog the socket backlog
      * @return this builder
      */
-    public HttpServerBuilder setBacklog(final int backlog) {
+    public HttpServerBuilder withBacklog(final int backlog) {
         this.backlog = backlog;
         return this;
     }
 
     /**
-     * Disables the recording of Java Flight Recorder (JFR) events for HTTP requests handled by the server.
-     * By default, JFR events are recorded. Use this method to disable recording if needed.
+     * Disables the recording of Java Flight Recorder (JFR) events for HTTP requests handled by the server. By default,
+     * JFR events are recorded. Use this method to disable recording if needed.
      *
      * @return This builder with JFR event recording disable.
      */
-    public HttpServerBuilder disableRecordEvents(){
+    public HttpServerBuilder withoutRecordedEvents() {
         this.recordEvents = false;
         return this;
     }
@@ -113,10 +129,10 @@ public class HttpServerBuilder {
      * @param end   the last port number that will be tried
      * @return an effect that deploys the HttpServer
      */
-    public IO<HttpServer> startAtRandom(final int start,
+    public IO<HttpServer> buildAtRandom(final int start,
                                         final int end
                                        ) {
-        return startAtRandom("localhost",
+        return buildAtRandom("localhost",
                              start,
                              end
                             );
@@ -133,7 +149,7 @@ public class HttpServerBuilder {
      * @param end   the last port number that will be tried
      * @return an effect that deploys the HttpServer
      */
-    public IO<HttpServer> startAtRandom(final String host,
+    public IO<HttpServer> buildAtRandom(final String host,
                                         final int start,
                                         final int end
                                        ) {
@@ -150,7 +166,7 @@ public class HttpServerBuilder {
                                             final int end
                                            ) {
         if (start == end) throw new IllegalArgumentException("range of ports exhausted");
-        return start(requireNonNull(host),
+        return build(requireNonNull(host),
                      start
                     )
                 .recoverWith(error -> startAtRandomRec(host, start + 1, end));
@@ -166,7 +182,7 @@ public class HttpServerBuilder {
      * @param port the port number
      * @return an effect that deploys the HttpServer
      */
-    public IO<HttpServer> start(final String host,
+    public IO<HttpServer> build(final String host,
                                 final int port
                                ) {
         if (port <= 0) throw new IllegalArgumentException("port <= 0");
@@ -174,14 +190,19 @@ public class HttpServerBuilder {
 
         return IO.effect(() -> {
             try {
-                var server =
-                        HttpServer.create(new InetSocketAddress(host, port), backlog);
+                HttpServer server;
+                if (httpsConfigurator == null) server = HttpServer.create(new InetSocketAddress(host, port), backlog);
+                else {
+                    server = HttpsServer.create(new InetSocketAddress(host, port), backlog);
+                    ((HttpsServer) server).setHttpsConfigurator(httpsConfigurator);
+                }
+
                 if (executor != null) server.setExecutor(executor);
                 var keySet = handlers.keySet();
                 for (final String key : keySet) {
                     server.createContext(key,
                                          exchange -> {
-                                             if(recordEvents)jfrHandle(key, exchange);
+                                             if (recordEvents) jfrHandle(key, exchange);
                                              else handlers.get(key).handle(exchange);
                                          }
                                         );
@@ -194,7 +215,9 @@ public class HttpServerBuilder {
         });
     }
 
-    private void jfrHandle(String key, HttpExchange exchange) {
+    private void jfrHandle(String key,
+                           HttpExchange exchange
+                          ) {
         ServerReqEvent event = new ServerReqEvent();
         event.reqCounter = counter.incrementAndGet();
         event.remoteHostAddress = exchange.getRemoteAddress().getHostName();
@@ -228,8 +251,8 @@ public class HttpServerBuilder {
      * @param port the port number
      * @return an effect that deploys the HttpServer
      */
-    public IO<HttpServer> start(final int port) {
-        return start("localhost",
+    public IO<HttpServer> build(final int port) {
+        return build("localhost",
                      port
                     );
     }

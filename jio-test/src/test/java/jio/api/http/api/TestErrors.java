@@ -37,7 +37,7 @@ public class TestErrors {
                                                           HeadersStub.EMPTY
                                                          )
                                               )
-                                   .startAtRandom("localhost",
+                                   .buildAtRandom("localhost",
                                                   8000,
                                                   9000
                                                  );
@@ -52,7 +52,7 @@ public class TestErrors {
                                                           Duration.of(1,
                                                                       ChronoUnit.NANOS
                                                                      )
-                                                                 ).build()).create();
+                                                                 )).build();
 
         boolean isConnectTimeout =
                 client.ofString().apply(HttpRequest.newBuilder()
@@ -73,7 +73,7 @@ public class TestErrors {
     public void test_domain_doesnt_exists() {
 
         MyHttpClient client =
-                new MyHttpClientBuilder(HttpClient.newHttpClient()).create();
+                new MyHttpClientBuilder(HttpClient.newBuilder()).build();
 
         boolean isUnresolved =
                 client.ofString().apply(HttpRequest.newBuilder()
@@ -102,9 +102,8 @@ public class TestErrors {
                                                                               ChronoUnit.NANOS
                                                                              )
                                                                  )
-                                                  .build()
                 )
-                        .create();
+                        .build();
 
 
         URI uri = URI.create("http://localhost:" + join.getAddress()

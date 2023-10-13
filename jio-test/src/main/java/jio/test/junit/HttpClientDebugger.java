@@ -10,14 +10,15 @@ import java.util.function.Consumer;
 class HttpClientDebugger implements Consumer<RecordedEvent> {
 
     private static final String FORMAT_SUC = """
-            event: httpclient-req, result: %s, status-code: %s, duration: %s
-            method: %s, uri: %s, req-counter: %s
+            event: httpclient-req, result: %s, status-code: %s
+            duration: %s method: %s, uri: %s, req-counter: %s
             thread: %s, event-start-time: %s
             """;
     private static final String FORMAT_ERR = """
-            event: httpclient-req, result: %s, exception: %s, duration: %s
-            method: %s, uri: %s, req-counter: %s
-            thread: %s, event-start-time: %s""";
+            event: httpclient-req, result: %s, exception: %s
+            duration: %s method: %s, uri: %s, req-counter: %s
+            thread: %s, event-start-time: %s
+            """;
 
 
     @Override
