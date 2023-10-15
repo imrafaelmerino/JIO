@@ -17,17 +17,17 @@
     - [HTTP client](#httpclient)
     - [OAUTH HTTP client](#oauth)
     - [Installation](#http-Installation)
+- [jio-test](#jio-test)
+    - [Junit integration](#junit)
+    - [Stubs](#stubs)
+      -[IO stubs](#iostubs)
+      -[Clock stubs](#clockstubs)
+      -[Http Server Stubs](#httpserverstubs)
+    - [Property based testing](#pbs)
 - [jio-mongodb](#jio-mongodb)
     - [API](#mongodb-api)
     - [Debugging and JFR integration](#mongo-Debugging-and-JFR-integration)
     - [Installation](#mongo-Installation)
-- [jio-test](#jio-test)
-    - [Junit integration](#junit)
-    - [Stubs](#stubs)
-       -[IO stubs](#iostubs)
-       -[Clock stubs](#clockstubs)
-       -[Http Server Stubs](#httpserverstubs)
-    - [Property based testing](#pbs)
     - [Installation](#test-Installation)
 - [jio-console](#console)
 - [jio-chatgpt](#jio-chatgpt)
@@ -421,7 +421,7 @@ to three retries:
 In this code:
 
 - The `countUsers` lambda is executed, and for each execution, the `debug` method creates an event. The `EventBuilder`
-  allows you to specify the name of the expression being evaluated ("count_users") and the context. This helps customize 
+  allows you to specify the name of the expression being evaluated ("count_users") and the context. This helps customize
   the events sent to the JFR system.
 
 - The `retry` method is used to introduce retry logic. In case of failure, `countUser` will be retried up to three
@@ -1089,7 +1089,7 @@ IO<O> exp = IfElseExp.<O>predicate(IO<Boolean> condition)
 
 The `SwitchExp` expression mimics the behavior of a switch construct, enabling multiple pattern-value branches. It
 evaluates an effect or value of type `I` and allows multiple clauses based on the evaluation. The `match` method
-compares the value or effect with patterns and selects the corresponding supplier. Patterns can be values, lists of
+compares the value or effect with patterns and selects the corresponding lambda. Patterns can be values, lists of
 values, or even predicates.
 
 ```code  
@@ -1097,34 +1097,34 @@ values, or even predicates.
 // matches a value of type I  
   
 IO<O> exp =  
-          SwitchExp<O>.eval(I value)  
-                      .match(I pattern1, Supplier<IO<O>> value1,  
-                             I pattern2, Supplier<IO<O>> value2,  
-                             I pattern3, Supplier<IO<O>> value3,  
-                             Supplier<IO<O>> otherwise  
+          SwitchExp<I,O>.eval(I value)  
+                      .match(I pattern1, Lambda<I,O> lambda1,  
+                             I pattern2, Lambda<I,O> lambda2,  
+                             I pattern3, Lambda<I,O> lambda3,  
+                             Lambda<I,O> otherwise  
                             );  
   
 // matches an effect of type I  
   
 IO<O> exp=  
-        SwitchExp<I, O>.eval(IO<I> value)  
-                       .match(I pattern1, Supplier<IO<O>> value1,  
-                              I pattern2, Supplier<IO<O>> value2,  
-                              I pattern3, Supplier<IO<O>> value3,,  
-                              Supplier<IO<O>> otherwise  
+        SwitchExp<I, O>.eval(IO<I> effect)  
+                       .match(I pattern1, Lambda<I,O> lambda1,  
+                              I pattern2, Lambda<I,O> lambda2,  
+                              I pattern3, Lambda<I,O> lambda3,
+                              Lambda<I,O> otherwise  
                              );  
   
   
-// For example, the following expression reduces to "Wednesday"  
+// For example, the following expression reduces to "3 is Wednesday"  
   
 IO<O> exp=  
          SwitchExp<String>.eval(3)  
-                          .match(1,() -> IO.succedd("Monday"),  
-                                 2,() -> IO.succedd("Tuesday"),  
-                                 3,() -> IO.succedd("Wednesday"),  
-                                 4,() -> IO.succedd("Thursday"),  
-                                 5,() -> IO.succedd("Friday"),  
-                                 ()->IO.succedd("weekend")  
+                          .match(1, n -> IO.succedd(n + " is Monday"),  
+                                 2, n -> IO.succedd(n + " is Tuesday"),  
+                                 3, n -> IO.succedd(n + " is Wednesday"),  
+                                 4, n -> IO.succedd(n + " is Thursday"),  
+                                 5, n -> IO.succedd(n + " is Friday"),  
+                                 n -> IO.succedd(n + " is weekend")  
                                 );  
 ```  
 
@@ -1134,24 +1134,24 @@ The same as before but using lists instead of constants as patterns.
   
 IO<O> exp =  
           SwitchExp<I, O>.eval(I value)  
-                         .match(List<I> pattern1,Supplier<IO<O>> value1,  
-                                List<I> pattern2,Supplier<IO<O>> value2,  
-                                List<I> pattern3,Supplier<IO<O>> value3,  
-                                Supplier<IO<O>> otherwise  
+                         .match(List<I> pattern1, Lambda<I,O> lambda1,  
+                                List<I> pattern2, Lambda<I,O> lambda2,  
+                                List<I> pattern3, Lambda<I,O> lambda3,  
+                                Lamda<I,O> otherwise  
                                 );  
   
-// For example, the following expression reduces to "third week"  
+// For example, the following expression reduces to "20 falls into the third week"  
 IO<O> exp=  
          SwitchExp<Integer, String>.eval(20)  
-                                   .match(List.of(1,2,3,4,5,6,7), 
-                                          () -> IO.succeed("first week"),  
-                                          List.of(8,9,10,11,12,13,14), 
-                                          () -> IO.succeed("second week"),  
-                                          List.of(15,16,17,18,19,20,10), 
-                                          () -> IO.succeed("third week"),  
-                                          List.of(21,12,23,24,25,26,27), 
-                                          () -> IO.succeedd("forth week"),  
-                                          () -> IO.succeed("last days of the month")  
+                                   .match(List.of(1, 2, 3, 4, 5, 6, 7), 
+                                          n -> IO.succeed(n + " falls into the first week"),  
+                                          List.of(8, 9, 10, 11, 12, 13, 14), 
+                                          n -> IO.succeed(n + " falls into the second week"),  
+                                          List.of(15, 16, 17, 18, 19, 20, 10), 
+                                          n -> IO.succeed(n + " falls into the third week"),  
+                                          List.of(21, 12, 23, 24, 25, 26, 27), 
+                                          n -> IO.succeedd(n + " falls into the forth week"),  
+                                          n -> IO.succeed(n + " falls into the last days of the month")  
                                          );  
 ```  
 
@@ -1161,20 +1161,20 @@ Last but not least, you can use predicates as patterns instead of values or list
   
 IO<O> exp=  
         SwitchExp<I, O>.eval(IO<I> value)  
-                       .match(Predicate<I> pattern1, Supplier<IO<O>>value1,  
-                              Predicate<I> pattern2, Supplier<IO<O>>value2,  
-                              Predicate<I> pattern3, Supplier<IO<O>>value3,  
-                              Supplier<IO<O>> otherwise  
+                       .match(Predicate<I> pattern1, Lambda<I,O> lambda1,  
+                              Predicate<I> pattern2, Lambda<I,O> lambda2,  
+                              Predicate<I> pattern3, Lambda<I,O> lambda3,  
+                              Lambda<I,O> otherwise  
                               );  
   
-// For example, the following expression reduces to the default value  
+// For example, the following expression reduces to the default value: "20 is greater or equal to twenty"  
   
 IO<O> exp=  
         SwitchExp<Integer, String>.eval(IO.succeed(20))  
-                                  .match(i -> i < 5, () -> IO.succeed("lower than five"),  
-                                         i -> i < 10, () -> IO.succeed("lower than ten"),  
-                                         i-> i < 20, () -> IO.succeed("lower than twenty"),  
-                                         () -> IO.succeed("greater or equal to twenty")  
+                                  .match(i -> i < 5, n -> IO.succeed(n + "is lower than five"),  
+                                         i -> i < 10, n -> IO.succeed(n + "is lower than ten"),  
+                                         i-> i < 20, n -> IO.succeed(n + "is lower than twenty"),  
+                                         i -> IO.succeed(i + "is greater or equal to twenty")  
                                          );  
 ```  
 
@@ -1182,8 +1182,7 @@ IO<O> exp=
 
 `CondExp` is a set of branches and a default value. Each branch consists of an effect that computes a boolean (the  
 condition) and its associated effect. The expression is reduced to the value of the first branch with a true
-condition,  
-making the order of branches significant. If no condition is true, it computes the default effect.
+condition, making the order of branches significant. If no condition is true, it computes the default effect.
 
 ```code  
   
@@ -1198,7 +1197,7 @@ IO<O> exp=
 IO<O> exp =  
     CondExp.<O>par(IO<Boolean> cond1, Supplier<IO<O>> value1,  
                    IO<Boolean> cond2, Supplier<IO<O>> value2,  
-                   IO<Boolean> cond3,Supplier<IO<O>> value3,  
+                   IO<Boolean> cond3, Supplier<IO<O>> value3,  
                    Supplier<IO<O>> otherwise  
                   );  
   
@@ -1421,14 +1420,27 @@ IO<O> debug(final EventBuilder<O> builder);
   
 ```  
 
-You can call debug() without providing an EventBuilder, and JIO will use a default event builder. This simplifies the  
-debugging process for common use cases.
+`EventBuilder` key points:
+
+- It's a builder for creating JFR events.
+- The 'exp' field represents the specific expression associated with the event.
+- Allows customization of event messages for successful and failed computations.
+- The event message for successful computations is, by default, the string representation of the result and can be
+  customized using the `withSuccessOutput` method.
+- The event message for failed computations is, by default, formatted
+  as `exception.getClass().getName():exception.getMessage()` and can be customized with the `withFailureOutput` method.
+- The `EventBuilder` is associated with a specific expression, and events generated from different expressions can be
+  correlated using a specified context.
+
+You can call debug() without providing an EventBuilder, and JIO will use a default one with "Val" as the
+expression name and without a context.
 
 ### Debugging Expressions
 
 JIO's debugging capabilities extend beyond individual effects. You can attach a debug mechanism to each operand of an  
 expression using the `debugEach` method. This allows you to monitor and log the execution of each operand
-individually.  
+individually. This operand is recursive, if the subexpressions are expressions themselves, debugEach will be
+call on them copying before the context of the event (if specified).
 The provided `EventBuilder` or a descriptive context can be used to customize the debug events for each operand.
 
 ```code  
@@ -1442,9 +1454,73 @@ Exp<O> debugEach(final String context);
 
 By using `debugEach`, you can gain insights into the behavior of complex expressions and identify any issues or  
 bottlenecks that may arise during execution. All the subexpressions and the final result will be recorded with the
-same context, making it easier to relate them and analyze their interactions.  
-JIO's logging and JFR integration features provide valuable tools for contextual logging, debugging, profiling, and  
-monitoring your functional effects and expressions, helping you build robust and reliable applications.
+same context, making it easier to relate them and analyze their interactions. Consider the
+following example:
+
+```code
+
+public class TestDebug {
+
+    @RegisterExtension
+    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+
+    @Test
+    public void test() {
+
+        Supplier<Boolean> isLowerCase = BoolGen.arbitrary().sample();
+        Supplier<String> lowerCase = Combinators.oneOf("a", "e", "i", "o", "u").sample();
+        Supplier<String> upperCase = Combinators.oneOf("A", "E", "I", "O", "U").sample();
+
+        SwitchExp<String, String> match =
+                SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
+                                                        .consequence(() -> IO.lazy(lowerCase))
+                                                        .alternative(() -> IO.lazy(upperCase))
+                                              )
+                         .match(List.of("a", "e", "i", "o", "u"),
+                                s -> IO.succeed("%s %s".formatted(s,
+                                                                  s.toUpperCase())),
+                                List.of("A", "E", "I", "O", "U"),
+                                s -> IO.succeed("%s %s".formatted(s,
+                                                                  s.toLowerCase())),
+                                s -> IO.NULL()
+                               )
+                         .debugEach("context");
+
+        System.out.println("The output is " + match.result());
+
+    }
+}
+
+```
+
+and the result after executing the previous test:
+
+
+```text
+The output is E e
+
+event: eval, expression: SwitchExp-eval-predicate, result: SUCCESS, output: false
+duration: 2,535 ms, context: context, thread: main, event-start-time: 2023-10-15T10:32:58.749536666+02:00
+
+event: eval, expression: SwitchExp-eval-alternative, result: SUCCESS, output: E
+duration: 12,541 µs, context: context, thread: main, event-start-time: 2023-10-15T10:32:58.752555+02:00
+
+event: eval, expression: SwitchExp-eval, result: SUCCESS, output: E
+duration: 3,213 ms, context: context, thread: main, event-start-time: 2023-10-15T10:32:58.749529541+02:00
+
+event: eval, expression: SwitchExp-branch[1], result: SUCCESS, output: E e
+duration: 7,250 µs, context: context, thread: main, event-start-time: 2023-10-15T10:32:58.75355575+02:00
+
+event: eval, expression: SwitchExp, result: SUCCESS, output: E e
+duration: 4,057 ms, context: context, thread: main, event-start-time: 2023-10-15T10:32:58.749524+02:00
+
+```
+
+As you can see the function `debugExp` is recursive. As the eval of the `SwitchExp` is
+an `IfElseExp`, you can see the events associated to the evaluation of the expressions 
+`SwitchExp-eval-predicate` and `SwitchExp-eval-alternative`.
+
+
 
 ## <a name="Installation"><a/> Installation
 
@@ -1909,7 +1985,7 @@ the exact values we added when creating the ClientCredentialsHttpClientBuilder
 ### <a name="http-Installation"><a/> Installation
 
 It requires Java 17 or greater
-  
+
 ```code  
   
 <dependency>  
@@ -1921,8 +1997,25 @@ It requires Java 17 or greater
 ```  
 
 [jio-exp](#Installation) is the only dependency
-  
+
 
 ---
+
+## <a name="jio-test"><a/> jio-test
+
+### <a name="junit"><a/> Junit integration
+
+### <a name="iostubs"><a/> Stubs
+
+#### <a name="iostubs"><a/> IO stubs
+
+#### <a name="clockstubs"><a/> Clock stubs
+
+#### <a name="httpserverstubs"><a/> Http Server Stubs
+
+### <a name="pbs"><a/> Property based testing
+
+
+
 
 
