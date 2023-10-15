@@ -31,7 +31,7 @@
     - [API](#mongodb-api)
     - [Debugging and JFR integration](#mongo-Debugging-and-JFR-integration)
     - [Installation](#mongo-Installation)
-- [jio-console](#console)
+- [jio-console](#jio-console)
 - [jio-chatgpt](#jio-chatgpt)
 
 ## <a name="cwa"><a/> Code wins arguments
@@ -602,13 +602,13 @@ What can you expect from JIO:
 
 - Simple and powerful API
 - Errors are first class citizens
-- Simple and powerful testing tools (jio-test)
-- Easy to extend and get benefit from all the above. Examples are jio-http, jio-mongodb or jio-chatgpt. And you can
-  create your owns integrations!
+- Simple and powerful testing tools ([jio-test](#jio-test))
+- Easy to extend and get benefit from all the above. Examples are [jio-http](#jio-http), [jio-mongodb](#jio-mongodb) 
+  or [jio-chatgpt](#jio-chatgpt). And you can create your owns integrations!
 - I don't fall into the logging-library war. This is something that sucks in Java. I just use Java Flight Recording!
 - Almost zero dependencies (just plain Java!)
 - JIO doesn't transliterate any functional API from other languages.  
-  Any standard Java programmer will find JIO quite easy and familiar.
+- Any standard Java programmer will find JIO quite easy and familiar.
 
 ---  
 
