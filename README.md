@@ -24,11 +24,11 @@
       -[Clock stubs](#clockstubs)
       -[Http Server Stubs](#httpserverstubs)
     - [Property based testing](#pbs)
+    - [Installation](#test-Installation)
 - [jio-mongodb](#jio-mongodb)
     - [API](#mongodb-api)
     - [Debugging and JFR integration](#mongo-Debugging-and-JFR-integration)
     - [Installation](#mongo-Installation)
-    - [Installation](#test-Installation)
 - [jio-console](#console)
 - [jio-chatgpt](#jio-chatgpt)
 
