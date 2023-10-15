@@ -2113,8 +2113,6 @@ TODO
 
 ### <a name="pbs"><a/> Property based testing
 
-TODO
-
 #### Quick Example: Using Property-Based Testing to Find Hard-to-Reproduce Bugs
 
 Consider a seemingly straightforward function, medium, designed to calculate the average of two integers.
@@ -2133,7 +2131,6 @@ public class TestProperties {
 
     static BiFunction<Integer, Integer, Integer> medium = (a, b) -> (a + b) / 2;
     
-    @Command
     static Property<Pair<Integer, Integer>> mediumProperty =
             Property.ofFunction("medium",
                                 PairGen.of(IntGen.biased(0),
@@ -2341,7 +2338,7 @@ To gather data for debugging and analysis, you can enable data collection using 
 feature allows you to collect data about the generated values, helping you identify patterns or trends in the generated
 data.
 
-### Reporting with `Report` Class
+### Analyzing Results
 
 After executing a property, you obtain a `Report` containing detailed information about the test execution.
 The `Report` class has the following fields and their meanings (which can be serialized into a JSON format):
@@ -2390,4 +2387,48 @@ that the tests are executed without failures or exceptions.
 The results of property testing can be exported to a file using the `withExportPath(Path path)` method. This file
 contains a JSON representation of the test report, which is useful for sharing and archiving test results.
 
+The `Property` class is part of a property-based testing framework in Java. It represents a property of a piece of code
+that should always be true. The class allows you to define, customize, execute, and report on property tests.
 
+Here, I'll explain two methods within the `Property` class: `repeatSeq` and `repeatPar`.
+
+### `repeatSeq(int n)`
+
+This method returns a new `Property` instance that represents the property and specifies that it should be executed
+sequentially for the specified number of times (`n`).
+
+- `n` (int): The number of sequential executions for the property.
+
+Use Case:
+
+- This method is useful when you want to run the property test multiple times in a sequential manner, one after the
+  other. It's suitable for situations where you don't require parallel execution and want to ensure the property holds
+  true consistently.
+
+### `repeatPar(int n)`
+
+This method returns a new `Property` instance that represents the property and specifies that it should be executed in
+parallel for the specified number of times (`n`). Parallel execution involves running the property tests concurrently
+using multiple threads from the common ForkJoinPool.
+
+- `n` (int): The number of parallel executions for the property.
+
+Use Case:
+
+- When you want to take advantage of parallelism to speed up the property-based testing process, you can use this
+  method. It's beneficial for running multiple property tests concurrently, which can be more time-efficient.
+- Provides the ability to conduct property tests in parallel, executing them a specified number of times. Parallel
+  property testing can be a valuable tool for detecting bugs related to concurrency, as it runs multiple tests
+  concurrently using multiple threads. This can help uncover issues that might not be apparent in sequential testing,
+  making it particularly useful for identifying and addressing concurrency-related defects in your code.
+
+In both cases, the original `Property` instance is not modified, and a new instance is returned with the specified
+execution mode.
+
+These methods allow you to customize how property tests are executed, whether sequentially or in parallel, depending on
+your testing requirements and constraints. They provide flexibility in adapting the testing strategy to the specific
+needs of your codebase or project.
+
+### Console
+
+TODO
