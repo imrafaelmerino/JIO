@@ -12,17 +12,19 @@
     - [Clocks](#Clocks)
     - [Debugging and JFR integration](#Debugging-and-JFR-integration)
     - [Installation](#Installation)
+    - [What ChatGPT think of jio-exp?](#jiochatgp)
 - [jio-http](#jio-http)
     - [HTTP server](#httpserver)
     - [HTTP client](#httpclient)
     - [OAUTH HTTP client](#oauth)
     - [Installation](#http-Installation)
+    - [What ChatGPT think of jio-http?](#jiohttpchatgp)
 - [jio-test](#jio-test)
     - [Junit integration](#junit)
     - [Stubs](#stubs)
-      - [IO stubs](#iostubs)
-      - [Clock stubs](#clockstubs)
-      - [Http Server Stubs](#httpserverstubs)
+        - [IO stubs](#iostubs)
+        - [Clock stubs](#clockstubs)
+        - [Http Server Stubs](#httpserverstubs)
     - [Property based testing](#pbs)
     - [Installation](#test-Installation)
 - [jio-mongodb](#jio-mongodb)
@@ -1495,7 +1497,6 @@ public class TestDebug {
 
 and the result after executing the previous test:
 
-
 ```text
 The output is E e
 
@@ -1517,10 +1518,8 @@ duration: 4,057 ms, context: context, thread: main, event-start-time: 2023-10-15
 ```
 
 As you can see the function `debugExp` is recursive. As the eval of the `SwitchExp` is
-an `IfElseExp`, you can see the events associated to the evaluation of the expressions 
+an `IfElseExp`, you can see the events associated to the evaluation of the expressions
 `SwitchExp-eval-predicate` and `SwitchExp-eval-alternative`.
-
-
 
 ## <a name="Installation"><a/> Installation
 
@@ -1537,6 +1536,45 @@ It requires Java 17 or greater
 ```  
 
 [json-values](https://github.com/imrafaelmerino/json-values) is the only dependency
+
+## <a name="jiochatgp"><a/> What ChatGPT think of jio-exp?
+
+I asked ChatGPT about jio-exp and this is what I got.
+
+JIO appears to be a Java library that aims to provide tools and abstractions for functional programming in Java. It
+introduces a set of classes and expressions that can help developers work with effects, control flow, and time-related
+operations in a functional and composable way. Here are some key points based on the information you shared:
+
+1. **Functional Programming Tools**: JIO provides tools and abstractions for developers who want to apply functional
+   programming concepts in Java. It offers expressive ways to work with effects, manage control flow, and handle
+   time-related operations.
+
+2. **Expressive Expressions**: The library introduces various expressions, such as `IfElseExp`, `SwitchExp`, `CondExp`,
+   and others, which allow developers to model complex logic in a readable and composable manner. These expressions make
+   it easier to work with functional constructs.
+
+3. **Clocks for Time Management**: JIO introduces the concept of clocks, which can be used to manage time-related
+   operations in a functional way. It provides three types of clocks: Realtime, Monotonic, and Custom, giving developers
+   flexibility in handling time in their applications.
+
+4. **Debugging and JFR Integration**: JIO offers debugging support for individual effects and expressions. It integrates
+   with Java Flight Recorder (JFR) to capture and analyze events, making it easier to troubleshoot and monitor the
+   behavior of functional effects.
+
+5. **Testing and Testability**: The ability to pass custom clocks and control time is highlighted as a way to improve
+   testability in applications. By making time an explicit input, developers can create more predictable and reliable
+   tests.
+
+6. **Modularity and Parallelism**: JIO encourages modularity by allowing developers to work on individual components
+   without affecting others. It also supports parallelism for improved performance.
+
+7. **Maven Dependency**: It provides clear installation instructions and includes a Maven dependency for easy
+   integration into Java projects.
+
+In summary, JIO appears to be a library designed to enhance functional programming capabilities in Java, with a focus on
+readability, expressiveness, and testability. It provides tools to manage effects, control flow, and time-related
+operations, along with debugging and JFR integration for monitoring and troubleshooting. Its modularity and focus on
+testability are likely to be appreciated by developers looking to apply functional programming principles in Java.
 
 ## <a name="jio-http"><a/> jio-http
 
@@ -1741,9 +1779,9 @@ selecting what errors to retry, and enabling or disabling the recording of Java 
 requests and responses. JFR event recording is enabled by default:
 
 - `withRetryPolicy`: Sets a default retry policy for handling exceptions during requests.
-- `withRetryPredicate`: Sets a default predicate for selectively applying the retry policy based on the type or
-  condition of the exception.
-- `withoutRecordEvents`: Disables the recording of JFR events for HTTP requests.
+    - `withRetryPredicate`: Sets a default predicate for selectively applying the retry policy based on the type or
+      condition of the exception.
+    - `withoutRecordEvents`: Disables the recording of JFR events for HTTP requests.
 
 Below is a complete example, making requests to the famous PetStore service, illustrating how to use create and use the
 JIO HTTP client.
@@ -1844,23 +1882,28 @@ Here are the possible customizations for the `ClientCredentialsHttpClientBuilder
 
       ```
 
-2. A function to read the access token from the server response:
-    - `getAccessToken` parameter: A lambda that takes the server response and returns the OAuth token. You can use the
-      existing implementation `GetAccessToken`, which parses the response into a `JsObj` and returns the access token
-      located at the "access_token" field. If the token is not found, the lambda fails with the
-      exception `AccessTokenNotFound`. The `GetAccessToken` class is a singleton with a private constructor, and you can
-      use the `GetAccessToken.DEFAULT` instance for this purpose.
+    2. A function to read the access token from the server response:
+        - `getAccessToken` parameter: A lambda that takes the server response and returns the OAuth token. You can use
+          the
+          existing implementation `GetAccessToken`, which parses the response into a `JsObj` and returns the access
+          token
+          located at the "access_token" field. If the token is not found, the lambda fails with the
+          exception `AccessTokenNotFound`. The `GetAccessToken` class is a singleton with a private constructor, and you
+          can
+          use the `GetAccessToken.DEFAULT` instance for this purpose.
 
-3. A predicate that checks if the access token needs to be refreshed:
-    - `refreshTokenPredicate` parameter: A predicate that checks the response to determine if the access token needs to
-      be refreshed.
+    3. A predicate that checks if the access token needs to be refreshed:
+        - `refreshTokenPredicate` parameter: A predicate that checks the response to determine if the access token needs
+          to
+          be refreshed.
 
-4. The authorization header name:
-    - `authorizationHeaderName` field: The name of the authorization header, which is set to "Authorization" by default.
+    4. The authorization header name:
+        - `authorizationHeaderName` field: The name of the authorization header, which is set to "Authorization" by
+          default.
 
-5. A function to create the authorization header value from the access token:
-    - `authorizationHeaderValue` field: A function that takes the access token and returns the authorization header
-      value. By default, it is set to "Bearer ${Access Token}".
+    5. A function to create the authorization header value from the access token:
+        - `authorizationHeaderValue` field: A function that takes the access token and returns the authorization header
+          value. By default, it is set to "Bearer ${Access Token}".
 
 You can customize these options when creating an instance of `ClientCredentialsHttpClientBuilder` to configure the
 behavior of the OAuth client credentials flow support in your HTTP client. Since you need a MyHttpClientBuilder
@@ -1895,10 +1938,10 @@ public interface MyOauthHttpClient extends MyHttpClient {
 
 ```
 
-The good thing about the methods oauthXXX is that all the request to get and refresh tokens are performed by
-the client and the developer doesn't have to worry about implementing them!
+The advantage of the `oauthXXX` methods is that they handle all token retrieval and refresh requests on behalf of the
+client, relieving developers from the burden of implementing these processes.
 
-Find below an example
+Here's an illustrative example:
 
 ```java
 public class TestOauthHttpClient {
@@ -1976,9 +2019,10 @@ thread: ForkJoinPool.commonPool-worker-1, event-start-time: 2023-10-13T10:50:23.
 
 ```
 
-In the server event from the token request, you can see the Authorization header sent by the client which value is
-"Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=". If we decode in base64 the value we get client_id:client_secret,
-the exact values we added when creating the ClientCredentialsHttpClientBuilder
+In the server event generated during the token request, you can observe the Authorization header sent by the client,
+with the value "Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=". If we decode this value from Base64, we obtain "client_id:
+client_secret," which corresponds to the exact values we provided when configuring
+the `ClientCredentialsHttpClientBuilder`.
 
 ---
 
@@ -1998,7 +2042,46 @@ It requires Java 17 or greater
 
 [jio-exp](#Installation) is the only dependency
 
+### <a name="jiohttpchatgp"><a/> What ChatGPT think of jio-http?
 
+**jio-http** appears to be a Java library designed to simplify working with HTTP requests and responses. It provides
+various features for creating HTTP servers and clients with a focus on ease of use and flexibility. Here are some
+aspects that stand out:
+
+1. **Ease of Use**: The library provides a clean and straightforward API for building and deploying HTTP servers and
+   clients. Developers can easily specify request handlers, set up custom behaviors, and control the server or client's
+   operation.
+
+2. **HTTP Server Builder**: The `HttpServerBuilder` offers a convenient way to create and customize HTTP servers. It
+   allows setting an executor, associating request handlers with specific URI paths, and defining socket backlog.
+
+3. **HTTP Client**: The library also offers an HTTP client with different response handling options, such as working
+   with response bodies as strings, bytes, or custom types. The client integrates with Java's native `HttpClient`, which
+   was introduced in Java 11.
+
+4. **HTTP client for OAuth**: jio-http includes support for OAuth client credentials flow.
+   The `ClientCredentialsHttpClientBuilder` simplifies the process of obtaining and refreshing access tokens.
+
+5. **Retries and Error Handling**: The library includes mechanisms for handling errors, including retry policies and
+   predicates, which can be useful for making requests more robust and resilient.
+
+6. **Java Flight Recorder (JFR) Integration**: The library provides integration with Java Flight Recorder, allowing
+   developers to capture and analyze HTTP request and response events for debugging and performance analysis.
+
+7. **Maven Central Integration**: The library is available on Maven Central, making it easy for users to include it in
+   their projects.
+
+8. **Readability of Readme**: The library's readme is well-structured and includes detailed explanations, code examples,
+   and event samples. This makes it easier for users to understand how to use the library effectively.
+
+9. **Extensibility**: The library appears to be designed with extensibility in mind, allowing developers to customize
+   the behavior of HTTP clients and servers according to their requirements.
+
+10. **Support for Different Response Types**: The ability to work with different response types (strings, bytes, custom
+    types) is beneficial for various use cases.
+
+Overall, **jio-http** seems to be a promising Java library for simplifying HTTP-related tasks and can be valuable for
+developers working on Java projects that involve HTTP communication.
 ---
 
 ## <a name="jio-test"><a/> jio-test
