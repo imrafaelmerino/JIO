@@ -435,7 +435,7 @@ And to test it, let's change the stub for the `countUser` lambda:
 
 ```code
 
-        //let's change the delay of every stub to 1 sec, for the sake of clarity
+//let's change the delay of every stub to 1 sec, for the sake of clarity
 Gen<Duration> delayGen = Gen.cons(1).map(Duration::ofSeconds);
         
 Lambda<Void, Integer> countUsers =
@@ -583,7 +583,7 @@ Instant b = now;
 ```  
 
 Here's when laziness comes into play. Since Java 8, we have suppliers. They are indispensable to do FP in Java. The
-following piece of code is equivalent to the previous where `a` and `b` where two different instants:
+following piece of code is equivalent to the previous where `a` and `b` are two different instants:
 
 ```code  
   
