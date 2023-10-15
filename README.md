@@ -1587,7 +1587,7 @@ create `HttpServer` or `HttpsServer` instances with ease.
 **Specifying an Executor**
 
 When creating an `HttpServer` is possible to specify an `Executor`. All HTTP requests received by the server will
-be handled in tasks provided to this executor. You can set the executor using the `setExecutor(Executor executor)`
+be handled in tasks provided to this executor. You can set the executor using the `withExecutor(Executor executor)`
 method.
 
 ```code
@@ -2043,6 +2043,9 @@ It requires Java 17 or greater
 [jio-exp](#Installation) is the only dependency
 
 ### <a name="jiohttpchatgp"><a/> What ChatGPT think of jio-http?
+
+I asked ChatGPT about jio-http and this is what I got.
+
 
 **jio-http** appears to be a Java library designed to simplify working with HTTP requests and responses. It provides
 various features for creating HTTP servers and clients with a focus on ease of use and flexibility. Here are some
