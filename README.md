@@ -1740,7 +1740,7 @@ signature for this is as follows:
 
 ```code
 
-<R> Lambda<HttpRequest.Builder, HttpResponse<R>>
+<O> Lambda<HttpRequest.Builder, HttpResponse<O>>
 
 ```
 
@@ -1748,8 +1748,9 @@ To make this type more concise, we give it an alias in JIO-HTTP. We call the pre
 where `O` represents the response body type (typically `String` or `byte[]`):
 
 ```code
-interface HttpLambda<O> extends Lambda<HttpRequest.Builder, HttpResponse<O>> {
-}
+
+interface HttpLambda<O> extends Lambda<HttpRequest.Builder, HttpResponse<O>> {}
+
 ```
 
 JIO-HTTP offers an HTTP client with various options for handling different response types. Depending on your desired
@@ -1758,8 +1759,7 @@ response type, you can use one of the following methods:
 ```java
 
 public interface MyHttpClient {
-
-
+    
     HttpLambda<String> ofString();
 
     HttpLambda<byte[]> ofBytes();
@@ -2183,8 +2183,7 @@ org.opentest4j.AssertionFailedError: Property medium with failures. JSON report:
 You might not anticipate a failure in such a straightforward function, but don't be too concerned. It's worth noting
 that this issue has persisted for a considerable period in various programming languages, even affecting binary search
 algorithms. For more insights into this matter, I recommend reading the detailed account provided by Joshua Bloch in his
-informative
-post: [Google Research Blog](https://blog.research.google/2006/06/extra-extra-read-all-about-it-nearly.html).
+informative post: [Google Research Blog](https://blog.research.google/2006/06/extra-extra-read-all-about-it-nearly.html).
 
 It's important to mention that, as of now, jio-test doesn't include a feature called "shrinking," which is a technique
 used to minimize the failing example to its simplest form. However, the framework does offer methods to help you
