@@ -14,18 +14,18 @@ import java.util.function.BiFunction;
 
 public class TestProperties {
 
-    static BiFunction<Integer, Integer, Integer> fn = (a, b) -> a + (b - a)/2;
+    static BiFunction<Integer, Integer, Integer> medium = (a, b) -> (a+b)>>>1;
     @Command
     static Property<Pair<Integer, Integer>> mediumProperty =
             Property.ofFunction("medium",
-                                PairGen.of(IntGen.arbitrary(0),
-                                           IntGen.arbitrary(0)
+                                PairGen.of(IntGen.biased(0),
+                                           IntGen.biased(0)
                                           )
                                        .suchThat(pair -> pair.first() <= pair.second()),
                                 pair -> {
                                     var a = pair.first();
                                     var b = pair.second();
-                                    var mean = fn.apply(a, b);
+                                    var mean = medium.apply(a, b);
                                     if (mean < a)
                                         return TestFailure.reason("mean lower than a");
                                     if (mean > b)
@@ -33,6 +33,7 @@ public class TestProperties {
                                     return TestResult.SUCCESS;
                                 }
                                )
+
                     .withClassifiers(Map.of("both",
                                             p -> p.first() > Integer.MAX_VALUE / 2
                                                     && p.second() > Integer.MAX_VALUE / 2,
