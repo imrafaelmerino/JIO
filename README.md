@@ -2095,13 +2095,59 @@ TODO
 
 TODO
 
-### <a name="iostubs"><a/> Stubs
-
-TODO
+### <a name="stubs"><a/> Stubs
 
 #### <a name="iostubs"><a/> IO stubs
 
-TODO
+In testing scenarios, you often need to create stubs to simulate specific behaviors or responses for parts of your code.
+The `StubSupplier` and `Gens` classes provide convenient tools for generating `IO` instances with custom behaviors for
+testing purposes.
+`StubSupplier` is a class that allows you to create stubs for generating `IO` instances using generators. These stubs
+are highly customizable and can be used to simulate various behaviors, including successes, failures, and delays.
+The `Gens` class provides various generator methods to create `IO` instances with different behaviors.
+
+You can create a `StubSupplier` using various methods, depending on your testing needs:
+
+- **`ofIOGen`:** Create a stub using a generator of `IO` effects. IO generators can produce
+  exceptions as normal values, which is useful for testing how our code reacts to errors
+
+  ```code
+  // the first call produces a failure
+  Gens<IO<Integer>> gen = Gens.seq(n -> n == 1 ? IO.fail(new RuntimeException()) : IO.succedd(n) )
+  
+  StubSupplier<Integer> stub = StubSupplier.ofIOGen(gen);
+  ```
+
+- **`ofDelayedIOGen`:** Create a stub using a generator of `IO` effects with a specified delay generator.
+  This can be useful for testing retry policies where retries are executed after waiting for some time.
+
+  ```code
+  // the first  call an error
+  Gens<IO<Integer>> gen = Gens.seq(n -> n == 1 ? IO.fail(new RuntimeException()) : IO.succedd(n) )
+  
+  // the first call a 1 second delay
+  Gens<Duration> delayGen = Gen.seq(n -> n == 1 ? Duration.ofSeconds(1) : Duration.ZERO )
+
+  StubSupplier<YourType> stub = StubSupplier.ofDelayedIOGen(gen, delayGen);
+  ```
+
+- **`ofGen`:** Create a stub using a generator of values (never fail). Remember that generators
+  are created with the library [java-fun](https://github.com/imrafaelmerino/java-fun)
+
+- **`ofDelayedGen`:** Create a stub using a generator of values with a specified delay generator.
+
+You can also specify an executor to generate the values with a thread from this executor:
+
+```code
+
+stub.withExecutor(yourExecutor);
+
+```
+
+With these tools, you can easily create stubs and generators for testing your code with various scenarios, behaviors,
+and timing conditions. This flexibility makes it easier to ensure the robustness of your code in different situations.
+
+Happy testing!
 
 #### <a name="clockstubs"><a/> Clock stubs
 
@@ -2360,16 +2406,16 @@ The `Report` class has the following fields and their meanings (which can be ser
 Exceptions or failures has an associated context (`Context` class) with the following fields:
 
 - `start`: Represents the instant when a test starts. This timestamp is essential for tracking the timing of test
-   execution.
+  execution.
 - `seed`: Signifies the seed for random data generation. This seed is crucial for reproducing bugs since pseudo-random
-   generators always produce the same sequence of values when fed with the same seed. It ensures the ability to recreate
-   the exact data sequence.
+  generators always produce the same sequence of values when fed with the same seed. It ensures the ability to recreate
+  the exact data sequence.
 - `generatedSeqNumber`: Denotes the sequence number for data generation. This number helps in understanding the order
-   of data generation and identifying patterns or issues in the data.
+  of data generation and identifying patterns or issues in the data.
 - `input`: Represents the input data of the test. This field provides insight into the specific data that was used
-   during a test execution. It's important for analyzing the test's behavior and identifying problematic inputs.
+  during a test execution. It's important for analyzing the test's behavior and identifying problematic inputs.
 - `tags`: Contains a string that can be used to categorize the input data, based on classifiers or conditions. This
-   information helps in identifying and categorizing specific inputs and associating them with potential issues.
+  information helps in identifying and categorizing specific inputs and associating them with potential issues.
 
 These fields collectively provide valuable context information for each test execution. In particular, the `seed`
 and `generatedSeqNumber` fields are vital for reproducing bugs because they allow you to precisely recreate the sequence
