@@ -12,7 +12,7 @@
     - [Clocks](#Clocks)
     - [Debugging and JFR integration](#Debugging-and-JFR-integration)
     - [Installation](#Installation)
-    - [What ChatGPT think of jio-exp?](#jiochatgp)
+    - [What ChatGPT think of jio-exp?](#jioexpchatgp)
 - [jio-http](#jio-http)
     - [HTTP server](#httpserver)
     - [HTTP client](#httpclient)
@@ -603,11 +603,11 @@ What can you expect from JIO:
 - Simple and powerful API
 - Errors are first class citizens
 - Simple and powerful testing tools ([jio-test](#jio-test))
-- Easy to extend and get benefit from all the above. Examples are [jio-http](#jio-http), [jio-mongodb](#jio-mongodb) 
+- Easy to extend and get benefit from all the above. Examples are [jio-http](#jio-http), [jio-mongodb](#jio-mongodb)
   or [jio-chatgpt](#jio-chatgpt). And you can create your owns integrations!
 - I don't fall into the logging-library war. This is something that sucks in Java. I just use Java Flight Recording!
 - Almost zero dependencies (just plain Java!)
-- JIO doesn't transliterate any functional API from other languages.  
+- JIO doesn't transliterate any functional API from other languages.
 - Any standard Java programmer will find JIO quite easy and familiar.
 
 ---  
@@ -1537,7 +1537,7 @@ It requires Java 17 or greater
 
 [json-values](https://github.com/imrafaelmerino/json-values) is the only dependency
 
-## <a name="jiochatgp"><a/> What ChatGPT think of jio-exp?
+## <a name="jioexpchatgp"><a/> What ChatGPT think of jio-exp?
 
 I asked ChatGPT about jio-exp and this is what I got.
 
@@ -1759,7 +1759,7 @@ response type, you can use one of the following methods:
 ```java
 
 public interface MyHttpClient {
-    
+
     HttpLambda<String> ofString();
 
     HttpLambda<byte[]> ofBytes();
@@ -2183,7 +2183,8 @@ org.opentest4j.AssertionFailedError: Property medium with failures. JSON report:
 You might not anticipate a failure in such a straightforward function, but don't be too concerned. It's worth noting
 that this issue has persisted for a considerable period in various programming languages, even affecting binary search
 algorithms. For more insights into this matter, I recommend reading the detailed account provided by Joshua Bloch in his
-informative post: [Google Research Blog](https://blog.research.google/2006/06/extra-extra-read-all-about-it-nearly.html).
+informative
+post: [Google Research Blog](https://blog.research.google/2006/06/extra-extra-read-all-about-it-nearly.html).
 
 It's important to mention that, as of now, jio-test doesn't include a feature called "shrinking," which is a technique
 used to minimize the failing example to its simplest form. However, the framework does offer methods to help you
@@ -2355,6 +2356,24 @@ The `Report` class has the following fields and their meanings (which can be ser
 - `accumulative_time`: The accumulative execution time in milliseconds.
 - `failures`: An array of failure contexts, each containing a reason and context.
 - `exceptions`: An array of exception contexts, each containing a message, type, and stack trace.
+
+Exceptions or failures has an associated context (`Context` class) with the following fields:
+
+- `start`: Represents the instant when a test starts. This timestamp is essential for tracking the timing of test
+   execution.
+- `seed`: Signifies the seed for random data generation. This seed is crucial for reproducing bugs since pseudo-random
+   generators always produce the same sequence of values when fed with the same seed. It ensures the ability to recreate
+   the exact data sequence.
+- `generatedSeqNumber`: Denotes the sequence number for data generation. This number helps in understanding the order
+   of data generation and identifying patterns or issues in the data.
+- `input`: Represents the input data of the test. This field provides insight into the specific data that was used
+   during a test execution. It's important for analyzing the test's behavior and identifying problematic inputs.
+- `tags`: Contains a string that can be used to categorize the input data, based on classifiers or conditions. This
+   information helps in identifying and categorizing specific inputs and associating them with potential issues.
+
+These fields collectively provide valuable context information for each test execution. In particular, the `seed`
+and `generatedSeqNumber` fields are vital for reproducing bugs because they allow you to precisely recreate the sequence
+of random data that led to a specific issue.
 
 By examining the `Report` class, you can gain valuable insights into the performance of your property-based tests,
 identify failures, and pinpoint exceptions.
