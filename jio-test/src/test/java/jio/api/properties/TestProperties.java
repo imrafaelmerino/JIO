@@ -14,7 +14,7 @@ import java.util.function.BiFunction;
 
 public class TestProperties {
 
-    static BiFunction<Integer, Integer, Integer> medium = (a, b) -> (a+b)>>>1;
+    static BiFunction<Integer, Integer, Integer> medium = (a, b) -> (a + b)/2;
     @Command
     static Property<Pair<Integer, Integer>> mediumProperty =
             Property.ofFunction("medium",

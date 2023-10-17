@@ -326,6 +326,7 @@ public non-sealed class Property<O> implements Testable {
             Supplier<O> rg = gen.apply(new Random(seed));
             report.setStartTime(Instant.now());
             for (int i = 1; i <= times; i++) {
+                report.incTest();
                 var tic = Instant.now();
                 var generated = rg.get();
                 String tags = getTags(generated);

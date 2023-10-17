@@ -335,6 +335,7 @@ public final class Report {
      */
     public void summarize() {
         synchronized (System.out) {
+            if(tests==0) throw new RuntimeException("No test was executed or incTest method wasn't called");
             System.out.printf("Property %s executed %s times at %s for %s:%n", propName, tests, startTime.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME), Utils.formatTime(accumulativeTime));
             if (getExceptions().isEmpty() && getFailures().isEmpty())
                 System.out.printf("  + OK, passed %d tests.\n",
@@ -370,9 +371,8 @@ public final class Report {
             }
 
             if (!valuesCounter.isEmpty() || !tagsCounter.isEmpty())
-                System.out.println(String.format("  %s values collected in total:",
-                                                 tests)
-                                  );
+                System.out.println("  Distribution of collected values:");
+
             if (!valuesCounter.isEmpty()) printCounter(valuesCounter);
             if (!tagsCounter.isEmpty()) printCounter(tagsCounter);
 
