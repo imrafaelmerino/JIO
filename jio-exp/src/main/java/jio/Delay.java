@@ -32,7 +32,9 @@ public final class Delay extends IO<Void> {
     private final Duration duration;
     private final Executor executor;
 
-    private Delay(final Duration duration, final Executor executor) {
+    private Delay(final Duration duration,
+                  final Executor executor
+                 ) {
         this.duration = duration;
         this.executor = executor;
     }
@@ -45,7 +47,9 @@ public final class Delay extends IO<Void> {
      * @param executor the executor
      * @return a Delay
      */
-    public static Delay of(final Duration duration, final Executor executor) {
+    public static Delay of(final Duration duration,
+                           final Executor executor
+                          ) {
         return new Delay(requireNonNull(duration), executor);
     }
 

@@ -24,28 +24,12 @@ import static jio.mongodb.MongoDBEvent.OP.FIND_ONE_AND_UPDATE;
 public final class FindOneAndUpdate extends Op implements BiLambda<JsObj, JsObj, JsObj> {
 
     private static final FindOneAndUpdateOptions DEFAULT_OPTIONS = new FindOneAndUpdateOptions();
-    private final FindOneAndUpdateOptions options;
+    private FindOneAndUpdateOptions options = DEFAULT_OPTIONS;
 
 
-    private FindOneAndUpdate(final CollectionSupplier collectionSupplier,
-                             final FindOneAndUpdateOptions options
+    private FindOneAndUpdate(final CollectionSupplier collectionSupplier
                             ) {
         super(collectionSupplier, true);
-        this.options = requireNonNull(options);
-    }
-
-    /**
-     * Creates a new instance of {@code FindOneAndUpdate} with the specified MongoDB collection supplier and update
-     * options.
-     *
-     * @param collectionSupplier the supplier of the MongoDB collection to perform the update operation
-     * @param options            the options to control the update operation
-     * @return a new {@code FindOneAndUpdate} instance with the specified options
-     */
-    public static FindOneAndUpdate of(final CollectionSupplier collectionSupplier,
-                                      final FindOneAndUpdateOptions options
-                                     ) {
-        return new FindOneAndUpdate(collectionSupplier, options);
     }
 
     /**
@@ -56,7 +40,16 @@ public final class FindOneAndUpdate extends Op implements BiLambda<JsObj, JsObj,
      * @return a new {@code FindOneAndUpdate} instance with default update options
      */
     public static FindOneAndUpdate of(final CollectionSupplier collectionSupplier) {
-        return new FindOneAndUpdate(collectionSupplier, DEFAULT_OPTIONS);
+        return new FindOneAndUpdate(collectionSupplier);
+    }
+
+    /**
+     * @param options the options to perform the operation
+     * @return this instance with the new options
+     */
+    public FindOneAndUpdate withOptions(final FindOneAndUpdateOptions options) {
+        this.options = requireNonNull(options);
+        return this;
     }
 
     /**
@@ -65,7 +58,7 @@ public final class FindOneAndUpdate extends Op implements BiLambda<JsObj, JsObj,
      * @param executor the executor for asynchronous execution
      * @return this {@code FindOneAndUpdate} instance
      */
-    public FindOneAndUpdate on(final Executor executor) {
+    public FindOneAndUpdate withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
@@ -97,12 +90,12 @@ public final class FindOneAndUpdate extends Op implements BiLambda<JsObj, JsObj,
     }
 
     /**
-     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
-     * the operation will not generate or log JFR events for its operations.
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation
+     * will not generate or log JFR events for its operations.
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public FindOneAndUpdate disableRecordEvents(){
+    public FindOneAndUpdate withoutRecordedEvents() {
         this.recordEvents = false;
         return this;
     }

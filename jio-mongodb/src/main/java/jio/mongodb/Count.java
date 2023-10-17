@@ -19,28 +19,16 @@ import static jio.mongodb.MongoDBEvent.OP.COUNT;
 public final class Count extends Op implements Lambda<JsObj, Long> {
 
     private static final CountOptions DEFAULT_OPTIONS = new CountOptions();
-    private final CountOptions options;
+    private CountOptions options;
 
     /**
      * Constructs a new Count instance.
      *
      * @param collection The supplier for the MongoDB collection.
-     * @param options    The count options.
      */
-    private Count(final CollectionSupplier collection, final CountOptions options) {
+    private Count(final CollectionSupplier collection) {
         super(collection, true);
-        this.options = requireNonNull(options);
-    }
-
-    /**
-     * Creates a Count instance with the specified collection supplier and count options.
-     *
-     * @param collection The supplier for the MongoDB collection.
-     * @param options    The count options.
-     * @return A Count instance.
-     */
-    public static Count of(final CollectionSupplier collection, final CountOptions options) {
-        return new Count(collection, options);
+        options = DEFAULT_OPTIONS;
     }
 
     /**
@@ -50,7 +38,16 @@ public final class Count extends Op implements Lambda<JsObj, Long> {
      * @return A Count instance with default options.
      */
     public static Count of(final CollectionSupplier collection) {
-        return new Count(collection, DEFAULT_OPTIONS);
+        return new Count(collection);
+    }
+
+    /**
+     * @param options the options to perform the operation
+     * @return this instance with the new options
+     */
+    public Count withOptions(final CountOptions options) {
+        this.options = requireNonNull(options);
+        return this;
     }
 
     /**
@@ -59,7 +56,7 @@ public final class Count extends Op implements Lambda<JsObj, Long> {
      * @param executor The executor to use.
      * @return This Count instance for method chaining.
      */
-    public Count on(final Executor executor) {
+    public Count withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
@@ -85,12 +82,12 @@ public final class Count extends Op implements Lambda<JsObj, Long> {
     }
 
     /**
-     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
-     * the operation will not generate or log JFR events for its operations.
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation
+     * will not generate or log JFR events for its operations.
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public Count disableRecordEvents(){
+    public Count withoutRecordedEvents() {
         this.recordEvents = false;
         return this;
     }

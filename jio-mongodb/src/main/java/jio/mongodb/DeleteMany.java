@@ -91,7 +91,7 @@ public final class DeleteMany<O> extends Op implements Lambda<JsObj, O> {
      * @param executor The {@code Executor} to use for asynchronous execution.
      * @return This {@code DeleteMany} instance for method chaining.
      */
-    public DeleteMany<O> on(final Executor executor) {
+    public DeleteMany<O> withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
@@ -130,7 +130,7 @@ public final class DeleteMany<O> extends Op implements Lambda<JsObj, O> {
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public DeleteMany<O> disableRecordEvents(){
+    public DeleteMany<O> withoutRecordedEvents(){
         this.recordEvents = false;
         return this;
     }

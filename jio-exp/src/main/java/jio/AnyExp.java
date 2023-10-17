@@ -116,7 +116,7 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
 
 
     @Override
-    public abstract AnyExp retryEach(final Predicate<Throwable> predicate,
+    public abstract AnyExp retryEach(final Predicate<? super Throwable> predicate,
                                      final RetryPolicy policy
                                     );
 

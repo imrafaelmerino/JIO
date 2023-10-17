@@ -49,7 +49,7 @@ public class TestErrors {
                              JsInt.of(1)
                             );
         //"java.util.concurrent.CompletionException: jio.JioFailure: Timeout while receiving message"
-        Assertions.assertTrue(findOne.apply(FindOptions.ofFilter(obj))
+        Assertions.assertTrue(findOne.apply(new FindBuilder(obj).build())
                                      .then(o -> IO.FALSE,
                                            e -> IO.succeed(MongoExceptions.READ_TIMEOUT.test(e))
                                           )

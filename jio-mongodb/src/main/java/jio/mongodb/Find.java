@@ -29,7 +29,7 @@ import static jio.mongodb.MongoDBEvent.OP.FIND;
  * @see FindAll
  * @see FindOptions
  */
-sealed public class Find<O> extends Op implements Lambda<FindOptions, O> permits FindOne, FindAll {
+sealed public class Find<O> extends Op implements Lambda<FindBuilder, O> permits FindOne, FindAll {
 
     private final Function<FindIterable<JsObj>, O> converter;
 
@@ -53,20 +53,23 @@ sealed public class Find<O> extends Op implements Lambda<FindOptions, O> permits
      * @param executor the executor for asynchronous execution
      * @return this {@code Find} instance with the executor set
      */
-    public Find<O> on(final Executor executor) {
+    public Find<O> withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
 
+
+
     /**
      * Executes the find operation with the specified query options.
      *
-     * @param options the query options for the find operation
+     * @param builder the builder to create the query options for the find operation
      * @return an {@link IO} representing the asynchronous result of the find operation
      */
     @Override
-    public IO<O> apply(final FindOptions options) {
-        Objects.requireNonNull(options);
+    public IO<O> apply(final FindBuilder builder) {
+        Objects.requireNonNull(builder);
+        FindOptions options = builder.build();
         Supplier<O> supplier =
                 jfrEventWrapper(() -> {
                                     var hint = options.hint != null ?

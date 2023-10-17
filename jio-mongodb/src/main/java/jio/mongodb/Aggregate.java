@@ -5,7 +5,9 @@ import jio.IO;
 import jio.Lambda;
 import jsonvalues.JsArray;
 import jsonvalues.JsObj;
+import org.bson.conversions.Bson;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
@@ -20,7 +22,7 @@ import static jio.mongodb.MongoDBEvent.OP.AGGREGATE;
  *
  * @param <O> The type of the result after aggregation.
  */
-public final class Aggregate<O> extends Op implements Lambda<JsArray, O> {
+public final class Aggregate<O> extends Op implements Lambda<List<Bson>, O> {
 
     /**
      * The function to convert the aggregate iterable result to the desired type.
@@ -47,7 +49,7 @@ public final class Aggregate<O> extends Op implements Lambda<JsArray, O> {
      * @param executor The executor for running the aggregation operation.
      * @return This Aggregate instance with the executor set.
      */
-    public Aggregate<O> on(final Executor executor) {
+    public Aggregate<O> withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
@@ -59,13 +61,12 @@ public final class Aggregate<O> extends Op implements Lambda<JsArray, O> {
      * @return An IO representing the result of the aggregation operation.
      */
     @Override
-    public IO<O> apply(final JsArray stages) {
+    public IO<O> apply(final List<Bson> stages) {
         Objects.requireNonNull(stages);
         Supplier<O> supplier =
                 jfrEventWrapper(() -> {
-                                    var pipeline = jsArray2ListOfBson.apply(stages);
                                     var collection = requireNonNull(this.collection.get());
-                                    return resultConverter.apply(collection.aggregate(pipeline));
+                                    return resultConverter.apply(collection.aggregate(stages));
                                 },
                                 AGGREGATE
                                );
@@ -83,7 +84,7 @@ public final class Aggregate<O> extends Op implements Lambda<JsArray, O> {
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public Aggregate<O> disableRecordEvents(){
+    public Aggregate<O> withoutRecordedEvents(){
         this.recordEvents = false;
         return this;
     }

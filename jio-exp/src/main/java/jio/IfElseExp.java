@@ -67,7 +67,7 @@ public final class IfElseExp<O> extends Exp<O> {
 
 
     @Override
-    public IfElseExp<O> retryEach(final Predicate<Throwable> predicate,
+    public IfElseExp<O> retryEach(final Predicate<? super Throwable> predicate,
                                   final RetryPolicy policy
                                  ) {
         return new IfElseExp<O>(this.predicate.retry(requireNonNull(predicate),
@@ -99,29 +99,29 @@ public final class IfElseExp<O> extends Exp<O> {
 
     @Override
     public IfElseExp<O> debugEach(final EventBuilder<O> eventBuilder) {
-        return new IfElseExp<>(LoggerHelper.debugIO(predicate,
-                                                    String.format("%s-predicate",
+        return new IfElseExp<>(DebuggerHelper.debugIO(predicate,
+                                                      String.format("%s-predicate",
                                                                   eventBuilder.exp
                                                                  ),
 
-                                                    eventBuilder.context
-                                                   ),
+                                                      eventBuilder.context
+                                                     ),
                                getJFRPublisher(eventBuilder)
         )
-                .consequence(() -> LoggerHelper.debugIO(consequence.get(),
-                                                        String.format("%s-consequence",
+                .consequence(() -> DebuggerHelper.debugIO(consequence.get(),
+                                                          String.format("%s-consequence",
                                                                       eventBuilder.exp
                                                                      ),
-                                                        eventBuilder.context
-                                                       )
+                                                          eventBuilder.context
+                                                         )
 
                             )
-                .alternative(() -> LoggerHelper.debugIO(alternative.get(),
-                                                        String.format("%s-alternative",
+                .alternative(() -> DebuggerHelper.debugIO(alternative.get(),
+                                                          String.format("%s-alternative",
                                                                       eventBuilder.exp
                                                                      ),
-                                                        eventBuilder.context
-                                                       )
+                                                          eventBuilder.context
+                                                         )
 
                             );
     }
@@ -135,7 +135,8 @@ public final class IfElseExp<O> extends Exp<O> {
     @Override
     public IfElseExp<O> debugEach(final String context) {
         return debugEach(new EventBuilder<>(this.getClass().getSimpleName(),
-                                            context));
+                                            context)
+                        );
     }
 
 

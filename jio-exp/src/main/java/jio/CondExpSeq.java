@@ -53,7 +53,7 @@ final class CondExpSeq<O> extends CondExp<O> {
     }
 
     @Override
-    public CondExp<O> retryEach(final Predicate<Throwable> predicate,
+    public CondExp<O> retryEach(final Predicate<? super Throwable> predicate,
                                 final RetryPolicy policy
                                ) {
         requireNonNull(predicate);
@@ -74,18 +74,18 @@ final class CondExpSeq<O> extends CondExp<O> {
     @Override
     public CondExp<O> debugEach(final EventBuilder<O> eventBuilder) {
         Objects.requireNonNull(eventBuilder);
-        return new CondExpSeq<>(LoggerHelper.debugConditions(tests,
-                                                             new EventBuilder<>("%s-test".formatted(eventBuilder.exp),
+        return new CondExpSeq<>(DebuggerHelper.debugConditions(tests,
+                                                               new EventBuilder<>("%s-test".formatted(eventBuilder.exp),
                                                                                 eventBuilder.context)
+                                                              ),
+                                DebuggerHelper.debugSuppliers(consequences,
+                                                              "%s-consequence".formatted(eventBuilder.exp),
+                                                              eventBuilder.context
+                                                             ),
+                                DebuggerHelper.debugSupplier(otherwise,
+                                                             "%s-otherwise".formatted(eventBuilder.exp),
+                                                             eventBuilder.context
                                                             ),
-                                LoggerHelper.debugSuppliers(consequences,
-                                                            "%s-consequence".formatted(eventBuilder.exp),
-                                                            eventBuilder.context
-                                                           ),
-                                LoggerHelper.debugSupplier(otherwise,
-                                                           "%s-otherwise".formatted(eventBuilder.exp),
-                                                           eventBuilder.context
-                                                          ),
                                 getJFRPublisher(eventBuilder)
         );
     }

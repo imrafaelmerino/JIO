@@ -4,6 +4,8 @@ import jio.IO;
 import jio.http.client.MyHttpClient;
 import jsonvalues.JsObj;
 
+import java.util.Objects;
+
 /**
  * A service class for interacting with the GPT-3 API to create text completions.
  * This service provides a convenient way to create completions using the provided builder.
@@ -28,7 +30,7 @@ public  final  class CompletionService extends AbstractService {
      */
     public IO<JsObj> create(CompletionBuilder builder) {
 
-        return post(uri, builder.build());
+        return post(uri, Objects.requireNonNull(builder).build());
 
 
     }

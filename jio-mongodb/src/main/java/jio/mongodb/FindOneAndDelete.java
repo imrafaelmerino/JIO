@@ -23,27 +23,11 @@ import static jio.mongodb.MongoDBEvent.OP.FIND_ONE_AND_DELETE;
 public final class FindOneAndDelete extends Op implements Lambda<JsObj, JsObj> {
 
     private static final FindOneAndDeleteOptions DEFAULT_OPTIONS = new FindOneAndDeleteOptions();
-    private final FindOneAndDeleteOptions options;
+    private FindOneAndDeleteOptions options = DEFAULT_OPTIONS;
 
-    private FindOneAndDelete(final CollectionSupplier collection,
-                             final FindOneAndDeleteOptions options
+    private FindOneAndDelete(final CollectionSupplier collection
                             ) {
         super(collection, true);
-        this.options = requireNonNull(options);
-    }
-
-    /**
-     * Creates a new instance of {@code FindOneAndDelete} with the specified MongoDB collection supplier and default
-     * deletion options.
-     *
-     * @param collection the supplier of the MongoDB collection to perform the deletion operation
-     * @param options the options to control the operation
-     * @return a new {@code FindOneAndDelete} instance with default deletion options
-     */
-    public static FindOneAndDelete of(final CollectionSupplier collection,
-                                      final FindOneAndDeleteOptions options
-                                     ) {
-        return new FindOneAndDelete(collection, options);
     }
 
     /**
@@ -54,7 +38,16 @@ public final class FindOneAndDelete extends Op implements Lambda<JsObj, JsObj> {
      * @return a new {@code FindOneAndDelete} instance with default deletion options
      */
     public static FindOneAndDelete of(final CollectionSupplier collection) {
-        return new FindOneAndDelete(collection, DEFAULT_OPTIONS);
+        return new FindOneAndDelete(collection);
+    }
+
+    /**
+     * @param options the options to perform the operation
+     * @return this instance with the new options
+     */
+    public FindOneAndDelete withOptions(final FindOneAndDeleteOptions options) {
+        this.options = requireNonNull(options);
+        return this;
     }
 
     /**
@@ -63,7 +56,7 @@ public final class FindOneAndDelete extends Op implements Lambda<JsObj, JsObj> {
      * @param executor the executor for asynchronous execution
      * @return this {@code FindOneAndDelete} instance
      */
-    public FindOneAndDelete on(final Executor executor) {
+    public FindOneAndDelete withExecutor(final Executor executor) {
         this.executor = Objects.requireNonNull(executor);
         return this;
     }
@@ -87,12 +80,12 @@ public final class FindOneAndDelete extends Op implements Lambda<JsObj, JsObj> {
     }
 
     /**
-     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
-     * the operation will not generate or log JFR events for its operations.
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation
+     * will not generate or log JFR events for its operations.
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public FindOneAndDelete disableRecordEvents(){
+    public FindOneAndDelete withoutRecordedEvents() {
         this.recordEvents = false;
         return this;
     }

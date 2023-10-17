@@ -15,7 +15,6 @@ import jsonvalues.gen.JsStrGen;
 import mongovalues.JsValuesRegistry;
 import org.junit.jupiter.api.Assertions;
 
-
 import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -55,7 +54,7 @@ public class TestMongo {
 
         JsObj filter = JsObj.of("_id", JsObj.of("$lt", JsObj.of("$oid", JsStr.of("63ea462f9ecb966d69cfb85c"))));
         System.out.println(filter);
-        find = FindAll.of(collectionSupplier).apply(FindOptions.ofFilter(filter));
+        find = FindAll.of(collectionSupplier).apply(new FindBuilder(filter));
 
         findAll = FindAll.of(collectionSupplier);
 
@@ -83,13 +82,13 @@ public class TestMongo {
                      Assertions.assertEquals(obj,
                                              insertOne.apply(obj
                                                             )
-                                                      .then(id -> findOne.apply(FindOptions.ofFilter(str2Oid.apply(id))))
+                                                      .then(id -> findOne.apply(new FindBuilder(str2Oid.apply(id))))
                                                       .map(it -> it.delete("_id"))
                                                       .result()
                                             );
                  });
 
-        System.out.println(findAll.apply(FindOptions.ofFilter(JsObj.empty())).result());
+        System.out.println(findAll.apply(new FindBuilder(JsObj.empty())).result());
 
         JsArray arr = find.result();
         System.out.println(arr);

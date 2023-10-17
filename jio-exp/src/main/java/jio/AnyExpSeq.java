@@ -20,7 +20,7 @@ final class AnyExpSeq extends AnyExp {
 
 
     @Override
-    public AnyExp retryEach(final Predicate<Throwable> predicate,
+    public AnyExp retryEach(final Predicate<? super Throwable> predicate,
                             final RetryPolicy policy
                            ) {
         requireNonNull(predicate);
@@ -53,9 +53,9 @@ final class AnyExpSeq extends AnyExp {
     @Override
     public AnyExp debugEach(final EventBuilder<Boolean> eventBuilder) {
         Objects.requireNonNull(eventBuilder);
-        return new AnyExpSeq(LoggerHelper.debugConditions(exps,
-                                                          eventBuilder
-                                                         ),
+        return new AnyExpSeq(DebuggerHelper.debugConditions(exps,
+                                                            eventBuilder
+                                                           ),
                              getJFRPublisher(eventBuilder)
         );
     }

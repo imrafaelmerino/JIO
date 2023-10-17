@@ -87,7 +87,7 @@ public abstract sealed class PairExp<A, B> extends Exp<Pair<A, B>> permits PairE
 
 
     @Override
-    public abstract PairExp<A, B> retryEach(final Predicate<Throwable> predicate,
+    public abstract PairExp<A, B> retryEach(final Predicate<? super Throwable> predicate,
                                             final RetryPolicy policy
                                            );
 

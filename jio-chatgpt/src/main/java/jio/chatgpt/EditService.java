@@ -5,6 +5,8 @@ import jio.IO;
 import jio.http.client.MyHttpClient;
 import jsonvalues.JsObj;
 
+import java.util.Objects;
+
 /**
  * Service for creating edits using the GPT model. This service allows you to send an instruction to the model, which
  * will return an edited version of the provided text.
@@ -28,7 +30,7 @@ public final class EditService extends AbstractService {
      * @return An IO (monadic) object representing the asynchronous result of the edit creation request.
      */
     public IO<JsObj> create(EditBuilder builder) {
-        return post(uri, builder.build());
+        return post(uri, Objects.requireNonNull(builder).build());
     }
 
 }

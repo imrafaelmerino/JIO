@@ -35,7 +35,7 @@ public final class FindAll extends Find<JsArray> {
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public FindAll disableRecordEvents(){
+    public FindAll withoutRecordedEvents(){
         this.recordEvents = false;
         return this;
     }

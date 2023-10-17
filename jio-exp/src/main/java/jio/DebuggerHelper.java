@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-final class LoggerHelper {
+final class DebuggerHelper {
 
 
     static <O> Supplier<IO<O>> debugSupplier(final Supplier<IO<O>> supplier,

@@ -499,7 +499,7 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
 
 
     @Override
-    public abstract CondExp<O> retryEach(final Predicate<Throwable> predicate,
+    public abstract CondExp<O> retryEach(final Predicate<? super Throwable> predicate,
                                          final RetryPolicy policy
                                         );
 

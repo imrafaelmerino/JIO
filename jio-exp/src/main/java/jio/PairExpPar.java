@@ -19,7 +19,7 @@ final class PairExpPar<A, B> extends PairExp<A, B> {
     }
 
     @Override
-    public PairExp<A, B> retryEach(final Predicate<Throwable> predicate,
+    public PairExp<A, B> retryEach(final Predicate<? super Throwable> predicate,
                                    final RetryPolicy policy
                                   ) {
         requireNonNull(predicate);
@@ -48,19 +48,19 @@ final class PairExpPar<A, B> extends PairExp<A, B> {
     public PairExp<A, B> debugEach(final EventBuilder<Pair<A, B>> eventBuilder
                                   ) {
         Objects.requireNonNull(eventBuilder);
-        return new PairExpPar<>(LoggerHelper.debugIO(_1,
-                                                     String.format("%s[1]",
+        return new PairExpPar<>(DebuggerHelper.debugIO(_1,
+                                                       String.format("%s[1]",
                                                                    eventBuilder.exp
                                                                   ),
-                                                     eventBuilder.context
-                                                    ),
-                                LoggerHelper.debugIO(_2,
-                                                     String.format("%s[2]",
+                                                       eventBuilder.context
+                                                      ),
+                                DebuggerHelper.debugIO(_2,
+                                                       String.format("%s[2]",
                                                                    eventBuilder.exp
                                                                   ),
-                                                     eventBuilder.context
+                                                       eventBuilder.context
 
-                                                    ),
+                                                      ),
                                 getJFRPublisher(eventBuilder)
         );
     }

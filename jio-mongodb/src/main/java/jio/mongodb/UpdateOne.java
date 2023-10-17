@@ -24,22 +24,19 @@ public final class UpdateOne<O> extends Op implements BiLambda<JsObj, JsObj, O> 
 
     private static final UpdateOptions DEFAULT_OPTIONS = new UpdateOptions();
     private final Function<UpdateResult, O> resultConverter;
-    private final UpdateOptions options;
+    private UpdateOptions options = DEFAULT_OPTIONS;
 
     /**
      * Constructs a new UpdateOne instance.
      *
      * @param collection      The supplier for the MongoDB collection.
      * @param resultConverter The function to convert the update result to the desired type.
-     * @param options         The update options.
      */
     private UpdateOne(final CollectionSupplier collection,
-                      final Function<UpdateResult, O> resultConverter,
-                      final UpdateOptions options
+                      final Function<UpdateResult, O> resultConverter
                      ) {
         super(collection, true);
         this.resultConverter = requireNonNull(resultConverter);
-        this.options = requireNonNull(options);
     }
 
     /**
@@ -53,23 +50,16 @@ public final class UpdateOne<O> extends Op implements BiLambda<JsObj, JsObj, O> 
     public static <O> UpdateOne<O> of(final CollectionSupplier collection,
                                       final Function<UpdateResult, O> resultConverter
                                      ) {
-        return of(collection, resultConverter, DEFAULT_OPTIONS);
+        return of(collection, resultConverter);
     }
 
     /**
-     * Creates an UpdateOne instance with the specified collection supplier, result converter, and options.
-     *
-     * @param collection      The supplier for the MongoDB collection.
-     * @param resultConverter The function to convert the update result to the desired type.
-     * @param options         The update options.
-     * @param <O>             The type of the result.
-     * @return An UpdateOne instance.
+     * @param options the options to perform the operation
+     * @return this instance with the new options
      */
-    public static <O> UpdateOne<O> of(final CollectionSupplier collection,
-                                      final Function<UpdateResult, O> resultConverter,
-                                      final UpdateOptions options
-                                     ) {
-        return new UpdateOne<>(collection, resultConverter, options);
+    public UpdateOne<O> withOptions(final UpdateOptions options) {
+        this.options = requireNonNull(options);
+        return this;
     }
 
     /**
@@ -78,7 +68,7 @@ public final class UpdateOne<O> extends Op implements BiLambda<JsObj, JsObj, O> 
      * @param executor The executor to use.
      * @return This UpdateOne instance for method chaining.
      */
-    public UpdateOne<O> on(final Executor executor) {
+    public UpdateOne<O> withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
@@ -118,7 +108,7 @@ public final class UpdateOne<O> extends Op implements BiLambda<JsObj, JsObj, O> 
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public UpdateOne<O> disableRecordEvents() {
+    public UpdateOne<O> withoutRecordedEvents() {
         this.recordEvents = false;
         return this;
     }

@@ -23,22 +23,19 @@ import static jio.mongodb.MongoDBEvent.OP.UPDATE_MANY;
 public final class UpdateMany<O> extends Op implements BiLambda<JsObj, JsObj, O> {
 
     private static final UpdateOptions DEFAULT_OPTIONS = new UpdateOptions();
-    private final UpdateOptions options;
     private final Function<UpdateResult, O> resultConverter;
+    private UpdateOptions options = DEFAULT_OPTIONS;
 
     /**
      * Constructs a new UpdateMany instance.
      *
      * @param collection      The supplier for the MongoDB collection.
      * @param resultConverter The function to convert the update result to the desired type.
-     * @param options         The update options.
      */
     private UpdateMany(final CollectionSupplier collection,
-                       final Function<UpdateResult, O> resultConverter,
-                       final UpdateOptions options
+                       final Function<UpdateResult, O> resultConverter
                       ) {
         super(collection, true);
-        this.options = requireNonNull(options);
         this.resultConverter = requireNonNull(resultConverter);
     }
 
@@ -54,23 +51,16 @@ public final class UpdateMany<O> extends Op implements BiLambda<JsObj, JsObj, O>
     public static <O> UpdateMany<O> of(final CollectionSupplier collection,
                                        final Function<UpdateResult, O> resultConverter
                                       ) {
-        return of(collection, resultConverter, DEFAULT_OPTIONS);
+        return of(collection, resultConverter);
     }
 
     /**
-     * Creates an UpdateMany instance with the specified collection supplier, result converter, and options.
-     *
-     * @param collection      The supplier for the MongoDB collection.
-     * @param resultConverter The function to convert the update result to the desired type.
-     * @param options         The update options.
-     * @param <O>             The type of the result.
-     * @return An UpdateMany instance.
+     * @param options the options to perform the operation
+     * @return this instance with the new options
      */
-    public static <O> UpdateMany<O> of(final CollectionSupplier collection,
-                                       final Function<UpdateResult, O> resultConverter,
-                                       final UpdateOptions options
-                                      ) {
-        return new UpdateMany<>(collection, resultConverter, options);
+    public UpdateMany<O> withOptions(final UpdateOptions options) {
+        this.options = requireNonNull(options);
+        return this;
     }
 
     /**
@@ -79,7 +69,7 @@ public final class UpdateMany<O> extends Op implements BiLambda<JsObj, JsObj, O>
      * @param executor The executor to use.
      * @return This UpdateMany instance for method chaining.
      */
-    public UpdateMany<O> on(final Executor executor) {
+    public UpdateMany<O> withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
@@ -114,12 +104,12 @@ public final class UpdateMany<O> extends Op implements BiLambda<JsObj, JsObj, O>
     }
 
     /**
-     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
-     * the operation will not generate or log JFR events for its operations.
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation
+     * will not generate or log JFR events for its operations.
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public UpdateMany<O> disableRecordEvents(){
+    public UpdateMany<O> withoutRecordedEvents() {
         this.recordEvents = false;
         return this;
     }

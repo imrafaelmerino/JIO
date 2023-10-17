@@ -4,6 +4,8 @@ import jio.IO;
 import jio.http.client.MyHttpClient;
 import jsonvalues.JsObj;
 
+import java.util.Objects;
+
 
 /**
  * Service for fine-tuning models using a specified dataset.
@@ -31,7 +33,7 @@ public final class FineTunerService extends AbstractService {
      */
     public IO<JsObj> create(FineTuneBuilder builder) {
 
-        return post(uri, builder.build());
+        return post(uri, Objects.requireNonNull(builder).build());
     }
 
     /**

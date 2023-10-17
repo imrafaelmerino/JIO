@@ -23,38 +23,28 @@ import static jio.mongodb.MongoDBEvent.OP.REPLACE_ONE;
 public final class ReplaceOne<O> extends Op implements BiLambda<JsObj, JsObj, O> {
     static final ReplaceOptions DEFAULT_OPTIONS = new ReplaceOptions();
     private final Function<UpdateResult, O> resultConverter;
-    private final ReplaceOptions options;
+    private  ReplaceOptions options = DEFAULT_OPTIONS;
 
     /**
      * Constructs a new ReplaceOne instance.
      *
      * @param collection      The supplier for the MongoDB collection.
      * @param resultConverter The function to convert the update result to the desired type.
-     * @param options         The replace options.
      */
     private ReplaceOne(final CollectionSupplier collection,
-                       final Function<UpdateResult, O> resultConverter,
-                       final ReplaceOptions options
+                       final Function<UpdateResult, O> resultConverter
                       ) {
         super(collection, true);
         this.resultConverter = requireNonNull(resultConverter);
-        this.options = requireNonNull(options);
     }
 
     /**
-     * Creates a ReplaceOne instance with the specified collection supplier, result converter, and options.
-     *
-     * @param collection      The supplier for the MongoDB collection.
-     * @param resultConverter The function to convert the update result to the desired type.
-     * @param options         The replace options.
-     * @param <O>             The type of the result.
-     * @return A ReplaceOne instance.
+     * @param options the options to perform the operation
+     * @return this instance with the new options
      */
-    public static <O> ReplaceOne<O> of(final CollectionSupplier collection,
-                                       final Function<UpdateResult, O> resultConverter,
-                                       final ReplaceOptions options
-                                      ) {
-        return new ReplaceOne<>(collection, resultConverter, options);
+    public ReplaceOne<O> withOptions(final ReplaceOptions options) {
+        this.options = requireNonNull(options);
+        return this;
     }
 
     /**
@@ -68,7 +58,7 @@ public final class ReplaceOne<O> extends Op implements BiLambda<JsObj, JsObj, O>
     public static <O> ReplaceOne<O> of(final CollectionSupplier collection,
                                        final Function<UpdateResult, O> resultConverter
                                       ) {
-        return new ReplaceOne<>(collection, resultConverter, DEFAULT_OPTIONS);
+        return new ReplaceOne<>(collection, resultConverter);
     }
 
     /**
@@ -79,7 +69,7 @@ public final class ReplaceOne<O> extends Op implements BiLambda<JsObj, JsObj, O>
      * @return A ReplaceOne instance for performing replace one operations with a JsObj result.
      */
     public static ReplaceOne<JsObj> of(final CollectionSupplier collection) {
-        return new ReplaceOne<>(collection, Converters.updateResult2JsObj, DEFAULT_OPTIONS);
+        return new ReplaceOne<>(collection, Converters.updateResult2JsObj);
     }
 
     /**
@@ -88,7 +78,7 @@ public final class ReplaceOne<O> extends Op implements BiLambda<JsObj, JsObj, O>
      * @param executor The executor to use.
      * @return This ReplaceOne instance for method chaining.
      */
-    public ReplaceOne<O> on(final Executor executor) {
+    public ReplaceOne<O> withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
@@ -128,7 +118,7 @@ public final class ReplaceOne<O> extends Op implements BiLambda<JsObj, JsObj, O>
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public ReplaceOne<O> disableRecordEvents(){
+    public ReplaceOne<O> withoutRecordedEvents(){
         this.recordEvents = false;
         return this;
     }

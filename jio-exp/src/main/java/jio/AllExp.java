@@ -123,7 +123,7 @@ public sealed abstract class AllExp extends Exp<Boolean> permits AllExpPar, AllE
      * @return a new AllExp
      */
     @Override
-    public abstract AllExp retryEach(final Predicate<Throwable> predicate,
+    public abstract AllExp retryEach(final Predicate<? super Throwable> predicate,
                                      final RetryPolicy policy
                                     );
 

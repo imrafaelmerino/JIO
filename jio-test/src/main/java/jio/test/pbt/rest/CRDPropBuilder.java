@@ -3,16 +3,13 @@ package jio.test.pbt.rest;
 import fun.gen.Gen;
 import fun.tuple.Pair;
 import jio.BiLambda;
-import jio.IO;
 import jio.Lambda;
 import jio.test.pbt.Property;
-import jio.test.pbt.TestException;
 import jio.test.pbt.TestFailure;
 import jio.test.pbt.TestResult;
 import jsonvalues.JsObj;
 
 import java.net.http.HttpResponse;
-import java.util.Objects;
 
 /**
  * A builder class for creating property tests for RESTful APIs that support Create (POST), Read (GET), and Delete
@@ -69,40 +66,15 @@ public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O
     @Override
     public Property<O> create() {
         BiLambda<JsObj, O, TestResult> lambda =
-                (conf, body) -> {
-                    return post.apply(conf, body).then(resp -> {
-                                   TestResult apply = postAssert.apply(resp);
-                                   if (Objects.requireNonNull(apply) instanceof TestException exc)
-                                       return IO.fail(exc);
-                                   if (apply instanceof TestFailure failure)
-                                       return IO.fail(failure);
-                                   return getId.apply(body, resp)
-                                               .then(id -> get.apply(conf, id)
-                                                              .map(r -> Pair.of(id, r)));
-
-                               })
-                               .then(pair -> {
-                                   TestResult apply = getAssert.apply(pair.second());
-                                   if (Objects.requireNonNull(apply) instanceof TestException exc)
-                                       return IO.fail(exc);
-                                   if (apply instanceof TestFailure failure)
-                                       return IO.fail(failure);
-                                   return delete.apply(conf, pair.first())
-                                                .map(r -> Pair.of(pair.first(), r));
-
-                               })
-                               .then(pair -> {
-                                   TestResult apply = deleteAssert.apply(pair.second());
-                                   if (Objects.requireNonNull(apply) instanceof TestException exc)
-                                       return IO.fail(exc);
-                                   if (apply instanceof TestFailure failure)
-                                       return IO.fail(failure);
-                                   return get.apply(conf, pair.first());
-                               })
-                               .map(resp -> resp.statusCode() == 404 ?
-                                       TestResult.SUCCESS :
-                                       TestFailure.reason("Entity found after being deleted successfully.Status code received %d".formatted(resp.statusCode())));
-                };
+                (conf, body) -> post.apply(conf, body).then(resp -> getId.apply(body, resp)
+                                                                         .then(id -> get.apply(conf, id)
+                                                                                        .map(r -> Pair.of(id, r))))
+                                    .then(pair -> delete.apply(conf, pair.first())
+                                                        .map(r -> Pair.of(pair.first(), r)))
+                                    .then(pair -> get.apply(conf, pair.first()))
+                                    .map(resp -> resp.statusCode() == 404 ?
+                                            TestResult.SUCCESS :
+                                            TestFailure.reason("Entity found after being deleted successfully. Status code received %d".formatted(resp.statusCode())));
 
         return Property.ofLambda(name, gen, lambda);
     }

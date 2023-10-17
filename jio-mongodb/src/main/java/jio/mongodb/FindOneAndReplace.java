@@ -1,5 +1,6 @@
 package jio.mongodb;
 
+import com.mongodb.client.model.FindOneAndDeleteOptions;
 import com.mongodb.client.model.FindOneAndReplaceOptions;
 import jio.BiLambda;
 import jio.IO;
@@ -23,28 +24,23 @@ import static jio.mongodb.MongoDBEvent.OP.FIND_ONE_AND_REPLACE;
 public final class FindOneAndReplace extends Op implements BiLambda<JsObj, JsObj, JsObj> {
 
     private static final FindOneAndReplaceOptions DEFAULT_OPTIONS = new FindOneAndReplaceOptions();
-    private final FindOneAndReplaceOptions options;
+    private  FindOneAndReplaceOptions options = DEFAULT_OPTIONS;
 
 
-    private FindOneAndReplace(final CollectionSupplier collection,
-                              final FindOneAndReplaceOptions options
+    private FindOneAndReplace(final CollectionSupplier collection
                              ) {
         super(collection, true);
-        this.options = requireNonNull(options);
     }
 
+
+
     /**
-     * Creates a new instance of {@code FindOneAndReplace} with the specified MongoDB collection supplier and
-     * replacement options.
-     *
-     * @param collection the supplier of the MongoDB collection to perform the replacement operation
-     * @param options    the options to control the replacement operation
-     * @return a new {@code FindOneAndReplace} instance with the specified options
+     * @param options the options to perform the operation
+     * @return this instance with the new options
      */
-    public static FindOneAndReplace of(final CollectionSupplier collection,
-                                       final FindOneAndReplaceOptions options
-                                      ) {
-        return new FindOneAndReplace(collection, options);
+    public FindOneAndReplace withOptions(final FindOneAndReplaceOptions options) {
+        this.options = requireNonNull(options);
+        return this;
     }
 
     /**
@@ -55,7 +51,7 @@ public final class FindOneAndReplace extends Op implements BiLambda<JsObj, JsObj
      * @return a new {@code FindOneAndReplace} instance with default replacement options
      */
     public static FindOneAndReplace of(final CollectionSupplier collection) {
-        return new FindOneAndReplace(collection, DEFAULT_OPTIONS);
+        return new FindOneAndReplace(collection);
     }
 
     /**
@@ -64,7 +60,7 @@ public final class FindOneAndReplace extends Op implements BiLambda<JsObj, JsObj
      * @param executor the executor for asynchronous execution
      * @return this {@code FindOneAndReplace} instance
      */
-    public FindOneAndReplace on(final Executor executor) {
+    public FindOneAndReplace withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
@@ -98,7 +94,7 @@ public final class FindOneAndReplace extends Op implements BiLambda<JsObj, JsObj
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public FindOneAndReplace disableRecordEvents(){
+    public FindOneAndReplace withoutRecordedEvents(){
         this.recordEvents = false;
         return this;
     }

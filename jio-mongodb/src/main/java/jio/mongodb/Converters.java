@@ -92,14 +92,14 @@ public final class Converters {
      * Converts a MongoDB {@link InsertManyResult} into a JSON array ({@link JsArray}) of hexadecimal IDs. This function
      * is used to represent the IDs of inserted documents in JSON format.
      */
-    public static final Function<InsertManyResult, JsArray> insertManyResult2JsArrayOfHexIds =
+    public static final Function<InsertManyResult, List<String>> insertManyResult2ListOfHexIds =
             result -> {
                 var map = result.getInsertedIds();
-                var array = JsArray.empty();
+                var list = new ArrayList<String>();
                 for (var e : map.entrySet()) {
-                    array = array.append(JsStr.of(objectId2Hex.apply(e.getValue())));
+                    list.add(objectId2Hex.apply(e.getValue()));
                 }
-                return array;
+                return list;
             };
     /**
      * Converts a MongoDB {@link AggregateIterable} into a JSON array ({@link JsArray}). This function is useful when

@@ -97,8 +97,6 @@ public final class FindOptions {
      */
     public final long maxTime;
 
-    @SuppressWarnings({"squid:S107"})
-        //it's private, needed to create a builder. End user will never have to deal with it
     FindOptions(final JsObj filter,
                 final JsObj sort,
                 final JsObj projection,
@@ -136,49 +134,7 @@ public final class FindOptions {
         this.maxTime = maxTime;
     }
 
-    /**
-     * Creates a new {@code FindOptions} instance with the specified filter criteria.
-     *
-     * @param filter the filter criteria for the query
-     * @return a new {@code FindOptions} instance with the specified filter criteria
-     */
-    public static FindOptions ofFilter(final JsObj filter) {
-        return new FindOptionsBuilder().filter(requireNonNull(filter))
-                                       .create();
-    }
 
-    /**
-     * Creates a new {@code FindOptions} instance with the specified filter and projection criteria.
-     *
-     * @param filter     the filter criteria for the query
-     * @param projection the projection criteria for specifying which fields to include or exclude
-     * @return a new {@code FindOptions} instance with the specified filter and projection criteria
-     */
-    public static FindOptions ofFilter(final JsObj filter,
-                                       final JsObj projection
-                                      ) {
-        return new FindOptionsBuilder().filter(requireNonNull(filter))
-                                       .projection(requireNonNull(projection))
-                                       .create();
-    }
-
-    /**
-     * Creates a new {@code FindOptions} instance with the specified filter, projection, and sort criteria.
-     *
-     * @param filter     the filter criteria for the query
-     * @param projection the projection criteria for specifying which fields to include or exclude
-     * @param sort       the sort criteria for ordering the results
-     * @return a new {@code FindOptions} instance with the specified filter, projection, and sort criteria
-     */
-    public static FindOptions ofFilter(final JsObj filter,
-                                       final JsObj projection,
-                                       final JsObj sort
-                                      ) {
-        return new FindOptionsBuilder().filter(requireNonNull(filter))
-                                       .projection(requireNonNull(projection))
-                                       .sort(requireNonNull(sort))
-                                       .create();
-    }
 
     @Override
     public boolean equals(final Object o) {

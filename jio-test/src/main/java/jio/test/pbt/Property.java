@@ -68,14 +68,7 @@ public non-sealed class Property<O> implements Testable {
                     ) {
         if (name == null || name.isBlank() || name.isEmpty())
             throw new IllegalArgumentException("property name missing");
-        this.lambda = (conf, o) -> {
-            TestResult result = fn.apply(conf, o);
-            if (result instanceof TestFailure f)
-                return IO.fail(f);
-            if (result instanceof TestException e)
-                return IO.fail(e);
-            return IO.succeed(result);
-        };
+        this.lambda = (conf, o) -> IO.succeed(fn.apply(conf, o));
         this.name = requireNonNull(name);
         this.gen = gen;
     }
@@ -186,32 +179,6 @@ public non-sealed class Property<O> implements Testable {
                               gen);
     }
 
-    private static IO<TestResult> handleExc(final Report report,
-                                            final Throwable exc,
-                                            final Context context
-                                           ) {
-        if (requireNonNull(exc) instanceof TestFailure tf) {
-            report.addFailure(new FailureContext(context, tf));
-            return IO.succeed(tf);
-        } else {
-            report.addException(new ExceptionContext(context, exc));
-            return IO.succeed(new TestException(exc));
-        }
-    }
-
-    private static IO<TestResult> handleResult(final Report report,
-                                               final TestResult tr,
-                                               final Context context
-                                              ) {
-        if (requireNonNull(tr) instanceof TestFailure tf) {
-            report.addFailure(new FailureContext(context, tf));
-            return IO.succeed(tf);
-        } else if (tr instanceof TestException tf) {
-            report.addException(new ExceptionContext(context, tf.getCause()));
-            return IO.succeed(tf);
-        } else return IO.succeed(tr);
-
-    }
 
     /**
      * The property will create a map of generated values and their counts and will be printed out on the console after
@@ -359,30 +326,26 @@ public non-sealed class Property<O> implements Testable {
             Supplier<O> rg = gen.apply(new Random(seed));
             report.setStartTime(Instant.now());
             for (int i = 1; i <= times; i++) {
-                report.incTest();
-                IO.succeed(i)
-                  .then(n -> {
-                            var tic = Instant.now();
-                            var generated = rg.get();
-                            String tags = getTags(generated);
-                            if (classifiers != null) report.classify(tags);
-                            if (collect) report.collect(generated == null ? "null" : generated.toString());
-                            return lambda.apply(conf, generated)
-                                         .then(
-                                                 tr -> {
-                                                     report.tac(tic);
-                                                     var context = new Context(tic, seed, n, generated, tags);
-                                                     return handleResult(report, tr, context);
-
-                                                 },
-                                                 exc -> {
-                                                     report.tac(tic);
-                                                     var context = new Context(tic, seed, n, generated, tags);
-                                                     return handleExc(report, exc, context);
-                                                 });
-                        }
-                       )
-                  .result();
+                var tic = Instant.now();
+                var generated = rg.get();
+                String tags = getTags(generated);
+                if (classifiers != null) report.classify(tags);
+                if (collect) report.collect(generated == null ? "null" : generated.toString());
+                var context = new Context(tic, seed, i, generated, tags);
+                lambda.apply(conf, generated)
+                      .onResult(tr -> {
+                                    report.tac(tic);
+                                    if (tr instanceof TestFailure tf)
+                                        report.addFailure(new FailureContext(context, tf));
+                                },
+                                exc -> {
+                                    report.tac(tic);
+                                    if (requireNonNull(exc) instanceof TestFailure tf) {
+                                        report.addFailure(new FailureContext(context, tf));
+                                    } else {
+                                        report.addException(new ExceptionContext(context, exc));
+                                    }
+                                });
             }
             report.setEndTime(Instant.now());
             return report;

@@ -9,7 +9,9 @@ abstract class Op {
     boolean recordEvents;
     Executor executor;
 
-    public Op(CollectionSupplier collection, boolean recordEvents) {
+    public Op(CollectionSupplier collection,
+              boolean recordEvents
+             ) {
         this.collection = collection;
         this.recordEvents = recordEvents;
     }

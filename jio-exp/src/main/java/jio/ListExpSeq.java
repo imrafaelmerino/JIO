@@ -37,7 +37,7 @@ final class ListExpSeq<O> extends ListExp<O> {
 
 
     @Override
-    public ListExp<O> retryEach(final Predicate<Throwable> predicate,
+    public ListExp<O> retryEach(final Predicate<? super Throwable> predicate,
                                 final RetryPolicy policy
                                ) {
         requireNonNull(policy);
@@ -69,10 +69,10 @@ final class ListExpSeq<O> extends ListExp<O> {
 
     @Override
     public ListExp<O> debugEach(final EventBuilder<List<O>> eventBuilder) {
-        return new ListExpSeq<>(LoggerHelper.debugList(list,
-                                                       eventBuilder.exp,
-                                                       Objects.requireNonNull(eventBuilder).context
-                                                      ),
+        return new ListExpSeq<>(DebuggerHelper.debugList(list,
+                                                         eventBuilder.exp,
+                                                         Objects.requireNonNull(eventBuilder).context
+                                                        ),
                                 getJFRPublisher(eventBuilder)
         );
     }

@@ -4,6 +4,8 @@ import jio.IO;
 import jio.http.client.MyHttpClient;
 import jsonvalues.JsObj;
 
+import java.util.Objects;
+
 /**
  * Service class for interacting with the GPT-based chat API to create chat completions.
  */
@@ -25,9 +27,9 @@ public final class ChatService extends AbstractService {
      * @param builder A ChatBuilder instance representing the chat message and parameters.
      * @return An IO monad that may resolve to a JSON object representing the chat completion response.
      */
-    public IO<JsObj> create(ChatBuilder builder) {
+    public IO<JsObj> create(final ChatBuilder builder) {
 
-        return post(uri, builder.build());
+        return post(uri, Objects.requireNonNull(builder).build());
 
 
     }

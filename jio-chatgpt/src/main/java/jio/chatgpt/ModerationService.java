@@ -5,6 +5,8 @@ import jio.http.client.MyHttpClient;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 
+import java.util.Objects;
+
 /**
  * Service for performing content moderation.
  */
@@ -29,8 +31,8 @@ public final class ModerationService extends AbstractService {
      */
     public IO<JsObj> create(String input, String model) {
         return post(uri,
-                    JsObj.of("model", JsStr.of(model),
-                             "input", JsStr.of(input)
+                    JsObj.of("model", JsStr.of(Objects.requireNonNull(model)),
+                             "input", JsStr.of(Objects.requireNonNull(input))
                             )
                    );
     }

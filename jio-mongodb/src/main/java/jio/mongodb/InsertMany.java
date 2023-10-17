@@ -6,6 +6,7 @@ import jio.IO;
 import jio.Lambda;
 import jsonvalues.JsArray;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
@@ -23,39 +24,20 @@ import static jio.mongodb.MongoDBEvent.OP.INSERT_MANY;
 public final class InsertMany<R> extends Op implements Lambda<JsArray, R> {
 
     private static final InsertManyOptions DEFAULT_OPTIONS = new InsertManyOptions();
-    private final InsertManyOptions options;
     private final Function<InsertManyResult, R> resultConverter;
+    private InsertManyOptions options = DEFAULT_OPTIONS;
 
     /**
      * Constructs a new InsertMany instance.
      *
      * @param collection      The supplier for the MongoDB collection.
      * @param resultConverter The function to convert the insert result to the desired type.
-     * @param options         The insert many options.
      */
     private InsertMany(final CollectionSupplier collection,
-                       final Function<InsertManyResult, R> resultConverter,
-                       final InsertManyOptions options
+                       final Function<InsertManyResult, R> resultConverter
                       ) {
         super(collection, true);
-        this.options = requireNonNull(options);
         this.resultConverter = requireNonNull(resultConverter);
-    }
-
-    /**
-     * Creates an InsertMany instance with the specified collection supplier, result converter, and options.
-     *
-     * @param collection      The supplier for the MongoDB collection.
-     * @param resultConverter The function to convert the insert result to the desired type.
-     * @param options         The insert many options.
-     * @param <R>             The type of the result.
-     * @return An InsertMany instance.
-     */
-    public static <R> InsertMany<R> of(final CollectionSupplier collection,
-                                       final Function<InsertManyResult, R> resultConverter,
-                                       final InsertManyOptions options
-                                      ) {
-        return new InsertMany<>(collection, resultConverter, options);
     }
 
     /**
@@ -70,7 +52,7 @@ public final class InsertMany<R> extends Op implements Lambda<JsArray, R> {
     public static <R> InsertMany<R> of(final CollectionSupplier collection,
                                        final Function<InsertManyResult, R> resultConverter
                                       ) {
-        return new InsertMany<>(collection, resultConverter, DEFAULT_OPTIONS);
+        return new InsertMany<>(collection, resultConverter);
     }
 
     /**
@@ -79,8 +61,17 @@ public final class InsertMany<R> extends Op implements Lambda<JsArray, R> {
      * @param collection The supplier for the MongoDB collection.
      * @return An InsertMany instance for inserting arrays of MongoDB document IDs.
      */
-    public static InsertMany<JsArray> of(final CollectionSupplier collection) {
-        return new InsertMany<>(collection, Converters.insertManyResult2JsArrayOfHexIds, DEFAULT_OPTIONS);
+    public static InsertMany<List<String>> of(final CollectionSupplier collection) {
+        return new InsertMany<>(collection, Converters.insertManyResult2ListOfHexIds);
+    }
+
+    /**
+     * @param options the options to perform the operation
+     * @return this instance with the new options
+     */
+    public InsertMany<R> withOptions(final InsertManyOptions options) {
+        this.options = requireNonNull(options);
+        return this;
     }
 
     /**
@@ -89,7 +80,7 @@ public final class InsertMany<R> extends Op implements Lambda<JsArray, R> {
      * @param executor The executor to use.
      * @return This InsertMany instance for method chaining.
      */
-    public InsertMany<R> on(final Executor executor) {
+    public InsertMany<R> withExecutor(final Executor executor) {
         this.executor = Objects.requireNonNull(executor);
         return this;
     }
@@ -119,12 +110,12 @@ public final class InsertMany<R> extends Op implements Lambda<JsArray, R> {
     }
 
     /**
-     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
-     * the operation will not generate or log JFR events for its operations.
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation
+     * will not generate or log JFR events for its operations.
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public InsertMany disableRecordEvents(){
+    public InsertMany withoutRecordedEvents() {
         this.recordEvents = false;
         return this;
     }

@@ -5,6 +5,8 @@ import jio.IO;
 import jio.http.client.MyHttpClient;
 import jsonvalues.JsObj;
 
+import java.util.Objects;
+
 /**
  * Service for interacting with image-related functionality.
  */
@@ -30,7 +32,7 @@ public final class ImageService extends AbstractService {
      */
     public IO<JsObj> create(ImageBuilder builder) {
         return post(uri.resolve("/" + "generations"),
-                    builder.build()
+                    Objects.requireNonNull(builder).build()
                    );
     }
 

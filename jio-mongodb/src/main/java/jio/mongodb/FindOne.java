@@ -34,7 +34,7 @@ public final class FindOne extends Find<JsObj> {
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public FindOne disableRecordEvents() {
+    public FindOne withoutRecordedEvents() {
         this.recordEvents = false;
         return this;
     }

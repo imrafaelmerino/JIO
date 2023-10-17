@@ -21,7 +21,7 @@ final class TripleExpSeq<A, B, C> extends TripleExp<A, B, C> {
     }
 
     @Override
-    public TripleExp<A, B, C> retryEach(final Predicate<Throwable> predicate,
+    public TripleExp<A, B, C> retryEach(final Predicate<? super Throwable> predicate,
                                         final RetryPolicy policy
                                        ) {
         requireNonNull(predicate);
@@ -56,26 +56,26 @@ final class TripleExpSeq<A, B, C> extends TripleExp<A, B, C> {
     @Override
     public TripleExp<A, B, C> debugEach(final EventBuilder<Triple<A, B, C>> eventBuilder) {
         Objects.requireNonNull(eventBuilder);
-        return new TripleExpSeq<>(LoggerHelper.debugIO(_1,
-                                                       String.format("%s[1]",
+        return new TripleExpSeq<>(DebuggerHelper.debugIO(_1,
+                                                         String.format("%s[1]",
                                                                      eventBuilder.exp
                                                                     ),
-                                                       eventBuilder.context
+                                                         eventBuilder.context
 
-                                                      ),
-                                  LoggerHelper.debugIO(_2,
-                                                       String.format("%s[2]",
+                                                        ),
+                                  DebuggerHelper.debugIO(_2,
+                                                         String.format("%s[2]",
                                                                      eventBuilder.exp
                                                                     ),
-                                                       eventBuilder.context
+                                                         eventBuilder.context
 
-                                                      ),
-                                  LoggerHelper.debugIO(_3,
-                                                       String.format("%s[3]",
+                                                        ),
+                                  DebuggerHelper.debugIO(_3,
+                                                         String.format("%s[3]",
                                                                      eventBuilder.exp
                                                                     ),
-                                                       eventBuilder.context
-                                                      ),
+                                                         eventBuilder.context
+                                                        ),
                                   getJFRPublisher(eventBuilder)
         );
     }

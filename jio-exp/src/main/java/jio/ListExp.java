@@ -115,7 +115,7 @@ public abstract sealed class ListExp<O> extends Exp<List<O>> permits ListExpPar,
 
 
     @Override
-    public abstract ListExp<O> retryEach(final Predicate<Throwable> predicate,
+    public abstract ListExp<O> retryEach(final Predicate<? super Throwable> predicate,
                                          final RetryPolicy policy
                                         );
 

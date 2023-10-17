@@ -49,7 +49,7 @@ sealed abstract class Exp<O> extends IO<O>
      * @param policy    the retry policy specifying the behavior for each retry attempt
      * @return a new expression with retry behavior applied to each operand
      */
-    abstract Exp<O> retryEach(final Predicate<Throwable> predicate,
+    abstract Exp<O> retryEach(final Predicate<? super Throwable> predicate,
                               final RetryPolicy policy
                              );
 

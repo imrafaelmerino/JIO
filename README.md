@@ -1639,7 +1639,7 @@ serverBuilder.withSSL(httpsConfigurator);
 **Recording JFR Events (Java Flight Recorder)**
 
 By default, the `HttpServer` records Java Flight Recorder (JFR) events for HTTP requests, which can be helpful for
-debugging and performance analysis. However, you can disable this feature if needed using the `disableRecordEvents()`
+debugging and performance analysis. However, you can disable this feature if needed using the `withoutRecordedEvents()`
 method.
 
 ```code
@@ -2040,7 +2040,7 @@ It requires Java 17 or greater
   
 ```  
 
-[jio-exp](#Installation) is the only dependency
+[jio-exp](#jio-exp) is the only dependency
 
 ### <a name="jiohttpchatgp"><a/> What ChatGPT think of jio-http?
 
@@ -2089,8 +2089,6 @@ developers working on Java projects that involve HTTP communication.
 
 ## <a name="jio-test"><a/> jio-test
 
-TODO
-
 ### <a name="junit"><a/> Junit integration
 
 TODO
@@ -2099,12 +2097,14 @@ TODO
 
 #### <a name="iostubs"><a/> IO stubs
 
-In testing scenarios, you often need to create stubs to simulate specific behaviors or responses for parts of your code.
-The `StubSupplier` and `Gens` classes provide convenient tools for generating `IO` instances with custom behaviors for
-testing purposes.
-`StubSupplier` is a class that allows you to create stubs for generating `IO` instances using generators. These stubs
-are highly customizable and can be used to simulate various behaviors, including successes, failures, and delays.
-The `Gens` class provides various generator methods to create `IO` instances with different behaviors.
+In the realm of testing, there is a frequent need to construct stubs that emulate particular behaviors or responses
+within your code. To address this need, the `StubSupplier` and `Gens` classes offer practical solutions for
+crafting `IO` instances with tailor-made behaviors designed for testing scenarios. The `StubSupplier` class empowers you
+to produce stubs for generating `IO` instances through generators. These stubs offer extensive customization and are
+instrumental for simulating a wide range of behaviors, spanning from successful executions to failures and even
+controlled delays. The `Gens` class complements this by providing a diverse set of generator methods, each adept at
+generating IO instances with
+unique behaviors.
 
 You can create a `StubSupplier` using various methods, depending on your testing needs:
 
@@ -2149,13 +2149,196 @@ and timing conditions. This flexibility makes it easier to ensure the robustness
 
 Happy testing!
 
+---
+
 #### <a name="clockstubs"><a/> Clock stubs
 
-TODO
+The `ClockStubSupplier` class provides a simple way to create clock stubs for controlling time-related behavior in your
+applications during testing and development. Clock stubs allow you to simulate various time scenarios, making it easier
+to test time-dependent functionalities in your code.
 
-#### <a name="httpserverstubs"><a/> Http Server Stubs
+##### Overview
 
-TODO
+In testing and development scenarios, controlling time can be crucial when working with applications that have
+time-sensitive functionality. The `ClockStubSupplier` class is designed to create clock stubs that mimic the behavior of
+actual clocks. These clock stubs give you the ability to manipulate time-related behavior to ensure your application
+behaves as expected under various time conditions.
+
+##### Creating a Clock Stub
+
+You can create a clock stub using one of the following methods:
+
+###### From a Reference Time
+
+The `fromReference` static factory method allows you to create a clock stub that starts ticking from the provided
+reference time. This method is useful when you want the clock to behave as if it started at a specific instant.
+
+```code
+Instant reference = Instant.parse("2023-01-15T12:00:00.00Z");
+
+ClockStubSupplier clockStub = ClockStubSupplier.fromReference(reference);
+
+Clock customClock = clockStub.get();
+```
+
+##### Using a Function
+
+The `fromCalls` static factory method enables you to create a clock stub where you can control the ticking time based on
+the number of calls made to the clock. This method provides dynamic time simulation, allowing you to simulate time
+progression based on your specific requirements.
+
+```code
+// Simulate time progressing by 1 hour with each call
+Function<Integer, Long> timeFunction = n -> Instant.now()
+                                                   .plus(Duration.ofHours(n))
+                                                   .toEpochMilli();
+
+ClockStubSupplier clockStub = ClockStubSupplier.fromCalls(timeFunction);
+
+Clock dynamicClock = clockStub.get();
+
+```
+
+---
+
+#### Http Server Stubs
+
+jio-http provides dedicated stubs for various HTTP methods, allowing you to define the `HttpHandler` of an HTTP server
+with precision. Here's a list of available HTTP method stubs:
+
+- DeleteStub: Simulates the DELETE HTTP method.
+- GetStub: Simulates the GET HTTP method.
+- OptionsStub: Simulates the OPTIONS HTTP method.
+- PatchStub: Simulates the PATCH HTTP method.
+- PostStub: Simulates the POST HTTP method.
+- PutStub: Simulates the PUT HTTP method.
+
+Each of these HTTP method stubs is constructed from three core functions: `BodyStub`, `StatusCodeStub`,
+and `HeadersStub`. These functions
+each accept four input parameters with the following signature:
+
+```code
+
+IntFunction<Function<InputStream, Function<URI, Function<Headers, R>>>
+
+```
+
+Here's what each parameter represents:
+
+1. The first integer parameter is the request number received by the server. In Jio-HTTP, the server maintains an
+   internal counter that increments with each incoming request.
+
+2. The `InputStream` parameter stands for the input of the request body.
+
+3. The `URI` parameter represents the request's URI, including all query and path parameters.
+
+4. The `Headers` parameter captures the request headers.
+
+The type `R` can be a string in the case of `BodyStub`, an integer for `StatusCodeStub`, and headers for `HeadersStub`.
+
+There are some predefined `BodyStub` options:
+
+```code
+interface BodyStub {
+   
+   static BodyStub gen(Gen<String> gen);
+   
+   static BodyStub cons(String body);
+   
+   static BodyStub consAfter(String body, Duration delay);
+}
+```
+
+You can create your own `BodyStub` by implementing a function like this:
+
+```code 
+BodyStub myStub = reqCounter -> bodyStream -> uri -> reqHeaders -> {
+    String responseBody;
+    // Your custom stub implementation here
+    return responseBody;
+}
+```
+
+Predefined `StatusCodeStub` options include:
+
+```code 
+interface StatusCodeStub {
+  
+  static StatusCodeStub cons(int code);
+}
+```
+
+Just like `BodyStub`, you can craft your own `StatusCodeStub` by creating a function like this:
+
+```code 
+StatusCodeStub myStub = reqCounter -> bodyStream -> uri -> reqHeaders -> {
+    int statusCodeResponse;
+    // Your custom stub implementation here
+    return statusCodeResponse;
+}
+```
+
+For `HeadersStub`, there are some predefined options:
+
+```code
+interface HeadersStub {
+
+    HeadersStub EMPTY;
+    
+    static HeadersStub cons(Map<String, List<String>> map);
+}
+```
+
+You can also define a custom `HeadersStub` function. For instance, here's one that returns the exact headers of the
+request:
+
+```code 
+HeadersStub bounceHeaders = reqCounter -> bodyStream -> uri -> reqHeaders -> reqHeaders;
+```
+
+Now, let's put it all together with a complete example:
+
+```code
+HttpHandler saludate = GetStub.of(BodyStub.consAfter("hi", Duration.ofSeconds(1)),
+                                  StatusCodeStub.cons(200),
+                                  HeadersStub.EMPTY
+                                  );
+
+JsObjGen personGen = ...;                           
+
+HttpHandler create = PostStub.of(BodyStub.gen(personGen),
+                                  StatusCodeStub.gen(Combinators.oneOf(200, 201)),
+                                  HeadersStub.EMPTY
+                                  );                            
+
+HttpServer server = new HttpServerBuilder().addContext("/saludate", saludate)
+                                          .addContext("/create", create)
+                                          .buildAtRandom("localhost", 8000, 9000)
+                                          .result();
+```
+
+Creating servers and adding stubs for testing purposes with jio-http is remarkably straightforward. Here's why:
+
+1. **Abundance of Stub Types**: Jio-HTTP offers a variety of pre-defined stubs, such
+   as `DeleteStub`, `GetStub`, `OptionsStub`, and more. You can choose the stub that fits your testing scenario.
+
+2. **Customizable Behavior**: With `BodyStub`, `StatusCodeStub`, and `HeadersStub`, you have fine-grained control over
+   your stubs. These stubs allow you to tailor the responses, status codes, and headers, as needed.
+
+3. **Simple Stub Creation**: You can create your own custom stubs with just a simple function implementation. This makes
+   it easy to simulate specific behaviors or responses that your test cases require.
+
+4. **Ease of Testing**: The ability to add these stubs to your `HttpServer` facilitates efficient and reliable testing.
+   You can simulate various scenarios, including successes, failures, and delays.
+
+5. **Integration with Generators**: The stubs can be integrated with generators to further diversify your test cases.
+   For instance, you can use `JsObjGen` to generate complex JSON objects for testing.
+
+In summary, jio-http simplifies the process of creating HTTP servers and adding stubs for testing purposes. Its
+user-friendly design and flexibility make it a valuable tool for ensuring the robustness and reliability of your
+HTTP-based applications.
+
+---
 
 ### <a name="pbs"><a/> Property based testing
 
@@ -2321,12 +2504,12 @@ you want to test. The primary components of a `Property` include:
 
 Let's look at the key elements that constitute a `Property`:
 
-### Name
+##### Name
 
 The name provides a descriptive label for the property being tested. It should succinctly describe the behavior or
 condition that the property is checking.
 
-### Data Generator
+##### Data Generator
 
 The data generator, represented by a `java.fun.Gen<O>` object, is responsible for creating pseudorandom data. This data
 serves as input for property testing. The quality and diversity of the generated data play a crucial role in the
@@ -2334,14 +2517,14 @@ effectiveness of property-based testing. In jio-test, I utilize the data generat
 These generators can create a wide range of data types, from simple values like integers and strings to more complex
 data structures.
 
-#### Biased Generators for Exploratory Testing
+##### Biased Generators for Exploratory Testing
 
 For exploratory purposes, it's often recommended to use biased generators. Biased generators assign higher probabilities
 to values that are known to produce more bugs or exceptional cases. For example, consider values like zero, empty
 strings, blank strings, `Integer.MAX_VALUE`, and more. Biased generators can help you uncover hidden issues in your code
 by focusing on these critical cases during testing.
 
-### Testing Function
+##### Testing Function
 
 The testing function is a critical part of the `Property`. It is the code or logic that evaluates whether the property
 holds true for the generated data. There are two primary ways to define the testing function:
@@ -2356,7 +2539,7 @@ holds true for the generated data. There are two primary ways to define the test
 Once you've created a `Property` instance, you can further customize it, such as specifying the number of test
 executions, providing a description, setting classifiers, and more.
 
-## Creating a Property
+#### Creating a Property
 
 Creating a property involves defining a `Property` instance that represents the property you want to test. You can
 create a `Property` using the following factory methods:
@@ -2372,19 +2555,19 @@ create a `Property` using the following factory methods:
 Once you've created a `Property` instance, you can further customize it by specifying the number of test executions,
 providing a description, setting classifiers, and more.
 
-### Using Classifiers for Categorization
+#### Using Classifiers for Categorization
 
 Exploratory testing can benefit from classifying generated data into different categories. Classifiers are created using
 the `withClassifiers(Map<String, Predicate<O>> classifiers, String defaultTag)` method. These classifiers can help you
 group data into various categories based on specific criteria and identify tags assigned to values that produce errors.
 
-### Collecting Data for Analysis
+#### Collecting Data for Analysis
 
 To gather data for debugging and analysis, you can enable data collection using the `withCollector()` method. This
 feature allows you to collect data about the generated values, helping you identify patterns or trends in the generated
 data.
 
-### Analyzing Results
+#### Analyzing Results
 
 After executing a property, you obtain a `Report` containing detailed information about the test execution.
 The `Report` class has the following fields and their meanings (which can be serialized into a JSON format):
@@ -2446,7 +2629,7 @@ These methods are used in unit tests to verify the correctness of property-based
 results match the expected outcomes. They help ensure that the properties defined in property-based tests hold true and
 that the tests are executed without failures or exceptions.
 
-### Exporting Reports
+#### Exporting Reports
 
 The results of property testing can be exported to a file using the `withExportPath(Path path)` method. This file
 contains a JSON representation of the test report, which is useful for sharing and archiving test results.
@@ -2456,7 +2639,7 @@ that should always be true. The class allows you to define, customize, execute, 
 
 Here, I'll explain two methods within the `Property` class: `repeatSeq` and `repeatPar`.
 
-### `repeatSeq(int n)`
+#### `repeatSeq(int n)`
 
 This method returns a new `Property` instance that represents the property and specifies that it should be executed
 sequentially for the specified number of times (`n`).
@@ -2469,7 +2652,7 @@ Use Case:
   other. It's suitable for situations where you don't require parallel execution and want to ensure the property holds
   true consistently.
 
-### `repeatPar(int n)`
+#### `repeatPar(int n)`
 
 This method returns a new `Property` instance that represents the property and specifies that it should be executed in
 parallel for the specified number of times (`n`). Parallel execution involves running the property tests concurrently
@@ -2493,6 +2676,376 @@ These methods allow you to customize how property tests are executed, whether se
 your testing requirements and constraints. They provide flexibility in adapting the testing strategy to the specific
 needs of your codebase or project.
 
-### Console
+---
+
+#### Console
 
 TODO
+
+## <a name="test-Installation"><a/> Installation
+
+It requires Java 17 or greater
+
+```code  
+  
+<dependency>  
+    <groupId>com.github.imrafaelmerino</groupId>  
+    <artifactId>jio-test</artifactId>  
+    <version>1.0.0-RC1</version>  
+</dependency>  
+  
+```  
+
+Dependencies:
+
+- [jio-exp](#jio-exp)
+- [jio-http](#jio-http)
+- [jio-console](#jio-console)
+- [java-fun](https://github.com/imrafaelmerino/java-fun)
+- Junit 5
+
+## <a name="jio-mongodb"><a/> jio-mongodb
+
+jio-mongodb uses the persistent Json from [json-values](https://github.com/imrafaelmerino/json-values)
+and the set of codecs defined in [mongo-values](https://github.com/imrafaelmerino/mongo-values), which makes
+json-mongodb very efficient.
+
+jio-mongodb is composed of a set of Lambdas to perform operations against the database.
+With lambdas we can benefit for all the good thing from jio-exp and jio-test.
+
+### Creating a collection supplier
+
+```code 
+
+ ConnectionString connString = new ConnectionString("mongodb://localhost:27017/");
+
+ MongoClientSettings settings = 
+    MongoClientSettings.builder()
+                       .applyConnectionString(connString)
+                       .codecRegistry(JsValuesRegistry.INSTANCE)
+                       .build();
+
+ MongoClient mongoClient = MongoClients.create(settings);
+ 
+ String databaseName = "test";
+ DatabaseSupplier database = new DatabaseSupplier(mongoClient, 
+                                                  databaseName);
+ String collectionName = "Data";
+ CollectionSupplier collection = new CollectionSupplier(database, 
+                                                        databaseSupplier);
+
+```
+
+### Find operations
+
+Key class to create queries is FindBuilder
+
+```code
+CollectionSupplier collection = ...;
+JsObj query = ...;
+
+Lambda<FindOptions, JsObj> find =  FindOne.of(collection);
+
+FindBuilder builder = new FindBuilder(query);
+
+IO<JsObj> io = find.apply(builder);
+
+```
+
+```code
+
+CollectionSupplier collection = ...;
+JsObj query = ...;
+
+Lambda<FindOptions, JsArray> find =  FindAll.of(collection);
+
+FindBuilder builder = new FindBuilder(query);
+
+IO<JsArray> io = find.apply(builder);
+
+```
+
+### Insert operations
+
+```code
+
+JsObj json = ...;
+
+InsertOneOptions options = ...;
+
+Lambda<JsObj,String> insert = 
+    InsertOne.<String>of(collection,
+                         Converters.insertOneResult2HexId
+                         )
+             .withOptions(options);
+
+IO<String> io = insert.apply(json);
+
+```
+
+```code
+
+JsArray array = ...;
+
+Lambda<JsArray,List<String> insert = 
+    InsertMany.<List<String>of(collection,
+                               Converters.insertManyResult2ListOfHexIds
+                              )
+              .withOptions(options);                
+
+IO<List<String> io = insert.apply(json);
+
+```
+
+### Delete operations
+
+```code
+
+
+JsObj query = ...;
+
+DeleteOptions options = ...;
+
+Lambda<JsObj,JsObj> deleteOne = 
+    DeleteOne.<JsObj>of(collection,
+                        Converters.deleteResult2JsObj
+                       )
+             .withOptions(options);    
+
+IO<JsObj> io = deleteOne.apply(query);
+
+```
+
+```code
+
+
+JsObj query = ...;
+
+DeleteOptions options = ...;
+
+Lambda<JsObj,JsObj> deleteMany = 
+    DeleteMany.<JsObj>of(collection,
+                         Converters.deleteResult2JsObj
+                         )
+              .withOptions(options);       
+
+IO<JsObj> io = deleteMany.apply(query);
+
+```
+
+### Update and Replace operations
+
+```code
+
+
+JsObj query = ...;
+JsObj update = ...;
+
+UpdateOptions options = ...;
+
+BiLambda<JsObj, JsObj, JsObj> updateOne = 
+    UpdateOne.<JsObj>of(collection,
+                        Converters.updateResult2JsObj
+                        )
+             .withOptions(options);           
+
+IO<JsObj> io = updateOne.apply(query, update);
+
+```
+
+```code
+
+
+JsObj query = ...;
+JsObj update = ...;
+
+UpdateOptions options = ...;
+
+BiLambda<JsObj, JsObj, JsObj> updateMany = 
+    UpdateMany.<JsObj>of(collection,
+                         Converters.updateResult2JsObj
+                         )
+              .withOptions(options);           
+
+IO<JsObj> io = updateMany.apply(query, update);
+
+```
+
+```code
+
+
+JsObj query = ...;
+JsObj newDoc = ...;
+
+ReplaceOptions options = ...;
+
+BiLambda<JsObj, JsObj, JsObj> replaceOne = 
+    ReplaceOne.<JsObj>of(collection,
+                         Converters.updateResult2JsObj
+                        )
+              .withOptions(options);          
+
+IO<JsObj> io = replaceOne.json(query, newDoc);
+
+```
+
+### Count
+
+```code
+
+JsObj query = ...;
+
+CountOptions options = ...;
+
+Lambda<JsObj,Long> count = Count.of(collection)
+                                .withOptions(options);
+
+IO<Long> io = count.apply(query);
+
+```
+
+### FindOneAndXXX operations
+
+#### FindOneAndUpdate
+
+```code
+
+
+JsObj query = ...;
+JsObj update = ...;
+
+FindOneAndUpdateOptions options = ...;
+
+BiLambda<JsObj, JsObj, JsObj> findOneUpdate = 
+    FindOneAndUpdate.of(collection)
+                    .withOptions(options);
+
+IO<JsObj> io = findOneUpdate.apply(query, update);
+
+```
+
+#### FindOneAndReplace
+
+```code
+
+
+JsObj query = ...;
+JsObj newDoc = ...;
+
+FindOneAndReplaceOptions options = ...;
+
+BiLambda<JsObj, JsObj, JsObj> findOneReplace = 
+    FindOneAndReplace.of(collection)
+                     .withOptions(options);
+
+IO<JsObj> io = findOneReplace.apply(query, newDoc);
+
+```
+
+#### FindOneAndDelete
+
+```code
+
+
+JsObj query = ...;
+
+FindOneAndDeleteOptions options = ...;
+
+BiLambda<JsObj, JsObj, JsObj> findOneDelete = 
+    FindOneAndDelete.of(collection)
+                    .withOptions(options);;
+
+IO<JsObj> io = findOneDelete.apply(query);
+
+```
+
+### Aggregate
+
+```code
+
+
+List<Bson> stages = ...;
+
+Lambda<List<Bson>, JsArray> aggregate = 
+    Aggregate.of(collection,
+                 Converters.aggregateResult2JsArray
+                 );
+Lambda<JsArray, JsArray> aggregate1 = 
+    array ->  aggregate.apply(Converters.jsArray2ListOfBson.apply(array));                
+
+Lambda<List<JsObj>, JsArray> aggregate2 = 
+    list ->  aggregate.apply(list.stream().map(Converters.jsObj2Bson).toList());
+
+
+IO<JsArray> io = aggregate.apply(stages);
+
+```
+
+### Watcher
+
+```code
+
+String databaseName = "test";
+DatabaseSupplier database = new DatabaseSupplier(mongoClient, 
+                                                 databaseName);
+String collectionName = "Data";
+CollectionSupplier collection = new CollectionSupplier(database, 
+                                                       databaseSupplier);
+
+Consumer<ChangeStreamIterable<JsObj>> consumer = ...;
+
+
+Watcher.of(consumer).accept(collection.get())
+
+```
+
+### Common Exceptions
+
+There are some predicates in the `MongoExceptions` utility class to handle common exceptions:
+
+1. `READ_TIMEOUT`:
+    - **Description**: This predicate checks if the given Throwable is an instance of MongoSocketReadTimeoutException.
+      It returns true if the exception is a read timeout exception and false otherwise. Read timeout exceptions
+      typically occur when a read operation (e.g., reading data from the database) takes longer than the specified
+      timeout.
+
+2. `CONNECTION_TIMEOUT`:
+    - **Description**: This predicate checks if the given Throwable is an instance of MongoTimeoutException. It returns
+      true if the exception is a connection timeout exception and false otherwise. Connection timeout exceptions usually
+      happen when there's a timeout while attempting to establish a connection to the MongoDB server.
+
+Rembember that one of the advantages of JIO is to make resilient applications thanks to its API.
+Find below an example:
+
+```code
+
+var builder = new FindBuilder(query);
+IO<JsObj> io = FindOne.of(collection)
+                      .apply(builder)
+                      .retry(MongoExceptions.CONNECTION_TIMEOUT,
+                             RetryPolicies.limitRetries(3)
+                             );
+
+
+```
+
+### JFR integration
+
+By default, all the operations, when finished, creates an event and is sent to the
+JFR system. You can disable using the method `withoutRecordedEvents()`
+
+### Specifying an executor
+
+Every operation (FindOne, InsertOne, DeleteOne etc.) type has a method `on(Executor executor)` to specify the executor
+from which thread will be used to eval the Lambdas. You can use virtual threads if you are running jio-mongodb
+in Java 21.
+
+```code
+
+ FindOne.of(collection).withExecutor(Executors.newVirtualThreadPerTaskExecutor());
+
+
+```
+
+If no executor is specified a one from the Fork Join Pool will be pulled since jio-mongodb
+uses underlygint the method IO.managnedLazy(supplier) from jio-exp.

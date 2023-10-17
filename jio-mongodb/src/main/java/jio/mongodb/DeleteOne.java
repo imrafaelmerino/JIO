@@ -93,7 +93,7 @@ public final class DeleteOne<O> extends Op implements Lambda<JsObj, O> {
      * @param executor The {@code Executor} to use for asynchronous execution.
      * @return This {@code DeleteOne} instance for method chaining.
      */
-    public DeleteOne<O> on(final Executor executor) {
+    public DeleteOne<O> withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
@@ -132,7 +132,7 @@ public final class DeleteOne<O> extends Op implements Lambda<JsObj, O> {
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public DeleteOne<O> disableRecordEvents(){
+    public DeleteOne<O> withoutRecordedEvents(){
         this.recordEvents = false;
         return this;
     }

@@ -1598,20 +1598,20 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
         return bindings.entrySet()
                        .stream()
                        .collect(Collectors.toMap(Map.Entry::getKey,
-                                                 e -> LoggerHelper.debugIO(e.getValue(),
-                                                                           String.format("%s[%s]",
+                                                 e -> DebuggerHelper.debugIO(e.getValue(),
+                                                                             String.format("%s[%s]",
                                                                                          eventBuilder.exp,
                                                                                          e.getKey()
                                                                                         ),
-                                                                           eventBuilder.context
-                                                                          )
+                                                                             eventBuilder.context
+                                                                            )
                                                 )
                                );
     }
 
 
     @Override
-    public abstract JsObjExp retryEach(final Predicate<Throwable> predicate,
+    public abstract JsObjExp retryEach(final Predicate<? super Throwable> predicate,
                                        final RetryPolicy policy
                                       );
 

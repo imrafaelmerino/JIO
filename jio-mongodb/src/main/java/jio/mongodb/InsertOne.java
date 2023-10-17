@@ -22,8 +22,8 @@ import static jio.mongodb.MongoDBEvent.OP.INSERT_ONE;
 public final class InsertOne<R> extends Op implements Lambda<JsObj, R> {
 
     private static final InsertOneOptions DEFAULT_OPTIONS = new InsertOneOptions();
-    private final InsertOneOptions options;
     private final Function<InsertOneResult, R> resultConverter;
+    private InsertOneOptions options = DEFAULT_OPTIONS;
 
 
     /**
@@ -33,29 +33,11 @@ public final class InsertOne<R> extends Op implements Lambda<JsObj, R> {
      * @param resultConverter The function to convert the insert result to the desired type.
      * @param options         The insert one options.
      */
-    public InsertOne(final CollectionSupplier collection,
-                     final Function<InsertOneResult, R> resultConverter,
-                     final InsertOneOptions options
-                    ) {
+    private InsertOne(final CollectionSupplier collection,
+                      final Function<InsertOneResult, R> resultConverter
+                     ) {
         super(collection, true);
-        this.options = requireNonNull(options);
         this.resultConverter = requireNonNull(resultConverter);
-    }
-
-    /**
-     * Creates an InsertOne instance with the specified collection supplier, result converter, and options.
-     *
-     * @param collection      The supplier for the MongoDB collection.
-     * @param resultConverter The function to convert the insert result to the desired type.
-     * @param options         The insert one options.
-     * @param <R>             The type of the result.
-     * @return An InsertOne instance.
-     */
-    public static <R> InsertOne<R> of(final CollectionSupplier collection,
-                                      final Function<InsertOneResult, R> resultConverter,
-                                      final InsertOneOptions options
-                                     ) {
-        return new InsertOne<>(collection, resultConverter, options);
     }
 
     /**
@@ -69,7 +51,7 @@ public final class InsertOne<R> extends Op implements Lambda<JsObj, R> {
     public static <R> InsertOne<R> of(final CollectionSupplier collection,
                                       final Function<InsertOneResult, R> resultConverter
                                      ) {
-        return new InsertOne<>(collection, resultConverter, DEFAULT_OPTIONS);
+        return new InsertOne<>(collection, resultConverter);
     }
 
     /**
@@ -79,7 +61,16 @@ public final class InsertOne<R> extends Op implements Lambda<JsObj, R> {
      * @return An InsertOne instance for inserting a single document.
      */
     public static InsertOne<JsObj> of(final CollectionSupplier collection) {
-        return new InsertOne<>(collection, Converters.insertOneResult2JsObj, DEFAULT_OPTIONS);
+        return new InsertOne<>(collection, Converters.insertOneResult2JsObj);
+    }
+
+    /**
+     * @param options the options to perform the operation
+     * @return this instance with the new options
+     */
+    public InsertOne<R> withOptions(final InsertOneOptions options) {
+        this.options = requireNonNull(options);
+        return this;
     }
 
     /**
@@ -88,7 +79,7 @@ public final class InsertOne<R> extends Op implements Lambda<JsObj, R> {
      * @param executor The executor to use.
      * @return This InsertOne instance for method chaining.
      */
-    public InsertOne<R> on(final Executor executor) {
+    public InsertOne<R> withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
@@ -115,12 +106,12 @@ public final class InsertOne<R> extends Op implements Lambda<JsObj, R> {
     }
 
     /**
-     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
-     * the operation will not generate or log JFR events for its operations.
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation
+     * will not generate or log JFR events for its operations.
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public InsertOne<R> disableRecordEvents(){
+    public InsertOne<R> withoutRecordedEvents() {
         this.recordEvents = false;
         return this;
     }

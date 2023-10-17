@@ -108,8 +108,8 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <I>      the type parameter representing the type of the resource.
      * @return an IO effect that encapsulates the resource handling and mapping.
      */
-    public static <O, I extends AutoCloseable> IO<O> resource(final Callable<I> resource,
-                                                              final Lambda<I, O> map
+    public static <O, I extends AutoCloseable> IO<O> resource(final Callable<? extends I> resource,
+                                                              final Lambda<? super I, O> map
                                                              ) {
         try (var r = resource.call()) {
             return map.apply(r);
@@ -141,7 +141,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <O>      the type parameter representing the result type of the effect.
      * @return an IO effect encapsulating the lazy computation.
      */
-    public static <O> IO<O> lazy(final Supplier<O> supplier) {
+    public static <O> IO<O> lazy(final Supplier<? extends O> supplier) {
         requireNonNull(supplier);
         return
                 new Val<>(() -> {
@@ -161,7 +161,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <O>      the type parameter representing the result type of the effect.
      * @return an IO effect encapsulating the callable task.
      */
-    public static <O> IO<O> task(final Callable<O> callable) {
+    public static <O> IO<O> task(final Callable<? extends O> callable) {
         requireNonNull(callable);
         return
                 new Val<>(() -> {
@@ -183,7 +183,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <O>      the type parameter representing the result type of the effect.
      * @return an IO effect encapsulating the callable task.
      */
-    public static <O> IO<O> task(final Callable<O> callable,
+    public static <O> IO<O> task(final Callable<? extends O> callable,
                                  final Executor executor
                                 ) {
         requireNonNull(callable);
@@ -259,7 +259,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <O>      the type parameter representing the result type of the effect.
      * @return an IO effect encapsulating the computation, utilizing the ForkJoin pool if available.
      */
-    public static <O> IO<O> managedLazy(final Supplier<O> supplier) {
+    public static <O> IO<O> managedLazy(final Supplier<? extends O> supplier) {
         requireNonNull(supplier);
         return new Val<>(() ->
                                  Thread.currentThread() instanceof ForkJoinWorkerThread ?
@@ -286,7 +286,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <O>  the type parameter representing the result type of the effect.
      * @return an IO effect encapsulating the callable task, utilizing the ForkJoin pool if available.
      */
-    public static <O> IO<O> managedTask(final Callable<O> task) {
+    public static <O> IO<O> managedTask(final Callable<? extends O> task) {
         requireNonNull(task);
         return new Val<>(() ->
                                  Thread.currentThread() instanceof ForkJoinWorkerThread ?
@@ -308,14 +308,14 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      */
     @SafeVarargs
     @SuppressWarnings({"unchecked", "varargs"})
-    public static <O> IO<O> race(final IO<O> first, final IO<O>... others) {
+    public static <O> IO<O> race(final IO<? extends O> first, final IO<? extends O>... others) {
         requireNonNull(first);
         requireNonNull(others);
-        List<IO<O>> list = new ArrayList<>();
+        List<IO<? extends O>> list = new ArrayList<>();
         list.add(first);
         if (others.length > 0) {
-            List<IO<O>> c = Arrays.stream(others)
-                                  .toList();
+            List<IO<? extends O>> c = Arrays.stream(others)
+                                            .toList();
             list.addAll(c);
         }
         return IO.effect(() -> {
@@ -362,10 +362,10 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @see #discard()
      */
     @SuppressWarnings("ReturnValueIgnored")
-    public <A> IO<A> discardFor(Supplier<A> val) {
+    public <A> IO<? extends A> discardFor(Supplier<? extends A> val) {
         return IO.NULL().then(nill -> {
             get();
-            return IO.lazy(val);
+            return IO.<A>lazy(val);
         });
     }
 
@@ -378,7 +378,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <P> the result type of the new effect.
      * @return a new effect that represents the mapped result.
      */
-    public <P> IO<P> map(final Function<O, P> fn) {
+    public <P> IO<P> map(final Function<? super O, ? extends P> fn) {
         requireNonNull(fn);
         return IO.effect(() -> requireNonNull(get()).thenApply(fn));
     }
@@ -393,7 +393,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param <Q> the result type of the new effect.
      * @return a new effect representing the result of applying the lambda.
      */
-    public <Q> IO<Q> then(final Lambda<O, Q> fn) {
+    public <Q> IO<Q> then(final Lambda<? super O, Q> fn) {
         requireNonNull(fn);
         return effect(() -> requireNonNull(get()).thenCompose(it -> fn.apply(it)
                                                                       .get()
@@ -412,7 +412,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param executor the executor responsible for evaluating the lambda.
      * @return a new effect representing the result of applying the lambda.
      */
-    public <Q> IO<Q> thenOn(final Lambda<O, Q> fn,
+    public <Q> IO<Q> thenOn(final Lambda<? super O, Q> fn,
                             final Executor executor
                            ) {
         requireNonNull(fn);
@@ -437,8 +437,8 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @return a new effect representing the result of applying either the successLambda or the failureLambda.
      */
 
-    public <Q> IO<Q> then(final Lambda<O, Q> successLambda,
-                          final Lambda<Throwable, Q> failureLambda
+    public <Q> IO<Q> then(final Lambda<? super O, Q> successLambda,
+                          final Lambda<? super Throwable, Q> failureLambda
                          ) {
         requireNonNull(successLambda);
         requireNonNull(failureLambda);
@@ -465,8 +465,8 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @return a new effect representing the result of applying either the successLambda or the failureLambda.
      */
 
-    public <Q> IO<Q> thenOn(final Lambda<O, Q> successLambda,
-                            final Lambda<Throwable, Q> failureLambda,
+    public <Q> IO<Q> thenOn(final Lambda<? super O, Q> successLambda,
+                            final Lambda<? super Throwable, Q> failureLambda,
                             final Executor executor
                            ) {
         requireNonNull(successLambda);
@@ -494,7 +494,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param fn the function to apply if this effect fails, taking the exception as input.
      * @return a new effect representing the original value or the result of applying the function in case of failure.
      */
-    public IO<O> recover(final Function<Throwable, O> fn) {
+    public IO<O> recover(final Function<? super Throwable, O> fn) {
         requireNonNull(fn);
         return then(IO::succeed, exc -> succeed(fn.apply(exc)));
     }
@@ -509,7 +509,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      *               effect.
      * @return a new effect representing the original value or the result of applying the lambda in case of failure.
      */
-    public IO<O> recoverWith(final Lambda<Throwable, O> lambda) {
+    public IO<O> recoverWith(final Lambda<? super Throwable, O> lambda) {
         requireNonNull(lambda);
         return then(IO::succeed,
                     lambda
@@ -528,7 +528,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @return a new effect representing the original value or the result of applying the lambda in case of failure.
      */
 
-    public IO<O> recoverWithOn(final Lambda<Throwable, O> fn,
+    public IO<O> recoverWithOn(final Lambda<? super Throwable, O> fn,
                                final Executor executor
                               ) {
         requireNonNull(fn);
@@ -550,7 +550,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @return a new effect representing either the original value or the result of applying the lambda in case of
      * failure.
      */
-    public IO<O> fallbackTo(final Lambda<Throwable, O> lambda) {
+    public IO<O> fallbackTo(final Lambda<? super Throwable,O> lambda) {
         requireNonNull(lambda);
 
         return then(IO::succeed,
@@ -573,7 +573,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @return a new effect representing either the original value or the result of applying the lambda in case of
      * failure.
      */
-    public IO<O> fallbackToOn(final Lambda<Throwable, O> lambda,
+    public IO<O> fallbackToOn(final Lambda<? super Throwable, O> lambda,
                               final Executor executor
                              ) {
         requireNonNull(lambda);
@@ -597,7 +597,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param failConsumer the consumer that takes the exception in case of failure.
      * @return a new effect representing the original value or the failure with the exception passed to the consumer.
      */
-    public IO<O> peekFailure(final Consumer<Throwable> failConsumer) {
+    public IO<O> peekFailure(final Consumer<? super Throwable> failConsumer) {
         return peek($ -> {
                     },
                     failConsumer
@@ -612,7 +612,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param successConsumer the consumer that takes the successful result in case of success.
      * @return a new effect representing the original value or the result of applying the consumer in case of success.
      */
-    public IO<O> peekSuccess(final Consumer<O> successConsumer) {
+    public IO<O> peekSuccess(final Consumer<? super O> successConsumer) {
         return peek(successConsumer,
                     e -> {
                     }
@@ -630,8 +630,8 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @return a new effect representing the original value or the result of applying the consumers in case of success
      * or failure.
      */
-    public IO<O> peek(final Consumer<O> successConsumer,
-                      final Consumer<Throwable> failureConsumer
+    public IO<O> peek(final Consumer<? super O> successConsumer,
+                      final Consumer<? super Throwable> failureConsumer
                      ) {
         requireNonNull(successConsumer);
         requireNonNull(failureConsumer);
@@ -665,8 +665,8 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @return a new effect representing the original value or the result of applying the consumers in case of success
      * or failure.
      */
-    public IO<O> peekOn(final Consumer<O> successConsumer,
-                        final Consumer<Throwable> failureConsumer,
+    public IO<O> peekOn(final Consumer<? super O> successConsumer,
+                        final Consumer<? super Throwable> failureConsumer,
                         final Executor executor
                        ) {
         requireNonNull(successConsumer);
@@ -756,7 +756,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @return a new effect representing the original computation with retry behavior.
      * @see RetryPolicy
      */
-    public IO<O> retry(final Predicate<Throwable> predicate,
+    public IO<O> retry(final Predicate<? super Throwable> predicate,
                        final RetryPolicy policy
                       ) {
         requireNonNull(predicate);
@@ -782,7 +782,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @see RetryPolicy
      */
 
-    public IO<O> retryOn(final Predicate<Throwable> predicate,
+    public IO<O> retryOn(final Predicate<? super Throwable> predicate,
                          final RetryPolicy policy,
                          final Executor executor
                         ) {
@@ -838,7 +838,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     private IO<O> retry(IO<O> exp,
                         Function<RetryStatus, Optional<Duration>> policy,
                         RetryStatus rs,
-                        Predicate<Throwable> predicate
+                        Predicate<? super Throwable> predicate
                        ) {
 
         return exp.then(IO::succeed,
@@ -879,7 +879,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     private IO<O> retryOn(IO<O> exp,
                           Function<RetryStatus, Optional<Duration>> policy,
                           RetryStatus rs,
-                          Predicate<Throwable> predicate,
+                          Predicate<? super Throwable> predicate,
                           Executor executor
                          ) {
 
@@ -931,7 +931,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @return a new effect representing the original computation with repeat behavior.
      * @see RetryPolicy
      */
-    public IO<O> repeat(final Predicate<O> predicate,
+    public IO<O> repeat(final Predicate<? super O> predicate,
                         final RetryPolicy policy
                        ) {
         return repeat(this,
@@ -954,7 +954,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @return a new effect representing the original computation with repeat behavior.
      * @see RetryPolicy
      */
-    public IO<O> repeatOn(final Predicate<O> predicate,
+    public IO<O> repeatOn(final Predicate<? super O> predicate,
                           final RetryPolicy policy,
                           final Executor executor
                          ) {
@@ -970,7 +970,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     private IO<O> repeat(IO<O> exp,
                          RetryPolicy policy,
                          RetryStatus rs,
-                         Predicate<O> predicate
+                         Predicate<? super O> predicate
                         ) {
 
         return exp.then(o -> {
@@ -1008,7 +1008,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     private IO<O> repeatOn(IO<O> exp,
                            RetryPolicy policy,
                            RetryStatus rs,
-                           Predicate<O> predicate,
+                           Predicate<? super O> predicate,
                            Executor executor
                           ) {
 
@@ -1084,9 +1084,9 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     /**
      * Sleeps for the specified duration before evaluating this effect.
      * <p>This method introduces a pause in the execution flow for the specified duration using the
-     * {@link Thread#sleep(long)} method.
-     * It can be useful for testing purposes, or when working with virtual threads. However, it should be used with
-     * caution, as introducing delays in a program's execution blocking threads can impact performance and behavior.
+     * {@link Thread#sleep(long)} method. It can be useful for testing purposes, or when working with virtual threads.
+     * However, it should be used with caution, as introducing delays in a program's execution blocking threads can
+     * impact performance and behavior.
      *
      * @param duration The duration to sleep for.
      * @return An {@code IO<O>} representing the delayed operation.
@@ -1103,6 +1103,21 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
 
         }).then(nill -> this);
 
+    }
+    /**
+     * Computes this effect and pass the result to one of the specified consumers
+     *
+     * @param successConsumer The consumer to be called with the result value if the operation succeeds.
+     * @param failureConsumer The consumer to be called with the exception if the operation fails.
+     */
+    public void onResult(final Consumer<O> successConsumer,
+                         final Consumer<Throwable> failureConsumer){
+        requireNonNull(successConsumer);
+        requireNonNull(failureConsumer);
+        get().whenComplete((value, exc) -> {
+            if(exc == null) successConsumer.accept(value);
+            else failureConsumer.accept(exc);
+        });
     }
 
 

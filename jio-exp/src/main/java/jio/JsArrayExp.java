@@ -64,20 +64,20 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
                                              EventBuilder<JsArray> eventBuilder
                                             ) {
         return IntStream.range(0, exps.size())
-                        .mapToObj(i -> LoggerHelper.debugIO(exps.get(i),
-                                                            String.format("%s[%s]",
+                        .mapToObj(i -> DebuggerHelper.debugIO(exps.get(i),
+                                                              String.format("%s[%s]",
                                                                           eventBuilder.exp,
                                                                           i
                                                                          ),
-                                                            eventBuilder.context
+                                                              eventBuilder.context
 
-                                                           )
+                                                             )
                                  )
                         .collect(Collectors.toList());
     }
 
     @Override
-    public abstract JsArrayExp retryEach(final Predicate<Throwable> predicate,
+    public abstract JsArrayExp retryEach(final Predicate<? super Throwable> predicate,
                                          final RetryPolicy policy
                                         );
 

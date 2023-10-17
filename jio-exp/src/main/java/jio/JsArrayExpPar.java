@@ -40,7 +40,7 @@ final class JsArrayExpPar extends JsArrayExp {
 
 
     @Override
-    public JsArrayExp retryEach(final Predicate<Throwable> predicate,
+    public JsArrayExp retryEach(final Predicate<? super Throwable> predicate,
                                 final RetryPolicy policy
                                ) {
         requireNonNull(predicate);

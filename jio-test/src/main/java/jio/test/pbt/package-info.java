@@ -22,8 +22,6 @@
  *     <li>{@link jio.test.pbt.TestSuccess}: A class representing the successful execution of a property test.</li>
  *     <li>{@link jio.test.pbt.TestFailure}: A class representing an observed failure during the execution of a property test.
  *     It includes a reason explaining why the test failed, allowing for quick diagnosis and resolution.</li>
- *     <li>{@link jio.test.pbt.TestException}: A class representing an exception thrown during the execution of a property test.
- *     Exception details are included in the reports, enabling effective debugging and problem resolution.</li>
  *     <li>{@link jio.test.pbt.PropertyConsole}: A class for managing and interacting with properties using a console interface.
  *     It allows you to execute commands related to properties, such as reading and configuring them.</li>
  *     <li>{@link jio.test.pbt.Command}: An annotation used to mark fields that represent commands within the Property Console.

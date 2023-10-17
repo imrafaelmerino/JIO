@@ -81,7 +81,7 @@ final class JsObjExpPar extends JsObjExp {
 
 
     @Override
-    public JsObjExp retryEach(final Predicate<Throwable> predicate,
+    public JsObjExp retryEach(final Predicate<? super Throwable> predicate,
                               final RetryPolicy policy
                              ) {
         Objects.requireNonNull(predicate);

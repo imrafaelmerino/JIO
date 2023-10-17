@@ -96,7 +96,7 @@ public final class SwitchExp<I, O> extends Exp<O> {
      * @return a new ListExp
      */
     @Override
-    public SwitchExp<I, O> retryEach(final Predicate<Throwable> predicate,
+    public SwitchExp<I, O> retryEach(final Predicate<? super Throwable> predicate,
                                      final RetryPolicy policy
                                     ) {
         requireNonNull(predicate);
@@ -114,19 +114,19 @@ public final class SwitchExp<I, O> extends Exp<O> {
     @Override
     public SwitchExp<I, O> debugEach(final EventBuilder<O> eventBuilder
                                     ) {
-        return new SwitchExp<>(LoggerHelper.debugIO(val,
-                                                    "%s-eval".formatted(eventBuilder.exp),
-                                                    eventBuilder.context
-                                                   ),
+        return new SwitchExp<>(DebuggerHelper.debugIO(val,
+                                                      "%s-eval".formatted(eventBuilder.exp),
+                                                      eventBuilder.context
+                                                     ),
                                predicates,
-                               LoggerHelper.debugLambdas(lambdas,
-                                                         "%s-branch".formatted(eventBuilder.exp),
-                                                         eventBuilder.context
-                                                        ),
-                               LoggerHelper.debugLambda(otherwise,
-                                                        "%s-otherwise".formatted(eventBuilder.exp),
-                                                        eventBuilder.context
-                                                       ),
+                               DebuggerHelper.debugLambdas(lambdas,
+                                                           "%s-branch".formatted(eventBuilder.exp),
+                                                           eventBuilder.context
+                                                          ),
+                               DebuggerHelper.debugLambda(otherwise,
+                                                          "%s-otherwise".formatted(eventBuilder.exp),
+                                                          eventBuilder.context
+                                                         ),
                                getJFRPublisher(eventBuilder)
 
         );

@@ -7,7 +7,7 @@
  * type-safe way to interact with MongoDB databases. Additionally, each MongoDB operation performed using the classes in
  * this package creates a corresponding MongoDBEvent, which is sent to the Java Flight Recorder (JFR) system. Recording
  * of JFR events is activated by default but can be disabled using the
- * {@link jio.mongodb.Aggregate#disableRecordEvents()} method.
+ * {@link jio.mongodb.Aggregate#withoutRecordedEvents()} method.
  * </p>
  * <p>
  * To work with JSON objects from the json-values library, it's necessary to register the codecs from mongo-values.
