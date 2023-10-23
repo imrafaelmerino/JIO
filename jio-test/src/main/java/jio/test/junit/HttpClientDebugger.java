@@ -7,7 +7,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-class HttpClientDebugger implements Consumer<RecordedEvent> {
+final class HttpClientDebugger implements Consumer<RecordedEvent> {
 
     private static final String FORMAT_SUC = """
             event: httpclient-req, result: %s, status-code: %s

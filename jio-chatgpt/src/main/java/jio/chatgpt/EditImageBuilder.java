@@ -6,6 +6,8 @@ import jsonvalues.JsStr;
 
 import java.util.Objects;
 
+import static jio.chatgpt.Constraints.MAX_N_EDIT;
+
 /**
  * Builder for creating edited images using the GPT model. Given a text description and an image, the model will return
  * edited versions of the image.
@@ -21,14 +23,7 @@ public final class EditImageBuilder {
     String mask;
 
 
-    /**
-     * Creates an EditImageBuilder instance with the specified prompt and image.
-     *
-     * @param prompt A text description of the desired image(s). The maximum length is 1000 characters.
-     * @param image  The image to edit. Must be a valid PNG file, less than 4MB, and square. If a mask is not provided,
-     *               the image must have transparency, which will be used as the mask.
-     */
-    public EditImageBuilder(String prompt, String image) {
+    private EditImageBuilder(String prompt, String image) {
         this.image = Objects.requireNonNull(image);
         this.prompt = Objects.requireNonNull(prompt);
         if (prompt.length() > 1000) throw new IllegalArgumentException("prompt > 1000");
@@ -38,12 +33,25 @@ public final class EditImageBuilder {
     }
 
     /**
+     * Creates an EditImageBuilder instance with the specified prompt and image.
+     *
+     * @param prompt A text description of the desired image(s). The maximum length is 1000 characters.
+     * @param image  The image to edit. Must be a valid PNG file, less than 4MB, and square. If a mask is not provided,
+     *               the image must have transparency, which will be used as the mask.
+     */
+    public static EditImageBuilder of(final String prompt,
+                                      final String image
+                                     ) {
+        return new EditImageBuilder(prompt, image);
+    }
+
+    /**
      * Sets the size of the generated images.
      *
      * @param size The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
      * @return This builder.
      */
-    public EditImageBuilder setSize(Data.IMAGE_SIZE size) {
+    public EditImageBuilder withSize(Data.IMAGE_SIZE size) {
         this.size = Objects.requireNonNull(size);
         return this;
     }
@@ -55,7 +63,7 @@ public final class EditImageBuilder {
      *             main image.
      * @return This builder.
      */
-    public EditImageBuilder setMask(String mask) {
+    public EditImageBuilder withMask(String mask) {
         this.mask = Objects.requireNonNull(mask);
         return this;
     }
@@ -66,7 +74,7 @@ public final class EditImageBuilder {
      * @param format The format in which the generated images are returned. Must be one of "url" or "b64_json".
      * @return This builder.
      */
-    public EditImageBuilder setResponseFormat(Data.IMAGE_FORMAT format) {
+    public EditImageBuilder withResponseFormat(Data.IMAGE_FORMAT format) {
         this.responseFormat = Objects.requireNonNull(format);
         return this;
     }
@@ -77,9 +85,9 @@ public final class EditImageBuilder {
      * @param n The number of images to generate. Must be between 1 and 10.
      * @return This builder.
      */
-    public EditImageBuilder setN(int n) {
+    public EditImageBuilder withN(int n) {
         if (n < 0) throw new IllegalArgumentException("n < 0");
-        if (n > 10) throw new IllegalArgumentException("n > 10");
+        if (n > MAX_N_EDIT) throw new IllegalArgumentException("n > %d".formatted(MAX_N_EDIT));
         this.n = n;
         return this;
     }
@@ -90,7 +98,7 @@ public final class EditImageBuilder {
      * @param user A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
      * @return This builder.
      */
-    public EditImageBuilder setUser(String user) {
+    public EditImageBuilder withUser(String user) {
         this.user = Objects.requireNonNull(user);
         return this;
     }

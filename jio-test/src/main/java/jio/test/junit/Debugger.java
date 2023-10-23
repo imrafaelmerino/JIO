@@ -40,7 +40,7 @@ import java.util.function.Consumer;
  * public class MyTest {
  *
  *     @RegisterExtension
- *     static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+ *     static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
  *
  *    // Test methods involving go here
  * }
@@ -53,21 +53,39 @@ import java.util.function.Consumer;
  * <p>Each component's debugging events are collected from the Java Flight Recorder (JFR) system via Jio, which
  * provides insights into component behavior during test execution.
  */
-public class Debugger implements AfterAllCallback, BeforeAllCallback {
+public final class Debugger implements AfterAllCallback, BeforeAllCallback {
 
     String conf;
     Duration duration;
     EventStream stream;
     Map<String, Consumer<RecordedEvent>> debuggers = new HashMap<>();
 
-    public Debugger(final String conf, final Duration duration) {
+    private Debugger(final String conf, final Duration duration) {
         this.conf = Objects.requireNonNull(conf);
         this.duration = Objects.requireNonNull(duration);
     }
 
-    public Debugger(final Duration duration) {
-        this("default", duration);
+    /**
+     * Create an instance of the Debugger with a custom JFR configuration and duration.
+     *
+     * @param conf     A custom JFR configuration for debugging events.
+     * @param duration The duration for monitoring test execution with debugging.
+     * @return A Debugger instance.
+     */
+    public static Debugger of(final String conf, final Duration duration){
+        return new Debugger(conf,duration);
     }
+
+    /**
+     * Create an instance of the Debugger with the default JFR configuration and duration.
+     *
+     * @param duration The duration for monitoring test execution with debugging.
+     * @return A Debugger instance with the default JFR configuration.
+     */
+    public static Debugger of(final Duration duration){
+        return new Debugger("default",duration);
+    }
+
 
     @Override
     public void afterAll(ExtensionContext extensionContext) throws Exception {

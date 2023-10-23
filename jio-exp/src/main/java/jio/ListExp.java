@@ -1,9 +1,12 @@
 package jio;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.*;
+import java.util.stream.Collector;
 
 import static java.util.Objects.requireNonNull;
 
@@ -26,6 +29,91 @@ public abstract sealed class ListExp<O> extends Exp<List<O>> permits ListExpPar,
     }
 
     /**
+     * Returns a Collector for collecting IO effects into a ListExp. All effects will be executed sequentially to
+     * compute the List, and the order of the results in the list is maintained.
+     *
+     * @param <O> The type of elements in the ListExp and IO objects.
+     * @return A Collector for collecting effects into a ListExp
+     */
+    public static <O> Collector<IO<O>, ?, ListExp<O>> seqCollector() {
+        return new Collector<IO<O>, List<IO<O>>, ListExp<O>>() {
+
+            private final Set<Characteristics> characteristics = Collections.emptySet();
+
+            @Override
+            public Supplier<List<IO<O>>> supplier() {
+                return ArrayList::new;
+            }
+
+            @Override
+            public BiConsumer<List<IO<O>>, IO<O>> accumulator() {
+                return List::add;
+            }
+
+            @Override
+            public BinaryOperator<List<IO<O>>> combiner() {
+                return (a, b) -> {
+                    a.addAll(b);
+                    return b;
+                };
+            }
+
+            @Override
+            public Function<List<IO<O>>, ListExp<O>> finisher() {
+                return ListExp::seq;
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return characteristics;
+            }
+        };
+    }
+
+    /**
+     * Returns a Collector for collecting IO effects into a ListExp. All the effects will be executed in parallel to
+     * compute the List, and the order of the results in the list is maintained.
+     *
+     * @param <O> The type of elements in the ListExp and IO objects.
+     * @return A Collector for collecting effects into a ListExp
+     */
+    public static <O> Collector<IO<O>, ?, ListExp<O>> parCollector() {
+        return new Collector<IO<O>, List<IO<O>>, ListExp<O>>() {
+
+            private final Set<Characteristics> characteristics = Collections.emptySet();
+
+            @Override
+            public Supplier<List<IO<O>>> supplier() {
+                return ArrayList::new;
+            }
+
+            @Override
+            public BiConsumer<List<IO<O>>, IO<O>> accumulator() {
+                return List::add;
+            }
+
+            @Override
+            public BinaryOperator<List<IO<O>>> combiner() {
+                return (a, b) -> {
+                    a.addAll(b);
+                    return b;
+                };
+            }
+
+            @Override
+            public Function<List<IO<O>>, ListExp<O>> finisher() {
+                return ListExp::par;
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return characteristics;
+            }
+        };
+    }
+
+
+    /**
      * Creates a ListExp from a list of effects that will be evaluated sequentially. If one fails, the whole expression
      * fails.
      *
@@ -38,6 +126,10 @@ public abstract sealed class ListExp<O> extends Exp<List<O>> permits ListExpPar,
         var xs = new ArrayList<IO<O>>();
         for (var other : requireNonNull(effects)) xs.add(requireNonNull(other));
         return new ListExpSeq<>(xs, null);
+    }
+
+    public static <O> ListExp<O> seq(final List<IO<O>> list) {
+        return new ListExpSeq<>(list, null);
     }
 
 
@@ -54,6 +146,10 @@ public abstract sealed class ListExp<O> extends Exp<List<O>> permits ListExpPar,
 
         var list = new ArrayList<IO<O>>();
         for (IO<O> effect : requireNonNull(effects)) list.add(requireNonNull(effect));
+        return new ListExpPar<>(list, null);
+    }
+
+    public static <O> ListExp<O> par(final List<IO<O>> list) {
         return new ListExpPar<>(list, null);
     }
 

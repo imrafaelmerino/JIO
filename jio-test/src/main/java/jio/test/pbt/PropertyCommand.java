@@ -39,7 +39,7 @@ class PropertyCommand extends Command {
      *
      * @param prop The property to execute.
      */
-    public PropertyCommand(final Property<?> prop) {
+    private PropertyCommand(final Property<?> prop) {
         super(String.format("%s %s",
                             PREFIX_COMMAND,
                             requireNonNull(prop).name
@@ -51,6 +51,14 @@ class PropertyCommand extends Command {
              );
         this.prop = requireNonNull(prop);
     }
+    /**
+     * Creates a PropertyCommand from a property.
+     *
+     * @param prop The property to execute.
+     */
+    public static PropertyCommand of(final Property<?> prop){
+        return new PropertyCommand(prop);
+    }
 
     @Override
     public Function<String[], IO<String>> apply(final JsObj conf,
@@ -60,13 +68,13 @@ class PropertyCommand extends Command {
             String command = String.join(" ", Arrays.stream(tokens).toList());
             if (parPattern.matcher(command).matches()) {
                 int n = Integer.parseInt(tokens[3]);
-                return IO.succeed(prop.repeatPar(n).check(conf).result().toString());
+                return IO.succeed(prop.repeatPar(n).createTask(conf).result().toString());
             }
             if (seqPattern.matcher(command).matches()) {
                 int n = Integer.parseInt(tokens[3]);
-                return IO.succeed(prop.repeatPar(n).check(conf).result().toString());
+                return IO.succeed(prop.repeatPar(n).createTask(conf).result().toString());
             }
-            return prop.check(conf).map(Report::toString);
+            return prop.createTask(conf).map(Report::toString);
 
 
         };

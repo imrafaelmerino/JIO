@@ -6,20 +6,19 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Class to create different kinds of stubs that stand in for {@link Clock clocks}. These clock stubs are useful for
  * controlling time-related behavior in your applications during testing and development.
  */
-public final class ClockStubSupplier implements Supplier<Clock> {
+public final class ClockStub {
 
     private final long lastTick;
     private final Function<Integer, Long> tickCounter;
     Clock clock;
     private volatile int counter;
 
-    private ClockStubSupplier(final Instant base) {
+    private ClockStub(final Instant base) {
         Objects.requireNonNull(base);
         lastTick = System.nanoTime();
         tickCounter = n -> n == 1 ?
@@ -34,7 +33,7 @@ public final class ClockStubSupplier implements Supplier<Clock> {
         });
     }
 
-    private ClockStubSupplier(final Function<Integer, Long> tickCounter) {
+    private ClockStub(final Function<Integer, Long> tickCounter) {
         lastTick = System.nanoTime();
         this.tickCounter = Objects.requireNonNull(tickCounter);
         clock = Clock.custom.apply(() -> {
@@ -55,8 +54,8 @@ public final class ClockStubSupplier implements Supplier<Clock> {
      * @param reference The instant from which the clock starts ticking.
      * @return A clock stub.
      */
-    public static ClockStubSupplier fromReference(final Instant reference) {
-        return new ClockStubSupplier(Objects.requireNonNull(reference));
+    public static Clock fromReference(final Instant reference) {
+        return new ClockStub(Objects.requireNonNull(reference)).clock;
     }
 
     /**
@@ -73,8 +72,7 @@ public final class ClockStubSupplier implements Supplier<Clock> {
      *     // Simulate time progressing by 1 hour with each call
      *     return Instant.now().plus(Duration.ofHours(n)).toEpochMilli();
      * };
-     * ClockStub clockStub = ClockStub.fromCalls(timeFunction);
-     * Clock dynamicClock = clockStub.get();
+     * Clock dynamicClock = ClockStub.fromCalls(timeFunction);
      *
      * }
      *  </pre>
@@ -82,17 +80,9 @@ public final class ClockStubSupplier implements Supplier<Clock> {
      * @param callsFn Function that takes the call number and returns the time.
      * @return A clock stub.
      */
-    public static ClockStubSupplier fromCalls(final Function<Integer, Long> callsFn) {
-        return new ClockStubSupplier(Objects.requireNonNull(callsFn));
+    public static Clock fromCalls(final Function<Integer, Long> callsFn) {
+        return new ClockStub(Objects.requireNonNull(callsFn)).clock;
     }
 
-    /**
-     * returns a brand-new clock
-     *
-     * @return a clock
-     */
-    @Override
-    public Clock get() {
-        return new ClockStubSupplier(tickCounter).clock;
-    }
+
 }

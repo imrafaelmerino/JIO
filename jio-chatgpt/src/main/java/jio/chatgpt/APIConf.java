@@ -5,12 +5,12 @@ import java.util.Objects;
 /**
  * Configuration class for storing API-related configuration details.
  */
-public final class APIConf {
+final class APIConf {
 
     /**
      * The authentication header, presumably for API authentication.
      */
-    public final byte[] authHeader;
+    public final String authHeader;
 
     /**
      * The API version.
@@ -29,9 +29,8 @@ public final class APIConf {
      * @param version    The API version.
      * @param host       The API host.
      */
-    public APIConf(byte[] authHeader, String version, String host) {
+    APIConf(String authHeader, String version, String host) {
         this.authHeader = Objects.requireNonNull(authHeader);
-        if (authHeader.length == 0) throw new IllegalArgumentException("authHeader empty");
         this.version = Objects.requireNonNull(version);
         this.host = Objects.requireNonNull(host);
     }
@@ -44,9 +43,9 @@ public final class APIConf {
     @Override
     public String toString() {
         return "APIConf{" +
-                "authHeader=*****" +
-                ", version='" + version + '\'' +
-                ", host='" + host + '\'' +
-                '}';
+               "authHeader=*****" +
+               ", version='" + version + '\'' +
+               ", host='" + host + '\'' +
+               '}';
     }
 }

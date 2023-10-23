@@ -1,26 +1,17 @@
 package jio.api.exp;
 
-import fun.gen.BoolGen;
-import fun.gen.Gen;
-import fun.gen.IntGen;
-import fun.gen.StrGen;
 import jio.IO;
 import jio.Lambda;
 import jio.test.junit.Debugger;
-import jio.test.stub.Gens;
-import jio.test.stub.StubSupplier;
 import jio.time.Clock;
 import jsonvalues.JsArray;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
-import jsonvalues.gen.JsArrayGen;
-import jsonvalues.gen.JsStrGen;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.time.Duration;
-import java.util.concurrent.Executors;
 
 /**
  * The signup service processes a JSON input that has at the least (not interested in the rest) the fields email and
@@ -61,7 +52,7 @@ public class SignupTests {
 
 
     @RegisterExtension
-    static Debugger debugger = new Debugger(Duration.ofSeconds(10));
+    static Debugger debugger =  Debugger.of(Duration.ofSeconds(10));
 
 
     @Test

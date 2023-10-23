@@ -119,6 +119,8 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     }
 
 
+
+
     /**
      * Creates an effect that always succeeds and returns the same value.
      *
@@ -330,42 +332,19 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     }
 
     /**
-     * The `discard` method allows you to execute an action without waiting for its result and returns immediately. It
+     * The `async` method allows you to execute an action without waiting for its result and returns immediately. It
      * is useful when you are not interested in the outcome of the action and want to trigger it asynchronously.
      *
      * <p><b>Note:</b> To achieve non-blocking behavior, ensure that the caller thread and the thread executing the
      * action are different.
      *
      * @return An effect representing the asynchronous execution of the action, producing no meaningful result.
-     * @see #discardFor(Supplier)
      */
     @SuppressWarnings("ReturnValueIgnored")
-    public IO<Void> discard() {
+    public IO<Void> async() {
         return IO.NULL().then(nill -> {
             get();
             return IO.NULL();
-        });
-    }
-
-    /**
-     * The `discardFor` method allows you to execute an action without waiting for its result and returns immediately.
-     * It is designed to handle a value provided by a `Supplier` and returns an `IO` representing the asynchronous
-     * execution of the action.
-     *
-     * <p><b>Note:</b> To achieve non-blocking behavior, ensure that the caller thread and the thread executing the
-     * action are different.
-     *
-     * @param val A supplier supplying a value, which may be used within the action.
-     * @param <A> The type of the value supplied by the `val` parameter.
-     * @return An effect representing the asynchronous execution of the action, with the result type specified by the
-     * `val` parameter.
-     * @see #discard()
-     */
-    @SuppressWarnings("ReturnValueIgnored")
-    public <A> IO<? extends A> discardFor(Supplier<? extends A> val) {
-        return IO.NULL().then(nill -> {
-            get();
-            return IO.<A>lazy(val);
         });
     }
 
@@ -1056,7 +1035,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @see ExpEvent
      */
     public IO<O> debug() {
-        return debug(new EventBuilder<>(getClass().getSimpleName()));
+        return debug(EventBuilder.of(getClass().getSimpleName()));
     }
 
     /**
@@ -1114,7 +1093,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                          final Consumer<Throwable> failureConsumer){
         requireNonNull(successConsumer);
         requireNonNull(failureConsumer);
-        get().whenComplete((value, exc) -> {
+        var unused = get().whenComplete((value, exc) -> {
             if(exc == null) successConsumer.accept(value);
             else failureConsumer.accept(exc);
         });

@@ -67,7 +67,7 @@ public final class PropertyConsole {
         var properties = getPropertiesCommand();
         List<Command> commands = new ArrayList<>();
         for (Property<?> property : properties) {
-            commands.add(new PropertyCommand(property));
+            commands.add(PropertyCommand.of(property));
         }
         Console console = new Console(commands);
 

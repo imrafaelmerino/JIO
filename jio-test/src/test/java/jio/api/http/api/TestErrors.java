@@ -3,8 +3,8 @@ package jio.api.http.api;
 import com.sun.net.httpserver.HttpServer;
 import jio.IO;
 import jio.http.client.HttpExceptions;
-import jio.http.client.MyHttpClient;
-import jio.http.client.MyHttpClientBuilder;
+import jio.http.client.JioHttpClient;
+import jio.http.client.JioHttpClientBuilder;
 import jio.http.server.HttpServerBuilder;
 import jio.test.junit.Debugger;
 import jio.test.stub.httpserver.BodyStub;
@@ -25,8 +25,8 @@ import java.time.temporal.ChronoUnit;
 public class TestErrors {
 
     @RegisterExtension
-    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
-    IO<HttpServer> server =
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
+    HttpServer server =
             new HttpServerBuilder().addContext("/foo",
                                                GetStub.of(BodyStub.consAfter("hi",
                                                                              Duration.of(2,
@@ -37,7 +37,7 @@ public class TestErrors {
                                                           HeadersStub.EMPTY
                                                          )
                                               )
-                                   .buildAtRandom("localhost",
+                                   .startAtRandom("localhost",
                                                   8000,
                                                   9000
                                                  );
@@ -46,8 +46,8 @@ public class TestErrors {
     @Test
     public void test_http_connect_timeout() {
 
-        MyHttpClient client =
-                new MyHttpClientBuilder(HttpClient.newBuilder()
+        JioHttpClient client =
+                JioHttpClientBuilder.of(HttpClient.newBuilder()
                                                   .connectTimeout(
                                                           Duration.of(1,
                                                                       ChronoUnit.NANOS
@@ -72,8 +72,8 @@ public class TestErrors {
     @Test
     public void test_domain_doesnt_exists() {
 
-        MyHttpClient client =
-                new MyHttpClientBuilder(HttpClient.newBuilder()).build();
+        JioHttpClient client =
+                JioHttpClientBuilder.of(HttpClient.newBuilder()).build();
 
         boolean isUnresolved =
                 client.ofString().apply(HttpRequest.newBuilder()
@@ -94,20 +94,18 @@ public class TestErrors {
     public void test_http_timeout() {
 
 
-        HttpServer join = server.result();
-
-        MyHttpClient client =
-                new MyHttpClientBuilder(HttpClient.newBuilder()
+        JioHttpClient client =
+                JioHttpClientBuilder.of(HttpClient.newBuilder()
                                                   .connectTimeout(Duration.of(1,
                                                                               ChronoUnit.NANOS
                                                                              )
                                                                  )
-                )
-                        .build();
+                                       )
+                                    .build();
 
 
-        URI uri = URI.create("http://localhost:" + join.getAddress()
-                                                       .getPort() + "/foo");
+        URI uri = URI.create("http://localhost:" + server.getAddress()
+                                                         .getPort() + "/foo");
         boolean isTimeout =
                 client.ofString().apply(HttpRequest.newBuilder()
                                                    .GET()

@@ -109,7 +109,7 @@ final class JsObjExpSeq extends JsObjExp {
 
     @Override
     public JsObjExp debugEach(final String context) {
-        return this.debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
+        return this.debugEach(EventBuilder.of(this.getClass().getSimpleName(), context));
 
     }
 }

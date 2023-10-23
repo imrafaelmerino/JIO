@@ -1,6 +1,6 @@
 package jio.api.exp;
 
-import jio.test.stub.ClockStubSupplier;
+import jio.test.stub.ClockStub;
 import jio.time.Clock;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ public class TestClock {
     public void testMock() throws InterruptedException {
 
         Instant base = Instant.parse("1982-03-13T00:00:00.000000Z");
-        Clock clock = ClockStubSupplier.fromReference(base).get();
+        Clock clock = ClockStub.fromReference(base);
 
         Assertions.assertEquals(clock.get(),
                                 base.toEpochMilli()

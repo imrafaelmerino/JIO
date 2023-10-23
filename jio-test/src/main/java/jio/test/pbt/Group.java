@@ -66,7 +66,7 @@ public final class Group {
         var copy = new ArrayList<>(props);
         Collections.shuffle(copy);
         ListExp<Report> seq = ListExp.seq();
-        for (var property : copy) seq = seq.append(property.check(conf));
+        for (var property : copy) seq = seq.append(property.createTask(conf));
         return processReport(seq.map(l -> new GroupReport(l, name)));
     }
 
@@ -89,7 +89,7 @@ public final class Group {
         var copy = new ArrayList<>(props);
         Collections.shuffle(copy);
         ListExp<Report> par = ListExp.par();
-        for (var property : copy) par = par.append(property.check(conf));
+        for (var property : copy) par = par.append(property.createTask(conf));
         return processReport(par.map(l -> new GroupReport(l, name)));
     }
 
@@ -119,7 +119,7 @@ public final class Group {
      */
     public IO<GroupReport> seq(JsObj conf) {
         ListExp<Report> seq = ListExp.seq();
-        for (var property : props) seq = seq.append(property.check(conf));
+        for (var property : props) seq = seq.append(property.createTask(conf));
         return processReport(seq.map(l -> new GroupReport(l, name)));
     }
 
@@ -140,7 +140,7 @@ public final class Group {
      */
     public IO<GroupReport> par(JsObj conf) {
         ListExp<Report> par = ListExp.par();
-        for (var property : props) par = par.append(property.check(conf));
+        for (var property : props) par = par.append(property.createTask(conf));
         return processReport(par.map(l -> new GroupReport(l, name)));
     }
 
@@ -161,7 +161,7 @@ public final class Group {
         return this;
     }
 
-     void dump(GroupReport report) {
+    void dump(GroupReport report) {
         synchronized (GroupReport.class) {
             try {
                 Files.writeString(path, report + "\n");

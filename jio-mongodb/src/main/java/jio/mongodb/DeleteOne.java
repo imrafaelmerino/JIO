@@ -1,90 +1,70 @@
 package jio.mongodb;
 
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.model.DeleteOptions;
 import com.mongodb.client.result.DeleteResult;
 import jio.IO;
-import jio.Lambda;
 import jsonvalues.JsObj;
 import org.bson.conversions.Bson;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
-import static jio.mongodb.Converters.jsObj2Bson;
-import static jio.mongodb.MongoDBEvent.OP.DELETE_ONE;
+import static jio.mongodb.Converters.toBson;
+import static jio.mongodb.MongoEvent.OP.DELETE_ONE;
 
 
 /**
  * Represents an operation to delete a single document from a MongoDB collection. This class provides flexibility in
  * handling the result and allows you to specify various options for the delete operation.
+ * <p>
+ * The `DeleteOne` class allows you to delete a single document from a MongoDB collection with specified query criteria.
+ * The result of the operation is represented as a `DeleteResult`, which includes information about whether the document
+ * was deleted and other details. You can also customize the behavior of the delete operation by configuring options and
+ * specifying an executor for asynchronous execution.
+ * <p>
+ * To use this class effectively, you can set custom delete options and an optional executor. The operation can also be
+ * executed within a MongoDB client session if one is provided.
  *
- * @param <O> The type of result expected from the delete operation.
+ * @see MongoLambda
+ * @see Converters
  */
-public final class DeleteOne<O> extends Op implements Lambda<JsObj, O> {
+public final class DeleteOne extends Op implements MongoLambda<JsObj, DeleteResult> {
 
     private static final DeleteOptions DEFAULT_OPTIONS = new DeleteOptions();
-    private final Function<DeleteResult, O> resultConverter;
-    private final DeleteOptions options;
+    private DeleteOptions options = DEFAULT_OPTIONS;
 
     /**
      * Constructs a {@code DeleteOne} instance with the specified collection, result converter, and delete options.
      *
-     * @param collection      The {@code CollectionSupplier} to obtain the MongoDB collection.
-     * @param resultConverter A {@code Function} to convert the delete result into the desired type.
-     * @param options         The delete options to customize the delete operation.
+     * @param collection The {@code CollectionBuilder} to obtain the MongoDB collection.
      */
-    private DeleteOne(final CollectionSupplier collection,
-                      final Function<DeleteResult, O> resultConverter,
-                      final DeleteOptions options
-                     ) {
+    private DeleteOne(final CollectionBuilder collection) {
         super(collection, true);
-        this.resultConverter = requireNonNull(resultConverter);
-        this.options = requireNonNull(options);
-    }
-
-    /**
-     * Creates a new {@code DeleteOne} instance with the specified collection, result converter, and delete options.
-     *
-     * @param <O>             The type of result expected from the delete operation.
-     * @param collection      The {@code CollectionSupplier} to obtain the MongoDB collection.
-     * @param resultConverter A {@code Function} to convert the delete result into the desired type.
-     * @param options         The delete options to customize the delete operation.
-     * @return A new {@code DeleteOne} instance.
-     */
-    public static <O> DeleteOne<O> of(final CollectionSupplier collection,
-                                      final Function<DeleteResult, O> resultConverter,
-                                      final DeleteOptions options
-                                     ) {
-        return new DeleteOne<>(collection, resultConverter, options);
-    }
-
-    /**
-     * Creates a new {@code DeleteOne} instance with the specified collection and result converter, using default delete
-     * options.
-     *
-     * @param <O>             The type of result expected from the delete operation.
-     * @param collection      The {@code CollectionSupplier} to obtain the MongoDB collection.
-     * @param resultConverter A {@code Function} to convert the delete result into the desired type.
-     * @return A new {@code DeleteOne} instance with default delete options.
-     */
-    public static <O> DeleteOne<O> of(final CollectionSupplier collection,
-                                      final Function<DeleteResult, O> resultConverter
-                                     ) {
-        return new DeleteOne<>(collection, resultConverter, DEFAULT_OPTIONS);
     }
 
     /**
      * Creates a new {@code DeleteOne} instance with the specified collection, using default delete options and a result
      * converter for {@code JsObj} result type.
      *
-     * @param collection The {@code CollectionSupplier} to obtain the MongoDB collection.
+     * @param collection The {@code CollectionBuilder} to obtain the MongoDB collection.
      * @return A new {@code DeleteOne} instance for {@code JsObj} result type.
      */
-    public static DeleteOne<JsObj> of(final CollectionSupplier collection) {
-        return new DeleteOne<>(collection, Converters.deleteResult2JsObj, DEFAULT_OPTIONS);
+    public static DeleteOne of(final CollectionBuilder collection) {
+        return new DeleteOne(collection);
+    }
+
+    /**
+     * Sets custom options for the delete operation.
+     *
+     * @param options The options to perform the operation.
+     * @return This instance with the new options.
+     */
+    public DeleteOne withOptions(final DeleteOptions options) {
+        this.options = requireNonNull(options);
+        return this;
     }
 
     /**
@@ -93,46 +73,42 @@ public final class DeleteOne<O> extends Op implements Lambda<JsObj, O> {
      * @param executor The {@code Executor} to use for asynchronous execution.
      * @return This {@code DeleteOne} instance for method chaining.
      */
-    public DeleteOne<O> withExecutor(final Executor executor) {
+    public DeleteOne withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
 
     /**
-     * Deletes a single document from the MongoDB collection based on the provided query.
+     * Applies the delete one operation to the specified MongoDB collection using the provided query and options.
      *
-     * @param query The query (as a {@code JsObj}) specifying the document to delete.
-     * @return An {@code IO<O>} representing the result of the delete operation.
-     * @throws NullPointerException if the query is null.
+     * @param session The MongoDB client session, or null if not within a session.
+     * @param query The query criteria to determine which document to delete.
+     * @return An IO representing the result of the delete one operation as a {@link DeleteResult}.
      */
     @Override
-    public IO<O> apply(final JsObj query) {
+    public IO<DeleteResult> apply(final ClientSession session, final JsObj query) {
         Objects.requireNonNull(query);
-        Supplier<O> supplier =
-                jfrEventWrapper(() -> {
-                                    var collection = requireNonNull(this.collection.get());
-                                    final Bson result = jsObj2Bson.apply(requireNonNull(query));
-                                    return resultConverter.apply(
-                                            collection.deleteOne(result,
-                                                                 options
-                                                                )
-                                                                );
-                                }, DELETE_ONE
-                               );
+        Supplier<DeleteResult> supplier =
+                eventWrapper(() -> {
+                                 var collection = requireNonNull(this.collection.build());
+                                 final Bson result = toBson(requireNonNull(query));
+                                 return session == null ?
+                                         collection.deleteOne(result, options) :
+                                         collection.deleteOne(session, result, options);
+                             }, DELETE_ONE
+                            );
         return executor == null ?
                 IO.managedLazy(supplier) :
-                IO.lazy(supplier,
-                        executor
-                       );
+                IO.lazy(supplier, executor);
     }
 
     /**
-     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled,
-     * the operation will not generate or log JFR events for its operations.
+     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation
+     * will not generate or log JFR events for its operations.
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public DeleteOne<O> withoutRecordedEvents(){
+    public DeleteOne withoutRecordedEvents() {
         this.recordEvents = false;
         return this;
     }

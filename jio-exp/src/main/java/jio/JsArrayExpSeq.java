@@ -73,7 +73,7 @@ final class JsArrayExpSeq extends JsArrayExp {
 
     @Override
     public JsArrayExp debugEach(final String context) {
-        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(),
+        return debugEach(EventBuilder.of(this.getClass().getSimpleName(),
                                             context));
 
 

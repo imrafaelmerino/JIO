@@ -56,7 +56,7 @@ public final class Utils {
                        .append("Content-Disposition: form-data; name=\"").append(file.getKey()).append("\"; filename=\"")
                        .append(file.getValue().getName()).append("\"\r\n")
                        .append("\r\n")
-                       .append(new String(Files.readAllBytes(file.getValue().toPath()),StandardCharsets.UTF_8)).append("\r\n");
+                       .append(new String(Files.readAllBytes(file.getValue().toPath()), StandardCharsets.UTF_8)).append("\r\n");
             }
 
             builder.append("--")

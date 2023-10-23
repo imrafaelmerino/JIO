@@ -75,7 +75,7 @@ final class CondExpSeq<O> extends CondExp<O> {
     public CondExp<O> debugEach(final EventBuilder<O> eventBuilder) {
         Objects.requireNonNull(eventBuilder);
         return new CondExpSeq<>(DebuggerHelper.debugConditions(tests,
-                                                               new EventBuilder<>("%s-test".formatted(eventBuilder.exp),
+                                                               EventBuilder.of("%s-test".formatted(eventBuilder.exp),
                                                                                 eventBuilder.context)
                                                               ),
                                 DebuggerHelper.debugSuppliers(consequences,
@@ -94,7 +94,7 @@ final class CondExpSeq<O> extends CondExp<O> {
     @Override
     public CondExp<O> debugEach(final String context) {
         return debugEach(
-                new EventBuilder<>(this.getClass().getSimpleName(), context));
+                EventBuilder.of(this.getClass().getSimpleName(), context));
 
     }
 

@@ -1,12 +1,11 @@
 package jio.api.http.api;
 
 import com.sun.net.httpserver.HttpServer;
-import jio.IO;
-import jio.http.client.MyHttpClientBuilder;
+import jio.http.client.JioHttpClientBuilder;
 import jio.http.client.oauth.AccessTokenRequest;
-import jio.http.client.oauth.ClientCredentialsHttpClientBuilder;
+import jio.http.client.oauth.ClientCredsBuilder;
 import jio.http.client.oauth.GetAccessToken;
-import jio.http.client.oauth.MyOauthHttpClient;
+import jio.http.client.oauth.OauthHttpClient;
 import jio.http.server.HttpServerBuilder;
 import jio.test.junit.Debugger;
 import jio.test.stub.httpserver.GetStub;
@@ -25,9 +24,9 @@ import java.time.Duration;
 
 public class TestOauth {
     @RegisterExtension
-    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
-    IO<HttpServer> io = new HttpServerBuilder()
+    HttpServer server = new HttpServerBuilder()
             .addContext("/token", PostStub.of(n -> body -> uri -> headers -> JsObj.of("access_token",
                                                                                       JsStr.of(String.valueOf(n))
                                                                                      )
@@ -38,35 +37,30 @@ public class TestOauth {
             .addContext("/service", GetStub.of(n -> body -> uri -> headers -> n == 2 ? "" : String.valueOf(n),
                                                n -> body -> uri -> headers -> n == 2 ? 401 : 200
                                               ))
-            .build(7777);
+            .start(7777);
 
 
     @Test
     public void test() {
 
-        HttpServer server = io.result();
+        ClientCredsBuilder builder =
+                ClientCredsBuilder.of(JioHttpClientBuilder.of(HttpClient.newBuilder()),
+                                      AccessTokenRequest.of("client_id",
+                                                            "client_secret",
+                                                            URI.create("http://localhost:7777/token")
+                                                           ),
+                                      GetAccessToken.DEFAULT,
+                                      resp -> resp.statusCode() == 401
 
-        ClientCredentialsHttpClientBuilder builder =
-                new ClientCredentialsHttpClientBuilder(new MyHttpClientBuilder(HttpClient.newBuilder()),
-                                                       new AccessTokenRequest("client_id",
-                                                                              "client_secret",
-                                                                              "localhost",
-                                                                              7777,
-                                                                              "token",
-                                                                              false
-                                                       ),
-                                                       GetAccessToken.DEFAULT,
-                                                       resp -> resp.statusCode() == 401
+                                     );
 
-                );
+        OauthHttpClient client = builder.build();
 
-        MyOauthHttpClient client = builder.build();
-
-        HttpResponse<String> resp = client.oauthOfString()
-                                          .apply(HttpRequest.newBuilder()
-                                                            .GET()
-                                                            .uri(URI.create("http://localhost:7777/service"))
-                                                ).result();
+        HttpResponse<String> unused = client.oauthOfString()
+                                            .apply(HttpRequest.newBuilder()
+                                                              .GET()
+                                                              .uri(URI.create("http://localhost:7777/service"))
+                                                  ).result();
 
 
     }

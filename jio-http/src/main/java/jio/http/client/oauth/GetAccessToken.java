@@ -14,7 +14,7 @@ import java.util.Objects;
  * field access_token. If the token is not found the lambda fails with the exception {@link AccessTokenNotFound} There
  * is no public constructors to create instances of this class. Use the singleton {@link #DEFAULT}
  *
- * @see ClientCredentialsHttpClientBuilder
+ * @see ClientCredsBuilder
  */
 public final class GetAccessToken implements Lambda<HttpResponse<String>, String> {
 

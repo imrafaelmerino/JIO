@@ -5,7 +5,7 @@
  * managing requests for different tasks.
  * <p>
  * The key classes and builders in this package include: - {@link jio.chatgpt.ConfBuilder}: A configuration builder for
- * setting API authentication details and other settings. - {@link jio.chatgpt.Services}: A central class that provides
+ * setting API authentication details and other settings. - {@link jio.chatgpt.ChatGPTServices}: A central class that provides
  * access to different service classes for various tasks, such as chat, image generation, transcription, and more. -
  * {@link jio.chatgpt.AudioService}: A service class for working with audio-related tasks, including transcription and
  * translation. - {@link jio.chatgpt.ChatService}: A service class for interactive conversations and chat-based tasks. -

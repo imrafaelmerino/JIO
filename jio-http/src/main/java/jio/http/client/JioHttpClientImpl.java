@@ -14,7 +14,7 @@ import static java.util.Objects.requireNonNull;
 import static jio.http.client.ClientReqEvent.RESULT.FAILURE;
 import static jio.http.client.ClientReqEvent.RESULT.SUCCESS;
 
-final class MyHttpClientImpl implements MyHttpClient {
+final class JioHttpClientImpl implements JioHttpClient {
 
     private final AtomicLong counter = new AtomicLong(0);
 
@@ -29,11 +29,11 @@ final class MyHttpClientImpl implements MyHttpClient {
     private final boolean recordEvents;
 
 
-    MyHttpClientImpl(final HttpClient.Builder client,
-                     RetryPolicy reqRetryPolicy,
-                     Predicate<Throwable> reqRetryPredicate,
-                     boolean recordEvents
-                    ) {
+    JioHttpClientImpl(final HttpClient.Builder client,
+                      RetryPolicy reqRetryPolicy,
+                      Predicate<Throwable> reqRetryPredicate,
+                      boolean recordEvents
+                     ) {
         this.client = requireNonNull(client).build();
         this.reqRetryPolicy = reqRetryPolicy;
         this.reqRetryPredicate = reqRetryPredicate;
@@ -43,7 +43,7 @@ final class MyHttpClientImpl implements MyHttpClient {
         this.ofStringLambda = bodyHandler(HttpResponse.BodyHandlers.ofString());
     }
 
-    <O> CompletableFuture<HttpResponse<O>> requestWrapper(final MyHttpClientImpl myClient,
+    <O> CompletableFuture<HttpResponse<O>> requestWrapper(final JioHttpClientImpl myClient,
                                                           final HttpRequest request,
                                                           final HttpResponse.BodyHandler<O> handler
                                                          ) {

@@ -77,7 +77,7 @@ final class DebuggerHelper {
                              final String expName,
                              final String context
                             ) {
-        return debugExp(io, new EventBuilder<>(expName, context));
+        return debugExp(io, EventBuilder.of(expName, context));
     }
 
 

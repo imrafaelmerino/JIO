@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-chatgpt</artifactId>
-    <version>1.0.0-RC1</version>
+    <version>1.0.0-RC3</version>
     <name>jio-chatgpt</name>
     <description>Java Input-Output Monad</description>
     <url>https://github.com/imrafaelmerino/jio</url>
@@ -35,16 +35,16 @@
         <JACOCO-MAVEN-PLUGIN.VERSION>0.8.8</JACOCO-MAVEN-PLUGIN.VERSION>
         <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
         <MAVEN-COMPILER-PLUGIN.VERSION>3.10.1</MAVEN-COMPILER-PLUGIN.VERSION>
-        <MAVEN-COMPILER-PLUGIN.SOURCE>17</MAVEN-COMPILER-PLUGIN.SOURCE>
-        <MAVEN-COMPILER-PLUGIN.TARGET>17</MAVEN-COMPILER-PLUGIN.TARGET>
+        <MAVEN-COMPILER-PLUGIN.SOURCE>21</MAVEN-COMPILER-PLUGIN.SOURCE>
+        <MAVEN-COMPILER-PLUGIN.TARGET>21</MAVEN-COMPILER-PLUGIN.TARGET>
         <MAVEN-SUREFIRE-PLUGIN.VERSION>3.0.0-M6</MAVEN-SUREFIRE-PLUGIN.VERSION>
         <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
         <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
-        <JIO-EXP-VERSION>1.0.0-RC1</JIO-EXP-VERSION>
-        <JIO-TEST-VERSION>1.0.0-RC1</JIO-TEST-VERSION>
+        <JIO-EXP-VERSION>1.0.0-RC3</JIO-EXP-VERSION>
+        <JIO-TEST-VERSION>1.0.0-RC2</JIO-TEST-VERSION>
         <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
-        <JIO-CONSOLE.VERSION>1.0.0-RC1</JIO-CONSOLE.VERSION>
-        <JIO-HTTP.VERSION>1.0.0-RC1</JIO-HTTP.VERSION>
+        <JIO-CONSOLE.VERSION>1.0.0-RC2</JIO-CONSOLE.VERSION>
+        <JIO-HTTP.VERSION>1.0.0-RC3</JIO-HTTP.VERSION>
     </properties>
 
     <build>
@@ -79,23 +79,13 @@
                         <arg>-Xplugin:ErrorProne</arg>
                         <arg>-Xlint:all</arg>
                     </compilerArgs>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${MAVEN-SUREFIRE-PLUGIN.VERSION}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${MAVEN-JAR-PLUGIN.VERSION}</version>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Automatic-Module-Name>jio_chatgpt</Automatic-Module-Name>
-                        </manifestEntries>
-                    </archive>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>com.google.errorprone</groupId>
+                            <artifactId>error_prone_core</artifactId>
+                            <version>${error-prone.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 

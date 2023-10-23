@@ -113,7 +113,7 @@ final class JsObjExpPar extends JsObjExp {
 
     @Override
     public JsObjExp debugEach(String context) {
-        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
+        return debugEach(EventBuilder.of(this.getClass().getSimpleName(), context));
 
 
     }

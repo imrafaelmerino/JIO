@@ -55,13 +55,13 @@ public class SignupService implements Lambda<JsObj, JsObj> {
 
         return
                 JsObjExp.par("number_users", countUsers.apply(null)
-                                                       .debug(new EventBuilder<>("count_number_users",
-                                                                                 context))
+                                                       .debug(EventBuilder.of("count_number_users",
+                                                                              context))
                                                        .retry(RetryPolicies.limitRetries(3))
                                                        .recover(e -> -1)
                                                        .map(JsInt::of),
-                             "id", persistMongo.apply(user)
-                                               .then(LDAPFlow)
+                             "id", persistMongo.then(LDAPFlow)
+                                               .apply(user)
                                                .map(JsStr::of),
                              "addresses", normalizeAddresses.apply(address),
                              "timestamp", IO.lazy(clock)

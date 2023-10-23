@@ -4,7 +4,7 @@ import jio.IO;
 import jio.Lambda;
 import jio.RetryPolicies;
 import jio.console.*;
-import jio.http.client.MyHttpClientBuilder;
+import jio.http.client.JioHttpClientBuilder;
 import jsonvalues.JsArray;
 import jsonvalues.JsObj;
 import jsonvalues.JsValue;
@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.http.HttpClient;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -41,14 +40,14 @@ public final class GptConsole {
         if (authHeader == null || authHeader.trim().isEmpty())
             throw new IllegalArgumentException(confArg + "auth_header is missing in " + confArg);
 
-        var services = new Services(new ConfBuilder(authHeader.getBytes(StandardCharsets.UTF_8)),
-                                    new MyHttpClientBuilder(HttpClient.newBuilder()).build()
-        );
+        var services = ChatGPTServices.of(ConfBuilder.of(authHeader),
+                                          JioHttpClientBuilder.of(HttpClient.newBuilder())
+                                         );
 
         List<Command> commands = new ArrayList<>();
 
         commands.add(new SupplierCommand("gpt-file-list", "Returns a list of files that belong to the user's organization.",
-                                         () -> services.fileService.list().map(JsObj::toString).result()
+                                         () -> services.file.list.get().map(JsObj::toString).result()
                      )
                     );
         commands.add(new Command("gpt-file-upload", "Upload a file that contains document(s) to be used across various endpoints/features. Currently, the size of all the files uploaded by one organization can be up to 1 GB. Please contact us if you need to increase the storage limit.") {
@@ -68,9 +67,9 @@ public final class GptConsole {
                                                                               RetryPolicies.limitRetries(3)
                                                )
                                                     )
-                                       .then(pair -> services.fileService.upload(new File(pair.first()),
-                                                                                 pair.second()
-                                                                                )
+                                       .then(pair -> services.file.upload.apply(new File(pair.first()),
+                                                                                pair.second()
+                                                                               )
                                                                          .map(JsObj::toString)
                                             );
                     String path = tokens[1];
@@ -78,7 +77,7 @@ public final class GptConsole {
                     File file = new File(path);
                     return !file.exists() || !file.isFile() ?
                             IO.fail(new IllegalArgumentException("%s is not a file".formatted(path))) :
-                            services.fileService.upload(file, purpose).map(JsObj::toString);
+                            services.file.upload.apply(file, purpose).map(JsObj::toString);
                 };
             }
         });
@@ -94,9 +93,9 @@ public final class GptConsole {
                                                                               "Id is required",
                                                                               RetryPolicies.limitRetries(3)
                                                ))
-                                       .then(id -> services.fileService.delete(id).map(JsObj::toString));
+                                       .then(id -> services.file.delete.apply(id).map(JsObj::toString));
                     String id = tokens[1];
-                    return services.fileService.delete(id).map(JsObj::toString);
+                    return services.file.delete.apply(id).map(JsObj::toString);
                 };
             }
         });
@@ -112,9 +111,9 @@ public final class GptConsole {
                                                                               "Id is required",
                                                                               RetryPolicies.limitRetries(3)
                                                ))
-                                       .then(id -> services.fileService.retrieve(id).map(JsObj::toString));
+                                       .then(id -> services.file.retrieve.apply(id).map(JsObj::toString));
                     String id = tokens[1];
-                    return services.fileService.retrieve(id).map(JsObj::toString);
+                    return services.file.retrieve.apply(id).map(JsObj::toString);
                 };
             }
         });
@@ -130,9 +129,9 @@ public final class GptConsole {
                                                                               "Id is required",
                                                                               RetryPolicies.limitRetries(3)
                                                ))
-                                       .then(id -> services.fileService.retrieveFileContent(id).map(JsObj::toString));
+                                       .then(id -> services.file.retrieveFileContent.apply(id).map(JsObj::toString));
                     String id = tokens[1];
-                    return services.fileService.retrieveFileContent(id).map(JsObj::toString);
+                    return services.file.retrieveFileContent.apply(id).map(JsObj::toString);
                 };
             }
         });
@@ -166,31 +165,30 @@ public final class GptConsole {
                                                                               RetryPolicies.limitRetries(3)
                                                )
                                                       )
-                                       .then(list -> services.completionService
-                                               .create(new CompletionBuilder(list.get(0),
-                                                                             list.get(1)
-                                                       ).setMaxTokens(Integer.parseInt(list.get(2)))
-                                                      )
-                                               .map(JsObj::toString));
+                                       .then(list -> services.completion
+                                               .create.apply(CompletionBuilder.of(list.get(0),
+                                                                                  list.get(1))
+                                                                              .withMaxTokens(Integer.parseInt(list.get(2))))
+                                                      .map(JsObj::toString));
                     String model = tokens[1];
                     List<String> promptList = Arrays.stream(tokens).toList().subList(2, tokens.length);
                     String prompt = String.join(" ", promptList);
-                    return services.completionService
-                            .create(new CompletionBuilder(model, prompt))
-                            .map(JsObj::toString);
+                    return services.completion.create.apply(CompletionBuilder.of(model,
+                                                                                 prompt))
+                                                     .map(JsObj::toString);
                 };
             }
         });
 
         commands.add(new SupplierCommand("gpt-models",
                                          "Lists the currently available models, and provides basic information about each one such as the owner and availability.",
-                                         () -> services.modelService.list().result().toString()
+                                         () -> services.model.list.get().result().toString()
                      )
                     );
 
 
         commands.add(new Command("gpt-finetune-create", "Creates a job that fine-tunes a specified model from a given dataset.\n" +
-                "Response includes details of the enqueued job including job status and the name of the fine-tuned models once complete.") {
+                                                        "Response includes details of the enqueued job including job status and the name of the fine-tuned models once complete.") {
             @Override
             public Function<String[], IO<String>> apply(JsObj conf, State state) {
 
@@ -201,10 +199,10 @@ public final class GptConsole {
                                                                                      "file id is required",
                                                                                      RetryPolicies.limitRetries(3)
                                        ))
-                                       .then(id -> services.fineTunerService.create(new FineTuneBuilder(id))
+                                       .then(id -> services.fineTuner.create.apply(FineTuneBuilder.of(id))
                                                                             .map(JsObj::toString));
 
-                    return services.fineTunerService.create(new FineTuneBuilder(tokens[1]))
+                    return services.fineTuner.create.apply(FineTuneBuilder.of(tokens[1]))
                                                     .map(JsObj::toString);
                 };
             }
@@ -221,10 +219,10 @@ public final class GptConsole {
                                                                                      "job id is required",
                                                                                      RetryPolicies.limitRetries(3)
                                        ))
-                                       .then(id -> services.fineTunerService.get(id)
-                                                                            .map(JsObj::toString));
-                    return services.fineTunerService.get(tokens[1])
-                                                    .map(JsObj::toString);
+                                       .then(id -> services.fineTuner.get.apply(id)
+                                                                         .map(JsObj::toString));
+                    return services.fineTuner.get.apply(tokens[1])
+                                                 .map(JsObj::toString);
                 };
             }
         });
@@ -239,9 +237,9 @@ public final class GptConsole {
                                                                                      "file id is required",
                                                                                      RetryPolicies.limitRetries(3)
                                        ))
-                                       .then(id -> services.fineTunerService.cancel(id)
+                                       .then(id -> services.fineTuner.cancel.apply(id)
                                                                             .map(JsObj::toString));
-                    return services.fineTunerService.cancel(tokens[1])
+                    return services.fineTuner.cancel.apply(tokens[1])
                                                     .map(JsObj::toString);
                 };
             }
@@ -257,10 +255,10 @@ public final class GptConsole {
                                                                                      "file id is required",
                                                                                      RetryPolicies.limitRetries(3)
                                        ))
-                                       .then(id -> services.fineTunerService.listEvents(id)
-                                                                            .map(JsObj::toString));
-                    return services.fineTunerService.listEvents(tokens[1])
-                                                    .map(JsObj::toString);
+                                       .then(id -> services.fineTuner.listEvents.apply(id)
+                                                                                .map(JsObj::toString));
+                    return services.fineTuner.listEvents.apply(tokens[1])
+                                                        .map(JsObj::toString);
                 };
             }
         });
@@ -269,8 +267,8 @@ public final class GptConsole {
         commands.add(new Command("gpt-finetune-list", "List your organization's fine-tuning jobs") {
             @Override
             public Function<String[], IO<String>> apply(JsObj conf, State state) {
-                return tokens -> services.fineTunerService.list()
-                                                          .map(JsObj::toString);
+                return tokens -> services.fineTuner.list.get()
+                                                        .map(JsObj::toString);
             }
         });
 
@@ -328,9 +326,9 @@ public final class GptConsole {
                                                       )
                                        .then(list -> {
                                                  state.listsVariables.get("#chat#")
-                                                                     .add(new ChatMessageBuilder(Data.ROLE.valueOf(list.get(0)), list.get(1))
-                                                                                  .build()
-                                                                                  .toString()
+                                                                     .add(ChatMessageBuilder.of(Data.ROLE.valueOf(list.get(0)), list.get(1))
+                                                                                            .build()
+                                                                                            .toString()
                                                                          );
                                                  return IO.succeed("Added a new message to the chat!");
                                              }
@@ -339,9 +337,9 @@ public final class GptConsole {
                     String role = tokens[1];
                     String content = String.join(" ", Arrays.stream(tokens).toList().subList(2, tokens.length));
                     state.listsVariables.get("#chat#")
-                                        .add(new ChatMessageBuilder(Data.ROLE.valueOf(role), content)
-                                                     .build()
-                                                     .toString()
+                                        .add(ChatMessageBuilder.of(Data.ROLE.valueOf(role), content)
+                                                               .build()
+                                                               .toString()
                                             );
                     return IO.succeed("Added a new message to the chat!");
 
@@ -360,34 +358,6 @@ public final class GptConsole {
             }
         });
 
-        commands.add(new Command("gpt-edit", "List all the messages of the chat conversation") {
-            @Override
-            public Function<String[], IO<String>> apply(JsObj obj, State state) {
-                return tokens -> {
-                    if (tokens.length == 1)
-                        return Programs.ASK_FOR_INPUTS(new Programs.AskForInputParams("Type the model (text-davinci-edit-001 or code-davinci-edit-001)",
-                                                                                      str -> str != null && !str.trim().isBlank(),
-                                                                                      "model is required",
-                                                                                      RetryPolicies.limitRetries(3)
-                                                       ),
-                                                       new Programs.AskForInputParams("Type the instructions",
-                                                                                      str -> str != null && !str.trim().isBlank(),
-                                                                                      "instructions is required",
-                                                                                      RetryPolicies.limitRetries(3)
-                                                       )
-                                                      ).then(list -> services.editService.create(new EditBuilder(list.get(0),
-                                                                                                                 list.get(1)
-                                                                             ))
-                                                                                         .map(JsObj::toString));
-                    String model = tokens[1];
-                    String instructions = tokens[2];
-                    return services.editService.create(new EditBuilder(model,
-                                                                       instructions
-                                   ))
-                                               .map(JsObj::toString);
-                };
-            }
-        });
 
         commands.add(new Command("gpt-chat-clear", "Clear the chat conversation.") {
             @Override
@@ -407,18 +377,20 @@ public final class GptConsole {
             @Override
             public Function<String[], IO<String>> apply(JsObj obj, State state) {
                 return tokens -> {
-                    JsArray messages = JsArray.ofIterable(state.listsVariables
-                                                                  .get("#chat#")
-                                                                  .stream()
-                                                                  .map(JsObj::parse)
-                                                                  .collect(Collectors.toList()));
+                    List<ChatMessageBuilder> messages = state.listsVariables
+                            .get("#chat#")
+                            .stream()
+                            .map(JsObj::parse)
+                            .map(a -> ChatMessageBuilder.of(Data.ROLE.valueOf(a.getStr("role")),
+                                                            a.getStr("content")))
+                            .collect(Collectors.toList());
                     if (tokens.length == 1)
                         return Programs.ASK_FOR_INPUTS(new Programs.AskForInputParams("Type the model (gpt-3.5-turbo) ",
                                                                                       str -> str != null && !str.trim().isBlank(),
                                                                                       "model is required",
                                                                                       RetryPolicies.limitRetries(3)
                                        ))
-                                       .then(list -> services.chatService.create(new ChatBuilder(list.get(0), messages))
+                                       .then(list -> services.chat.create.apply(ChatBuilder.of(list.get(0), messages))
                                                                          .peekSuccess(resp -> state.listsVariables.get("#chat#")
                                                                                                                   .add(resp.getObj("/choices/0/message")
                                                                                                                            .toString()
@@ -426,7 +398,7 @@ public final class GptConsole {
                                                                                      )
                                                                          .map(JsObj::toString));
                     String model = tokens[1];
-                    return services.chatService.create(new ChatBuilder(model, messages))
+                    return services.chat.create.apply(ChatBuilder.of(model, messages))
                                                .peekSuccess(resp -> state.listsVariables.get("#chat#")
                                                                                         .add(resp.getObj("/choices/0/message")
                                                                                                  .toString()

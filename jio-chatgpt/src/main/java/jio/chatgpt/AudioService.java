@@ -1,8 +1,8 @@
 package jio.chatgpt;
 
 
-import jio.IO;
-import jio.http.client.MyHttpClient;
+import jio.Lambda;
+import jio.http.client.JioHttpClientBuilder;
 import jsonvalues.JsObj;
 
 
@@ -12,24 +12,12 @@ import jsonvalues.JsObj;
 public final class AudioService extends AbstractService {
 
     /**
-     * Constructs an AudioService instance with the specified client and configuration builder.
-     *
-     * @param client  The HTTP client used for making API requests.
-     * @param builder The configuration builder for API settings.
-     */
-    AudioService(MyHttpClient client, ConfBuilder builder) {
-        super(client, builder, "audio");
-    }
-
-    /**
      * Creates a transcription job using the provided TranscriptionBuilder.
      *
      * @param builder The TranscriptionBuilder containing parameters for the transcription job.
      * @return An IO containing the result of the transcription job as a JsObj.
      */
-    public IO<JsObj> createTranscription(TranscriptionBuilder builder) {
-        return post(uri.resolve("/transcriptions"), builder.build());
-    }
+    public final Lambda<TranscriptionBuilder, JsObj> createTranscription;
 
     /**
      * Creates a translation job using the provided TranslationBuilder.
@@ -37,8 +25,23 @@ public final class AudioService extends AbstractService {
      * @param builder The TranslationBuilder containing parameters for the translation job.
      * @return An IO containing the result of the translation job as a JsObj.
      */
-    public IO<JsObj> createTranslation(TranslationBuilder builder) {
-        return post(uri.resolve("/translations"), builder.build());
+    public final Lambda<TranslationBuilder, JsObj> createTranslation;
+
+    /**
+     * Constructs an AudioService instance with the specified client and configuration builder.
+     *
+     * @param clientBuilder The HTTP client used for making API requests.
+     * @param builder       The configuration builder for API settings.
+     */
+    AudioService(JioHttpClientBuilder clientBuilder,
+                 ConfBuilder builder
+                ) {
+        super(clientBuilder, builder, "audio");
+        createTranscription = tb -> post(uri.resolve("/transcriptions"),
+                                         tb.build());
+        createTranslation = tb -> post(uri.resolve("/translations"),
+                                       tb.build());
     }
+
 }
 

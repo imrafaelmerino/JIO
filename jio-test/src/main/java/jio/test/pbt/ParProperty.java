@@ -5,7 +5,7 @@ import jio.ListExp;
 import jsonvalues.JsObj;
 
 
-non-sealed class ParProperty<O> implements Testable {
+non-sealed class ParProperty<O> extends Testable {
 
     int n;
 
@@ -17,9 +17,9 @@ non-sealed class ParProperty<O> implements Testable {
     }
 
     @Override
-    public IO<Report> check(JsObj conf) {
+    IO<Report> createTask(JsObj conf) {
         if (n < 1) throw new IllegalArgumentException("n < 1");
-        final IO<Report> test = prop.check(conf);
+        final IO<Report> test = prop.createTask(conf);
         var result = ListExp.par(test);
         for (int i = 1; i < n; i++) result = result.append(test);
         return result.map(it -> it.stream().reduce(Report::aggregatePar).get());

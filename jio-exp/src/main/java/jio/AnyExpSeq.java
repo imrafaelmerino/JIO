@@ -63,7 +63,7 @@ final class AnyExpSeq extends AnyExp {
 
     @Override
     public AnyExp debugEach(final String context) {
-        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
+        return debugEach(EventBuilder.of(this.getClass().getSimpleName(), context));
 
     }
 }

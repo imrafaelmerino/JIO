@@ -1,7 +1,7 @@
 package jio.mongodb;
 
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
-import jio.BiLambda;
 import jio.IO;
 import jsonvalues.JsObj;
 
@@ -10,42 +10,56 @@ import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
-import static jio.mongodb.Converters.jsObj2Bson;
-import static jio.mongodb.MongoDBEvent.OP.FIND_ONE_AND_UPDATE;
+import static jio.mongodb.Converters.toBson;
+import static jio.mongodb.MongoEvent.OP.FIND_ONE_AND_UPDATE;
 
 /**
  * Represents a MongoDB find one and update operation to atomically update a single document in a collection
  * asynchronously using {@link jio.BiLambda lambdas}. This class allows you to specify a filter query criteria and an
  * update document as {@link jsonvalues.JsObj}, along with options for controlling the update behavior, such as sort
  * criteria and projection.
+ * <p>
+ * The `FindOneAndUpdate` class is designed for updating a single document in a MongoDB collection that matches the
+ * specified filter criteria. This operation is performed atomically and asynchronously, allowing you to customize the
+ * update options and execution behavior. You can create instances of this class with the specified collection supplier,
+ * set update options, and choose an executor for asynchronous execution.
+ * <p>
+ * To use this class effectively, you can set the update options for the operation, specify an executor for asynchronous
+ * execution, and disable the recording of Java Flight Recorder (JFR) events if needed. The find one and update
+ * operation requires a query filter as well as an update document to modify the matched document.
  *
- * @see CollectionSupplier
+ * @see CollectionBuilder
  */
-public final class FindOneAndUpdate extends Op implements BiLambda<JsObj, JsObj, JsObj> {
+public final class FindOneAndUpdate extends Op implements MongoLambda<QueryUpdate, JsObj> {
 
     private static final FindOneAndUpdateOptions DEFAULT_OPTIONS = new FindOneAndUpdateOptions();
     private FindOneAndUpdateOptions options = DEFAULT_OPTIONS;
 
-
-    private FindOneAndUpdate(final CollectionSupplier collectionSupplier
-                            ) {
-        super(collectionSupplier, true);
-    }
-
     /**
-     * Creates a new instance of {@code FindOneAndUpdate} with the specified MongoDB collection supplier and default
-     * update options.
+     * Constructs a new `FindOneAndUpdate` instance with the specified collection supplier and default update options.
      *
-     * @param collectionSupplier the supplier of the MongoDB collection to perform the update operation
-     * @return a new {@code FindOneAndUpdate} instance with default update options
+     * @param collectionBuilder The supplier of the MongoDB collection.
      */
-    public static FindOneAndUpdate of(final CollectionSupplier collectionSupplier) {
-        return new FindOneAndUpdate(collectionSupplier);
+    private FindOneAndUpdate(final CollectionBuilder collectionBuilder) {
+        super(collectionBuilder, true);
     }
 
     /**
-     * @param options the options to perform the operation
-     * @return this instance with the new options
+     * Creates a new instance of `FindOneAndUpdate` with the specified MongoDB collection supplier and default update
+     * options.
+     *
+     * @param collectionBuilder The supplier of the MongoDB collection to perform the update operation.
+     * @return A new `FindOneAndUpdate` instance with default update options.
+     */
+    public static FindOneAndUpdate of(final CollectionBuilder collectionBuilder) {
+        return new FindOneAndUpdate(collectionBuilder);
+    }
+
+    /**
+     * Sets the update options to be used for the operation.
+     *
+     * @param options The options to perform the operation.
+     * @return This instance with the new options.
      */
     public FindOneAndUpdate withOptions(final FindOneAndUpdateOptions options) {
         this.options = requireNonNull(options);
@@ -53,40 +67,47 @@ public final class FindOneAndUpdate extends Op implements BiLambda<JsObj, JsObj,
     }
 
     /**
-     * Sets the executor to use for performing the find one and update operation asynchronously.
+     * Specifies an executor to be used for running the find one and update operation asynchronously.
      *
-     * @param executor the executor for asynchronous execution
-     * @return this {@code FindOneAndUpdate} instance
+     * @param executor The executor for asynchronous execution.
+     * @return This `FindOneAndUpdate` instance.
      */
     public FindOneAndUpdate withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
 
+    /**
+     * Applies the find one and update operation to the specified MongoDB collection with the provided query and
+     * update.
+     *
+     * @param session     The MongoDB client session, or null if not within a session.
+     * @param queryUpdate The query and update information.
+     * @return An IO representing the result of the find one and update operation.
+     */
     @Override
-    public IO<JsObj> apply(final JsObj filter,
-                           final JsObj update
-                          ) {
-        Objects.requireNonNull(filter);
-        Objects.requireNonNull(update);
-
+    public IO<JsObj> apply(final ClientSession session, final QueryUpdate queryUpdate) {
+        Objects.requireNonNull(queryUpdate);
         Supplier<JsObj> supplier =
-                jfrEventWrapper(() -> {
-                                    var collection = requireNonNull(this.collection.get());
-                                    return collection
-                                            .findOneAndUpdate(jsObj2Bson.apply(filter),
-                                                              jsObj2Bson.apply(update),
-                                                              options
-                                                             );
-                                },
-                                FIND_ONE_AND_UPDATE
-                               );
+                eventWrapper(() -> {
+                                 var collection = requireNonNull(this.collection.build());
+                                 return session == null ?
+                                         collection
+                                                 .findOneAndUpdate(toBson(queryUpdate.query()),
+                                                                   toBson(queryUpdate.update()),
+                                                                   options
+                                                                  ) :
+                                         collection
+                                                 .findOneAndUpdate(session,
+                                                                   toBson(queryUpdate.query()),
+                                                                   toBson(queryUpdate.update()),
+                                                                   options
+                                                                  );
+                             }, FIND_ONE_AND_UPDATE
+                            );
         return executor == null ?
                 IO.managedLazy(supplier) :
-                IO.lazy(supplier,
-                        executor
-                       );
-
+                IO.lazy(supplier, executor);
     }
 
     /**
@@ -99,6 +120,4 @@ public final class FindOneAndUpdate extends Op implements BiLambda<JsObj, JsObj,
         this.recordEvents = false;
         return this;
     }
-
-
 }

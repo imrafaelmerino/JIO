@@ -1,74 +1,63 @@
 package jio.mongodb;
 
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.model.InsertOneOptions;
 import com.mongodb.client.result.InsertOneResult;
 import jio.IO;
-import jio.Lambda;
 import jsonvalues.JsObj;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
-import static jio.mongodb.MongoDBEvent.OP.INSERT_ONE;
+import static jio.mongodb.MongoEvent.OP.INSERT_ONE;
 
 /**
  * A class for performing insert one operations on a MongoDB collection.
+ * <p>
+ * The `InsertOne` class is designed for inserting a single document into a MongoDB collection. It provides flexibility
+ * in handling the result and allows you to specify various options for the insert operation. You can create instances
+ * of this class with the specified collection supplier, and customize the behavior using options such as insert
+ * options, executors, and more.
+ * <p>
+ * To use this class effectively, you can set the insert options for the operation, specify an executor for asynchronous
+ * execution, and disable the recording of Java Flight Recorder (JFR) events if needed. You can insert a single document
+ * represented as a `JsObj` into the MongoDB collection.
  *
- * @param <R> The type of the result.
+ * @see CollectionBuilder
  */
-public final class InsertOne<R> extends Op implements Lambda<JsObj, R> {
-
+public final class InsertOne extends Op implements MongoLambda<JsObj, InsertOneResult> {
     private static final InsertOneOptions DEFAULT_OPTIONS = new InsertOneOptions();
-    private final Function<InsertOneResult, R> resultConverter;
     private InsertOneOptions options = DEFAULT_OPTIONS;
 
-
     /**
-     * Constructs a new InsertOne instance.
-     *
-     * @param collection      The supplier for the MongoDB collection.
-     * @param resultConverter The function to convert the insert result to the desired type.
-     * @param options         The insert one options.
-     */
-    private InsertOne(final CollectionSupplier collection,
-                      final Function<InsertOneResult, R> resultConverter
-                     ) {
-        super(collection, true);
-        this.resultConverter = requireNonNull(resultConverter);
-    }
-
-    /**
-     * Creates an InsertOne instance with the specified collection supplier and result converter using default options.
-     *
-     * @param collection      The supplier for the MongoDB collection.
-     * @param resultConverter The function to convert the insert result to the desired type.
-     * @param <R>             The type of the result.
-     * @return An InsertOne instance with default options.
-     */
-    public static <R> InsertOne<R> of(final CollectionSupplier collection,
-                                      final Function<InsertOneResult, R> resultConverter
-                                     ) {
-        return new InsertOne<>(collection, resultConverter);
-    }
-
-    /**
-     * Creates an InsertOne instance for inserting a single MongoDB document.
+     * Constructs a new `InsertOne` instance with the specified collection supplier and default insert options.
      *
      * @param collection The supplier for the MongoDB collection.
-     * @return An InsertOne instance for inserting a single document.
      */
-    public static InsertOne<JsObj> of(final CollectionSupplier collection) {
-        return new InsertOne<>(collection, Converters.insertOneResult2JsObj);
+    private InsertOne(final CollectionBuilder collection) {
+        super(collection, true);
     }
 
     /**
-     * @param options the options to perform the operation
-     * @return this instance with the new options
+     * Creates an `InsertOne` instance with the specified collection supplier and result converter using default
+     * options.
+     *
+     * @param collection The supplier for the MongoDB collection.
+     * @return An `InsertOne` instance with default options.
      */
-    public InsertOne<R> withOptions(final InsertOneOptions options) {
+    public static InsertOne of(final CollectionBuilder collection) {
+        return new InsertOne(collection);
+    }
+
+    /**
+     * Sets the insert options to be used for the operation.
+     *
+     * @param options The options to perform the operation.
+     * @return This instance with the new options.
+     */
+    public InsertOne withOptions(final InsertOneOptions options) {
         this.options = requireNonNull(options);
         return this;
     }
@@ -77,29 +66,31 @@ public final class InsertOne<R> extends Op implements Lambda<JsObj, R> {
      * Specifies an executor to be used for running the insert one operation asynchronously.
      *
      * @param executor The executor to use.
-     * @return This InsertOne instance for method chaining.
+     * @return This `InsertOne` instance for method chaining.
      */
-    public InsertOne<R> withExecutor(final Executor executor) {
+    public InsertOne withExecutor(final Executor executor) {
         this.executor = requireNonNull(executor);
         return this;
     }
 
     /**
-     * Performs an insert one operation on the MongoDB collection based on the provided document.
+     * Applies the insert one operation to the specified MongoDB collection with a `JsObj` document.
      *
-     * @param message The document to insert.
-     * @return An IO operation representing the result of the insert one operation.
+     * @param session The MongoDB client session, or null if not within a session.
+     * @param message The `JsObj` document to insert.
+     * @return An IO representing the result of the insert one operation.
      */
     @Override
-    public IO<R> apply(final JsObj message) {
+    public IO<InsertOneResult> apply(final ClientSession session, final JsObj message) {
         Objects.requireNonNull(message);
-        Supplier<R> supplier =
-                jfrEventWrapper(() -> {
-                                    var collection = requireNonNull(this.collection.get());
-                                    return resultConverter.apply(collection.insertOne(message, options));
-                                },
-                                INSERT_ONE
-                               );
+        Supplier<InsertOneResult> supplier =
+                eventWrapper(() -> {
+                                 var collection = requireNonNull(this.collection.build());
+                                 return session == null ?
+                                         collection.insertOne(message, options) :
+                                         collection.insertOne(session, message, options);
+                             }, INSERT_ONE
+                            );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier, executor);
@@ -111,7 +102,7 @@ public final class InsertOne<R> extends Op implements Lambda<JsObj, R> {
      *
      * @return This operation instance with JFR event recording disabled.
      */
-    public InsertOne<R> withoutRecordedEvents() {
+    public InsertOne withoutRecordedEvents() {
         this.recordEvents = false;
         return this;
     }

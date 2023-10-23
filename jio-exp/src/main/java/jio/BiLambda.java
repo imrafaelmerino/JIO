@@ -55,4 +55,24 @@ public interface BiLambda<A, B, O> extends BiFunction<A, B, IO<O>> {
             }
         };
     }
+
+    /**
+     * Partially applies the first parameter (A) and returns a 'Lambda' with the second parameter (B) as the input.
+     *
+     * @param a The first parameter to partially apply.
+     * @return a 'Lambda' with the second parameter (B) as the input.
+     */
+    default Lambda<B, O> partialWithFirst(final A a) {
+        return i -> apply(a, i);
+    }
+
+    /**
+     * Partially applies the second parameter (B) and returns a 'Lambda' with the first parameter (A) as the input.
+     *
+     * @param b The second parameter to partially apply.
+     * @return a 'Lambda' with the first parameter (A) as the input.
+     */
+    default Lambda<A, O> partialWithSecond(final B b) {
+        return i -> apply(i, b);
+    }
 }

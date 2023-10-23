@@ -84,7 +84,7 @@ final class TripleExpPar<A, B, C> extends TripleExp<A, B, C> {
 
     @Override
     public TripleExp<A, B, C> debugEach(final String context) {
-        return this.debugEach(new EventBuilder<>(this.getClass().getSimpleName(),
+        return this.debugEach(EventBuilder.of(this.getClass().getSimpleName(),
                                                  context));
 
     }

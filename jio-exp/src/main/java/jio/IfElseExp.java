@@ -134,7 +134,7 @@ public final class IfElseExp<O> extends Exp<O> {
 
     @Override
     public IfElseExp<O> debugEach(final String context) {
-        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(),
+        return debugEach(EventBuilder.of(this.getClass().getSimpleName(),
                                             context)
                         );
     }

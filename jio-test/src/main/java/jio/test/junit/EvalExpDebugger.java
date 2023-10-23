@@ -7,7 +7,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-class EvalExpDebugger implements Consumer<RecordedEvent> {
+final class EvalExpDebugger implements Consumer<RecordedEvent> {
     private static String FORMAT = """
             event: eval, expression: %s, result: %s, output: %s
             duration: %s, context: %s, thread: %s, event-start-time: %s

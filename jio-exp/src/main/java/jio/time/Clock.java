@@ -7,8 +7,7 @@ import java.util.function.Supplier;
  * Represents a clock, which is modeled with a lazy computation that returns a {@code long}. The returned {@code long}
  * value typically represents time or time-related information, depending on the specific clock type.
  */
-public sealed interface Clock extends Supplier<Long> permits Monotonic, MyClock, RealTime {
-
+public sealed interface Clock extends Supplier<Long> permits Monotonic, CustomClock, RealTime {
     /**
      * Creates a monotonic clock, appropriate for time measurements. When invoked, it returns the current value of the
      * running Java Virtual Machine's high-resolution time source, in nanoseconds. This {@code long} value represents a
@@ -32,7 +31,7 @@ public sealed interface Clock extends Supplier<Long> permits Monotonic, MyClock,
      * Function that takes a {@code long} supplier as the clock tick generator and returns a Clock. The provided
      * {@code long} values typically represent time or time-related information, depending on the specific clock type.
      */
-    Function<Supplier<Long>, Clock> custom = MyClock::new;
+    Function<Supplier<Long>, Clock> custom = CustomClock::new;
 
 
 }

@@ -1,7 +1,8 @@
 package jio.chatgpt;
 
 import jio.IO;
-import jio.http.client.MyHttpClient;
+import jio.http.client.JioHttpClient;
+import jio.http.client.JioHttpClientBuilder;
 import jsonvalues.JsObj;
 
 import java.net.URI;
@@ -14,21 +15,24 @@ import java.nio.charset.StandardCharsets;
  */
 class AbstractService {
 
-    final byte[] authHeader;
-    final MyHttpClient client;
+    final String authHeader;
+    final JioHttpClient client;
     final URI uri;
 
     /**
      * Constructs an AbstractService with the provided HTTP client, configuration builder, and resource path.
      *
-     * @param client      The HTTP client used for making API requests.
+     * @param builder     The HTTP client builder to create the client used for making API requests.
      * @param confBuilder The configuration builder for API settings.
      * @param resource    The resource path specific to the GPT API service.
      */
-    AbstractService(MyHttpClient client, ConfBuilder confBuilder, String resource) {
+    AbstractService(JioHttpClientBuilder builder,
+                    ConfBuilder confBuilder,
+                    String resource
+                   ) {
         APIConf conf = confBuilder.build();
         this.authHeader = conf.authHeader;
-        this.client = client;
+        this.client = builder.build();
         this.uri = URI.create(String.format("https://%s/%s/%s", conf.host, conf.version, resource));
 
     }
@@ -54,7 +58,7 @@ class AbstractService {
                      .apply(HttpRequest.newBuilder()
                                        .uri(uri)
                                        .header("Content-Type", contentType)
-                                       .header("Authorization", "Bearer " + new String(authHeader, StandardCharsets.UTF_8))
+                                       .header("Authorization", "Bearer %s".formatted(authHeader))
                                        .POST(HttpRequest.BodyPublishers.ofString(body))
                            )
                      .then(AbstractService::errorHandler);
@@ -64,7 +68,7 @@ class AbstractService {
         return client.ofString()
                      .apply(HttpRequest.newBuilder()
                                        .uri(uri)
-                                       .header("Authorization", "Bearer " + new String(authHeader, StandardCharsets.UTF_8))
+                                       .header("Authorization", "Bearer %s".formatted(authHeader))
                                        .DELETE()
                            )
                      .then(AbstractService::errorHandler);
@@ -75,7 +79,7 @@ class AbstractService {
                      .apply(HttpRequest.newBuilder()
                                        .uri(uri)
                                        .header("Content-Type", "application/json")
-                                       .header("Authorization", "Bearer " + new String(authHeader, StandardCharsets.UTF_8))
+                                       .header("Authorization", "Bearer %s".formatted(authHeader))
                                        .POST(HttpRequest.BodyPublishers.noBody())
                            )
                      .then(AbstractService::errorHandler);
@@ -85,7 +89,7 @@ class AbstractService {
         return client.ofString()
                      .apply(HttpRequest.newBuilder()
                                        .uri(uri)
-                                       .header("Authorization", "Bearer " + new String(authHeader, StandardCharsets.UTF_8))
+                                       .header("Authorization", "Bearer %s".formatted(authHeader))
                                        .GET()
                            )
                      .then(AbstractService::errorHandler);

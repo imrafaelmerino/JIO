@@ -141,7 +141,7 @@ public final class SwitchExp<I, O> extends Exp<O> {
 
     @Override
     public SwitchExp<I, O> debugEach(final String context) {
-        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
+        return debugEach(EventBuilder.of(this.getClass().getSimpleName(), context));
 
 
     }

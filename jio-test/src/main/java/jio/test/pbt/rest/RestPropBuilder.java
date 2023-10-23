@@ -4,9 +4,7 @@ import fun.gen.Gen;
 import jio.BiLambda;
 import jio.IO;
 import jio.Lambda;
-import jio.test.pbt.Property;
-import jio.test.pbt.TestFailure;
-import jio.test.pbt.TestResult;
+import jio.test.pbt.*;
 import jsonvalues.*;
 
 import java.net.http.HttpResponse;
@@ -22,8 +20,9 @@ import java.util.function.Function;
  * @param <A> The concrete subclass type for fluent builder methods.
  */
 abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
+
     @SuppressWarnings("UnnecessaryLambda")
-    final static Function<HttpResponse<String>, TestResult> respAssert =
+    final static Function<HttpResponse<String>, TestResult> DEFAULT_RESP_ASSERT =
             resp -> resp.statusCode() < 300 ?
                     TestResult.SUCCESS :
                     TestFailure.reason("Expected status code < 300, but got a " + resp.statusCode());
@@ -45,33 +44,10 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
                     return IO.fail(TestFailure.reason("resp body is not a Json well-formed: " + resp.body()));
                 }
             };
-    Function<HttpResponse<String>, TestResult> postAssert = respAssert;
-    Function<HttpResponse<String>, TestResult> getAssert = respAssert;
-    Function<HttpResponse<String>, TestResult> deleteAssert = respAssert;
+    Function<HttpResponse<String>, TestResult> postAssert = DEFAULT_RESP_ASSERT;
+    Function<HttpResponse<String>, TestResult> getAssert = DEFAULT_RESP_ASSERT;
+    Function<HttpResponse<String>, TestResult> deleteAssert = DEFAULT_RESP_ASSERT;
     BiFunction<O, HttpResponse<String>, IO<String>> getId;
-
-    /**
-     * Creates a new instance of the RestPropBuilder class with the specified parameters.
-     *
-     * @param name     The name of the property test.
-     * @param gen      The data generator that produces pseudorandom data for testing.
-     * @param p_post   The lambda function representing the HTTP POST operation.
-     * @param p_get    The lambda function representing the HTTP GET operation.
-     * @param p_delete The lambda function representing the HTTP DELETE operation.
-     */
-    public RestPropBuilder(String name,
-                           Gen<O> gen,
-                           Lambda<O, HttpResponse<String>> p_post,
-                           Lambda<String, HttpResponse<String>> p_get,
-                           Lambda<String, HttpResponse<String>> p_delete
-                          ) {
-        this(name,
-             gen,
-             (conf, body) -> Objects.requireNonNull(p_post).apply(body),
-             (conf, id) -> Objects.requireNonNull(p_get).apply(id),
-             (conf, id) -> Objects.requireNonNull(p_delete).apply(id));
-
-    }
 
     /**
      * Creates a new instance of the RestPropBuilder class with the specified parameters.
@@ -103,7 +79,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      * @return This RestPropBuilder instance with the updated assertion function.
      */
     @SuppressWarnings("unchecked")
-    public A withPostAssert(Function<HttpResponse<String>, TestResult> postAssert) {
+    public A withPostAssert(final Function<HttpResponse<String>, TestResult> postAssert) {
         this.postAssert = Objects.requireNonNull(postAssert);
         return (A) this;
     }
@@ -115,7 +91,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      * @return This RestPropBuilder instance with the updated assertion function.
      */
     @SuppressWarnings("unchecked")
-    public A withGetAssert(Function<HttpResponse<String>, TestResult> getAssert) {
+    public A withGetAssert(final Function<HttpResponse<String>, TestResult> getAssert) {
         this.getAssert = Objects.requireNonNull(getAssert);
         return (A) this;
     }
@@ -127,7 +103,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      * @return This RestPropBuilder instance with the updated assertion function.
      */
     @SuppressWarnings("unchecked")
-    public A withDeleteAssert(Function<HttpResponse<String>, TestResult> deleteAssert) {
+    public A withDeleteAssert(final Function<HttpResponse<String>, TestResult> deleteAssert) {
         this.deleteAssert = Objects.requireNonNull(deleteAssert);
         return (A) this;
     }
@@ -137,7 +113,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      * the ID:
      * <ul>
      *   <li>Use {@link #withGetIdFromReqBody(Function)} to extract the ID from the request body of type O.</li>
-     *   <li>Use {@link #withGetIdFromRespPath(JsPath)} to extract the ID from the HTTP response using a specific path.</li>
+     *   <li>Use {@link #withGetIdFromJSONRespPath(JsPath)} to extract the ID from the HTTP response using a specific path.</li>
      * </ul>
      *
      * @param getId The function to extract an ID for subsequent HTTP requests.
@@ -150,13 +126,13 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
     }
 
     /**
-     * Sets the path to extract an ID from the HTTP response and use it in subsequent HTTP requests.
+     * Sets the path to extract an ID from the JSON response and use it in subsequent HTTP requests.
      *
      * @param path The path to extract an ID from the HTTP response.
      * @return This RestPropBuilder instance with the updated ID extraction path.
      */
     @SuppressWarnings("unchecked")
-    public A withGetIdFromRespPath(final JsPath path) {
+    public A withGetIdFromJSONRespPath(final JsPath path) {
         this.getId = getIdFromPath.apply(Objects.requireNonNull(path));
         return (A) this;
     }
@@ -179,5 +155,20 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
         return (A) this;
     }
 
-    public abstract Property<O> create();
+    Lambda<HttpResponse<String>, IdResp> assertResp(Function<HttpResponse<String>, TestResult> assertResp,
+                                                    String id
+                                                   ) {
+        return resp ->
+                switch (assertResp.apply(resp)) {
+                    case TestFailure f -> IO.fail(f);
+                    case TestSuccess $ -> IO.succeed(new IdResp(id, resp));
+                };
+    }
+
+    public abstract PropBuilder<O> buildPropBuilder();
+
+    public Property<O> build() {
+        return buildPropBuilder().build();
+    }
+
 }

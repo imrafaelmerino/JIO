@@ -26,6 +26,6 @@ final class DEFAULT_VALUES {
     final static Data.RESPONSE_FORMAT DEFAULT_TRANSLATION_FORMAT = Data.RESPONSE_FORMAT.json;
 
     static final int DEFAULT_FINE_TUNE_NEPOCHS = 4;
-    static final String DEFAULT__FINE_TUNE_MODEL = "curie";
+    static final String DEFAULT_FINE_TUNE_MODEL = "curie";
     static final double DEFAULT__FINE_TUNE_PROMPTLOSSWEIGHT = 0.01;
 }

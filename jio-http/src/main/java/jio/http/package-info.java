@@ -8,11 +8,11 @@
  *   <li>{@link jio.http.server.HttpServerBuilder}: A builder to create HTTP servers with ease. Ideal for building
  *       lightweight and high-performance HTTP servers for testing, development, or production environments.
  *       You can configure various aspects of the server, including request handlers and execution settings.</li>
- *   <li>{@link jio.http.client.MyHttpClient}: An HTTP client interface designed to make HTTP requests asynchronously
+ *   <li>{@link jio.http.client.JioHttpClient}: An HTTP client interface designed to make HTTP requests asynchronously
  *       using {@link jio.Lambda lambdas}. For each request, an event of type {code ClientReqEvent}
  *       is created and written to the Java Flight Recorder (JFR) system, providing detailed request and response
  *       information for analysis and debugging.</li>
- *   <li>{@link jio.http.client.oauth.MyOauthHttpClient}: An extension of {@link jio.http.client.MyHttpClient} with OAuth
+ *   <li>{@link jio.http.client.oauth.OauthHttpClient}: An extension of {@link jio.http.client.JioHttpClient} with OAuth
  *       support. It facilitates OAuth authentication using the Client Credentials Grant flow, automatically handling
  *       access token expiration and refreshes as needed. Ideal for integrating with OAuth-protected APIs securely.</li>
  *   <li>JFR (Java Flight Recorder) Integration: The package seamlessly integrates with JFR, enabling you to capture
@@ -29,8 +29,8 @@
  * offers the tools and flexibility you need to achieve your HTTP-related goals with ease.
  *
  * @see jio.http.server.HttpServerBuilder
- * @see jio.http.client.MyHttpClient
- * @see jio.http.client.oauth.MyOauthHttpClient
+ * @see jio.http.client.JioHttpClient
+ * @see jio.http.client.oauth.OauthHttpClient
  * @see jio.http.client.HttpLambda
  * @see jio.Lambda
  */

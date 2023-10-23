@@ -68,7 +68,7 @@ final class PairExpPar<A, B> extends PairExp<A, B> {
 
     @Override
     public PairExp<A, B> debugEach(final String context) {
-        return this.debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
+        return this.debugEach(EventBuilder.of(this.getClass().getSimpleName(), context));
 
     }
 

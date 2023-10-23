@@ -18,10 +18,10 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * Builder to create {@link HttpServer http servers}. The start method of the server is wrapped into a {@link IO}. It
- * allows you to define some interesting methods like {@link #buildAtRandom(int, int)}, which sets the server to listen
- * on the first available port it finds. An Executor must be established with {@link #withExecutor(Executor)}, so that
- * all HTTP requests are handled in tasks given to the executor. If no executor is defined, then a default
- * implementation is used, which uses the thread created by the start() method.
+ * allows you to define some interesting methods like {@link #startAtRandom(int, int)} (int, int)}, which sets the
+ * server to listen on the first available port it finds. An Executor must be established with
+ * {@link #withExecutor(Executor)}, so that all HTTP requests are handled in tasks given to the executor. If no executor
+ * is defined, then a default implementation is used, which uses the thread created by the start() method.
  * <p>
  * This server builder is particularly useful for testing purposes. For each HTTP request, an event is created and sent
  * to the Java Flight Recorder (JFR) system, allowing you to capture and analyze request details for debugging and
@@ -129,13 +129,14 @@ public final class HttpServerBuilder {
      * @param end   the last port number that will be tried
      * @return an effect that deploys the HttpServer
      */
-    public IO<HttpServer> buildAtRandom(final int start,
-                                        final int end
-                                       ) {
-        return buildAtRandom("localhost",
-                             start,
-                             end
-                            );
+    public HttpServer startAtRandom(final int start,
+                                    final int end
+                                   ) {
+        return buildAtRandomRec("localhost",
+                                start,
+                                end
+                               )
+                .result();
     }
 
     /**
@@ -149,19 +150,20 @@ public final class HttpServerBuilder {
      * @param end   the last port number that will be tried
      * @return an effect that deploys the HttpServer
      */
-    public IO<HttpServer> buildAtRandom(final String host,
-                                        final int start,
-                                        final int end
-                                       ) {
+    public HttpServer startAtRandom(final String host,
+                                    final int start,
+                                    final int end
+                                   ) {
         if (start <= 0) throw new IllegalArgumentException("start <= 0");
         if (start > end) throw new IllegalArgumentException("start greater than end");
-        return startAtRandomRec(host,
+        return buildAtRandomRec(host,
                                 start,
                                 end
-                               );
+                               )
+                .result();
     }
 
-    private IO<HttpServer> startAtRandomRec(final String host,
+    private IO<HttpServer> buildAtRandomRec(final String host,
                                             final int start,
                                             final int end
                                            ) {
@@ -169,7 +171,7 @@ public final class HttpServerBuilder {
         return build(requireNonNull(host),
                      start
                     )
-                .recoverWith(error -> startAtRandomRec(host, start + 1, end));
+                .recoverWith(error -> buildAtRandomRec(host, start + 1, end));
     }
 
     /**
@@ -182,9 +184,9 @@ public final class HttpServerBuilder {
      * @param port the port number
      * @return an effect that deploys the HttpServer
      */
-    public IO<HttpServer> build(final String host,
-                                final int port
-                               ) {
+    private IO<HttpServer> build(final String host,
+                                 final int port
+                                ) {
         if (port <= 0) throw new IllegalArgumentException("port <= 0");
         Objects.requireNonNull(host);
 
@@ -193,7 +195,9 @@ public final class HttpServerBuilder {
                 HttpServer server;
                 if (httpsConfigurator == null) server = HttpServer.create(new InetSocketAddress(host, port), backlog);
                 else {
-                    server = HttpsServer.create(new InetSocketAddress(host, port), backlog);
+                    server = HttpsServer.create(new InetSocketAddress(host,
+                                                                      port),
+                                                backlog);
                     ((HttpsServer) server).setHttpsConfigurator(httpsConfigurator);
                 }
 
@@ -251,10 +255,26 @@ public final class HttpServerBuilder {
      * @param port the port number
      * @return an effect that deploys the HttpServer
      */
-    public IO<HttpServer> build(final int port) {
+    public HttpServer start(final int port) {
         return build("localhost",
                      port
-                    );
+                    ).result();
+    }
+
+    /**
+     * Returns an effect that when invoked will create a socket address from <strong>localhost</strong> and a port
+     * number, starting the server in a new background thread. The background thread inherits the priority, thread
+     * group, and context class loader of the caller. A valid port value is between 0 and 65535. A port number of zero
+     * will let the system pick up an ephemeral port in a bind operation.
+     *
+     * @param port the port number
+     * @return an effect that deploys the HttpServer
+     */
+    public HttpServer start(final String host, final int port) {
+        return build(host,
+                     port
+                    )
+                .result();
     }
 
 

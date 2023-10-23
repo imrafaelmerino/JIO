@@ -71,7 +71,7 @@ final class JsArrayExpPar extends JsArrayExp {
 
     @Override
     public JsArrayExp debugEach(final String context) {
-        return this.debugEach(new EventBuilder<>(this.getClass().getSimpleName(),
+        return this.debugEach(EventBuilder.of(this.getClass().getSimpleName(),
                                                  context));
 
     }

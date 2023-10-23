@@ -1,13 +1,11 @@
 package jio.chatgpt;
 
 import jio.IO;
-import jio.http.client.MyHttpClient;
-import jio.http.client.MyHttpClientBuilder;
+import jio.http.client.JioHttpClientBuilder;
 import jsonvalues.JsObj;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
-import java.nio.charset.StandardCharsets;
 
 public class Examples {
 
@@ -18,14 +16,14 @@ public class Examples {
 
             String secret = "";
 
-            MyHttpClient client =
-                    new MyHttpClientBuilder(HttpClient.newBuilder()).build();
+            JioHttpClientBuilder builder =
+                    JioHttpClientBuilder.of(HttpClient.newBuilder());
 
-            Services services =
-                    new Services(new ConfBuilder(secret.getBytes(StandardCharsets.UTF_8)),
-                                 client);
+            ChatGPTServices services =
+                    ChatGPTServices.of(ConfBuilder.of(secret),
+                                       builder);
 
-            IO<JsObj> files = services.fileService.list();
+            IO<JsObj> files = services.file.list.get();
 
             System.out.println(files.result());
 

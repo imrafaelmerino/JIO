@@ -122,8 +122,8 @@ public class SignupService implements Lambda<JsObj, JsObj> {
                                                       .recover(exc -> -1)
                                                       .map(JsInt::of),
 
-                            "id", persistMongo.apply(user)
-                                              .then(LDAPFlow)
+                            "id", persistMongo.then(LDAPFlow)
+                                              .apply(user)
                                               .map(JsStr::of),
 
                             "addresses", normalizeAddresses.apply(address),
@@ -310,7 +310,7 @@ an `Executor` were specified, there are cases where the CompletableFuture framew
 choose not to switch contexts between threads if it deems it unnecessary.
 
 However, you can introduce random delays and leverage virtual threads to create a more realistic example. To achieve
-this, more complex stubs are used from the `jio-test` library through the `StubSupplier` class. These stubs allow you to
+this, more complex stubs are used from the `jio-test` library through the `StubBuilder` class. These stubs allow you to
 specify generators for their creation, ensuring different values are returned every time. Here's how you can utilize
 them:
 
@@ -322,49 +322,49 @@ public void test(){
                                    .map(Duration::ofMillis);
 
     Lambda<Void, Integer> countUsers =
-            nill -> StubSupplier.ofDelayedGen(IntGen.arbitrary(0, 100000),
-                                              delayGen
+            nill -> StubBuilder.ofDelayedGen(IntGen.arbitrary(0, 100000),
+                                        delayGen
                                              )
-                                .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                .get();
+                          .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                          .get();
 
     Lambda<JsObj, String> persistMongo =
-            user -> StubSupplier.ofDelayedGen(StrGen.alphabetic(20, 20),
-                                              delayGen
+            user -> StubBuilder.ofDelayedGen(StrGen.alphabetic(20, 20),
+                                        delayGen
                                              )
-                                .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                .get();
+                          .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                          .get();
 
     Lambda<JsObj, Void> sendEmail =
-            user -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+            user -> StubBuilder.<Void>ofDelayedGen(Gen.cons(null),
                                               delayGen
                                              )
-                                .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                .get();
+                          .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                          .get();
 
     Lambda<String, Boolean> existsInLDAP =
-            email -> StubSupplier.ofDelayedGen(BoolGen.arbitrary(),
-                                               delayGen
-                                              )
-                                 .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                 .get();
+            email -> StubBuilder.ofDelayedGen(BoolGen.arbitrary(),
+                                         delayGen
+                                        )
+                           .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                           .get();
     Lambda<JsObj, Void> persistLDAP =
-            obj -> StubSupplier.<Void>ofDelayedGen(Gen.cons(null),
+            obj -> StubBuilder.<Void>ofDelayedGen(Gen.cons(null),
                                              delayGen
                                             )
-                               .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                               .get();
+                         .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                         .get();
 
     Lambda<String, JsArray> normalizeAddresses =
-            address -> StubSupplier.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
-                                                 delayGen
-                                                )
-                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                   .get();    
+            address -> StubBuilder.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
+                                           delayGen
+                                          )
+                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                             .get();    
 }
 ```
 
-These `StubSupplier` instances are essentially Java suppliers that return IO stubs. They allow you to introduce
+These `StubBuilder` instances are essentially Java suppliers that return IO stubs. They allow you to introduce
 variability and randomness into your tests, making them more realistic and ensuring your code can handle different
 scenarios effectively.
 
@@ -415,7 +415,7 @@ to three retries:
 ``` code                                
         // let's add up to three retries 
         countUsers.apply(null)
-                  .debug(new EventBuilder<>("count_users", context)) 
+                  .debug(EventBuilder.of("count_users", context)) 
                   .retry(RetryPolicies.limitRetries(3))
                   .recover(e -> -1)                                                 
 ```
@@ -439,14 +439,14 @@ And to test it, let's change the stub for the `countUser` lambda:
 Gen<Duration> delayGen = Gen.cons(1).map(Duration::ofSeconds);
         
 Lambda<Void, Integer> countUsers =
-        nill -> StubSupplier.ofDelayedIOGen(Gens.seq(n -> n <= 4 ?
-                                                     IO.fail(new RuntimeException(n + "")) :
-                                                     IO.succeed(n)
-                                                     ),
-                                            delayGen
-                                            )
-                            .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                            .get();
+        nill -> StubBuilder.ofDelayedIOGen(Gens.seq(n -> n <= 4 ?
+                                               IO.fail(new RuntimeException(n + "")) :
+                                               IO.succeed(n)
+                                               ),
+                                      delayGen
+                                      )
+                       .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                       .get();
 
 ```
 
@@ -454,7 +454,7 @@ In this code:
 
 - The `Gen.cons(1).map(Duration::ofSeconds)` defines a generator `delayGen` that provides a constant delay of 1 second.
 
-- The `countUsers` lambda is defined to use the `StubSupplier` with a sequence generator (`Gens.seq`) that allows you to
+- The `countUsers` lambda is defined to use the `StubBuilder` with a sequence generator (`Gens.seq`) that allows you to
   choose different values for each call. In this case the first four calls triggers a failure, which is treated as a
   value that can be returned.
 
@@ -607,8 +607,8 @@ What can you expect from JIO:
   or [jio-chatgpt](#jio-chatgpt). And you can create your owns integrations!
 - I don't fall into the logging-library war. This is something that sucks in Java. I just use Java Flight Recording!
 - Almost zero dependencies (just plain Java!)
-- JIO doesn't transliterate any functional API from other languages.
-- Any standard Java programmer will find JIO quite easy and familiar.
+- JIO doesn't transliterate any functional API from other languages. This way, any standard Java programmer will find
+  JIO quite easy and familiar.
 
 ---  
 
@@ -626,7 +626,7 @@ public abstract class IO<O> implements Supplier<CompletableFuture<O>> {
     @Override  
     CompletableFuture<O> get();  
       
-    //blocking!  
+    //block to get the result 
     O result();  
 
 }  
@@ -813,7 +813,8 @@ IO<Integer> s = IO.NULL();
  
 ```  
 
-The NULL method creates an IO effect that always produces a result of null. It is a generic method that captures the
+The `NULL` method creates an IO effect that always produces a result of null. It is a generic method that captures the
+type of the caller, allowing you to create null effects with different result types. This can be useful when you need to
 type of the caller, allowing you to create null effects with different result types. This can be useful when you need to
 represent a null result in your functional code. These constants, `TRUE` and `FALSE`, represent IO effects that always
 succeed with `true` and `false`, respectively.
@@ -858,8 +859,24 @@ BiLambda<Integer,Integer,Integer> l3 = BiLambda.liftFunction(sum);
 
 ```
 
-  
----  
+The `then` method is a powerful feature of the `Lambda` interface in JIO that allows you to compose and sequence effects
+in a functional and expressive manner. When you have two `Lambda` instances, you can use the `then` method to create a
+new `Lambda` that combines the effects of the two original lambdas. When you apply the composed `Lambda` to an input, it
+executes the first `Lambda`, followed by the second `Lambda`, creating a sequence of effects. This composition is
+especially useful when building complex workflows or pipelines of operations. It enhances the readability and
+expressiveness of your code by chaining together effects in a natural and intuitive way.
+
+```code
+
+Lambda<A,B> first = ???;
+Lambda<B,C> second = ???
+
+Lambda<A,C> third = first.then(second);
+
+
+```
+
+---
 
 ### <a name="Operations-with-effects"><a/> Operations with effects
 
@@ -964,7 +981,12 @@ public interface IO<O> extends Supplier<Future<O>> {
     IO<A> map(Function<O, A> fn);  
       
     IO<A> then(Lambda<O, A> fn);  
+    
+    IO<Void> async();
+    
+    IO<O> debug();
   
+    IO<O> debug(EventBuilder builder);
 }  
   
 ```  
@@ -974,6 +996,11 @@ public interface IO<O> extends Supplier<Future<O>> {
 - `then` (akin to `flatMap` or `bind` in other languages and a core function in monads): Applies a lambda function to  
   the result of the effect, creating a new effect that depends on the previous result. The name 'then' is used here for
   conciseness.
+- `async`: The `async` method allows you to execute an effect without waiting for its result and returns
+  immediately. It is useful when you are not interested in the outcome of the action and want to trigger it
+  asynchronously.
+- `debug`: New effect that sends an event to the JFR system after computing the result. You can customize the event with
+  a builder.
 
 **Being Impatient!**: Time is of the essence, and JIO offers methods to deal with timeouts:
 
@@ -1018,8 +1045,7 @@ interface IO<O> extends Supplier<Future<O>> {
   Exceptions occurring here are logged in the JFR system and do not alter the result of the effect.
 
 **I race you!**: When you require a result as quickly as possible among multiple alternatives, and you're uncertain
-which
-one will be the fastest:
+which one will be the fastest:
 
 ```code  
   
@@ -1220,10 +1246,33 @@ IO<Boolean> anySeq = AnyExp.seq(IO<Boolean> cond1, IO<Boolean> cond2,...);
   
 ```  
 
+You can create AllExp or AnyExp from stream of IO<Boolean> using the `parCollector` and `seqCollector`
+
+```code
+
+Lambda<Vehicle,IO<Boolean>> isFerrari = ???
+
+List<Vehicle> vehicles = ???;
+
+AllExp allFerrariPar = vehicles.stream()
+                               .map(vehicle -> isFerrari.apply(vehicle))
+                               .collector(AllExp.parCollector());
+
+AllExp allFerrariSeq = vehicles.stream()
+                               .map(vehicle -> isFerrari.apply(vehicle))
+                               .collector(AllExp.seqCollector());
+                               
+AnyExp anyFerrariSeq = vehicles.stream()
+                               .map(vehicle -> isFerrari.apply(vehicle))
+                               .collector(AnyExp.seqCollector());                               
+
+
+```
+
 ### PairExp and TripleExp
 
-`PairExp` and `TripleExp` allow you to work with tuples of two and three elements, respectively. You can compute each  
-element either in parallel or sequentially.
+`PairExp` and `TripleExp` allow you to zip effects into tuples of two and three elements, respectively.
+You can compute each element either in parallel or sequentially.
 
 ```code  
   
@@ -1297,7 +1346,41 @@ Here are some key points about the code example:
 Overall, the code example effectively illustrates how JIO's expressions enable you to create, manipulate, and compose
 functional effects to handle complex data scenarios. It highlights the conciseness and expressiveness of the library  
 when dealing with such tasks.
-  
+
+### ListExp
+
+Represents an expression that is reduced to a list of values. You can create ListExp expressions using the 'seq'
+method to evaluate effects sequentially or using the 'par' method to evaluate effects in parallel. If one effect
+fails, the entire expression fails.
+
+```code
+
+ListExp<String> par = ListExp.par(IO<String> effect1, IO<String> effect2,...)
+
+ListExp<String> seq = ListExp.seq(IO<String> effect1, IO<String> effect2,...)
+
+List<String> xs = par.result();
+
+```
+
+It's possible to create ListExp from stream of effects of the same type using the collectors
+`parCollector` and `seqCollector`:
+
+```code
+
+Lambda<String, Person> getPersonFromId = ???;
+
+List<String> ids = ???;
+
+ListExp<Person> personsIO = ids.stream()
+                               .filter(id -> id > 0)
+                               .map(id -> getPersonFromId.apply(id))
+                               .collect(ListExp.parCollector());
+
+List<Person> persons = personsIO.result();                            
+
+```
+
 ---  
 
 ## <a name="Clocks"><a/> Clocks
@@ -1319,7 +1402,7 @@ clocks available:
 
 ```code  
   
-sealed interface Clock extends Supplier<Long> permits Monotonic, MyClock, RealTime {}  
+sealed interface Clock extends Supplier<Long> permits Monotonic, CustomClock, RealTime {}  
   
 ```  
 
@@ -1434,7 +1517,7 @@ IO<O> debug(final EventBuilder<O> builder);
 - The `EventBuilder` is associated with a specific expression, and events generated from different expressions can be
   correlated using a specified context.
 
-You can call debug() without providing an EventBuilder, and JIO will use a default one with "Val" as the
+You can call `debug` without providing an EventBuilder, and JIO will use a default one with "Val" as the
 expression name and without a context.
 
 ### Debugging Expressions
@@ -1447,7 +1530,6 @@ The provided `EventBuilder` or a descriptive context can be used to customize th
 
 ```code  
   
-
 Exp<O> debugEach(final EventBuilder<O> builder);  
   
 Exp<O> debugEach(final String context);  
@@ -1464,7 +1546,7 @@ following example:
 public class TestDebug {
 
     @RegisterExtension
-    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
     @Test
     public void test() {
@@ -1758,7 +1840,7 @@ response type, you can use one of the following methods:
 
 ```java
 
-public interface MyHttpClient {
+public interface JioHttpClient {
 
     HttpLambda<String> ofString();
 
@@ -1773,7 +1855,7 @@ public interface MyHttpClient {
 
 ```
 
-You can create and configure a `MyHttpClient` using the builder `MyHttpClientBuilder`.
+You can create and configure a `JioHttpClient` using the builder `JioHttpClientBuilder`.
 This builder allows you to customize the HTTP client, including specifying a retry policy, a retry predicate for
 selecting what errors to retry, and enabling or disabling the recording of Java Flight Recorder (JFR) events for HTTP
 requests and responses. JFR event recording is enabled by default:
@@ -1791,16 +1873,16 @@ JIO HTTP client.
 public class TestHttpClient {
 
     @RegisterExtension
-    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
-    static MyHttpClient client =
-            new MyHttpClientBuilder(HttpClient.newBuilder()
+    static JioHttpClient client =
+            JioHttpClientBuilder.of(HttpClient.newBuilder()
                                               .connectTimeout(Duration.ofMillis(300))
-            )
-                    .setRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
-                                                 .append(RetryPolicies.limitRetries(5)))
-                    .setRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE))
-                    .build();
+                                   )
+                                .setRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
+                                                             .append(RetryPolicies.limitRetries(5)))
+                                .setRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE))
+                                .build();
 
     static BiFunction<String, String, HttpRequest.Builder> GET =
             (entity, id) -> HttpRequest.newBuilder()
@@ -1870,8 +1952,8 @@ Here are the possible customizations for the `ClientCredentialsHttpClientBuilder
 
 1. The request sent to the server to get the access token:
     - `accessTokenReq` parameter: A lambda that takes the regular HTTP client and returns the HTTP request to get the
-      token. There are several constructors to build this request in the class `AccessTokenRequest`. For example one
-      that takes in the client id and secret, the host and the uri to create the following request:
+      token. There is a factory method to build a specific request in the class `AccessTokenRequest`. For example one
+      that takes in the client id and secret and an `URI` to make the following request:
       ```shell
 
       curl -X POST -H "Accept: application/json" \
@@ -1905,24 +1987,24 @@ Here are the possible customizations for the `ClientCredentialsHttpClientBuilder
         - `authorizationHeaderValue` field: A function that takes the access token and returns the authorization header
           value. By default, it is set to "Bearer ${Access Token}".
 
-You can customize these options when creating an instance of `ClientCredentialsHttpClientBuilder` to configure the
-behavior of the OAuth client credentials flow support in your HTTP client. Since you need a MyHttpClientBuilder
-instance to create `ClientCredentialsHttpClientBuilder`, you can specify retry policies and predicates, and of course
+You can customize these options when creating an instance of `ClientCredsBuilder` to configure the
+behavior of the OAuth client credentials flow support in your HTTP client. Since you need a JioHttpClientBuilder
+instance to create `ClientCredsBuilder`, you can specify retry policies and predicates, and of course
 you can disable the recording of JFR events for every exchange.
 
-The builder returns an instance of ClientCredentialsHttpClient, which is an implementation of MyOauthHttpClient:
+The builder returns an instance of `ClientCredsClient`, which is an implementation of `OauthJioHttpClient`:
 
 ```code
 package jio.http.client.oauth;
 
 import jio.http.client.HttpLambda;
-import jio.http.client.MyHttpClient;
+import jio.http.client.JioHttpClient;
 
 import java.net.http.HttpResponse;
 
-public interface MyOauthHttpClient extends MyHttpClient {
+public interface OauthHttpClient extends JioHttpClient {
 
-   // since it extends MyHttpClient: ofString() ofBytes() and so on are available as well!
+   // since it extends JioHttpClient: ofString() ofBytes() and so on are available as well!
 
     HttpLambda<String> oauthOfString();
 
@@ -1947,29 +2029,29 @@ Here's an illustrative example:
 public class TestOauthHttpClient {
 
     @RegisterExtension
-    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
     //HttpServer creation from one of the previous examples!!!
 
-    static MyHttpClientBuilder myHttpClientBuilder =
-            new MyHttpClientBuilder(HttpClient.newBuilder()
+    static JioHttpClientBuilder clientBuilder =
+            JioHttpClientBuilder.of(HttpClient.newBuilder()
                                               .connectTimeout(Duration.ofMillis(300)))
-                    .withRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
-                                                  .append(RetryPolicies.limitRetries(5)))
-                    .withRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE));
+                                .withRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
+                                                              .append(RetryPolicies.limitRetries(5)))
+                                .withRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE));
 
-    static MyOauthHttpClient client =
-            new ClientCredentialsHttpClientBuilder(myHttpClientBuilder,
-                                                   new AccessTokenRequest("client_id",
-                                                                          "client_secret",
-                                                                          "localhost",
-                                                                          server.getAddress().getPort(),
-                                                                          "token", //uri
-                                                                          false),  //ssl false
-                                                   GetAccessToken.DEFAULT, //token in access_token key in a JSON
-                                                   resp -> resp.statusCode() == 401 // if 401 go for a new token
-            )
-                    .build();
+    static OauthJioHttpClient client =
+            ClientCredsBuilder.of(clientBuilder,
+                                  new AccessTokenRequest("client_id",
+                                                         "client_secret",
+                                                         "localhost",
+                                                         server.getAddress().getPort(),
+                                                         "token", //uri
+                                                         false),  //ssl false
+                                  GetAccessToken.DEFAULT, //token in access_token key in a JSON
+                                  resp -> resp.statusCode() == 401 // if 401 go for a new token
+                                 )
+                              .build();
 
     @Test
     public void testOuth() {
@@ -2098,15 +2180,15 @@ TODO
 #### <a name="iostubs"><a/> IO stubs
 
 In the realm of testing, there is a frequent need to construct stubs that emulate particular behaviors or responses
-within your code. To address this need, the `StubSupplier` and `Gens` classes offer practical solutions for
-crafting `IO` instances with tailor-made behaviors designed for testing scenarios. The `StubSupplier` class empowers you
+within your code. To address this need, the `StubBuilder` and `Gens` classes offer practical solutions for
+crafting `IO` instances with tailor-made behaviors designed for testing scenarios. The `StubBuilder` class empowers you
 to produce stubs for generating `IO` instances through generators. These stubs offer extensive customization and are
 instrumental for simulating a wide range of behaviors, spanning from successful executions to failures and even
 controlled delays. The `Gens` class complements this by providing a diverse set of generator methods, each adept at
 generating IO instances with
 unique behaviors.
 
-You can create a `StubSupplier` using various methods, depending on your testing needs:
+You can create a `StubBuilder` using various methods, depending on your testing needs:
 
 - **`ofIOGen`:** Create a stub using a generator of `IO` effects. IO generators can produce
   exceptions as normal values, which is useful for testing how our code reacts to errors
@@ -2115,7 +2197,7 @@ You can create a `StubSupplier` using various methods, depending on your testing
   // the first call produces a failure
   Gens<IO<Integer>> gen = Gens.seq(n -> n == 1 ? IO.fail(new RuntimeException()) : IO.succedd(n) )
   
-  StubSupplier<Integer> stub = StubSupplier.ofIOGen(gen);
+  StubBuilder<Integer> stub = StubBuilder.ofIOGen(gen);
   ```
 
 - **`ofDelayedIOGen`:** Create a stub using a generator of `IO` effects with a specified delay generator.
@@ -2128,7 +2210,7 @@ You can create a `StubSupplier` using various methods, depending on your testing
   // the first call a 1 second delay
   Gens<Duration> delayGen = Gen.seq(n -> n == 1 ? Duration.ofSeconds(1) : Duration.ZERO )
 
-  StubSupplier<YourType> stub = StubSupplier.ofDelayedIOGen(gen, delayGen);
+  StubBuilder<YourType> stub = StubBuilder.ofDelayedIOGen(gen, delayGen);
   ```
 
 - **`ofGen`:** Create a stub using a generator of values (never fail). Remember that generators
@@ -2153,14 +2235,14 @@ Happy testing!
 
 #### <a name="clockstubs"><a/> Clock stubs
 
-The `ClockStubSupplier` class provides a simple way to create clock stubs for controlling time-related behavior in your
+The `ClockStub` class provides a simple way to create clock stubs for controlling time-related behavior in your
 applications during testing and development. Clock stubs allow you to simulate various time scenarios, making it easier
 to test time-dependent functionalities in your code.
 
 ##### Overview
 
 In testing and development scenarios, controlling time can be crucial when working with applications that have
-time-sensitive functionality. The `ClockStubSupplier` class is designed to create clock stubs that mimic the behavior of
+time-sensitive functionality. The `ClockStub` class is designed to create clock stubs that mimic the behavior of
 actual clocks. These clock stubs give you the ability to manipulate time-related behavior to ensure your application
 behaves as expected under various time conditions.
 
@@ -2176,9 +2258,8 @@ reference time. This method is useful when you want the clock to behave as if it
 ```code
 Instant reference = Instant.parse("2023-01-15T12:00:00.00Z");
 
-ClockStubSupplier clockStub = ClockStubSupplier.fromReference(reference);
+Clock clock = ClockStub.fromReference(reference);
 
-Clock customClock = clockStub.get();
 ```
 
 ##### Using a Function
@@ -2193,9 +2274,7 @@ Function<Integer, Long> timeFunction = n -> Instant.now()
                                                    .plus(Duration.ofHours(n))
                                                    .toEpochMilli();
 
-ClockStubSupplier clockStub = ClockStubSupplier.fromCalls(timeFunction);
-
-Clock dynamicClock = clockStub.get();
+Clock clock = ClockStub.fromCalls(timeFunction);
 
 ```
 
@@ -2706,346 +2785,369 @@ Dependencies:
 
 ## <a name="jio-mongodb"><a/> jio-mongodb
 
-jio-mongodb uses the persistent Json from [json-values](https://github.com/imrafaelmerino/json-values)
-and the set of codecs defined in [mongo-values](https://github.com/imrafaelmerino/mongo-values), which makes
-json-mongodb very efficient.
+`jio-mongodb` leverages the persistent JSON from [json-values](https://github.com/imrafaelmerino/json-values) and the
+set of codecs defined in [mongo-values](https://github.com/imrafaelmerino/mongo-values), making it an efficient solution
+for MongoDB operations.
 
-jio-mongodb is composed of a set of Lambdas to perform operations against the database.
-With lambdas we can benefit for all the good thing from jio-exp and jio-test.
+jio-mongodb is composed of a set of Lambdas to perform operations against the database. With Lambdas, you can benefit
+from all the powerful features of `jio-exp` and `jio-test`. `jio-mongodb` is an example of how you can make any API
+under the sun
+jio-friendly, unleashing the full potential of your code.
 
-### Creating a collection supplier
+### Creating a Collection Supplier<a name="creating-a-collection-supplier"></a>
 
-```code 
-
- ConnectionString connString = new ConnectionString("mongodb://localhost:27017/");
-
- MongoClientSettings settings = 
-    MongoClientSettings.builder()
-                       .applyConnectionString(connString)
-                       .codecRegistry(JsValuesRegistry.INSTANCE)
-                       .build();
-
- MongoClient mongoClient = MongoClients.create(settings);
- 
- String databaseName = "test";
- DatabaseSupplier database = new DatabaseSupplier(mongoClient, 
-                                                  databaseName);
- String collectionName = "Data";
- CollectionSupplier collection = new CollectionSupplier(database, 
-                                                        databaseSupplier);
-
-```
-
-### Find operations
-
-Key class to create queries is FindBuilder
+To get started, you need a `MongoClient`, a `DatabaseBuilder`, and finally a `CollectionBuilder` that provides access 
+to a MongoDB collection. Below is an example of how to create both:
 
 ```code
-CollectionSupplier collection = ...;
-JsObj query = ...;
+String connectionStr = "mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0"
 
-Lambda<FindOptions, JsObj> find =  FindOne.of(collection);
+MongoClient mongoClient = MongoClientBuilder.DEFAULT.build(connectionStr);
+
+String databaseName = "test";
+
+DatabaseBuilder database = new DatabaseBuilder(mongoClient,databaseName);
+
+String collectionName = "Data";
+
+CollectionBuilder collection = CollectionBuilder.of(database,collectionName);
+```
+
+The `MongoClientBuilder` class is for creating MongoDB client instances with custom configurations. This class provides
+flexibility in building MongoDB client instances and allows you to specify your own connection string and settings
+functions. The default instance, `DEFAULT` is a pre-configured builder with the default settings and codecs from
+[mongo-values](https://github.com/imrafaelmerino/mongo-values) to work with JSON data from the 
+[json-values](https://github.com/imrafaelmerino/json-values) library.
+
+Now that you have a `CollectionBuilder`, you can perform various operations on it.
+
+## Find Operations<a name="find-operations"></a>
+
+The key class for creating queries and specifying options for find operations is `FindBuilder`. Here's how to perform
+find operations:
+
+### FindOne
+
+```code
+CollectionBuilder collection = ???;
+JsObj query = ???;
+
+Lambda<FindBuilder, JsObj> find = FindOne.of(collection);
 
 FindBuilder builder = new FindBuilder(query);
 
 IO<JsObj> io = find.apply(builder);
-
 ```
+
+### FindAll
 
 ```code
 
-CollectionSupplier collection = ...;
-JsObj query = ...;
+CollectionBuilder collection = ???;
+JsObj query = ???;
 
-Lambda<FindOptions, JsArray> find =  FindAll.of(collection);
+Lambda<FindBuilder, FindIterable<JsObj>>find = FindAll.of(collection);
 
 FindBuilder builder = new FindBuilder(query);
 
-IO<JsArray> io = find.apply(builder);
+IO<FindIterable<JsObj>>io = find.apply(builder);
 
+//map the output with converters
+IO<List<JsObj>>ioList = io.map(Converters.iterable2List);
+
+IO<JsArray> ioArray = io.map(Converters.iterable2JsArray);
 ```
 
-### Insert operations
+## Insert Operations<a name="insert-operations"></a>
+
+### InsertOne
 
 ```code
 
-JsObj json = ...;
+JsObj doc = ???;
 
-InsertOneOptions options = ...;
+Lambda<JsObj, String> insert = InsertOne.of(collection,Converters.insertOneResult2HexId);
 
-Lambda<JsObj,String> insert = 
-    InsertOne.<String>of(collection,
-                         Converters.insertOneResult2HexId
-                         )
-             .withOptions(options);
-
-IO<String> io = insert.apply(json);
+IO<String> io = insert.apply(doc);
 
 ```
 
+### InsertMany
+
 ```code
+List<JsObj> docs = ???;
 
-JsArray array = ...;
+Lambda<List<JsObj>, List<String>>insert = InsertMany.of(collection,Converters.insertManyResult2ListOfHexIds);
 
-Lambda<JsArray,List<String> insert = 
-    InsertMany.<List<String>of(collection,
-                               Converters.insertManyResult2ListOfHexIds
-                              )
-              .withOptions(options);                
-
-IO<List<String> io = insert.apply(json);
+IO<List<String>>io = insert.apply(docs);
 
 ```
 
-### Delete operations
+## Delete Operations<a name="delete-operations"></a>
+
+### DeleteOne
 
 ```code
+JsObj query = ???;
 
-
-JsObj query = ...;
-
-DeleteOptions options = ...;
-
-Lambda<JsObj,JsObj> deleteOne = 
-    DeleteOne.<JsObj>of(collection,
-                        Converters.deleteResult2JsObj
-                       )
-             .withOptions(options);    
+Lambda<JsObj, JsObj> deleteOne = DeleteOne.of(collection,Converters.deleteResult2JsObj);
 
 IO<JsObj> io = deleteOne.apply(query);
-
 ```
+
+### DeleteMany
 
 ```code
 
+JsObj query = ???;
 
-JsObj query = ...;
-
-DeleteOptions options = ...;
-
-Lambda<JsObj,JsObj> deleteMany = 
-    DeleteMany.<JsObj>of(collection,
-                         Converters.deleteResult2JsObj
-                         )
-              .withOptions(options);       
+Lambda<JsObj, JsObj> deleteMany = DeleteMany.of(collection,Converters.deleteResult2JsObj);
 
 IO<JsObj> io = deleteMany.apply(query);
-
 ```
 
-### Update and Replace operations
+## Update and Replace Operations<a name="update-and-replace-operations"></a>
+
+### UpdateOne
+
+```code
+JsObj query = ???;
+
+JsObj update = ???;
+
+BiLambda<JsObj, JsObj, JsObj> updateOne = UpdateOne.of(collection,
+                                                       Converters.updateResult2JsObj);
+
+IO<JsObj> io = updateOne.apply(query,update);
+```
+
+### UpdateMany
 
 ```code
 
+JsObj query = ???;
+JsObj update = ???;
 
-JsObj query = ...;
-JsObj update = ...;
+BiLambda<JsObj, JsObj, JsObj> updateMany = UpdateMany.of(collection,Converters.updateResult2JsObj);
 
-UpdateOptions options = ...;
-
-BiLambda<JsObj, JsObj, JsObj> updateOne = 
-    UpdateOne.<JsObj>of(collection,
-                        Converters.updateResult2JsObj
-                        )
-             .withOptions(options);           
-
-IO<JsObj> io = updateOne.apply(query, update);
-
+IO<JsObj> io = updateMany.apply(query,update);
 ```
+
+### ReplaceOne
 
 ```code
 
-
 JsObj query = ...;
-JsObj update = ...;
 
-UpdateOptions options = ...;
-
-BiLambda<JsObj, JsObj, JsObj> updateMany = 
-    UpdateMany.<JsObj>of(collection,
-                         Converters.updateResult2JsObj
-                         )
-              .withOptions(options);           
-
-IO<JsObj> io = updateMany.apply(query, update);
-
-```
-
-```code
-
-
-JsObj query = ...;
 JsObj newDoc = ...;
 
-ReplaceOptions options = ...;
+BiLambda<JsObj, JsObj, JsObj> replaceOne = ReplaceOne.of(collection,Converters.updateResult2JsObj);
 
-BiLambda<JsObj, JsObj, JsObj> replaceOne = 
-    ReplaceOne.<JsObj>of(collection,
-                         Converters.updateResult2JsObj
-                        )
-              .withOptions(options);          
-
-IO<JsObj> io = replaceOne.json(query, newDoc);
+IO<JsObj> io = replaceOne.apply(query,newDoc);
 
 ```
 
-### Count
+## Count<a name="count"></a>
 
 ```code
+JsObj query = ???;
 
-JsObj query = ...;
+Lambda<JsObj, Long> count = Count.of(collection);
 
-CountOptions options = ...;
-
-Lambda<JsObj,Long> count = Count.of(collection)
-                                .withOptions(options);
-
-IO<Long> io = count.apply(query);
-
+IO<Long> io=count.apply(query);
 ```
 
-### FindOneAndXXX operations
+## FindOneAndXXX Operations<a name="findoneandxxx-operations"></a>
 
-#### FindOneAndUpdate
+### FindOneAndUpdate
 
 ```code
+JsObj query = ???;
 
+JsObj update = ???;
 
-JsObj query = ...;
-JsObj update = ...;
+BiLambda<JsObj, JsObj, JsObj> findOneUpdate = FindOneAndUpdate.of(collection);
 
-FindOneAndUpdateOptions options = ...;
-
-BiLambda<JsObj, JsObj, JsObj> findOneUpdate = 
-    FindOneAndUpdate.of(collection)
-                    .withOptions(options);
-
-IO<JsObj> io = findOneUpdate.apply(query, update);
-
+IO<JsObj> io = findOneUpdate.apply(query,update);
 ```
 
-#### FindOneAndReplace
+### FindOneAndReplace
 
 ```code
+JsObj query = ???;
 
+JsObj newDoc = ???;
 
-JsObj query = ...;
-JsObj newDoc = ...;
+BiLambda<JsObj, JsObj, JsObj> findOneReplace = FindOneAndReplace.of(collection);
 
-FindOneAndReplaceOptions options = ...;
-
-BiLambda<JsObj, JsObj, JsObj> findOneReplace = 
-    FindOneAndReplace.of(collection)
-                     .withOptions(options);
-
-IO<JsObj> io = findOneReplace.apply(query, newDoc);
-
+IO<JsObj> io = findOneReplace.apply(query,newDoc);
 ```
 
-#### FindOneAndDelete
+### FindOneAndDelete
 
 ```code
+JsObj query = ???;
 
-
-JsObj query = ...;
-
-FindOneAndDeleteOptions options = ...;
-
-BiLambda<JsObj, JsObj, JsObj> findOneDelete = 
-    FindOneAndDelete.of(collection)
-                    .withOptions(options);;
+Lambda<JsObj, JsObj> findOneDelete = FindOneAndDelete.of(collection);
 
 IO<JsObj> io = findOneDelete.apply(query);
-
 ```
 
-### Aggregate
+## Aggregate<a name="aggregate"></a>
 
 ```code
-
 
 List<Bson> stages = ...;
 
-Lambda<List<Bson>, JsArray> aggregate = 
-    Aggregate.of(collection,
-                 Converters.aggregateResult2JsArray
-                 );
-Lambda<JsArray, JsArray> aggregate1 = 
-    array ->  aggregate.apply(Converters.jsArray2ListOfBson.apply(array));                
-
-Lambda<List<JsObj>, JsArray> aggregate2 = 
-    list ->  aggregate.apply(list.stream().map(Converters.jsObj2Bson).toList());
-
+Lambda<List<Bson>, JsArray> aggregate = Aggregate.of(collection,Converters.aggregateResult2JsArray);
 
 IO<JsArray> io = aggregate.apply(stages);
 
+
+//changing the input of the lambda using predined converters
+Lambda<JsArray, JsArray> aggregate1 = array -> aggregate.apply(Converters.jsArray2ListOfBson.apply(array));
+
+Lambda<List<JsObj>, List<JsObj>> aggregate2 = list -> aggregate.apply(list.stream().map(Converters.jsObj2Bson).toList());
+
+
 ```
 
-### Watcher
+## Watcher<a name="watcher"></a>
+
+You can set up a change stream on a MongoDB collection to monitor changes using the `Watcher` class:
 
 ```code
 
-String databaseName = "test";
-DatabaseSupplier database = new DatabaseSupplier(mongoClient, 
-                                                 databaseName);
-String collectionName = "Data";
-CollectionSupplier collection = new CollectionSupplier(database, 
-                                                       databaseSupplier);
+CollectionBuilder collection = CollectionBuilder.of(database,collectionName);
 
-Consumer<ChangeStreamIterable<JsObj>> consumer = ...;
+Consumer<ChangeStreamIterable<JsObj>> consumer = iter -> { ??? };
 
-
-Watcher.of(consumer).accept(collection.get())
-
+Watcher.of(consumer).accept(collection.get());
 ```
 
-### Common Exceptions
+## Common Exceptions<a name="common-exceptions"></a>
 
-There are some predicates in the `MongoExceptions` utility class to handle common exceptions:
+The `MongoExceptions` utility class provides predicates to handle common exceptions:
 
 1. `READ_TIMEOUT`:
-    - **Description**: This predicate checks if the given Throwable is an instance of MongoSocketReadTimeoutException.
+    - **Description**: This predicate checks if the given Throwable is an instance of `MongoSocketReadTimeoutException`.
       It returns true if the exception is a read timeout exception and false otherwise. Read timeout exceptions
       typically occur when a read operation (e.g., reading data from the database) takes longer than the specified
       timeout.
 
 2. `CONNECTION_TIMEOUT`:
-    - **Description**: This predicate checks if the given Throwable is an instance of MongoTimeoutException. It returns
-      true if the exception is a connection timeout exception and false otherwise. Connection timeout exceptions usually
-      happen when there's a timeout while attempting to establish a connection to the MongoDB server.
+    - **Description**: This predicate checks if the given Throwable is an instance of `MongoTimeoutException`. It
+      returns true if the exception is a connection timeout exception and false otherwise. Connection timeout exceptions
+      usually happen when there's a timeout while attempting to establish a connection to the MongoDB server.
 
-Rembember that one of the advantages of JIO is to make resilient applications thanks to its API.
-Find below an example:
+Here's an example of how to use these predicates for resilient applications:
 
 ```code
+JsObj query=???;
 
-var builder = new FindBuilder(query);
+var builder=new FindBuilder(query);
+
 IO<JsObj> io = FindOne.of(collection)
                       .apply(builder)
                       .retry(MongoExceptions.CONNECTION_TIMEOUT,
                              RetryPolicies.limitRetries(3)
                              );
-
-
 ```
 
-### JFR integration
+## JFR Integration<a name="jfr-integration"></a>
 
-By default, all the operations, when finished, creates an event and is sent to the
-JFR system. You can disable using the method `withoutRecordedEvents()`
+By default, all operations create an event when finished and send it to the Java Flight Recorder (JFR) system. You can
+disable this behavior using the `withoutRecordedEvents` method.
 
-### Specifying an executor
-
-Every operation (FindOne, InsertOne, DeleteOne etc.) type has a method `on(Executor executor)` to specify the executor
-from which thread will be used to eval the Lambdas. You can use virtual threads if you are running jio-mongodb
-in Java 21.
+Register the Junit Debugger extension from `jio-test` in your tests:
 
 ```code
 
- FindOne.of(collection).withExecutor(Executors.newVirtualThreadPerTaskExecutor());
-
+@RegisterExtension
+static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
 ```
 
-If no executor is specified a one from the Fork Join Pool will be pulled since jio-mongodb
-uses underlygint the method IO.managnedLazy(supplier) from jio-exp.
+This extension enables you to see printed-out events like the following:
+
+```plaintext
+
+event: mongodb, op: INSERT_ONE, duration: 37,800 ms, result: SUCCESS
+thread: ForkJoinPool.commonPool-worker-23, event-start-time: 2023-10-17T19:10:30.86140575+02:00
+
+event: mongodb, op: INSERT_ONE, duration: 37,416 ms, result: SUCCESS
+thread: ForkJoinPool.commonPool-worker-27, event-start-time: 2023-10-17T19:10:30.861923625+02:00
+
+event: mongodb, op: FIND, duration: 1,362 ms, result: SUCCESS
+thread: ForkJoinPool.commonPool-worker-18, event-start-time: 2023-10-17T19:10:30.899902583+02:00
+
+```
+
+## Specifying an Executor<a name="specifying-an-executor"></a>
+
+Every operation (FindOne, InsertOne, DeleteOne, etc.) type has a method `on(Executor executor)` to specify the executor
+from which thread will be used to evaluate the Lambdas. You can use virtual threads if you are running `jio-mongodb` in
+Java 21:
+
+```code
+
+FindOne.of(collection)
+       .withExecutor(Executors.newVirtualThreadPerTaskExecutor());
+
+```
+
+If no executor is specified, one from the Fork Join Pool will be used since `jio-mongodb` uses
+the `IO.managedLazy(supplier)` method from `jio-exp`.
+
+---
+
+This revised README provides a comprehensive guide to using the `jio-mongodb` package, offering detailed examples and
+explanations for each operation. Developers can now use this documentation as a reference when working with MongoDB in
+their Java applications.
+
+Certainly! When working with the `jio-mongodb` package, you have the flexibility to pass your custom converters and
+configure various options to customize the behavior of MongoDB operations. Here's a brief explanation of how to pass
+other converters and options:
+
+### Passing Custom Converters
+
+`jio-mongodb` provides a set of default converters for common MongoDB operations. However, you can pass your custom
+converters if you need to handle data conversions differently. When using Lambdas
+like `FindOne`, `InsertOne`, `UpdateOne`, and others, you can pass your custom converter functions as arguments.
+
+For example, if you have a custom converter function `myCustomInsertConverter` for `InsertOne`:
+
+```code
+JsObj doc = ???;
+
+Lambda<JsObj, MyCustomType> insert = InsertOne.of(collection,myCustomInsertConverter);
+
+IO<MyCustomType> io=insert.apply(doc);
+```
+
+This allows you to tailor the conversion process to your specific requirements.
+
+### Configuring Options
+
+You can also configure various options for MongoDB operations using the `withOptions` method available for some
+operations. Options allow you to specify things like the write concern, bypass document validation, and more.
+
+For instance, if you want to configure custom `UpdateOptions` for an `UpdateOne` operation:
+
+```code
+JsObj query = ???;
+
+JsObj update = ???;
+
+BiLambda<JsObj, JsObj, JsObj> updateOne = UpdateOne.of(collection,Converters.updateResult2JsObj);
+
+UpdateOptions customOptions=new UpdateOptions().upsert(true)  // Example option
+
+IO<JsObj> io = updateOne.apply(query,update)
+                        .withOptions(customOptions);
+```
+
+By passing custom options, you can fine-tune the behavior of your MongoDB operations to match your specific use case.
+
+The ability to use custom converters and configure options provides a high degree of flexibility when working with
+MongoDB in `jio-mongodb`. You can adapt the library to meet the unique requirements of your project.

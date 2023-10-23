@@ -1,66 +1,78 @@
 package jio.mongodb.api;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
+
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
+import com.mongodb.client.result.InsertOneResult;
 import jio.IO;
+import jio.ListExp;
 import jio.mongodb.*;
-import jsonvalues.JsArray;
+import jio.test.junit.Debugger;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 import jsonvalues.gen.JsIntGen;
 import jsonvalues.gen.JsObjGen;
 import jsonvalues.gen.JsStrGen;
-import mongovalues.JsValuesRegistry;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
+import java.time.Duration;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import static jio.mongodb.Converters.str2Oid;
-
 //@Disabled
 public class TestMongo {
 
-    private static InsertOne<String> insertOne;
+    @RegisterExtension
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
+
+    private static MongoClient mongoClient;
+    private static DatabaseBuilder database;
+    private static MongoLambda<JsObj, InsertOneResult> insertOne;
     private static FindOne findOne;
-    private static IO<JsArray> find;
+    private static IO<List<JsObj>> find;
     private static FindAll findAll;
 
-    //@BeforeAll
-    private static void prepare() {
-        ConnectionString connString = new ConnectionString(
-                "mongodb://localhost:27017/?connectTimeoutMS=10000&socketTimeoutMS=10000&serverSelectionTimeoutMS=10000"
-        );
+    MongoLambda<JsObj, JsObj> insertAndSetId =
+            (session, obj) ->
+                    insertOne.apply(session, obj)
+                             .map(result -> obj.set("id",
+                                                    Converters.toHexId(result))
+                                 );
+    MongoLambda<PersonAddress, PersonAddress> insertInCascade =
+            (session, pa) -> insertAndSetId.apply(session, pa.person)
+                                           .then(updatedPerson ->
+                                                         insertAndSetId.apply(session, pa.address.set("person_id", updatedPerson.getStr("id")))
+                                                                       .map(updatedAddress -> new PersonAddress(updatedPerson,
+                                                                                                                updatedAddress))
+                                                );
 
-        MongoClientSettings settings = MongoClientSettings.builder()
-                                                          .applyConnectionString(connString)
-                                                          .codecRegistry(JsValuesRegistry.INSTANCE)
-                                                          .build();
+    @BeforeAll
+    static void prepare() {
 
+        mongoClient = MongoClientBuilder.DEFAULT.build("mongodb://localhost:27019/");
+        database = DatabaseBuilder.of(mongoClient, "test");
+        var dataCollection = CollectionBuilder.of(database, "Data");
 
-        MongoClient mongoClient = MongoClients.create(settings);
-        DatabaseSupplier database = new DatabaseSupplier(mongoClient, "test");
-        CollectionSupplier collectionSupplier = new CollectionSupplier(database, "Data");
+        insertOne = InsertOne.of(dataCollection);
 
+        findOne = FindOne.of(dataCollection);
 
-        insertOne = InsertOne.of(collectionSupplier,
-                                 Converters.insertOneResult2HexId
-                                );
+        JsObj filter = JsObj.of("_id", JsObj.of("$lt", JsObj.of("$oid", JsStr.of(new ObjectId().toString()))));
 
-        findOne = FindOne.of(collectionSupplier);
+        find = FindAll.of(dataCollection)
+                      .standalone().apply(new FindBuilder(filter)).map(Converters::toListOfJsObj);
 
-        JsObj filter = JsObj.of("_id", JsObj.of("$lt", JsObj.of("$oid", JsStr.of("63ea462f9ecb966d69cfb85c"))));
-        System.out.println(filter);
-        find = FindAll.of(collectionSupplier).apply(new FindBuilder(filter));
+        findAll = FindAll.of(dataCollection);
 
-        findAll = FindAll.of(collectionSupplier);
 
     }
 
-    //@Test
+    @Test
     public void testInsert() {
 
 
@@ -80,20 +92,53 @@ public class TestMongo {
                  .forEach(i -> {
                      JsObj obj = supplier.get();
                      Assertions.assertEquals(obj,
-                                             insertOne.apply(obj
-                                                            )
-                                                      .then(id -> findOne.apply(new FindBuilder(str2Oid.apply(id))))
+                                             insertOne.standalone()
+                                                      .apply(obj)
+                                                      .map(Converters::toHexId)
+                                                      .then(id -> findOne.standalone().apply(new FindBuilder(Converters.toObjId(id))))
                                                       .map(it -> it.delete("_id"))
                                                       .result()
                                             );
                  });
 
-        System.out.println(findAll.apply(new FindBuilder(JsObj.empty())).result());
+        System.out.println(findAll.standalone()
+                                  .apply(new FindBuilder(JsObj.empty()))
+                                  .map(Converters::toJsArray)
+                                  .result()
+                                  .size());
 
-        JsArray arr = find.result();
-        System.out.println(arr);
+        List<JsObj> arr = find.result();
+        System.out.println(arr.size());
         Assertions.assertTrue(arr.size() > 1);
 
 
     }
+
+    @Test
+    public void testInsertJsonsInParallel() {
+        var insertOne =
+                InsertOne.of(CollectionBuilder.of(database, "Tx"))
+                         .map(Converters::toHexId);
+
+        var sessionSupplier = ClientSessionBuilder.of(mongoClient);
+
+        MongoLambda<List<JsObj>, List<String>> insertAll =
+                (session, jsons) ->
+                        jsons.stream()
+                             .map(json -> insertOne.apply(session, json))
+                             .collect(ListExp.parCollector());
+
+
+        var tx = TxBuilder.of(sessionSupplier).build(insertAll);
+
+        tx.apply(List.of(JsObj.of("hi", JsStr.of("bye")),
+                         JsObj.of("hi", JsStr.of("bye"))
+                        )
+                )
+          .result();
+    }
+
+    record PersonAddress(JsObj person, JsObj address) {
+    }
+
 }

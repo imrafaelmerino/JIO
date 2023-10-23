@@ -25,7 +25,7 @@ import java.util.function.Supplier;
  * }
  * </pre>
  *
- * @see StubSupplier
+ * @see StubBuilder
  * @see fun.gen.Combinators
  */
 public final class Gens {

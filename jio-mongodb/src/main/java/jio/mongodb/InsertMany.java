@@ -1,75 +1,65 @@
 package jio.mongodb;
 
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.model.InsertManyOptions;
 import com.mongodb.client.result.InsertManyResult;
 import jio.IO;
-import jio.Lambda;
-import jsonvalues.JsArray;
+import jsonvalues.JsObj;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
-import static jio.mongodb.Converters.jsArray2ListOfJsObj;
-import static jio.mongodb.MongoDBEvent.OP.INSERT_MANY;
+import static jio.mongodb.MongoEvent.OP.INSERT_MANY;
 
 /**
  * A class for performing insert many operations on a MongoDB collection.
+ * <p>
+ * The `InsertMany` class is designed for inserting multiple documents into a MongoDB collection. It provides
+ * flexibility in handling the result and allows you to specify various options for the insert operation. You can create
+ * instances of this class with the specified collection supplier, and customize the behavior using options such as
+ * insert options, executors, and more.
+ * <p>
+ * To use this class effectively, you can set the insert options for the operation, specify an executor for asynchronous
+ * execution, and disable the recording of Java Flight Recorder (JFR) events if needed. You can insert a list of
+ * documents represented as `JsObj` objects into the MongoDB collection.
  *
- * @param <R> The type of the result.
+ * @see CollectionBuilder
  */
-public final class InsertMany<R> extends Op implements Lambda<JsArray, R> {
+public final class InsertMany extends Op implements MongoLambda<List<JsObj>, InsertManyResult> {
 
     private static final InsertManyOptions DEFAULT_OPTIONS = new InsertManyOptions();
-    private final Function<InsertManyResult, R> resultConverter;
     private InsertManyOptions options = DEFAULT_OPTIONS;
 
     /**
-     * Constructs a new InsertMany instance.
-     *
-     * @param collection      The supplier for the MongoDB collection.
-     * @param resultConverter The function to convert the insert result to the desired type.
-     */
-    private InsertMany(final CollectionSupplier collection,
-                       final Function<InsertManyResult, R> resultConverter
-                      ) {
-        super(collection, true);
-        this.resultConverter = requireNonNull(resultConverter);
-    }
-
-    /**
-     * Creates an InsertMany instance with the specified collection supplier and result converter using default
-     * options.
-     *
-     * @param collection      The supplier for the MongoDB collection.
-     * @param resultConverter The function to convert the insert result to the desired type.
-     * @param <R>             The type of the result.
-     * @return An InsertMany instance with default options.
-     */
-    public static <R> InsertMany<R> of(final CollectionSupplier collection,
-                                       final Function<InsertManyResult, R> resultConverter
-                                      ) {
-        return new InsertMany<>(collection, resultConverter);
-    }
-
-    /**
-     * Creates an InsertMany instance for inserting arrays of MongoDB document IDs (hexadecimal strings).
+     * Constructs a new `InsertMany` instance with the specified collection supplier and default insert options.
      *
      * @param collection The supplier for the MongoDB collection.
-     * @return An InsertMany instance for inserting arrays of MongoDB document IDs.
      */
-    public static InsertMany<List<String>> of(final CollectionSupplier collection) {
-        return new InsertMany<>(collection, Converters.insertManyResult2ListOfHexIds);
+    private InsertMany(final CollectionBuilder collection) {
+        super(collection, true);
     }
 
     /**
-     * @param options the options to perform the operation
-     * @return this instance with the new options
+     * Creates an `InsertMany` instance with the specified collection supplier and result converter using default
+     * options.
+     *
+     * @param collection The supplier for the MongoDB collection.
+     * @return An `InsertMany` instance with default options.
      */
-    public InsertMany<R> withOptions(final InsertManyOptions options) {
+    public static InsertMany of(final CollectionBuilder collection) {
+        return new InsertMany(collection);
+    }
+
+    /**
+     * Sets the insert options to be used for the operation.
+     *
+     * @param options The options to perform the operation.
+     * @return This instance with the new options.
+     */
+    public InsertMany withOptions(final InsertManyOptions options) {
         this.options = requireNonNull(options);
         return this;
     }
@@ -78,32 +68,32 @@ public final class InsertMany<R> extends Op implements Lambda<JsArray, R> {
      * Specifies an executor to be used for running the insert many operation asynchronously.
      *
      * @param executor The executor to use.
-     * @return This InsertMany instance for method chaining.
+     * @return This `InsertMany` instance for method chaining.
      */
-    public InsertMany<R> withExecutor(final Executor executor) {
+    public InsertMany withExecutor(final Executor executor) {
         this.executor = Objects.requireNonNull(executor);
         return this;
     }
 
     /**
-     * Performs an insert many operation on the MongoDB collection based on the provided documents.
+     * Applies the insert many operation to the specified MongoDB collection with a list of `JsObj` documents.
      *
-     * @param message The array of documents to insert.
-     * @return An IO operation representing the result of the insert many operation.
+     * @param session The MongoDB client session, or null if not within a session.
+     * @param docs    The list of `JsObj` documents to insert.
+     * @return An IO representing the result of the insert many operation.
      */
     @Override
-    public IO<R> apply(final JsArray message) {
-        Objects.requireNonNull(message);
-        Supplier<R> supplier =
-                jfrEventWrapper(() -> {
-                                    var docs = jsArray2ListOfJsObj.apply(message);
-                                    var col = requireNonNull(collection.get());
-                                    return resultConverter.apply(col
-                                                                         .insertMany(docs, options)
-                                                                );
-                                },
-                                INSERT_MANY
-                               );
+    public IO<InsertManyResult> apply(final ClientSession session, final List<JsObj> docs) {
+        Objects.requireNonNull(docs);
+        Supplier<InsertManyResult> supplier =
+                eventWrapper(() -> {
+                                 var col = requireNonNull(collection.build());
+                                 return
+                                         session == null ?
+                                                 col.insertMany(docs, options) :
+                                                 col.insertMany(session, docs, options);
+                             }, INSERT_MANY
+                            );
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier, executor);

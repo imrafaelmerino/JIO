@@ -20,17 +20,21 @@ public final class EditBuilder {
     private int n;
 
 
-    /**
-     * Builder for creating edited versions of prompts using the GPT model. Given a prompt and an instruction, the model
-     * will return an edited version of the prompt.
-     */
-    public EditBuilder(String model, String instruction) {
+
+    private EditBuilder(final String model, final String instruction) {
 
         this.model = Objects.requireNonNull(model);
         this.instruction = Objects.requireNonNull(instruction);
         this.temperature = DEFAULT_VALUES.DEFAULT_TEMPERATURE;
         this.topP = DEFAULT_VALUES.DEFAULT_TOP_P;
         this.n = DEFAULT_VALUES.DEFAULT_N_EDITS;
+    }
+    /**
+     * Builder for creating edited versions of prompts using the GPT model. Given a prompt and an instruction, the model
+     * will return an edited version of the prompt.
+     */
+    public static EditBuilder of(final String model, final String instruction) {
+        return new EditBuilder(model, instruction);
     }
 
 
@@ -43,7 +47,7 @@ public final class EditBuilder {
      * @param value The sampling temperature to use, between 0 and 2. (Defaults to 1)
      * @return This builder.
      */
-    public EditBuilder setTemperature(double value) {
+    public EditBuilder withTemperature(final double value) {
         if (value > Constraints.MAX_EDIT_TEMPERATURE)
             throw new IllegalArgumentException("temperature > " + Constraints.MAX_EDIT_TEMPERATURE);
         if (value < Constraints.MIN_EDIT_TEMPERATURE)
@@ -62,9 +66,9 @@ public final class EditBuilder {
      *              results of the tokens with top_p probability mass. (Defaults to 1)
      * @return This builder.
      */
-    public EditBuilder setTopP(double value) {
-        if (value < Constraints.MIN_EDIT_TOP_P) throw new IllegalArgumentException("topP < 0");
-        if (value > Constraints.MAX_EDIT_TOP_P) throw new IllegalArgumentException("topP > 1");
+    public EditBuilder withTopP(final double value) {
+        if (value < Constraints.MIN_EDIT_TOP_P) throw new IllegalArgumentException("topP < "+Constraints.MIN_EDIT_TOP_P);
+        if (value > Constraints.MAX_EDIT_TOP_P) throw new IllegalArgumentException("topP > "+Constraints.MAX_EDIT_TOP_P);
         this.topP = value;
         return this;
     }
@@ -75,7 +79,7 @@ public final class EditBuilder {
      * @param n How many edits to generate for the input and instruction.
      * @return This builder.
      */
-    public EditBuilder setN(int n) {
+    public EditBuilder withN(final int n) {
         this.n = n;
         return this;
     }
@@ -89,10 +93,12 @@ public final class EditBuilder {
         JsObj obj = JsObj.of(JSON_FIELDS.MODEL_FIELD, JsStr.of(model),
                              JSON_FIELDS.INSTRUCTION_FIELD, JsStr.of(instruction)
                             );
-        if (temperature == DEFAULT_VALUES.DEFAULT_TEMPERATURE)
+        if (temperature != DEFAULT_VALUES.DEFAULT_TEMPERATURE)
             obj = obj.set(JSON_FIELDS.TEMPERATURE_FIELD, JsDouble.of(temperature));
-        if (topP == DEFAULT_VALUES.DEFAULT_TOP_P) obj = obj.set(JSON_FIELDS.TOP_P_FIELD, JsDouble.of(topP));
-        if (n == DEFAULT_VALUES.DEFAULT_N_EDITS) obj = obj.set(JSON_FIELDS.N_FIELD, JsInt.of(n));
+        if (topP != DEFAULT_VALUES.DEFAULT_TOP_P)
+            obj = obj.set(JSON_FIELDS.TOP_P_FIELD, JsDouble.of(topP));
+        if (n != DEFAULT_VALUES.DEFAULT_N_EDITS)
+            obj = obj.set(JSON_FIELDS.N_FIELD, JsInt.of(n));
         return obj;
 
     }

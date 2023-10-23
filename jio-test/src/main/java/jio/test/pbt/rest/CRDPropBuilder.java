@@ -1,15 +1,17 @@
 package jio.test.pbt.rest;
 
 import fun.gen.Gen;
-import fun.tuple.Pair;
 import jio.BiLambda;
+import jio.IO;
 import jio.Lambda;
-import jio.test.pbt.Property;
+import jio.test.pbt.PropBuilder;
 import jio.test.pbt.TestFailure;
 import jio.test.pbt.TestResult;
+import jio.test.pbt.TestSuccess;
 import jsonvalues.JsObj;
 
 import java.net.http.HttpResponse;
+import java.util.Objects;
 
 /**
  * A builder class for creating property tests for RESTful APIs that support Create (POST), Read (GET), and Delete
@@ -18,6 +20,16 @@ import java.net.http.HttpResponse;
  * @param <O> The type of data generated to feed the property tests.
  */
 public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O>> {
+
+
+    private CRDPropBuilder(String name,
+                           Gen<O> gen,
+                           BiLambda<JsObj, O, HttpResponse<String>> p_post,
+                           BiLambda<JsObj, String, HttpResponse<String>> p_get,
+                           BiLambda<JsObj, String, HttpResponse<String>> p_delete
+                          ) {
+        super(name, gen, p_post, p_get, p_delete);
+    }
 
     /**
      * Creates a new instance of CRDPropBuilder for building property tests for CRUD operations.
@@ -28,13 +40,20 @@ public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O
      * @param p_get    A function for making HTTP GET requests to retrieve entities by ID.
      * @param p_delete A function for making HTTP DELETE requests to delete entities by ID.
      */
-    public CRDPropBuilder(String name,
-                          Gen<O> gen,
-                          Lambda<O, HttpResponse<String>> p_post,
-                          Lambda<String, HttpResponse<String>> p_get,
-                          Lambda<String, HttpResponse<String>> p_delete
-                         ) {
-        super(name, gen, p_post, p_get, p_delete);
+    public static <O> CRDPropBuilder<O> of(final String name,
+                                           final Gen<O> gen,
+                                           final Lambda<O, HttpResponse<String>> p_post,
+                                           final Lambda<String, HttpResponse<String>> p_get,
+                                           final Lambda<String, HttpResponse<String>> p_delete
+                                          ) {
+        Objects.requireNonNull(p_post);
+        Objects.requireNonNull(p_get);
+        Objects.requireNonNull(p_delete);
+        return new CRDPropBuilder<>(name,
+                                    gen,
+                                    (conf, body) -> Objects.requireNonNull(p_post).apply(body),
+                                    (conf, id) -> Objects.requireNonNull(p_get).apply(id),
+                                    (conf, id) -> Objects.requireNonNull(p_delete).apply(id));
     }
 
     /**
@@ -49,13 +68,13 @@ public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O
      * @param p_delete A bi-function for making HTTP DELETE requests to delete entities by ID, taking a configuration
      *                 and an ID.
      */
-    public CRDPropBuilder(String name,
-                          Gen<O> gen,
-                          BiLambda<JsObj, O, HttpResponse<String>> p_post,
-                          BiLambda<JsObj, String, HttpResponse<String>> p_get,
-                          BiLambda<JsObj, String, HttpResponse<String>> p_delete
-                         ) {
-        super(name, gen, p_post, p_get, p_delete);
+    public static <O> CRDPropBuilder<O> of(final String name,
+                                           final Gen<O> gen,
+                                           final BiLambda<JsObj, O, HttpResponse<String>> p_post,
+                                           final BiLambda<JsObj, String, HttpResponse<String>> p_get,
+                                           final BiLambda<JsObj, String, HttpResponse<String>> p_delete
+                                          ) {
+        return new CRDPropBuilder<>(name, gen, p_post, p_get, p_delete);
     }
 
     /**
@@ -64,18 +83,34 @@ public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O
      * @return A property test for Create (POST), Read (GET), and Delete (DELETE) operations on a RESTful API.
      */
     @Override
-    public Property<O> create() {
+    public PropBuilder<O> buildPropBuilder() {
         BiLambda<JsObj, O, TestResult> lambda =
-                (conf, body) -> post.apply(conf, body).then(resp -> getId.apply(body, resp)
-                                                                         .then(id -> get.apply(conf, id)
-                                                                                        .map(r -> Pair.of(id, r))))
-                                    .then(pair -> delete.apply(conf, pair.first())
-                                                        .map(r -> Pair.of(pair.first(), r)))
-                                    .then(pair -> get.apply(conf, pair.first()))
+                (conf, body) -> post.apply(conf, body)
+                                    .then(resp ->
+                                                  switch (postAssert.apply(resp)) {
+                                                      case TestSuccess $ -> getId.apply(body, resp);
+                                                      case TestFailure f -> IO.fail(f);
+                                                  }
+                                         )
+                                    .then(id -> get.apply(conf, id)
+                                                   .then(assertResp(getAssert, id))
+
+                                         )
+
+                                    .then(idResp -> delete.apply(conf, idResp.id())
+                                                          .then(assertResp(deleteAssert,
+                                                                           idResp.id()))
+                                         )
+
+                                    .then(idResp -> get.apply(conf,
+                                                              idResp.id()))
+
                                     .map(resp -> resp.statusCode() == 404 ?
                                             TestResult.SUCCESS :
                                             TestFailure.reason("Entity found after being deleted successfully. Status code received %d".formatted(resp.statusCode())));
 
-        return Property.ofLambda(name, gen, lambda);
+        return PropBuilder.ofLambda(name, gen, lambda);
     }
+
+
 }

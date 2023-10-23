@@ -1,7 +1,7 @@
 package jio.http.client.oauth;
 
 import jio.http.client.HttpLambda;
-import jio.http.client.MyHttpClient;
+import jio.http.client.JioHttpClient;
 
 import java.net.http.HttpResponse;
 
@@ -10,7 +10,7 @@ import java.net.http.HttpResponse;
  * OAuth authentication using the Client Credentials Grant flow. It automatically handles access token expiration and
  * refreshes tokens when needed.
  */
-public interface MyOauthHttpClient extends MyHttpClient {
+public interface OauthHttpClient extends JioHttpClient {
 
     /**
      * Http lambda that takes a req builder, send the request asynchronously to the server and wrap the response into a

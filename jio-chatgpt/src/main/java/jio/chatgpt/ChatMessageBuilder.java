@@ -16,15 +16,20 @@ public final class ChatMessageBuilder {
     private String name;
 
 
+
+    private ChatMessageBuilder(final Data.ROLE role, final String content) {
+        this.role = Objects.requireNonNull(role);
+        this.content = Objects.requireNonNull(content);
+    }
+
     /**
      * Creates a ChatMessageBuilder with the specified role and content.
      *
      * @param role    The role of the author of this message.
      * @param content The contents of the message.
      */
-    public ChatMessageBuilder(Data.ROLE role, String content) {
-        this.role = role;
-        this.content = content;
+    public static ChatMessageBuilder of(final Data.ROLE role, final String content) {
+        return new ChatMessageBuilder(role, content);
     }
 
     /**

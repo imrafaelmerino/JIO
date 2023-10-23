@@ -4,39 +4,47 @@ import com.mongodb.client.MongoCollection;
 import jsonvalues.JsObj;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
- * A supplier that provides a MongoDB collection of JSON objects ({@link JsObj}). This supplier ensures that the MongoDB
+ * A builder that provides a MongoDB collection of JSON objects ({@link JsObj}). This builder ensures that the MongoDB
  * collection is lazily initialized and cached for efficient reuse.
  *
  * <p>Instances of this class can be used to obtain a reference to a specific collection within a MongoDB database,
  * which can then be used to perform various database operations.</p>
  *
- * <p><strong>Note:</strong> This class is thread-safe, and its {@link #get()} method ensures safe and efficient
+ * <p><strong>Note:</strong> This class is thread-safe, and its {@link #build()} method ensures safe and efficient
  * lazy initialization of the MongoDB collection.</p>
+ * <p>
+ * This class is used internally by the MongoLambdas implemented in the package jio.mongodb: {@link InsertOne},
+ * {@link FindOne}, etc
  *
- * @see DatabaseSupplier
- * @see JsObj
+ * @see DatabaseBuilder
  */
-public class CollectionSupplier implements Supplier<MongoCollection<JsObj>> {
+public final class CollectionBuilder {
 
-    final DatabaseSupplier database;
+    final DatabaseBuilder database;
     final String name;
     volatile MongoCollection<JsObj> collection;
 
+
+    CollectionBuilder(final DatabaseBuilder database,
+                      final String name
+                     ) {
+        this.database = Objects.requireNonNull(database);
+        this.name = Objects.requireNonNull(name);
+    }
+
     /**
-     * Constructs a new CollectionSupplier with the given DatabaseSupplier and collection name.
+     * Constructs a CollectionBuilder.of with the given DatabaseBuilder and collection name.
      *
      * @param database The supplier of the MongoDB database.
      * @param name     The name of the MongoDB collection.
      * @throws NullPointerException if either database or name is null.
      */
-    public CollectionSupplier(final DatabaseSupplier database,
-                              final String name
-                             ) {
-        this.database = Objects.requireNonNull(database);
-        this.name = Objects.requireNonNull(name);
+    public static CollectionBuilder of(final DatabaseBuilder database,
+                                       final String name
+                                      ) {
+        return new CollectionBuilder(database, name);
     }
 
     /**
@@ -47,15 +55,14 @@ public class CollectionSupplier implements Supplier<MongoCollection<JsObj>> {
      *
      * @return The MongoDB collection of JSON objects.
      */
-    @Override
-    public MongoCollection<JsObj> get() {
+    MongoCollection<JsObj> build() {
 
         var localRef = collection;
         if (localRef == null) {
             synchronized (this) {
                 localRef = collection;
                 if (localRef == null) {
-                    collection = localRef = database.get().getCollection(name, JsObj.class);
+                    collection = localRef = database.build().getCollection(name, JsObj.class);
                 }
             }
         }

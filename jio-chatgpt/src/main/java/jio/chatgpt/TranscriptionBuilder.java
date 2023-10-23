@@ -13,7 +13,6 @@ import static jio.chatgpt.JSON_FIELDS.*;
  * Builder class to create Transcriptions
  */
 public final class TranscriptionBuilder {
-
     final String file;
     final String model;
     String prompt;
@@ -22,11 +21,15 @@ public final class TranscriptionBuilder {
     Data.RESPONSE_FORMAT responseFormat;
 
 
-    public TranscriptionBuilder(String file, String model) {
-        this.file = file;
-        this.model = model;
+    private TranscriptionBuilder(String file, String model) {
+        this.file = Objects.requireNonNull(file);
+        this.model = Objects.requireNonNull(model);
         this.responseFormat = DEFAULT_VALUES.DEFAULT_TRANSCRIPTION_FORMAT;
         this.temperature = DEFAULT_VALUES.DEFAULT_TRANSCRIPTION_TEMPERATURE;
+    }
+
+    public static TranscriptionBuilder of(String file, String model) {
+        return new TranscriptionBuilder(file, model);
     }
 
     /**
@@ -34,7 +37,7 @@ public final class TranscriptionBuilder {
      *               match the audio language.
      * @return this builder
      */
-    public TranscriptionBuilder setPrompt(String prompt) {
+    public TranscriptionBuilder withPrompt(String prompt) {
         this.prompt = Objects.requireNonNull(prompt);
         return this;
     }
@@ -44,7 +47,7 @@ public final class TranscriptionBuilder {
      *                       verbose_json, or vtt. Defaults to json
      * @return this builder
      */
-    public TranscriptionBuilder setResponseFormat(Data.RESPONSE_FORMAT responseFormat) {
+    public TranscriptionBuilder withResponseFormat(Data.RESPONSE_FORMAT responseFormat) {
         this.responseFormat = responseFormat;
         return this;
     }
@@ -57,14 +60,14 @@ public final class TranscriptionBuilder {
      * @param value The sampling temperature, between 0 and 1 (Defaults to 0)
      * @return this builder
      */
-    public TranscriptionBuilder setTemperature(double value) {
+    public TranscriptionBuilder withTemperature(double value) {
         if (value > 1) throw new IllegalArgumentException("temperature > 1");
         if (value < 0) throw new IllegalArgumentException("temperature < 0");
         this.temperature = value;
         return this;
     }
 
-    public TranscriptionBuilder setLanguage(String language) {
+    public TranscriptionBuilder withLanguage(String language) {
         this.language = Objects.requireNonNull(language);
         return this;
     }

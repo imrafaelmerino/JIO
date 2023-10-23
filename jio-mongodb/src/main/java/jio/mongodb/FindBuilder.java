@@ -44,9 +44,9 @@ public final class FindBuilder {
      * Sets the sort criteria for ordering the results.
      *
      * @param sort the sort criteria for ordering the results
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withSort)
      */
-    public FindBuilder sort(final JsObj sort) {
+    public FindBuilder withSort(final JsObj sort) {
         this.sort = sort;
         return this;
     }
@@ -55,9 +55,9 @@ public final class FindBuilder {
      * Sets the projection criteria for specifying which fields to include or exclude.
      *
      * @param projection the projection criteria for specifying which fields to include or exclude
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withProjection)
      */
-    public FindBuilder projection(final JsObj projection) {
+    public FindBuilder withProjection(final JsObj projection) {
         this.projection = projection;
         return this;
     }
@@ -66,9 +66,9 @@ public final class FindBuilder {
      * Sets the hint criteria for optimizing query performance.
      *
      * @param hint the hint criteria for optimizing query performance
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withHint)
      */
-    public FindBuilder hint(final JsObj hint) {
+    public FindBuilder withHint(final JsObj hint) {
         this.hint = hint;
         return this;
     }
@@ -77,9 +77,9 @@ public final class FindBuilder {
      * Sets the maximum values for indexed fields in the query.
      *
      * @param max the maximum values for indexed fields in the query
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withMax)
      */
-    public FindBuilder max(final JsObj max) {
+    public FindBuilder withMax(final JsObj max) {
         this.max = max;
         return this;
     }
@@ -88,9 +88,9 @@ public final class FindBuilder {
      * Sets the minimum values for indexed fields in the query.
      *
      * @param min the minimum values for indexed fields in the query
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withMin)
      */
-    public FindBuilder min(final JsObj min) {
+    public FindBuilder withMin(final JsObj min) {
         this.min = min;
         return this;
     }
@@ -99,9 +99,9 @@ public final class FindBuilder {
      * Sets a hint string for the query optimizer to use a specific index.
      *
      * @param hintString the hint string for the query optimizer
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withHintString)
      */
-    public FindBuilder hintString(final String hintString) {
+    public FindBuilder withHintString(final String hintString) {
         this.hintString = hintString;
         return this;
     }
@@ -110,10 +110,10 @@ public final class FindBuilder {
      * Sets the number of documents to skip in the query results before returning.
      *
      * @param skip the number of documents to skip
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withSkip)
      * @throws IllegalArgumentException if the provided skip value is less than 0
      */
-    public FindBuilder skip(final int skip) {
+    public FindBuilder withSkip(final int skip) {
         if (skip < 0) throw new IllegalArgumentException("skip is < 0");
         this.skip = skip;
         return this;
@@ -123,10 +123,10 @@ public final class FindBuilder {
      * Sets the maximum number of documents to return in the query results.
      *
      * @param limit the maximum number of documents to return
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withLimit)
      * @throws IllegalArgumentException if the provided limit value is less than 0
      */
-    public FindBuilder limit(final int limit) {
+    public FindBuilder withLimit(final int limit) {
         if (limit < 0) throw new IllegalArgumentException("limit is < 0");
         this.limit = limit;
         return this;
@@ -136,9 +136,9 @@ public final class FindBuilder {
      * Sets whether to include the record ID field in the query results.
      *
      * @param showRecordId {@code true} to include the record ID field, {@code false} to exclude it
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withShowRecordId)
      */
-    public FindBuilder showRecordId(final boolean showRecordId) {
+    public FindBuilder withShowRecordId(final boolean showRecordId) {
         this.showRecordId = showRecordId;
         return this;
     }
@@ -147,9 +147,9 @@ public final class FindBuilder {
      * Sets whether to return only the keys of the result documents.
      *
      * @param returnKey {@code true} to return only the keys, {@code false} to return full documents
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withReturnKey)
      */
-    public FindBuilder returnKey(final boolean returnKey) {
+    public FindBuilder withReturnKey(final boolean returnKey) {
         this.returnKey = returnKey;
         return this;
     }
@@ -158,9 +158,9 @@ public final class FindBuilder {
      * Sets a comment associated with the query, which can provide context for the query in the MongoDB logs.
      *
      * @param comment a comment associated with the query
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withComment)
      */
-    public FindBuilder comment(final String comment) {
+    public FindBuilder withComment(final String comment) {
         this.comment = comment;
         return this;
     }
@@ -169,9 +169,9 @@ public final class FindBuilder {
      * Sets whether to prevent the cursor from timing out automatically.
      *
      * @param noCursorTimeout {@code true} to prevent cursor timeout, {@code false} to allow cursor timeout
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withNoCursorTimeout)
      */
-    public FindBuilder noCursorTimeout(final boolean noCursorTimeout) {
+    public FindBuilder withNoCursorTimeout(final boolean noCursorTimeout) {
         this.noCursorTimeout = noCursorTimeout;
         return this;
     }
@@ -180,9 +180,9 @@ public final class FindBuilder {
      * Sets whether to return partial results if some shards are unavailable.
      *
      * @param partial {@code true} to return partial results, {@code false} to require all shards to be available
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withPartial)
      */
-    public FindBuilder partial(final boolean partial) {
+    public FindBuilder withPartial(final boolean partial) {
         this.partial = partial;
         return this;
     }
@@ -191,10 +191,10 @@ public final class FindBuilder {
      * Sets the maximum number of documents to retrieve per batch.
      *
      * @param batchSize the maximum number of documents to retrieve per batch
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withBatchSize)
      * @throws IllegalArgumentException if the provided batchSize value is less than 0
      */
-    public FindBuilder batchSize(final int batchSize) {
+    public FindBuilder withBatchSize(final int batchSize) {
         if (batchSize < 0) throw new IllegalArgumentException("batchSize is < 0");
         this.batchSize = batchSize;
         return this;
@@ -205,10 +205,10 @@ public final class FindBuilder {
      *
      * @param maxAwaitTime the maximum time for the server to allow the query to run
      * @param unit         the time unit for the maxAwaitTime value
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withMaxAwaitTime)
      * @throws IllegalArgumentException if the provided maxAwaitTime value is less than 0
      */
-    public FindBuilder maxAwaitTime(final int maxAwaitTime, final TimeUnit unit) {
+    public FindBuilder withMaxAwaitTime(final int maxAwaitTime, final TimeUnit unit) {
         if (maxAwaitTime < 0) throw new IllegalArgumentException("maxAwaitTime is < 0");
         this.maxAwaitTime = requireNonNull(unit).toMillis(maxAwaitTime);
         return this;
@@ -219,10 +219,10 @@ public final class FindBuilder {
      *
      * @param maxTime the maximum time for the server to allow the query to run
      * @param unit    the time unit for the maxTime value
-     * @return this builder instance for method chaining
+     * @return this builder instance for method chaining (withMaxTime)
      * @throws IllegalArgumentException if the provided maxTime value is less than 0
      */
-    public FindBuilder maxTime(final int maxTime, final TimeUnit unit) {
+    public FindBuilder withMaxTime(final int maxTime, final TimeUnit unit) {
         if (maxTime < 0) throw new IllegalArgumentException("maxTime is < 0");
         this.maxTime = requireNonNull(unit).toMillis(maxTime);
         return this;

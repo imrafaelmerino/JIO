@@ -8,20 +8,20 @@ import java.util.function.Predicate;
 /**
  * Represents a wrapper around the HTTP Java client to make HTTP requests asynchronously using
  * {@link jio.Lambda lambdas} and therefore taking advantage of the JIO API. Instances of this interface can be created
- * using the builder {@link MyHttpClientBuilder}.
+ * using the builder {@link JioHttpClientBuilder}.
  * <p>
  * For every request, an event {@link ClientReqEvent} is created and written to the Flight Recorder system. This allows
  * you to capture request and response details for debugging and performance analysis. Event recording is enabled by
  * default.
  * <p>
  * You can also define a retry policy and a retry condition that will be applied to every request with the builder
- * options {@link MyHttpClientBuilder#withRetryPolicy(RetryPolicy)} and
- * {@link MyHttpClientBuilder#withRetryPredicate(Predicate)}.
+ * options {@link JioHttpClientBuilder#withRetryPolicy(RetryPolicy)} and
+ * {@link JioHttpClientBuilder#withRetryPredicate(Predicate)}.
  *
  * @see ClientReqEvent
- * @see MyHttpClientBuilder#withoutRecordedEvents To disable event recording.
+ * @see JioHttpClientBuilder#withoutRecordedEvents To disable event recording.
  */
-public interface MyHttpClient {
+public interface JioHttpClient {
 
     /**
      * Provides an HTTP lambda that takes a request builder and returns a JIO effect with the HTTP response, parsing the

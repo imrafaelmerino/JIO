@@ -31,17 +31,40 @@ public final class EventBuilder<O> {
                                e.getMessage()
                               );
 
-    public EventBuilder(final String exp) {
-        this(exp, "");
-    }
-
-    public EventBuilder(final String exp,
-                        final String context
-                       ) {
+    private EventBuilder(final String exp,
+                         final String context
+                        ) {
         this.exp = requireNonNull(exp);
         if (exp.isBlank() || exp.isEmpty()) throw new IllegalArgumentException("exp must be a legible string");
         this.context = requireNonNull(context);
     }
+
+    /**
+     * Creates a new instance of {@code EventBuilder} with the specified expression and context.
+     *
+     * @param exp     the expression for the event
+     * @param context the context for the event
+     * @param <O>     the type of the result of a computation in case of success
+     * @return a new {@code EventBuilder} instance
+     */
+    public static <O> EventBuilder<O> of(final String exp,
+                                         final String context
+                                        ) {
+        return new EventBuilder<>(exp, context);
+    }
+
+    /**
+     * Creates a new instance of {@code EventBuilder} with the specified expression and an empty context.
+     *
+     * @param exp the expression for the event
+     * @param <O> the type of the result of a computation in case of success
+     * @return a new {@code EventBuilder} instance
+     */
+    public static <O> EventBuilder<O> of(final String exp
+                                        ) {
+        return EventBuilder.of(exp, "");
+    }
+
 
     /**
      * Set the function that takes the result of the expression and produces the event value. By default, the value of

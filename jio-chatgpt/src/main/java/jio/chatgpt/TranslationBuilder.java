@@ -5,6 +5,8 @@ import jsonvalues.JsDouble;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 
+import java.util.Objects;
+
 import static jio.chatgpt.JSON_FIELDS.*;
 
 
@@ -21,11 +23,17 @@ public final class TranslationBuilder {
     Data.RESPONSE_FORMAT responseFormat;
 
 
-    public TranslationBuilder(String file, String model) {
-        this.file = file;
-        this.model = model;
+    private TranslationBuilder(String file, String model) {
+        this.file = Objects.requireNonNull(file);
+        this.model = Objects.requireNonNull(model);
         this.responseFormat = DEFAULT_VALUES.DEFAULT_TRANSLATION_FORMAT;
         this.temperature = DEFAULT_VALUES.DEFAULT_TRANSLATION_TEMPERATURE;
+    }
+
+    public static TranslationBuilder of(final String file,
+                                        final String model
+                                       ) {
+        return new TranslationBuilder(file, model);
     }
 
     /**
@@ -33,8 +41,8 @@ public final class TranslationBuilder {
      *                       verbose_json, or vtt. Defaults to json
      * @return this builder
      */
-    public TranslationBuilder setResponseFormat(Data.RESPONSE_FORMAT responseFormat) {
-        this.responseFormat = responseFormat;
+    public TranslationBuilder withResponseFormat(final Data.RESPONSE_FORMAT responseFormat) {
+        this.responseFormat = Objects.requireNonNull(responseFormat);
         return this;
     }
 
@@ -46,7 +54,7 @@ public final class TranslationBuilder {
      * @param value The sampling temperature, between 0 and 1 (Defaults to 0)
      * @return this builder
      */
-    public TranslationBuilder setTemperature(double value) {
+    public TranslationBuilder withTemperature(double value) {
         if (value > 1) throw new IllegalArgumentException("temperature > 1");
         if (value < 0) throw new IllegalArgumentException("temperature < 0");
         this.temperature = value;

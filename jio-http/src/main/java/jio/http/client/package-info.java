@@ -3,8 +3,8 @@
  * for various features, including request retries and response handling as JIO effects. Key classes and interfaces in
  * this package include:
  * <ul>
- *   <li>{@link jio.http.client.MyHttpClient}: An interface representing an HTTP client that allows asynchronous HTTP requests with various response handling options.</li>
- *   <li>{@link jio.http.client.MyHttpClientBuilder}: A builder class for creating instances of {@code MyHttpClient} with customizable retry policies for requests.</li>
+ *   <li>{@link jio.http.client.JioHttpClient}: An interface representing an HTTP client that allows asynchronous HTTP requests with various response handling options.</li>
+ *   <li>{@link jio.http.client.JioHttpClientBuilder}: A builder class for creating instances of {@code JioHttpClient} with customizable retry policies for requests.</li>
  *   <li>{@link jio.http.client.HttpExceptions}: A utility class containing predicates to identify specific exceptions that may occur when connecting to a server, such as timeouts, unresolved hosts, and more.</li>
  * </ul>
  * This package is designed to simplify and enhance the functionality of Java's standard {@code HttpClient} by providing features such as request retries and request/response handling as JIO effects.

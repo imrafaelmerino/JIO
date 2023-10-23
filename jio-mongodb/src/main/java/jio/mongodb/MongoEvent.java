@@ -6,7 +6,7 @@ import jdk.jfr.*;
 @Name("jio.mongodb")
 @Category({"JIO", "DATABASE", "MONGODB"})
 @Description("MongoDB CRUD operations like find, replace, delete, insert...")
-final class MongoDBEvent extends Event {
+final class MongoEvent extends Event {
     @Label("operation")
     public final String operation;
     @Label("result")
@@ -14,7 +14,8 @@ final class MongoDBEvent extends Event {
     @Label("exception")
     public String exception;
 
-    public MongoDBEvent(OP operation) {
+
+    public MongoEvent(OP operation) {
         this.operation = operation.name();
     }
 
@@ -31,7 +32,8 @@ final class MongoDBEvent extends Event {
         INSERT_ONE,
         REPLACE_ONE,
         UPDATE_MANY,
-        UPDATE_ONE
+        UPDATE_ONE,
+        TX
     }
 
     enum RESULT {SUCCESS, FAILURE}

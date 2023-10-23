@@ -4,35 +4,39 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
- * A thread-safe supplier for obtaining a MongoDB database instance.
+ * A thread-safe builder for building a MongoDB database instance.
+ * <p><strong>Note:</strong>. This builder ensures that the MongoDB
+ * database is lazily initialized and cached for efficient reuse.
+ * <p>
+ * This class is used internally by the {@link CollectionBuilder} to get the {@link MongoDatabase} instance
+ *
+ * @see CollectionBuilder
  */
-public class DatabaseSupplier implements Supplier<MongoDatabase> {
+public final class DatabaseBuilder {
 
     final MongoClient client;
     final String name;
     volatile MongoDatabase database;
 
     /**
-     * Constructs a new DatabaseSupplier.
+     * Constructs a new DatabaseBuilder.
      *
      * @param client The MongoDB client.
      * @param name   The name of the MongoDB database to obtain.
      */
-    public DatabaseSupplier(final MongoClient client, final String name) {
+    DatabaseBuilder(final MongoClient client, final String name) {
         this.client = Objects.requireNonNull(client);
         this.name = Objects.requireNonNull(name);
     }
 
-    /**
-     * Gets the MongoDB database instance. This method ensures thread safety.
-     *
-     * @return The MongoDB database instance.
-     */
-    @Override
-    public MongoDatabase get() {
+    public static DatabaseBuilder of(final MongoClient client, final String name) {
+        return new DatabaseBuilder(client, name);
+    }
+
+
+    MongoDatabase build() {
 
         MongoDatabase localRef = database;
         if (localRef == null) {

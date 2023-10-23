@@ -15,29 +15,33 @@ public final class ImageBuilder {
     Data.IMAGE_FORMAT responseFormat;
     String user;
     int n;
-    Data.IMAGE_SIZE size;
+    Data.IMAGE_SIZE imageSize;
 
+
+    private ImageBuilder(String prompt) {
+        this.prompt = Objects.requireNonNull(prompt);
+        if (prompt.length() > 1000) throw new IllegalArgumentException("prompt > 1000");
+        this.imageSize = DEFAULT_VALUES.DEFAULT_IMAGE_SIZE;
+        this.responseFormat = DEFAULT_VALUES.DEFAULT_IMAGE_RESPONSE_FORMAT;
+        this.n = DEFAULT_VALUES.DEFAULT_N_IMAGES;
+    }
     /**
      * Constructs an ImageBuilder with the provided prompt.
      *
      * @param prompt A text description of the desired image(s). The maximum length is 1000 characters.
      */
-    public ImageBuilder(String prompt) {
-        this.prompt = Objects.requireNonNull(prompt);
-        if (prompt.length() > 1000) throw new IllegalArgumentException("prompt > 1000");
-        this.size = DEFAULT_VALUES.DEFAULT_IMAGE_SIZE;
-        this.responseFormat = DEFAULT_VALUES.DEFAULT_IMAGE_RESPONSE_FORMAT;
-        this.n = DEFAULT_VALUES.DEFAULT_N_IMAGES;
+    public static ImageBuilder of(String prompt) {
+        return new ImageBuilder(prompt);
     }
 
     /**
      * Sets the size parameter for the generated images.
      *
-     * @param size The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
+     * @param imageSize The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
      * @return this builder
      */
-    public ImageBuilder setSize(Data.IMAGE_SIZE size) {
-        this.size = Objects.requireNonNull(size);
+    public ImageBuilder withImageSize(Data.IMAGE_SIZE imageSize) {
+        this.imageSize = Objects.requireNonNull(imageSize);
         return this;
     }
 
@@ -47,7 +51,7 @@ public final class ImageBuilder {
      * @param format The format in which the generated images are returned. Must be one of url or b64_json.
      * @return this builder
      */
-    public ImageBuilder setResponseFormat(Data.IMAGE_FORMAT format) {
+    public ImageBuilder withResponseFormat(Data.IMAGE_FORMAT format) {
         this.responseFormat = Objects.requireNonNull(format);
         return this;
     }
@@ -58,7 +62,7 @@ public final class ImageBuilder {
      * @param n The number of images to generate. Must be between 1 and 10.
      * @return this builder
      */
-    public ImageBuilder setN(int n) {
+    public ImageBuilder withN(int n) {
         if (n < 0) throw new IllegalArgumentException("n < 0");
         if (n > 10) throw new IllegalArgumentException("n > 10");
         this.n = n;
@@ -72,7 +76,7 @@ public final class ImageBuilder {
      * @param user A unique identifier representing your end-user.
      * @return this builder
      */
-    public ImageBuilder setUser(String user) {
+    public ImageBuilder withUser(String user) {
         this.user = Objects.requireNonNull(user);
         return this;
     }
@@ -85,14 +89,14 @@ public final class ImageBuilder {
     public JsObj build() {
         JsObj obj = JsObj.of(JSON_FIELDS.PROMPT_FIELD, JsStr.of(prompt));
 
-        if (responseFormat != DEFAULT_VALUES.DEFAULT_IMAGE_RESPONSE_FORMAT)
+        if (!responseFormat.equals(DEFAULT_VALUES.DEFAULT_IMAGE_RESPONSE_FORMAT))
             obj = obj.set(JSON_FIELDS.RESPONSE_FORMAT_FIELD, JsStr.of(responseFormat.name()));
         if (user != null && !user.isBlank())
             obj = obj.set(JSON_FIELDS.USER_FIELD, JsStr.of(user));
         if (n != DEFAULT_VALUES.DEFAULT_N_IMAGES)
             obj = obj.set(JSON_FIELDS.N_FIELD, JsInt.of(n));
-        if (size != DEFAULT_VALUES.DEFAULT_IMAGE_SIZE)
-            obj = obj.set(JSON_FIELDS.SIZE_FIELD, JsStr.of(size.size));
+        if (!imageSize.equals(DEFAULT_VALUES.DEFAULT_IMAGE_SIZE))
+            obj = obj.set(JSON_FIELDS.SIZE_FIELD, JsStr.of(imageSize.size));
         return obj;
     }
 }

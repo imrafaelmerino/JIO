@@ -1,10 +1,11 @@
 package jio;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.Set;
+import java.util.function.*;
+import java.util.stream.Collector;
 
 import static java.util.Objects.requireNonNull;
 
@@ -24,6 +25,87 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
           ) {
         super(debugger);
         this.exps = exps;
+    }
+
+    /**
+     * Returns a Collector for collecting IO boolean effects into an AnyExp. All the effects will be executed
+     * sequentially to compute the final boolean.
+     *
+     * @return A Collector for collecting boolean effects into an AnyExp
+     */
+    public static Collector<IO<Boolean>, ?, AnyExp> parCollector() {
+        return new Collector<IO<Boolean>, List<IO<Boolean>>, AnyExp>() {
+
+            private final Set<Characteristics> characteristics = Collections.emptySet();
+
+            @Override
+            public Supplier<List<IO<Boolean>>> supplier() {
+                return ArrayList::new;
+            }
+
+            @Override
+            public BiConsumer<List<IO<Boolean>>, IO<Boolean>> accumulator() {
+                return List::add;
+            }
+
+            @Override
+            public BinaryOperator<List<IO<Boolean>>> combiner() {
+                return (a, b) -> {
+                    a.addAll(b);
+                    return b;
+                };
+            }
+
+            @Override
+            public Function<List<IO<Boolean>>, AnyExp> finisher() {
+                return AnyExp::par;
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return characteristics;
+            }
+        };
+    }
+    /**
+     * Returns a Collector for collecting IO boolean effects into an AnyExp. All the effects will be executed in
+     * parallel to compute the final boolean.
+     *
+     * @return A Collector for collecting boolean effects into an AnyExp
+     */
+    public static Collector<IO<Boolean>, ?, AnyExp> seqCollector() {
+        return new Collector<IO<Boolean>, List<IO<Boolean>>, AnyExp>() {
+
+            private final Set<Characteristics> characteristics = Collections.emptySet();
+
+            @Override
+            public Supplier<List<IO<Boolean>>> supplier() {
+                return ArrayList::new;
+            }
+
+            @Override
+            public BiConsumer<List<IO<Boolean>>, IO<Boolean>> accumulator() {
+                return List::add;
+            }
+
+            @Override
+            public BinaryOperator<List<IO<Boolean>>> combiner() {
+                return (a, b) -> {
+                    a.addAll(b);
+                    return b;
+                };
+            }
+
+            @Override
+            public Function<List<IO<Boolean>>, AnyExp> finisher() {
+                return AnyExp::seq;
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return characteristics;
+            }
+        };
     }
 
     /**
@@ -112,6 +194,14 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
         exps.add(requireNonNull(bool));
         for (IO<Boolean> other : requireNonNull(others)) exps.add(requireNonNull(other));
         return new AnyExpSeq(exps, null);
+    }
+
+    public static AnyExp par(final List<IO<Boolean>> ios) {
+        return new AnyExpPar(ios, null);
+    }
+
+    public static AnyExp seq(final List<IO<Boolean>> ios) {
+        return new AnyExpSeq(ios, null);
     }
 
 

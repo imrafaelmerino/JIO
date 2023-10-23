@@ -3,8 +3,8 @@ package jio.http.client.oauth;
 import jio.IO;
 import jio.Lambda;
 import jio.http.client.HttpLambda;
-import jio.http.client.MyHttpClient;
-import jio.http.client.MyHttpClientBuilder;
+import jio.http.client.JioHttpClient;
+import jio.http.client.JioHttpClientBuilder;
 
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -16,10 +16,10 @@ import java.util.function.Predicate;
  * OAuth authentication using the Client Credentials Grant flow. It automatically handles access token expiration and
  * refreshes tokens when needed.
  */
-final class ClientCredentialsHttpClient implements MyOauthHttpClient {
+final class ClientCredsClient implements OauthHttpClient {
     private static final int MAX_REFRESH_TOKEN_LOOP_SIZE = 3;
-    private final MyHttpClient httpClient;
-    private final Function<MyOauthHttpClient, IO<HttpResponse<String>>> accessTokenReq;
+    private final JioHttpClient httpClient;
+    private final Function<OauthHttpClient, IO<HttpResponse<String>>> accessTokenReq;
     private final String authorizationHeaderName;
     private final Function<String, String> authorizationHeaderValue;
     private final Lambda<HttpResponse<String>, String> getAccessToken;
@@ -32,13 +32,13 @@ final class ClientCredentialsHttpClient implements MyOauthHttpClient {
     private final HttpLambda<Void> oauthDiscardingLambda;
     private volatile String accessToken;
 
-    ClientCredentialsHttpClient(final MyHttpClientBuilder client,
-                                final Function<MyOauthHttpClient, IO<HttpResponse<String>>> accessTokenReq,
-                                final String authorizationHeaderName,
-                                final Function<String, String> authorizationHeaderValue,
-                                final Lambda<HttpResponse<String>, String> getAccessToken,
-                                final Predicate<HttpResponse<?>> refreshTokenPredicate
-                               ) {
+    ClientCredsClient(final JioHttpClientBuilder client,
+                      final Function<OauthHttpClient, IO<HttpResponse<String>>> accessTokenReq,
+                      final String authorizationHeaderName,
+                      final Function<String, String> authorizationHeaderValue,
+                      final Lambda<HttpResponse<String>, String> getAccessToken,
+                      final Predicate<HttpResponse<?>> refreshTokenPredicate
+                     ) {
         this.httpClient = client.build();
         this.accessTokenReq = accessTokenReq;
         this.authorizationHeaderName = authorizationHeaderName;

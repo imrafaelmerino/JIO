@@ -2,6 +2,7 @@ package jio.chatgpt;
 
 import jsonvalues.*;
 
+import java.util.List;
 import java.util.Objects;
 
 import static jio.chatgpt.Constraints.*;
@@ -14,13 +15,11 @@ import static jio.chatgpt.JSON_FIELDS.*;
  * with messages and configure various parameters for generating responses.
  */
 public final class ChatBuilder {
-
-
     private final int DEFAULT_MAX_TOKENS = Integer.MAX_VALUE;
     private final String model;
+    private final JsArray messages;
     private double frequencyPenalty = DEFAULT_FREQ_PENALTY;
     private double presencePenalty = DEFAULT_PRESENCE_PENALTY;
-    private JsArray messages;
     private JsArray stop;
     private String user;
     private int maxTokens = DEFAULT_MAX_TOKENS;
@@ -29,16 +28,11 @@ public final class ChatBuilder {
     private int n = DEFAULT_N_CHOICES;
     private boolean stream = DEFAULT_STREAM;
 
-    /**
-     * Creates a ChatBuilder with the specified GPT model ID and initial message using a ChatMessageBuilder.
-     *
-     * @param model   The ID of the GPT model to use. See model endpoint compatibility for details.
-     * @param builder A ChatMessageBuilder to create the initial message for the conversation.
-     */
-    public ChatBuilder(String model, ChatMessageBuilder builder) {
 
-        this.model = Objects.requireNonNull(model);
-        this.messages = JsArray.of(Objects.requireNonNull(builder).build());
+    private ChatBuilder(String model, JsArray messages) {
+
+        this.model = model;
+        this.messages = messages;
     }
 
     /**
@@ -47,34 +41,18 @@ public final class ChatBuilder {
      * @param model    The ID of the GPT model to use. See model endpoint compatibility for details.
      * @param messages A list of messages describing the conversation so far.
      */
-    public ChatBuilder(String model, JsArray messages) {
+    public static ChatBuilder of(final String model,
+                                 final List<ChatMessageBuilder> messages
+                                ) {
+        if (messages.isEmpty()) throw new IllegalArgumentException("messages is empty");
 
-        this.model = Objects.requireNonNull(model);
-        this.messages = Objects.requireNonNull(messages);
-        if (messages.isEmpty()) throw new IllegalArgumentException(("messages is empty"));
+        List<JsObj> chats = Objects.requireNonNull(messages).stream()
+                                   .map(ChatMessageBuilder::build)
+                                   .toList();
+        return new ChatBuilder(Objects.requireNonNull(model),
+                               JsArray.ofIterable(chats));
     }
 
-    /**
-     * Appends a new message to the conversation.
-     *
-     * @param builder A ChatMessageBuilder to create the message to append.
-     * @return this builder
-     */
-    public ChatBuilder appendMessage(ChatMessageBuilder builder) {
-        this.messages = messages.append(Objects.requireNonNull(builder).build());
-        return this;
-    }
-
-    /**
-     * Appends multiple messages to the conversation.
-     *
-     * @param messages The messages to append to the conversation.
-     * @return this builder
-     */
-    public ChatBuilder appendMessages(JsArray messages) {
-        this.messages = messages.appendAll(Objects.requireNonNull(messages));
-        return this;
-    }
 
     /**
      * Sets the sampling temperature for generating responses. Higher values make the output more random, while lower
@@ -83,7 +61,7 @@ public final class ChatBuilder {
      * @param value The temperature value (Defaults to 1).
      * @return this builder
      */
-    public ChatBuilder setTemperature(double value) {
+    public ChatBuilder withTemperature(double value) {
         if (value > MAX_CHAT_COMPLETION_TEMPERATURE)
             throw new IllegalArgumentException("temperature > %d".formatted(MAX_CHAT_COMPLETION_TEMPERATURE));
         if (value < MIN_CHAT_COMPLETION_TEMPERATURE)
@@ -100,9 +78,9 @@ public final class ChatBuilder {
      * @param value An alternative to sampling with temperature (Defaults to 1).
      * @return this builder
      */
-    public ChatBuilder setTopP(double value) {
-        if (value < 0.0) throw new IllegalArgumentException("topP < 0");
-        if (value > 1.0) throw new IllegalArgumentException("topP > 1");
+    public ChatBuilder withTopP(double value) {
+        if (value < MIN_TOP_P) throw new IllegalArgumentException("topP < " + MIN_TOP_P);
+        if (value > MAX_TOP_P) throw new IllegalArgumentException("topP > " + MAX_TOP_P);
         this.topP = value;
         return this;
     }
@@ -113,21 +91,21 @@ public final class ChatBuilder {
      * @param n How many chat completion choices to generate for each input message (Defaults to 1).
      * @return this builder
      */
-    public ChatBuilder setNChoices(int n) {
-        if (n < MIN_CHAT_COMPLETION_CHOICES) throw new IllegalArgumentException("n < %d".formatted(MIN_CHAT_COMPLETION_CHOICES));
+    public ChatBuilder withNChoices(int n) {
+        if (n < MIN_CHOICES)
+            throw new IllegalArgumentException("n < %d".formatted(MIN_CHOICES));
         this.n = n;
         return this;
     }
 
     /**
-     * Enables or disables streaming partial progress back as messages are generated. If enabled, partial message deltas
+     * Enables streaming partial progress back as messages are generated. If enabled, partial message deltas
      * are sent with the stream terminated by a data: [DONE] message.
      *
-     * @param stream Whether to stream back partial progress (Defaults to false).
      * @return this builder
      */
-    public ChatBuilder setStream(boolean stream) {
-        this.stream = stream;
+    public ChatBuilder withStream() {
+        this.stream = true;
         return this;
     }
 
@@ -137,11 +115,13 @@ public final class ChatBuilder {
      * @param stop Text where the API will stop generating further tokens (Defaults to null).
      * @return this builder
      */
-    public ChatBuilder setStop(JsArray stop) {
-        this.stop = Objects.requireNonNull(stop);
-        if (stop.size() == 0) throw new IllegalArgumentException("stop empty");
-        if (stop.size() > MAX_CHAT_COMPLETION_SIZE_STOP)
-            throw new IllegalArgumentException("stop size > " + MAX_CHAT_COMPLETION_SIZE_STOP);
+    public ChatBuilder withStop(final List<String> stop) {
+        if (Objects.requireNonNull(stop).isEmpty())
+            throw new IllegalArgumentException("stop empty");
+        if (stop.size() > MAX_SIZE_STOP) {
+            throw new IllegalArgumentException("stop size > " + MAX_SIZE_STOP);
+        }
+        this.stop = JsArray.ofIterable(stop.stream().map(JsStr::of).toList());
         return this;
     }
 
@@ -151,8 +131,8 @@ public final class ChatBuilder {
      * @param stop text where the API will stop generating further tokens (Defaults to null)
      * @return this builder
      */
-    public ChatBuilder setStop(String stop) {
-        return setStop(JsArray.of(Objects.requireNonNull(stop)));
+    public ChatBuilder withStop(final String stop) {
+        return withStop(List.of(Objects.requireNonNull(stop)));
     }
 
 
@@ -163,7 +143,7 @@ public final class ChatBuilder {
      * @param maxTokens The maximum number of tokens to generate in the completion (Default to inf).
      * @return this builder
      */
-    public ChatBuilder setMaxTokens(int maxTokens) {
+    public ChatBuilder withMaxTokens(int maxTokens) {
         if (maxTokens <= 0) throw new IllegalArgumentException("maxTokens <= 0");
         this.maxTokens = maxTokens;
         return this;
@@ -176,11 +156,11 @@ public final class ChatBuilder {
      * @param value Number between -2.0 and 2.0 (Defaults to 0).
      * @return this builder
      */
-    public ChatBuilder setPresencePenalty(double value) {
-        if (value < MIN_CHAT_COMPLETION_PRESENCE_PENALTY)
-            throw new IllegalArgumentException("presencePenalty < " + MIN_CHAT_COMPLETION_PRESENCE_PENALTY);
-        if (value > MAX_CHAT_COMPLETION_PRESENCE_PENALTY)
-            throw new IllegalArgumentException("presencePenalty > " + MAX_CHAT_COMPLETION_PRESENCE_PENALTY);
+    public ChatBuilder withPresencePenalty(double value) {
+        if (value < MIN_PRESENCE_PENALTY)
+            throw new IllegalArgumentException("presencePenalty < " + MIN_PRESENCE_PENALTY);
+        if (value > MAX_PRESENCE_PENALTY)
+            throw new IllegalArgumentException("presencePenalty > " + MAX_PRESENCE_PENALTY);
         this.presencePenalty = value;
         return this;
     }
@@ -192,11 +172,11 @@ public final class ChatBuilder {
      * @param value Number between -2.0 and 2.0 (Defaults to 0).
      * @return this builder
      */
-    public ChatBuilder setFrequencyPenalty(double value) {
-        if (value < MIN_CHAT_COMPLETION_FREQ_PENALTY)
-            throw new IllegalArgumentException("frequencyPenalty < " + MIN_CHAT_COMPLETION_FREQ_PENALTY);
-        if (value > MAX_CHAT_COMPLETION_FREQ_PENALTY)
-            throw new IllegalArgumentException("frequencyPenalty > " + MAX_CHAT_COMPLETION_FREQ_PENALTY);
+    public ChatBuilder withFrequencyPenalty(double value) {
+        if (value < MIN_FREQ_PENALTY)
+            throw new IllegalArgumentException("frequencyPenalty < " + MIN_FREQ_PENALTY);
+        if (value > MAX_FREQ_PENALTY)
+            throw new IllegalArgumentException("frequencyPenalty > " + MAX_FREQ_PENALTY);
         this.frequencyPenalty = value;
         return this;
     }
@@ -208,16 +188,15 @@ public final class ChatBuilder {
      * @param user A unique identifier representing your end-user.
      * @return this builder
      */
-    public ChatBuilder setUser(String user) {
+    public ChatBuilder withUser(String user) {
         this.user = Objects.requireNonNull(user);
         return this;
     }
 
 
     public JsObj build() {
-        JsObj obj = JsObj.empty()
-                         .set(MODEL_FIELD, JsStr.of(model))
-                         .set(MESSAGES_FIELD, messages);
+        JsObj obj = JsObj.of(MODEL_FIELD, JsStr.of(model),
+                             MESSAGES_FIELD, messages);
         if (stop != null)
             obj = obj.set(STOP_FIELD, stop);
         if (maxTokens != DEFAULT_MAX_TOKENS)

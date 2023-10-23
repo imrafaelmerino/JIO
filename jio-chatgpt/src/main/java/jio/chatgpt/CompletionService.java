@@ -1,37 +1,40 @@
 package jio.chatgpt;
 
-import jio.IO;
-import jio.http.client.MyHttpClient;
+import jio.Lambda;
+import jio.http.client.JioHttpClientBuilder;
 import jsonvalues.JsObj;
 
 import java.util.Objects;
 
 /**
- * A service class for interacting with the GPT-3 API to create text completions.
- * This service provides a convenient way to create completions using the provided builder.
+ * A service class for interacting with the GPT-3 API to create text completions. This service provides a convenient way
+ * to create completions using the provided builder.
  */
-public  final  class CompletionService extends AbstractService {
-
-    /**
-     * Creates a new CompletionService instance.
-     *
-     * @param client  The HTTP client for making API requests.
-     * @param builder The configuration builder used for setting up the service.
-     */
-    public CompletionService(MyHttpClient client, ConfBuilder builder) {
-        super(client, builder, "completions");
-    }
+public final class CompletionService extends AbstractService {
 
     /**
      * Create a text completion using the specified builder.
      *
      * @param builder The CompletionBuilder instance configured with the desired parameters for text completion.
-     * @return An IO (I/O) monad representing the asynchronous result of the API call, which can be used to obtain the completion response.
+     * @return An IO (I/O) monad representing the asynchronous result of the API call, which can be used to obtain the
+     * completion response.
      */
-    public IO<JsObj> create(CompletionBuilder builder) {
+    public final Lambda<CompletionBuilder, JsObj> create;
 
-        return post(uri, Objects.requireNonNull(builder).build());
+    /**
+     * Creates a new CompletionService instance.
+     *
+     * @param clientBuilder The HTTP client for making API requests.
+     * @param builder       The configuration builder used for setting up the service.
+     */
+    CompletionService(JioHttpClientBuilder clientBuilder,
+                      ConfBuilder builder
+                     ) {
 
-
+        super(clientBuilder, builder, "completions");
+        create = b -> post(uri, Objects.requireNonNull(b).build());
+        ;
     }
+
+
 }

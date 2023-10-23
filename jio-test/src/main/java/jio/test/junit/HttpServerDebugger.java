@@ -7,7 +7,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-class HttpServerDebugger implements Consumer<RecordedEvent> {
+final class HttpServerDebugger implements Consumer<RecordedEvent> {
 
     private static final String FORMAT_SUC = """
             event: httpserver-req, result: %s, status-code: %s, duration: %s

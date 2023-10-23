@@ -5,7 +5,7 @@ import fun.tuple.Triple;
 import jio.*;
 import jio.test.junit.Debugger;
 import jio.test.stub.Gens;
-import jio.test.stub.StubSupplier;
+import jio.test.stub.StubBuilder;
 import jsonvalues.JsArray;
 import jsonvalues.JsInt;
 import jsonvalues.JsObj;
@@ -21,7 +21,7 @@ import java.util.List;
 public class TestDebuggerExp {
 
     @RegisterExtension
-    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
     @Test
     public void testAllExp() {
@@ -58,33 +58,30 @@ public class TestDebuggerExp {
     public void testAllExpSeqRetries() {
 
 
-        StubSupplier<Boolean> trueAfterFailure =
-                StubSupplier.ofIOGen(Gens.seq(
+        StubBuilder<Boolean> trueAfterFailure =
+                StubBuilder.ofIOGen(Gens.seq(
                         n -> n <= 1
                                 ? IO.fail(new RuntimeException(Integer.toString(n)))
                                 : IO.TRUE));
 
 
-        IO<Boolean> a = trueAfterFailure.get();
-
-
-        Assertions.assertTrue(AllExp.seq(trueAfterFailure.get(),
-                                         trueAfterFailure.get()
+        Assertions.assertTrue(AllExp.seq(trueAfterFailure.build(),
+                                         trueAfterFailure.build()
                                         )
                                     .debugEach("test")
                                     .retryEach(RetryPolicies.limitRetries(1))
                                     .result()
                              );
 
-        StubSupplier<Boolean> falseAfterFailure =
-                StubSupplier.ofIOGen(Gens.seq(n -> n <= 1
+        StubBuilder<Boolean> falseAfterFailure =
+                StubBuilder.ofIOGen(Gens.seq(n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.FALSE));
 
 
         // second effect is not evaluated since the first one is false
-        Assertions.assertFalse(AllExp.seq(falseAfterFailure.get(),
-                                          falseAfterFailure.get()
+        Assertions.assertFalse(AllExp.seq(falseAfterFailure.build(),
+                                          falseAfterFailure.build()
                                          )
                                      .debugEach("test1")
                                      .retryEach(RetryPolicies.limitRetries(1))
@@ -96,13 +93,13 @@ public class TestDebuggerExp {
 
     @Test
     public void testAllExpParRetries() {
-        StubSupplier<Boolean> trueAfterFailure =
-                StubSupplier.ofIOGen(Gens.seq(n -> n <= 1
+        StubBuilder<Boolean> trueAfterFailure =
+                StubBuilder.ofIOGen(Gens.seq(n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.TRUE));
 
-        Assertions.assertTrue(AllExp.par(trueAfterFailure.get(),
-                                         trueAfterFailure.get()
+        Assertions.assertTrue(AllExp.par(trueAfterFailure.build(),
+                                         trueAfterFailure.build()
                                         )
                                     .debugEach("test")
                                     .retryEach(RetryPolicies.limitRetries(1))
@@ -110,14 +107,14 @@ public class TestDebuggerExp {
                              );
 
 
-        StubSupplier<Boolean> falseAfterFailure =
-                StubSupplier.ofIOGen(Gens.seq(n -> n <= 1
+        StubBuilder<Boolean> falseAfterFailure =
+                StubBuilder.ofIOGen(Gens.seq(n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.FALSE));
 
         // all effects are evaluated even the first one is false,not like with the seq constructor
-        Assertions.assertFalse(AllExp.par(falseAfterFailure.get(),
-                                          falseAfterFailure.get()
+        Assertions.assertFalse(AllExp.par(falseAfterFailure.build(),
+                                          falseAfterFailure.build()
                                          )
                                      .debugEach("test1")
                                      .retryEach(RetryPolicies.limitRetries(1))

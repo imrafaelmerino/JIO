@@ -3,7 +3,7 @@ package jio.http.client.oauth;
 
 import jio.IO;
 import jio.Lambda;
-import jio.http.client.MyHttpClientBuilder;
+import jio.http.client.JioHttpClientBuilder;
 
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
@@ -29,16 +29,28 @@ import static java.util.Objects.requireNonNull;
  * @see #withAuthorizationHeaderName(String)
  * @see #withAuthorizationHeaderValue(Function)
  */
-public final class ClientCredentialsHttpClientBuilder {
-    private final Function<MyOauthHttpClient, IO<HttpResponse<String>>> accessTokenReq;
+public final class ClientCredsBuilder {
+    private final Function<OauthHttpClient, IO<HttpResponse<String>>> accessTokenReq;
     private final Lambda<HttpResponse<String>, String> getAccessToken;
     private final Predicate<HttpResponse<?>> refreshTokenPredicate;
-    private final MyHttpClientBuilder client;
+    private final JioHttpClientBuilder client;
     String authorizationHeaderName = "Authorization";
     Function<String, String> authorizationHeaderValue =
             token -> String.format("Bearer %s",
                                    token
                                   );
+
+
+    private ClientCredsBuilder(final JioHttpClientBuilder builder,
+                               final Lambda<OauthHttpClient, HttpResponse<String>> accessTokenReq,
+                               final Lambda<HttpResponse<String>, String> getAccessToken,
+                               final Predicate<HttpResponse<?>> refreshTokenPredicate
+                              ) {
+        this.client = builder;
+        this.accessTokenReq = requireNonNull(accessTokenReq);
+        this.getAccessToken = requireNonNull(getAccessToken);
+        this.refreshTokenPredicate = requireNonNull(refreshTokenPredicate);
+    }
 
     /**
      * Creates a http builder with oauth client credentials grand support from a regular http client, two lambdas to get
@@ -60,7 +72,7 @@ public final class ClientCredentialsHttpClientBuilder {
      * service that both return 401 codes for different circumstances. In this case you need another condition to make
      * sure the 401 response is from the api gateway indicating you need to refresh the token
      *
-     * @param builder                the regular {@link HttpClient http client}
+     * @param builder               the regular {@link HttpClient http client}
      * @param accessTokenReq        lambda that takes the regular http client and sends a http request to the server,
      *                              returning the response.
      * @param getAccessToken        lambda that takes the server response and returns the oauth token
@@ -68,15 +80,15 @@ public final class ClientCredentialsHttpClientBuilder {
      * @see AccessTokenRequest
      * @see GetAccessToken
      */
-    public ClientCredentialsHttpClientBuilder(final MyHttpClientBuilder builder,
-                                              final Lambda<MyOauthHttpClient, HttpResponse<String>> accessTokenReq,
-                                              final Lambda<HttpResponse<String>, String> getAccessToken,
-                                              final Predicate<HttpResponse<?>> refreshTokenPredicate
-                                             ) {
-        this.client = builder;
-        this.accessTokenReq = requireNonNull(accessTokenReq);
-        this.getAccessToken = requireNonNull(getAccessToken);
-        this.refreshTokenPredicate = requireNonNull(refreshTokenPredicate);
+    public static ClientCredsBuilder of(final JioHttpClientBuilder builder,
+                                        final Lambda<OauthHttpClient, HttpResponse<String>> accessTokenReq,
+                                        final Lambda<HttpResponse<String>, String> getAccessToken,
+                                        final Predicate<HttpResponse<?>> refreshTokenPredicate
+                                       ) {
+        return new ClientCredsBuilder(builder,
+                                      accessTokenReq,
+                                      getAccessToken,
+                                      refreshTokenPredicate);
     }
 
     /**
@@ -84,13 +96,13 @@ public final class ClientCredentialsHttpClientBuilder {
      *
      * @return a ClientCredentialsHttpClient
      */
-    public MyOauthHttpClient build() {
-        return new ClientCredentialsHttpClient(client,
-                                               accessTokenReq,
-                                               authorizationHeaderName,
-                                               authorizationHeaderValue,
-                                               getAccessToken,
-                                               refreshTokenPredicate
+    public OauthHttpClient build() {
+        return new ClientCredsClient(client,
+                                     accessTokenReq,
+                                     authorizationHeaderName,
+                                     authorizationHeaderValue,
+                                     getAccessToken,
+                                     refreshTokenPredicate
         );
     }
 
@@ -101,7 +113,7 @@ public final class ClientCredentialsHttpClientBuilder {
      * @param authorizationHeaderName the name of the authorization header
      * @return this builder
      */
-    public ClientCredentialsHttpClientBuilder withAuthorizationHeaderName(final String authorizationHeaderName) {
+    public ClientCredsBuilder withAuthorizationHeaderName(final String authorizationHeaderName) {
         this.authorizationHeaderName = requireNonNull(authorizationHeaderName);
         return this;
     }
@@ -113,7 +125,7 @@ public final class ClientCredentialsHttpClientBuilder {
      * @param fn function that takes the access token and returns the authorization header value
      * @return this builder
      */
-    public ClientCredentialsHttpClientBuilder withAuthorizationHeaderValue(final Function<String, String> fn) {
+    public ClientCredsBuilder withAuthorizationHeaderValue(final Function<String, String> fn) {
         this.authorizationHeaderValue = requireNonNull(fn);
         return this;
     }

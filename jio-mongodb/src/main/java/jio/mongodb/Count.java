@@ -1,8 +1,8 @@
 package jio.mongodb;
 
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.model.CountOptions;
 import jio.IO;
-import jio.Lambda;
 import jsonvalues.JsObj;
 
 import java.util.Objects;
@@ -10,13 +10,20 @@ import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
-import static jio.mongodb.Converters.jsObj2Bson;
-import static jio.mongodb.MongoDBEvent.OP.COUNT;
+import static jio.mongodb.MongoEvent.OP.COUNT;
 
 /**
  * A class for performing count operations on a MongoDB collection.
+ * <p>
+ * This class represents a count operation on a MongoDB collection with specified query criteria. The count operation
+ * can be executed within a MongoDB client session if one is provided.
+ * <p>
+ * To use this class effectively, you can configure it with custom count options and an optional executor for running
+ * the operation asynchronously.
+ *
+ * @see MongoLambda
  */
-public final class Count extends Op implements Lambda<JsObj, Long> {
+public final class Count extends Op implements MongoLambda<JsObj, Long> {
 
     private static final CountOptions DEFAULT_OPTIONS = new CountOptions();
     private CountOptions options;
@@ -26,7 +33,7 @@ public final class Count extends Op implements Lambda<JsObj, Long> {
      *
      * @param collection The supplier for the MongoDB collection.
      */
-    private Count(final CollectionSupplier collection) {
+    private Count(final CollectionBuilder collection) {
         super(collection, true);
         options = DEFAULT_OPTIONS;
     }
@@ -37,7 +44,7 @@ public final class Count extends Op implements Lambda<JsObj, Long> {
      * @param collection The supplier for the MongoDB collection.
      * @return A Count instance with default options.
      */
-    public static Count of(final CollectionSupplier collection) {
+    public static Count of(final CollectionBuilder collection) {
         return new Count(collection);
     }
 
@@ -61,25 +68,25 @@ public final class Count extends Op implements Lambda<JsObj, Long> {
         return this;
     }
 
-    /**
-     * Performs a count operation on the MongoDB collection based on the provided query.
-     *
-     * @param query The query for which to count documents.
-     * @return An IO operation representing the count result.
-     */
+
     @Override
-    public IO<Long> apply(final JsObj query) {
+    public IO<Long> apply(final ClientSession session,
+                          final JsObj query
+                         ) {
         Objects.requireNonNull(query);
         Supplier<Long> supplier =
-                jfrEventWrapper(() -> {
-                    var queryBson = jsObj2Bson.apply(requireNonNull(query));
-                    var collection = requireNonNull(this.collection.get());
-                    return collection.countDocuments(queryBson, options);
+                eventWrapper(() -> {
+                    var queryBson = Converters.toBson(requireNonNull(query));
+                    var collection = requireNonNull(this.collection.build());
+                    return session == null ?
+                            collection.countDocuments(queryBson, options) :
+                            collection.countDocuments(session, queryBson, options);
                 }, COUNT);
         return executor == null ?
                 IO.managedLazy(supplier) :
                 IO.lazy(supplier, executor);
     }
+
 
     /**
      * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation

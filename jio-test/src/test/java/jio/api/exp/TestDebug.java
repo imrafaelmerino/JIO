@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 public class TestDebug {
 
     @RegisterExtension
-    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
     @Test
     public void test() {

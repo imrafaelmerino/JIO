@@ -1,9 +1,8 @@
 package jio.api.http.api;
 
 import com.sun.net.httpserver.HttpServer;
-import jio.IO;
-import jio.http.client.MyHttpClient;
-import jio.http.client.MyHttpClientBuilder;
+import jio.http.client.JioHttpClient;
+import jio.http.client.JioHttpClientBuilder;
 import jio.http.server.HttpServerBuilder;
 import jio.test.junit.Debugger;
 import jio.test.stub.httpserver.GetStub;
@@ -18,10 +17,10 @@ import java.time.Duration;
 public class TestRetryWhile {
 
     @RegisterExtension
-    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+    static Debugger debugger =  Debugger.of(Duration.ofSeconds(2));
 
     static int port;
-    static MyHttpClient httpClient;
+    static JioHttpClient httpClient;
 
     @BeforeAll
     public static void prepare() {
@@ -42,16 +41,15 @@ public class TestRetryWhile {
                                                    getStrReqHandler
                                                   );
 
-        IO<HttpServer> server = builder.buildAtRandom("localhost",
-                                                      8000,
-                                                      9000
-                                                     );
+        HttpServer server = builder.startAtRandom("localhost",
+                                                  8000,
+                                                  9000
+                                                 );
 
-        port = server.result()
-                     .getAddress()
+        port = server.getAddress()
                      .getPort();
 
-        httpClient = new MyHttpClientBuilder(HttpClient.newBuilder()).build();
+        httpClient = JioHttpClientBuilder.of(HttpClient.newBuilder()).build();
 
     }
 

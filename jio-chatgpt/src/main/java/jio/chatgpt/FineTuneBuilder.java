@@ -12,7 +12,6 @@ import java.util.OptionalInt;
  */
 public final class FineTuneBuilder {
     private final String trainingFile;
-
     private String validationFile;
     private String model;
     private int nEpochs;
@@ -20,24 +19,28 @@ public final class FineTuneBuilder {
     private boolean computeClassificationMetrics;
     private String classificationPositiveClass;
     private String suffix;
-
     private OptionalInt batchSize;
     private OptionalDouble learningRateMultiplier;
     private OptionalInt classificationNClasses;
+
+
+    private FineTuneBuilder(String trainingFile) {
+        this.trainingFile = Objects.requireNonNull(trainingFile);
+        this.nEpochs = DEFAULT_VALUES.DEFAULT_FINE_TUNE_NEPOCHS;
+        this.model = DEFAULT_VALUES.DEFAULT_FINE_TUNE_MODEL;
+        this.batchSize = OptionalInt.empty();
+        this.learningRateMultiplier = OptionalDouble.empty();
+        this.classificationNClasses = OptionalInt.empty();
+        this.promptLossWeight = DEFAULT_VALUES.DEFAULT__FINE_TUNE_PROMPTLOSSWEIGHT;
+    }
 
     /**
      * Constructs a new FineTuneBuilder with the required training file.
      *
      * @param trainingFile The path or URL of the training data file.
      */
-    public FineTuneBuilder(String trainingFile) {
-        this.trainingFile = Objects.requireNonNull(trainingFile);
-        this.nEpochs = DEFAULT_VALUES.DEFAULT_FINE_TUNE_NEPOCHS;
-        this.model = DEFAULT_VALUES.DEFAULT__FINE_TUNE_MODEL;
-        this.batchSize = OptionalInt.empty();
-        this.learningRateMultiplier = OptionalDouble.empty();
-        this.classificationNClasses = OptionalInt.empty();
-        this.promptLossWeight = DEFAULT_VALUES.DEFAULT__FINE_TUNE_PROMPTLOSSWEIGHT;
+    public static FineTuneBuilder of(final String trainingFile) {
+        return new FineTuneBuilder(trainingFile);
     }
 
     /**
@@ -46,7 +49,7 @@ public final class FineTuneBuilder {
      * @param validationFile The path or URL of the validation data file.
      * @return This FineTuneBuilder instance for method chaining.
      */
-    public FineTuneBuilder setValidationFile(String validationFile) {
+    public FineTuneBuilder withValidationFile(String validationFile) {
         this.validationFile = Objects.requireNonNull(validationFile);
         return this;
     }
@@ -57,7 +60,7 @@ public final class FineTuneBuilder {
      * @param model The ID of the model.
      * @return This FineTuneBuilder instance for method chaining.
      */
-    public FineTuneBuilder setModel(String model) {
+    public FineTuneBuilder withModel(String model) {
         this.model = Objects.requireNonNull(model);
         return this;
     }
@@ -68,7 +71,7 @@ public final class FineTuneBuilder {
      * @param nEpochs The number of training epochs.
      * @return This FineTuneBuilder instance for method chaining.
      */
-    public FineTuneBuilder setNEpochs(int nEpochs) {
+    public FineTuneBuilder withNEpochs(int nEpochs) {
         if (nEpochs < 0) throw new IllegalArgumentException("nEpochs < 0");
         this.nEpochs = nEpochs;
         return this;
@@ -80,7 +83,7 @@ public final class FineTuneBuilder {
      * @param batchSize The batch size.
      * @return This FineTuneBuilder instance for method chaining.
      */
-    public FineTuneBuilder setBatchSize(int batchSize) {
+    public FineTuneBuilder withBatchSize(int batchSize) {
         if (batchSize < 0) throw new IllegalArgumentException("batchSize < 0");
         this.batchSize = OptionalInt.of(batchSize);
         return this;
@@ -92,7 +95,7 @@ public final class FineTuneBuilder {
      * @param learningRateMultiplier The learning rate multiplier.
      * @return This FineTuneBuilder instance for method chaining.
      */
-    public FineTuneBuilder setLearningRateMultiplier(double learningRateMultiplier) {
+    public FineTuneBuilder withLearningRateMultiplier(double learningRateMultiplier) {
         if (learningRateMultiplier < 0) throw new IllegalArgumentException("learningRateMultiplier < 0");
         this.learningRateMultiplier = OptionalDouble.of(learningRateMultiplier);
         return this;
@@ -104,7 +107,7 @@ public final class FineTuneBuilder {
      * @param promptLossWeight The prompt loss weight.
      * @return This FineTuneBuilder instance for method chaining.
      */
-    public FineTuneBuilder setPromptLossWeight(double promptLossWeight) {
+    public FineTuneBuilder withPromptLossWeight(double promptLossWeight) {
         if (promptLossWeight < 0) throw new IllegalArgumentException("promptLossWeight < 0");
         this.promptLossWeight = promptLossWeight;
         return this;
@@ -116,7 +119,7 @@ public final class FineTuneBuilder {
      * @param computeClassificationMetrics True to compute classification metrics, false otherwise.
      * @return This FineTuneBuilder instance for method chaining.
      */
-    public FineTuneBuilder setComputeClassificationMetrics(boolean computeClassificationMetrics) {
+    public FineTuneBuilder withComputeClassificationMetrics(boolean computeClassificationMetrics) {
         this.computeClassificationMetrics = computeClassificationMetrics;
         return this;
     }
@@ -127,7 +130,7 @@ public final class FineTuneBuilder {
      * @param classificationNClasses The number of classes.
      * @return This FineTuneBuilder instance for method chaining.
      */
-    public FineTuneBuilder setClassificationNClasses(int classificationNClasses) {
+    public FineTuneBuilder withClassificationNClasses(int classificationNClasses) {
         if (classificationNClasses < 0) throw new IllegalArgumentException("classificationNClasses < 0");
         this.classificationNClasses = OptionalInt.of(classificationNClasses);
         return this;
@@ -139,7 +142,7 @@ public final class FineTuneBuilder {
      * @param classificationPositiveClass The positive class.
      * @return This FineTuneBuilder instance for method chaining.
      */
-    public FineTuneBuilder setClassificationPositiveClass(String classificationPositiveClass) {
+    public FineTuneBuilder withClassificationPositiveClass(String classificationPositiveClass) {
         this.classificationPositiveClass = Objects.requireNonNull(classificationPositiveClass);
         return this;
     }
@@ -150,7 +153,7 @@ public final class FineTuneBuilder {
      * @param suffix The suffix to add.
      * @return This FineTuneBuilder instance for method chaining.
      */
-    public FineTuneBuilder setSuffix(String suffix) {
+    public FineTuneBuilder withSuffix(String suffix) {
         this.suffix = Objects.requireNonNull(suffix);
         return this;
     }
@@ -164,7 +167,7 @@ public final class FineTuneBuilder {
         var body = JsObj.of(JSON_FIELDS.TRAINING_FILE_FIELD, JsStr.of(trainingFile));
         if (validationFile != null)
             body = body.set(JSON_FIELDS.VALIDATION_FILE_FIELD, JsStr.of(validationFile));
-        if (!model.equals(DEFAULT_VALUES.DEFAULT__FINE_TUNE_MODEL))
+        if (!model.equals(DEFAULT_VALUES.DEFAULT_FINE_TUNE_MODEL))
             body = body.set(JSON_FIELDS.MODEL_FIELD, JsStr.of(model));
         if (suffix != null) body = body.set(JSON_FIELDS.SUFFIX_FIELD, JsStr.of(suffix));
         if (classificationPositiveClass != null)

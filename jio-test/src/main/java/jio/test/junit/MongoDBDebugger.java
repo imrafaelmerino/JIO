@@ -7,13 +7,13 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-class MongoDBDebugger implements Consumer<RecordedEvent> {
+final class MongoDBDebugger implements Consumer<RecordedEvent> {
     private static String FORMAT_SUC = """
-            event: mongodb-op, op: %s, duration: %s, result: %s
+            event: mongodb, op: %s, duration: %s, result: %s
             thread: %s, event-start-time: %s
             """;
     private static String FORMAT_ERR = """
-            event: mongodb-op, op: %s, duration: %s, result: %s, exception: %s
+            event: mongodb, op: %s, duration: %s, result: %s, exception: %s
             thread: %s, event-start-time: %s
             """;
 

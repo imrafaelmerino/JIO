@@ -68,7 +68,7 @@ final class AllExpSeq extends AllExp {
 
     @Override
     public AllExp debugEach(final String context) {
-        return debugEach(new EventBuilder<>(this.getClass().getSimpleName(), context));
+        return debugEach(EventBuilder.of(this.getClass().getSimpleName(), context));
 
     }
 }
