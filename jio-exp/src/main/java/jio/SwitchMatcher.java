@@ -352,7 +352,6 @@ public final class SwitchMatcher<I, O> {
      * @param pattern3 the third value
      * @param lambda3  the lambda associated to the third value
      * @return a SwitchExp *
-     * @see #match(I, Lambda, I, Lambda, I, Lambda, Lambda)
      */
     public SwitchExp<I, O> match(final I pattern1,
                                  final Lambda<I, O> lambda1,
@@ -518,7 +517,6 @@ public final class SwitchMatcher<I, O> {
      * @param pattern4 the forth value
      * @param lambda4  the lambda associated to the forth value
      * @return a SwitchExp
-     * @see #match(I, Lambda, I, Lambda, I, Lambda, I, Lambda, Lambda)
      */
     public SwitchExp<I, O> match(final I pattern1,
                                  final Lambda<I, O> lambda1,
@@ -1031,7 +1029,6 @@ public final class SwitchMatcher<I, O> {
      * @param pattern5 the fifth value
      * @param lambda5  the lambda associated to the fifth value
      * @return a SwitchExp
-     * @see #match(I, Lambda, I, Lambda, I, Lambda, I, Lambda, I, Lambda, I, Lambda, Lambda)
      */
     public SwitchExp<I, O> match(final I pattern1,
                                  final Lambda<I, O> lambda1,
@@ -1144,7 +1141,6 @@ public final class SwitchMatcher<I, O> {
      * @param pattern6 the sixth value
      * @param lambda6  the lambda associated to the sixth value
      * @return a SwitchExp
-     * @see #match(I, Lambda, I, Lambda, I, Lambda, I, Lambda, I, Lambda, I, Lambda, Lambda)
      */
     public SwitchExp<I, O> match(final I pattern1,
                                  final Lambda<I, O> lambda1,

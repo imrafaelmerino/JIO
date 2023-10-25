@@ -1,7 +1,5 @@
 <img src="logo/package_twitter_itsywb76/black/full/coverphoto/black_logo_white_background.png" alt="logo"/>  
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-exp/1.0.0-RC1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-exp/1.0.0-RC1/jar)
-
 - [Code wins arguments](#cwa)
 - [Introduction](#Introduction)
 - [jio-exp](#jio-exp)
@@ -608,6 +606,9 @@ What can you expect from JIO:
 ---  
 
 ## <a name="jio-exp"><a/> jio-exp
+
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-exp/1.0.0-RC3)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-exp/1.0.0-RC3/jar "jio-ex")
+
 
 Let's model a funcional effect in Java!
 
@@ -1762,6 +1763,8 @@ testability are likely to be appreciated by developers looking to apply function
 
 ## <a name="jio-http"><a/> jio-http
 
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-http/1.0.0-RC3)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-http/1.0.0-RC3/jar "jio-http")
+
 ### <a name="httpserver"><a/> HTTP server
 
 In JIO, you can build and deploy HTTP servers using the `HttpServerBuilder`. This builder is a versatile tool for
@@ -1774,9 +1777,9 @@ To handle specific URI paths, you can associate each path with an HTTP request h
 that will be invoked for incoming requests.
 
 ```code
-HttpHandler handler = ...; 
+HttpHandler handler = ???; 
 
-HttpHandler handler1 = ...; 
+HttpHandler handler1 = ???; 
 
 HttpServerBuilder serverBuilder = HttpServerBuilder.of("/your-path", handler,
                                                        "/your-path1", handler1);
@@ -2093,7 +2096,6 @@ public interface OauthHttpClient extends JioHttpClient {
 
     <T> HttpLambda<T> oauthBodyHandler(final HttpResponse.BodyHandler<T> handler);
 
-
 }
 
 
@@ -2250,9 +2252,68 @@ developers working on Java projects that involve HTTP communication.
 
 ## <a name="jio-test"><a/> jio-test
 
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-test/1.0.0-RC3)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-test/1.0.0-RC3/jar "jio-test")
+
 ### <a name="junit"><a/> Junit integration
 
-TODO
+To enable debugging of various components in your tests, Jio provides a JUnit extension called `Debugger`. This
+extension offers the flexibility to enable and configure debugging for different components, such as HTTP clients, HTTP
+servers, MongoDB clients, and expression evaluation.
+
+#### Enabling Debugging
+
+The `Debugger` extension allows you to enable and configure debugging for specific components in your JUnit tests. You
+can control the duration of debugging and specify custom debugging configurations.
+
+#### Usage Example
+
+Here's an example of how to use the `Debugger` extension in your JUnit test class:
+
+```java
+import jio.test.junit.Debugger;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+public class MyTest {
+
+    @RegisterExtension
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
+
+    // Your test methods go here
+}
+```
+
+In this example, we've created a `Debugger` instance with a duration of 2 seconds. This means that the test execution
+will be monitored for debugging events for a duration of 2 seconds.
+
+#### Configuring Debugging
+
+You can configure debugging by specifying a custom Java Flight Recorder (JFR) configuration. Most of the time, leaving
+this parameter empty and using the default configuration is sufficient. The debugging duration determines how long the
+test execution will be monitored for debugging events.
+
+#### Component-Specific Debugging
+
+Each component's debugging events are collected from the JFR system via Jio, providing insights into the behavior of
+various components during test execution. The Debugger extension uses the `jdk.jfr.consumer.RecordingStream` internally
+to
+capture and analyze JFR events.
+
+- `jio.exp`: For expression evaluation debugging.
+- `jio.httpclient`: For debugging HTTP clients.
+- `jio.httpserver`: For debugging HTTP servers.
+- `jio.mongodb`: For debugging MongoDB clients.
+
+#### Important Considerations
+
+It's essential to set an appropriate debugging duration to avoid unnecessary delays in test execution. Keep in mind that
+the test execution may not finish until the stream duration has elapsed.
+
+By using the Jio `Debugger` extension, you can gain valuable insights into the behavior of the components in your tests,
+helping you identify and resolve issues more effectively.
+
+---
+
+Feel free to adjust and expand this section as needed for your README.
 
 ### <a name="stubs"><a/> Stubs
 
@@ -2343,7 +2404,8 @@ Clock clock = ClockStub.fromReference(reference);
 
 ##### Using a Function
 
-The `fromSeqCalls` static factory method enables you to create a clock stub where you can control the ticking time based on
+The `fromSeqCalls` static factory method enables you to create a clock stub where you can control the ticking time based
+on
 the number of calls made to the clock. This method provides dynamic time simulation, allowing you to simulate time
 progression based on your specific requirements.
 
@@ -2411,7 +2473,7 @@ You can create your own `BodyStub` by implementing a function like this:
 
 ```code 
 BodyStub myStub = reqCounter -> bodyStream -> uri -> reqHeaders -> {
-    String responseBody;
+    String responseBody = ???;
     // Your custom stub implementation here
     return responseBody;
 }
@@ -2430,7 +2492,7 @@ Just like `BodyStub`, you can craft your own `StatusCodeStub` by creating a func
 
 ```code 
 StatusCodeStub myStub = reqCounter -> bodyStream -> uri -> reqHeaders -> {
-    int statusCodeResponse;
+    int statusCodeResponse = ???;
     // Your custom stub implementation here
     return statusCodeResponse;
 }
@@ -2462,7 +2524,7 @@ HttpHandler saludate = GetStub.of(BodyStub.consAfter("hi", Duration.ofSeconds(1)
                                   HeadersStub.EMPTY
                                   );
 
-JsObjGen personGen = ...;                           
+JsObjGen personGen = ???;                           
 
 HttpHandler create = PostStub.of(BodyStub.gen(personGen),
                                   StatusCodeStub.gen(Combinators.oneOf(200, 201)),
@@ -2511,35 +2573,49 @@ BiFunction<Integer, Integer, Integer> medium = (a, b) -> (a + b) / 2;
 At first glance, you might think it's bug-free – after all, it's just a sum and a division. However, in the world of
 software development, assumptions like this can be misleading. Bugs can lurk even in the simplest-looking code.
 
+Let's start by creating a generator to produce inputs, which are pairs of integers (`a` and `b`) with the constraint
+that `a` is less than `b`. We can achieve this using the "java-fun" library:
+
+```code
+Gen<Pair<Integer, Integer>> gen = 
+    PairGen.of(IntGen.biased(0),
+               IntGen.biased(0))
+          .suchThat(pair -> pair.first() < pair.second());
+```
+
+Next, we need to define a meaningful property that the `medium` function must satisfy. For example, we can ensure that
+the `medium` value always stays within the bounds defined by `a` and `b`:
+
+```code
+Function<Pair<Integer, Integer>, TestResult> prop = 
+    pair -> {
+        var a = pair.first();
+        var b = pair.second();
+        var mean = medium.apply(a, b);
+        if (mean < a) return TestFailure.reason("mean lower than a");
+        if (mean > b) return TestFailure.reason("mean greater than b");
+        return TestResult.SUCCESS;
+    };
+```
+
+Finally, we can create the `Property` using the `PropBuilder`:
+
 ```code  
 public class TestProperties {
 
     static BiFunction<Integer, Integer, Integer> medium = (a, b) -> (a + b) / 2;
     
     static Property<Pair<Integer, Integer>> mediumProperty =
-            Property.ofFunction("medium",
-                                PairGen.of(IntGen.biased(0),
-                                           IntGen.biased(0)
-                                          )
-                                       .suchThat(pair -> pair.first() <= pair.second()),
-                                pair -> {
-                                    var a = pair.first();
-                                    var b = pair.second();
-                                    var mean = medium.apply(a, b);
-                                    if (mean < a)
-                                        return TestFailure.reason("mean lower than a");
-                                    if (mean > b)
-                                        return TestFailure.reason("mean greater than b");
-                                    return TestResult.SUCCESS;
-                                }
-                               )
-                    .withDescription("medium must fall between bounds");
+            PropBuilder.of("medium",
+                           gen,
+                           prop
+                           )
+                       .withDescription("medium must fall between bounds")
+                       .build();
                
     @Test
     public void testMedium() {
-
-        Resport report = mediumProperty.check()
-                                       .result();
+        Resport report = mediumProperty.check();
         report.assertAllSuccess();
 
     }
@@ -2589,16 +2665,23 @@ scenarios where problems are more likely to occur. This can be incredibly powerf
 might be extremely challenging to reproduce otherwise.
 
 ```
-
-mediumProperty.withClassifiers(Map.of("both",
-                                      p -> p.first() > Integer.MAX_VALUE / 2
+static Property<Pair<Integer, Integer>> mediumProperty =
+            PropBuilder.of("medium",
+                           gen,
+                           prop
+                           )
+                       .withClassifiers(Map.of("both",
+                                                p -> p.first() > Integer.MAX_VALUE / 2
                                                     && p.second() > Integer.MAX_VALUE / 2,
-                                      "none",
-                                      p -> p.first() < Integer.MAX_VALUE / 2
+                                               "none",
+                                                p -> p.first() < Integer.MAX_VALUE / 2
                                                     && p.second() < Integer.MAX_VALUE / 2
-                                           ),
-                                     "one"
-                                    );
+                                                ),
+                                         "one"
+                                        )
+                       .withDescription("medium must fall between bounds")
+                       .build();
+
 
 ```
 
@@ -2692,36 +2775,35 @@ holds true for the generated data. There are two primary ways to define the test
    especially when they involve IO operations where exceptions can occur. In such cases, these exceptions do not halt
    the property's execution but are considered and reported in the final test report.
 
-Once you've created a `Property` instance, you can further customize it, such as specifying the number of test
-executions, providing a description, setting classifiers, and more.
-
 #### Creating a Property
 
-Creating a property involves defining a `Property` instance that represents the property you want to test. You can
-create a `Property` using the following factory methods:
+Creating a property involves creating a `PropBuilder` instance to build the property you want to test:
 
-- `ofFunction(String name, Gen<O> gen, Function<O, TestResult> property)`: Use this method when your testing function
-  takes
-  generated data (`O`) as input. This form of the testing function is useful when no additional configuration is needed
+- `PropBuilder.of(String name, Gen<O> gen, Function<O, TestResult> property)`: Use this method when your testing
+  function
+  takes generated data (`O`) as input. This form of the testing function is useful when no additional configuration is
+  needed
   for the property test.
 
-- `ofLambda(String name, Gen<O> gen, Lambda<O, TestResult> property)`: When your testing function is a lambda that only
+- `PropBuilder.ofLambda(String name, Gen<O> gen, Lambda<O, TestResult> property)`: When your testing function is a
+  lambda that only
   requires generated data (`O`), this method is the appropriate choice.
 
-Once you've created a `Property` instance, you can further customize it by specifying the number of test executions,
+With the builder instance you can further customize the property by specifying the number of test executions,
 providing a description, setting classifiers, and more.
 
 #### Using Classifiers for Categorization
 
 Exploratory testing can benefit from classifying generated data into different categories. Classifiers are created using
-the `withClassifiers(Map<String, Predicate<O>> classifiers, String defaultTag)` method. These classifiers can help you
-group data into various categories based on specific criteria and identify tags assigned to values that produce errors.
+the `withClassifiers(Map<String, Predicate<O>> classifiers, String defaultTag)` method of the builder. These classifiers
+can help you group data into various categories based on specific criteria and identify tags assigned to values that
+produce errors.
 
 #### Collecting Data for Analysis
 
-To gather data for debugging and analysis, you can enable data collection using the `withCollector()` method. This
-feature allows you to collect data about the generated values, helping you identify patterns or trends in the generated
-data.
+To gather data for debugging and analysis, you can enable data collection using the `withCollector()` method of the
+builder. This feature allows you to collect data about the generated values, helping you identify patterns or trends in
+the generated data.
 
 #### Analyzing Results
 
@@ -2834,10 +2916,6 @@ needs of your codebase or project.
 
 ---
 
-#### Console
-
-TODO
-
 ## <a name="test-Installation"><a/> Installation
 
 It requires Java 17 or greater
@@ -2847,7 +2925,7 @@ It requires Java 17 or greater
 <dependency>  
     <groupId>com.github.imrafaelmerino</groupId>  
     <artifactId>jio-test</artifactId>  
-    <version>1.0.0-RC1</version>  
+    <version>1.0.0-RC3</version>  
 </dependency>  
   
 ```  
@@ -2862,16 +2940,73 @@ Dependencies:
 
 ## <a name="jio-mongodb"><a/> jio-mongodb
 
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-mongodb/1.0.0-RC3)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-mongodb/1.0.0-RC3/jar "jio-mongodb")
+
 `jio-mongodb` leverages the persistent JSON from [json-values](https://github.com/imrafaelmerino/json-values) and the
 set of codecs defined in [mongo-values](https://github.com/imrafaelmerino/mongo-values), making it an efficient solution
 for MongoDB operations.
 
-jio-mongodb is composed of a set of Lambdas to perform operations against the database. With Lambdas, you can benefit
+jio-mongodb is composed of a set of MongoLambdas to perform operations against the database. With Lambdas, you can
+benefit
 from all the powerful features of `jio-exp` and `jio-test`. `jio-mongodb` is an example of how you can make any API
-under the sun
-jio-friendly, unleashing the full potential of your code.
+under the sun jio-friendly, unleashing the full potential of your code.
 
-### Creating a Collection Supplier<a name="creating-a-collection-supplier"></a>
+### MongoLambda
+
+Sure, here's a readme section for the `MongoLambda` interface from your class:
+
+---
+
+## MongoDB Lambdas
+
+The `MongoLambda` interface in Jio provides a versatile way to define MongoDB operations that produce IO effects within
+a MongoDB client session. These lambdas can be used with or without transactions, offering flexibility in working with
+MongoDB databases.
+
+### Interface Overview
+
+#### Definition
+
+The `MongoLambda<I, O>` interface represents a function that takes an input of type `I` and produces an IO effect of
+type `O` within a MongoDB client session.
+
+```code
+
+interface MongoLambda<I, O> extends BiLambda<ClientSession, I, O> {
+
+      Lambda<I, O> standalone();
+      <B> MongoLambda<I, B> then(MongoLambda<O, B> other) { }
+      <B> MongoLambda<I, B> then(Lambda<O, B> other) {}
+      <C> MongoLambda<I, C> map(Function<O, C> fn) {}
+}
+
+```
+
+Key points:
+
+- Using transactions with MongoDB is optional. You can create a `MongoLambda` that produces effects independently of any
+  transaction by calling the `standalone()` method. This is useful when you want to perform operations that don't
+  require transactional behavior.
+
+- One powerful feature of `MongoLambda` is the ability to chain operations together. You can chain this interface with
+  another `MongoLambda` to create a new `MongoLambda`. The result is a sequence of operations executed within the same
+  MongoDB client session, with the output of one operation becoming the input to the next one.
+
+- You can also chain a `MongoLambda` with a non-transactional `Lambda` to create a new `MongoLambda`. This allows you to
+  mix transactional and non-transactional operations while maintaining session continuity.
+
+- The `MongoLambda` interface lets you map the output of an operation using a provided function. You can create a
+  new `MongoLambda` where the mapping function is applied to the output of the original operation.
+
+This allows you to create flexible and expressive MongoDB operations with transactional or non-transactional behavior as
+required.
+
+In the upcoming sections, we'll explore a variety of pre-defined `MongoLambda` functions that are available in
+the `jio-mongodb`.
+
+---
+
+### Creating a Collection Builder<a name="creating-a-collection-supplier"></a>
 
 To get started, you need a `MongoClient`, a `DatabaseBuilder`, and finally a `CollectionBuilder` that provides access
 to a MongoDB collection. Below is an example of how to create both:
@@ -2909,11 +3044,12 @@ find operations:
 CollectionBuilder collection = ???;
 JsObj query = ???;
 
-Lambda<FindBuilder, JsObj> find = FindOne.of(collection);
+Lambda<FindBuilder, JsObj> find = FindOne.of(collection).standalone();
 
 FindBuilder builder = FindBuilder.of(query);
 
 IO<JsObj> io = find.apply(builder);
+
 ```
 
 ### FindAll
@@ -2923,16 +3059,16 @@ IO<JsObj> io = find.apply(builder);
 CollectionBuilder collection = ???;
 JsObj query = ???;
 
-Lambda<FindBuilder, FindIterable<JsObj>>find = FindAll.of(collection);
+Lambda<FindBuilder, FindIterable<JsObj>>find = FindAll.of(collection).standalone();
 
 FindBuilder builder = FindBuilder.of(query);
 
-IO<FindIterable<JsObj>>io = find.apply(builder);
+IO<FindIterable<JsObj>> xs = find.apply(builder);
 
-//map the output with converters
-IO<List<JsObj>>ioList = io.map(Converters.iterable2List);
+//map the output with predefined converters
+IO<List<JsObj>> ioList = xs.map(Converters::toListOfJsObj);
 
-IO<JsArray> ioArray = io.map(Converters.iterable2JsArray);
+IO<JsArray> ioArray = xs.map(Converters::toJsArray);
 ```
 
 ## Insert Operations<a name="insert-operations"></a>
@@ -2943,9 +3079,9 @@ IO<JsArray> ioArray = io.map(Converters.iterable2JsArray);
 
 JsObj doc = ???;
 
-Lambda<JsObj, String> insert = InsertOne.of(collection,Converters.insertOneResult2HexId);
+Lambda<JsObj, InsertOneResult> insert = InsertOne.of(collection).standalone();
 
-IO<String> io = insert.apply(doc);
+IO<String> x = insert.apply(doc).map(Converters::toHexId);
 
 ```
 
@@ -2954,9 +3090,9 @@ IO<String> io = insert.apply(doc);
 ```code
 List<JsObj> docs = ???;
 
-Lambda<List<JsObj>, List<String>>insert = InsertMany.of(collection,Converters.insertManyResult2ListOfHexIds);
+Lambda<List<JsObj>, InsertManyResult> insert = InsertMany.of(collection).standalone();
 
-IO<List<String>>io = insert.apply(docs);
+IO<List<String>> xs = insert.apply(docs).map(Converters::toListOfHexIds);
 
 ```
 
@@ -2965,11 +3101,13 @@ IO<List<String>>io = insert.apply(docs);
 ### DeleteOne
 
 ```code
+
 JsObj query = ???;
 
-Lambda<JsObj, JsObj> deleteOne = DeleteOne.of(collection,Converters.deleteResult2JsObj);
+Lambda<JsObj, DeleteResult> deleteOne = DeleteOne.of(collection).standalone();
 
-IO<JsObj> io = deleteOne.apply(query);
+IO<JsObj> x = deleteOne.apply(query).map(Converters::toJsObj);
+
 ```
 
 ### DeleteMany
@@ -2978,9 +3116,10 @@ IO<JsObj> io = deleteOne.apply(query);
 
 JsObj query = ???;
 
-Lambda<JsObj, JsObj> deleteMany = DeleteMany.of(collection,Converters.deleteResult2JsObj);
+Lambda<JsObj, DeleteResult> deleteMany = DeleteMany.of(collection).standalone();
 
-IO<JsObj> io = deleteMany.apply(query);
+IO<JsObj> x = deleteMany.apply(query).map(Converters::toJsObj);
+
 ```
 
 ## Update and Replace Operations<a name="update-and-replace-operations"></a>
@@ -2988,14 +3127,14 @@ IO<JsObj> io = deleteMany.apply(query);
 ### UpdateOne
 
 ```code
-JsObj query = ???;
 
+JsObj query = ???;
 JsObj update = ???;
 
-BiLambda<JsObj, JsObj, JsObj> updateOne = UpdateOne.of(collection,
-                                                       Converters.updateResult2JsObj);
+Lambda<QueryUpdate, UpdateResult> updateOne = UpdateOne.of(collection).standalone();
 
-IO<JsObj> io = updateOne.apply(query,update);
+IO<JsObj> x = updateOne.apply(new QueryUpdate(query,update)).map(Converters::toJsObj);
+
 ```
 
 ### UpdateMany
@@ -3005,22 +3144,22 @@ IO<JsObj> io = updateOne.apply(query,update);
 JsObj query = ???;
 JsObj update = ???;
 
-BiLambda<JsObj, JsObj, JsObj> updateMany = UpdateMany.of(collection,Converters.updateResult2JsObj);
+Lambda<QueryUpdate, UpdateResult> updateOne = UpdateMany.of(collection).standalone();
 
-IO<JsObj> io = updateMany.apply(query,update);
+IO<JsObj> x = updateOne.apply(new QueryUpdate(query,update)).map(Converters::toJsObj);
+
 ```
 
 ### ReplaceOne
 
 ```code
 
-JsObj query = ...;
+JsObj query = ???;
+JsObj newDoc = ???;
 
-JsObj newDoc = ...;
+Lambda<QueryReplace, UpdateResult> replaceOne = ReplaceOne.of(collection).standalone();
 
-BiLambda<JsObj, JsObj, JsObj> replaceOne = ReplaceOne.of(collection,Converters.updateResult2JsObj);
-
-IO<JsObj> io = replaceOne.apply(query,newDoc);
+IO<JsObj> x = replaceOne.apply(new QueryReplace(query,newDoc)).map(Converters::toJsObj);
 
 ```
 
@@ -3029,9 +3168,9 @@ IO<JsObj> io = replaceOne.apply(query,newDoc);
 ```code
 JsObj query = ???;
 
-Lambda<JsObj, Long> count = Count.of(collection);
+Lambda<JsObj, Long> count = Count.of(collection).standalone();
 
-IO<Long> io=count.apply(query);
+IO<Long> io = count.apply(query);
 ```
 
 ## FindOneAndXXX Operations<a name="findoneandxxx-operations"></a>
@@ -3043,9 +3182,9 @@ JsObj query = ???;
 
 JsObj update = ???;
 
-BiLambda<JsObj, JsObj, JsObj> findOneUpdate = FindOneAndUpdate.of(collection);
+Lambda<QueryUpdate, JsObj> findOneUpdate = FindOneAndUpdate.of(collection).standalone();
 
-IO<JsObj> io = findOneUpdate.apply(query,update);
+IO<JsObj> x = findOneUpdate.apply(new QueryUpdate(query,update));
 ```
 
 ### FindOneAndReplace
@@ -3055,9 +3194,9 @@ JsObj query = ???;
 
 JsObj newDoc = ???;
 
-BiLambda<JsObj, JsObj, JsObj> findOneReplace = FindOneAndReplace.of(collection);
+Lambda<QueryReplace, JsObj> findOneReplace = FindOneAndReplace.of(collection).standalone();
 
-IO<JsObj> io = findOneReplace.apply(query,newDoc);
+IO<JsObj> x = findOneReplace.apply(new QueryReplace(query,newDoc));
 ```
 
 ### FindOneAndDelete
@@ -3065,27 +3204,28 @@ IO<JsObj> io = findOneReplace.apply(query,newDoc);
 ```code
 JsObj query = ???;
 
-Lambda<JsObj, JsObj> findOneDelete = FindOneAndDelete.of(collection);
+Lambda<JsObj, JsObj> findOneDelete = FindOneAndDelete.of(collection).standalone();
 
-IO<JsObj> io = findOneDelete.apply(query);
+IO<JsObj> x = findOneDelete.apply(query);
 ```
 
 ## Aggregate<a name="aggregate"></a>
 
 ```code
 
-List<Bson> stages = ...;
+List<Bson> stages = ???;
 
-Lambda<List<Bson>, JsArray> aggregate = Aggregate.of(collection,Converters.aggregateResult2JsArray);
+Lambda<List<Bson>, AggregateIterable<JsObj>> aggregate = Aggregate.of(collection).standalone();
 
-IO<JsArray> io = aggregate.apply(stages);
+IO<List<JsObj>> x = aggregate.apply(stages).map(Converters::toListOfJsObj);
 
+//or using JsObj as an input instead of Bson
 
-//changing the input of the lambda using predined converters
-Lambda<JsArray, JsArray> aggregate1 = array -> aggregate.apply(Converters.jsArray2ListOfBson.apply(array));
-
-Lambda<List<JsObj>, List<JsObj>> aggregate2 = list -> aggregate.apply(list.stream().map(Converters.jsObj2Bson).toList());
-
+Lambda<List<JsObj>, List<JsObj>> y = 
+    list -> {
+                List<Bson> bsons = list.stream().map(Converters::toBson).toList();
+                return aggregate.apply(bsons).map(Converters::toListOfJsObj);
+    };
 
 ```
 
@@ -3095,11 +3235,11 @@ You can set up a change stream on a MongoDB collection to monitor changes using 
 
 ```code
 
-CollectionBuilder collection = CollectionBuilder.of(database,collectionName);
+CollectionBuilder builder = CollectionBuilder.of(database,collectionName);
 
 Consumer<ChangeStreamIterable<JsObj>> consumer = iter -> { ??? };
 
-Watcher.of(consumer).accept(collection.get());
+Watcher.of(consumer).accept(builder);
 ```
 
 ## Common Exceptions<a name="common-exceptions"></a>
@@ -3168,8 +3308,9 @@ Java 21:
 
 ```code
 
-FindOne.of(collection)
-       .withExecutor(Executors.newVirtualThreadPerTaskExecutor());
+Lambda<FindBuilder, JsObj> find =  FindOne.of(collection)
+                                          .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                          .standalone();
 
 ```
 
@@ -3186,25 +3327,7 @@ Certainly! When working with the `jio-mongodb` package, you have the flexibility
 configure various options to customize the behavior of MongoDB operations. Here's a brief explanation of how to pass
 other converters and options:
 
-### Passing Custom Converters
-
-`jio-mongodb` provides a set of default converters for common MongoDB operations. However, you can pass your custom
-converters if you need to handle data conversions differently. When using Lambdas
-like `FindOne`, `InsertOne`, `UpdateOne`, and others, you can pass your custom converter functions as arguments.
-
-For example, if you have a custom converter function `myCustomInsertConverter` for `InsertOne`:
-
-```code
-JsObj doc = ???;
-
-Lambda<JsObj, MyCustomType> insert = InsertOne.of(collection,myCustomInsertConverter);
-
-IO<MyCustomType> io=insert.apply(doc);
-```
-
-This allows you to tailor the conversion process to your specific requirements.
-
-### Configuring Options
+## Configuring Options
 
 You can also configure various options for MongoDB operations using the `withOptions` method available for some
 operations. Options allow you to specify things like the write concern, bypass document validation, and more.
@@ -3212,19 +3335,114 @@ operations. Options allow you to specify things like the write concern, bypass d
 For instance, if you want to configure custom `UpdateOptions` for an `UpdateOne` operation:
 
 ```code
-JsObj query = ???;
-
-JsObj update = ???;
-
-BiLambda<JsObj, JsObj, JsObj> updateOne = UpdateOne.of(collection,Converters.updateResult2JsObj);
 
 UpdateOptions customOptions = new UpdateOptions().upsert(true)  // Example option
 
-IO<JsObj> io = updateOne.apply(query,update)
-                        .withOptions(customOptions);
+Lambda<QueryUpdate, UpdateResult> updateOne = 
+    UpdateOne.of(collection)
+             .withOptions(customOptions)
+             .standalone();
+
 ```
 
 By passing custom options, you can fine-tune the behavior of your MongoDB operations to match your specific use case.
 
-The ability to use custom converters and configure options provides a high degree of flexibility when working with
-MongoDB in `jio-mongodb`. You can adapt the library to meet the unique requirements of your project.
+## Transactions with jio-mongodb
+
+Up to this point, we have been using the standalone method provided by MongoLambdas for operations that do not require
+transactions. Now, let's explore how to create and work with transactions in jio-mongodb.
+
+jio-mongodb provides a convenient way to work with MongoDB transactions. Transactions in MongoDB allow you to perform
+multiple operations within a single session, ensuring that either all the operations are executed or none of them,
+providing a consistent view of your data.
+
+### TxBuilder
+
+The `TxBuilder` class is used to create transactions in a MongoDB client session. It offers options to configure
+transaction settings and create transaction instances.
+
+#### Methods:
+
+- `of(ClientSessionBuilder sessionBuilder)`: Creates a new `TxBuilder` instance with the provided session builder.
+- `withTxOptions(TransactionOptions transactionOptions)`: Sets the transaction options for the transactions created with
+  this builder.
+- `build(MongoLambda<I, O> mongoLambda)`: Builds a transaction with the specified MongoDB Lambda function and
+  transaction options.
+
+### Tx
+
+The `Tx` class represents a MongoDB transaction that can be applied within a MongoDB client session. This class ensures
+that the transaction is executed consistently and provides methods for defining and applying the transaction.
+
+#### Methods:
+
+- `apply(I i)`: Applies the MongoDB transaction to the given input, executing it within a MongoDB client session.
+
+**Note:** MongoDB sessions are not multi-threaded. Only one thread should operate within a MongoDB session at a time to
+avoid errors like "Only servers in a sharded cluster can start a new transaction at the active transaction number."
+
+### Example: Inserting JSON Documents in a Transaction
+
+The following example demonstrates how to use jio-mongodb to insert a list of JSON documents within a MongoDB
+transaction:
+
+```code  
+
+
+public class TestTx {
+
+    @RegisterExtension
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
+
+    String connection = "mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0";
+    
+    MongoClient mongoClient = 
+         MongoClientBuilder.DEFAULT
+                           .build(connection);
+    
+    ClientSessionBuilder session = ClientSessionBuilder.of(mongoClient);
+    
+    DatabaseBuilder testDb = DatabaseBuilder.of(mongoClient, "test");
+    
+    CollectionBuilder personCol = CollectionBuilder.of(testDb, "Person");
+    
+    
+    
+    @Test
+    public void test() {
+        MongoLambda<JsObj, String> insertOne = InsertOne.of(personCol)
+                                                        .map(Converters::toHexId);
+        
+        MongoLambda<List<JsObj>, List<String>> insertAll =
+                (session, jsons) ->
+                        jsons.stream()
+                             .map(json -> insertOne.apply(session, json))
+                             .collect(ListExp.seqCollector());
+
+        Tx tx = TxBuilder.of(session).build(insertAll);
+
+        List<String> ids = tx.apply(List.of(JsObj.of("a", JsInt.of(0)),
+                                            JsObj.of("b", JsInt.of(1))
+                                           )
+                                    )
+                             .result();
+        
+        Assertions.assertEquals(2, ids.size());                     
+    }
+
+}
+```
+
+It's worth highlighting the advantages of using the `jio-exp` API to create a `MongoLambda`. In the previous example, we
+used a `ListExp.seq` to insert all the JSON documents sequentially. As mentioned earlier, using
+the `ListExp.parCollector()` to insert all the JSON documents in parallel is not feasible due to MongoDB sessions not
+being multi-threaded.
+
+On the other hand, when using `TxBuilder` and `Tx`, you don't have to worry about the intricacies of committing or
+rolling back the transaction in the event of an error, or explicitly closing the session. All of these essential
+operations are automatically handled for you, making your code more robust and convenient.
+
+## <a name="jio-console"><a/> jio-console
+
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-console/1.0.0-RC3)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-console/1.0.0-RC3/jar "jio-console")
+

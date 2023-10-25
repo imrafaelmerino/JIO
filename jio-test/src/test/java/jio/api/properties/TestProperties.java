@@ -17,8 +17,8 @@ public class TestProperties {
     static BiFunction<Integer, Integer, Integer> medium = (a, b) -> a + (b - a) / 2;
     @Command
     static Property<Pair<Integer, Integer>> mediumProperty =
-            PropBuilder.ofFunction("medium",
-                                   PairGen.of(IntGen.biased(0),
+            PropBuilder.of("medium",
+                           PairGen.of(IntGen.biased(0),
                                               IntGen.biased(0)
                                              )
                                           .suchThat(pair -> pair.first() <= pair.second()),
@@ -32,7 +32,7 @@ public class TestProperties {
                                            return TestFailure.reason("mean greater than b");
                                        return TestResult.SUCCESS;
                                    }
-                                  )
+                          )
 
                        .withClassifiers(Map.of("both",
                                                p -> p.first() > Integer.MAX_VALUE / 2

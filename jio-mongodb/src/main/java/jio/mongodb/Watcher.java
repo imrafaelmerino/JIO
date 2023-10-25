@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * A class for watching changes in a MongoDB collection.
  */
-public final class Watcher implements Consumer<MongoCollection<JsObj>> {
+public final class Watcher implements Consumer<CollectionBuilder> {
 
     /**
      * The consumer to handle the change stream iterable.
@@ -40,7 +40,7 @@ public final class Watcher implements Consumer<MongoCollection<JsObj>> {
      * @param collection The MongoDB collection to watch.
      */
     @Override
-    public void accept(final MongoCollection<JsObj> collection) {
-        consumer.accept(requireNonNull(collection).watch());
+    public void accept(final CollectionBuilder collection) {
+        consumer.accept(requireNonNull(collection).build().watch());
     }
 }

@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
  * @param <I> the type of the input to the transaction
  * @param <O> the type of the transaction's output
  */
-public class Tx<I, O> implements Lambda<I, O> {
+public final class Tx<I, O> implements Lambda<I, O> {
 
     final ClientSessionBuilder sessionBuilder;
     final MongoLambda<I, O> mongoLambda;

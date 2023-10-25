@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * A builder for creating transactions in a MongoDB client session.
  */
-public class TxBuilder {
+public final class TxBuilder {
 
     final ClientSessionBuilder sessionBuilder;
 
