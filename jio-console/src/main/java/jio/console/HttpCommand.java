@@ -73,8 +73,7 @@ public class HttpCommand extends Command {
                                                             JsObj.of("status_code",
                                                                      JsInt.of(resp.statusCode()),
                                                                      "time",
-                                                                     JsLong.of(Duration.ofMillis(System.currentTimeMillis() - tic)
-                                                                                       .toMillis()),
+                                                                     JsLong.of(System.currentTimeMillis() - tic),
                                                                      "method",
                                                                      JsStr.of(resp.request().method()),
                                                                      "uri",

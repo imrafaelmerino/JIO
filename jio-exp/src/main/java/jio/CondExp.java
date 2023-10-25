@@ -70,6 +70,43 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
      * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
      * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
      * true</strong>. If one predicate terminates with an exception, the whole expression fails.
+     * <p>
+     * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+     *
+     * @param predicate1 the first predicate
+     * @param effect1    the effect associated to the first predicate
+     * @param predicate2 the second predicate
+     * @param effect2    the effect associated to the second predicate
+     * @param <O>        the type of the computation result
+     * @return a Cond expression
+     */
+    public static <O> CondExp<O> par(final IO<Boolean> predicate1,
+                                     final Supplier<IO<O>> effect1,
+                                     final IO<Boolean> predicate2,
+                                     final Supplier<IO<O>> effect2
+                                    ) {
+
+        return new CondExpPar<>(List.of(requireNonNull(predicate1),
+                                        requireNonNull(predicate2)
+                                       ),
+                                List.of(requireNonNull(effect1),
+                                        requireNonNull(effect2)
+                                       ),
+                                IO::NULL,
+                                null
+        );
+
+    }
+
+
+    /**
+     * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
+     * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
+     * constructor.
+     * <p>
+     * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
+     * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
+     * true</strong>. If one predicate terminates with an exception, the whole expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate
@@ -99,6 +136,49 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
                                         requireNonNull(effect3)
                                        ),
                                 requireNonNull(otherwise),
+                                null
+        );
+
+    }
+
+    /**
+     * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
+     * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
+     * constructor.
+     * <p>
+     * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
+     * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
+     * true</strong>.
+     * <p>
+     * If one predicate terminates with an exception, the whole expression fails. If no condition is evaluated to true,
+     * the expression is reduced to the {@link IO#NULL()} value.
+     *
+     * @param predicate1 the first predicate
+     * @param effect1    the effect associated to the first predicate
+     * @param predicate2 the second predicate
+     * @param effect2    the effect associated to the second predicate
+     * @param predicate3 the third predicate
+     * @param effect3    the effect associated to the third predicate
+     * @param <O>        the type of the computation result
+     * @return a Cond expression
+     */
+    public static <O> CondExp<O> par(final IO<Boolean> predicate1,
+                                     final Supplier<IO<O>> effect1,
+                                     final IO<Boolean> predicate2,
+                                     final Supplier<IO<O>> effect2,
+                                     final IO<Boolean> predicate3,
+                                     final Supplier<IO<O>> effect3
+                                    ) {
+
+        return new CondExpPar<>(List.of(requireNonNull(predicate1),
+                                        requireNonNull(predicate2),
+                                        requireNonNull(predicate3)
+                                       ),
+                                List.of(requireNonNull(effect1),
+                                        requireNonNull(effect2),
+                                        requireNonNull(effect3)
+                                       ),
+                                IO::NULL,
                                 null
         );
 
@@ -160,6 +240,54 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
      * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
      * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
      * true</strong>. If one predicate terminates with an exception, the whole expression fails.
+     * <p>
+     * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+     *
+     * @param predicate1 the first predicate
+     * @param effect1    the effect associated to the first predicate
+     * @param predicate2 the second predicate
+     * @param effect2    the effect associated to the second predicate
+     * @param predicate3 the third predicate
+     * @param effect3    the effect associated to the third predicate
+     * @param predicate4 the forth predicate
+     * @param effect4    the effect associated to the forth predicate
+     * @param <O>        the type of the computation result
+     * @return a Cond expression
+     */
+    public static <O> CondExp<O> par(final IO<Boolean> predicate1,
+                                     final Supplier<IO<O>> effect1,
+                                     final IO<Boolean> predicate2,
+                                     final Supplier<IO<O>> effect2,
+                                     final IO<Boolean> predicate3,
+                                     final Supplier<IO<O>> effect3,
+                                     final IO<Boolean> predicate4,
+                                     final Supplier<IO<O>> effect4
+                                    ) {
+
+        return new CondExpPar<>(List.of(requireNonNull(predicate1),
+                                        requireNonNull(predicate2),
+                                        requireNonNull(predicate3),
+                                        requireNonNull(predicate4)
+                                       ),
+                                List.of(requireNonNull(effect1),
+                                        requireNonNull(effect2),
+                                        requireNonNull(effect3),
+                                        requireNonNull(effect4)
+                                       ),
+                                IO::NULL,
+                                null
+        );
+    }
+
+
+    /**
+     * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
+     * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
+     * constructor.
+     * <p>
+     * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
+     * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
+     * true</strong>. If one predicate terminates with an exception, the whole expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate
@@ -205,6 +333,61 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
 
 
     }
+
+    /**
+     * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
+     * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
+     * constructor.
+     * <p>
+     * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
+     * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
+     * true</strong>. If one predicate terminates with an exception, the whole expression fails.
+     * <p>
+     * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+     *
+     * @param predicate1 the first predicate
+     * @param effect1    the effect associated to the first predicate
+     * @param predicate2 the second predicate
+     * @param effect2    the effect associated to the second predicate
+     * @param predicate3 the third predicate
+     * @param effect3    the effect associated to the third predicate
+     * @param predicate4 the forth predicate
+     * @param effect4    the effect associated to the forth predicate
+     * @param predicate5 the fifth predicate
+     * @param effect5    the effect associated to the fifth predicate
+     * @param <O>        the type of the computation result
+     * @return a Cond expression
+     */
+    public static <O> CondExp<O> par(final IO<Boolean> predicate1,
+                                     final Supplier<IO<O>> effect1,
+                                     final IO<Boolean> predicate2,
+                                     final Supplier<IO<O>> effect2,
+                                     final IO<Boolean> predicate3,
+                                     final Supplier<IO<O>> effect3,
+                                     final IO<Boolean> predicate4,
+                                     final Supplier<IO<O>> effect4,
+                                     final IO<Boolean> predicate5,
+                                     final Supplier<IO<O>> effect5
+                                    ) {
+        return new CondExpPar<>(List.of(requireNonNull(predicate1),
+                                        requireNonNull(predicate2),
+                                        requireNonNull(predicate3),
+                                        requireNonNull(predicate4),
+                                        requireNonNull(predicate5)
+                                       ),
+                                List.of(requireNonNull(effect1),
+                                        requireNonNull(effect2),
+                                        requireNonNull(effect3),
+                                        requireNonNull(effect4),
+                                        requireNonNull(effect5)
+                                       ),
+                                IO::NULL,
+                                null
+        );
+
+
+    }
+
 
     /**
      * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
@@ -267,6 +450,66 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
     }
 
     /**
+     * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
+     * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
+     * constructor.
+     * <p>
+     * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
+     * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
+     * true</strong>. If one predicate terminates with an exception, the whole expression fails.
+     * <p>
+     * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+     *
+     * @param predicate1 the first predicate
+     * @param effect1    the effect associated to the first predicate
+     * @param predicate2 the second predicate
+     * @param effect2    the effect associated to the second predicate
+     * @param predicate3 the third predicate
+     * @param effect3    the effect associated to the third predicate
+     * @param predicate4 the forth predicate
+     * @param effect4    the effect associated to the forth predicate
+     * @param predicate5 the fifth predicate
+     * @param effect5    the effect associated to the fifth predicate
+     * @param predicate6 the sixth predicate
+     * @param effect6    the effect associated to the sixth predicate
+     * @param <O>        the type of the computation result
+     * @return a Cond expression
+     */
+    public static <O> CondExp<O> par(final IO<Boolean> predicate1,
+                                     final Supplier<IO<O>> effect1,
+                                     final IO<Boolean> predicate2,
+                                     final Supplier<IO<O>> effect2,
+                                     final IO<Boolean> predicate3,
+                                     final Supplier<IO<O>> effect3,
+                                     final IO<Boolean> predicate4,
+                                     final Supplier<IO<O>> effect4,
+                                     final IO<Boolean> predicate5,
+                                     final Supplier<IO<O>> effect5,
+                                     final IO<Boolean> predicate6,
+                                     final Supplier<IO<O>> effect6
+                                    ) {
+        return new CondExpPar<>(List.of(requireNonNull(predicate1),
+                                        requireNonNull(predicate2),
+                                        requireNonNull(predicate3),
+                                        requireNonNull(predicate4),
+                                        requireNonNull(predicate5),
+                                        requireNonNull(predicate6)
+                                       ),
+                                List.of(requireNonNull(effect1),
+                                        requireNonNull(effect2),
+                                        requireNonNull(effect3),
+                                        requireNonNull(effect4),
+                                        requireNonNull(effect5),
+                                        requireNonNull(effect6)
+                                       ),
+                                IO::NULL,
+                                null
+        );
+
+
+    }
+
+    /**
      * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
      * succeed and is evaluated to true, the expression is reduced to its effect. Predicates are evaluated in the order
      * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression
@@ -294,6 +537,40 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
                                         requireNonNull(effect2)
                                        ),
                                 requireNonNull(otherwise),
+                                null
+        );
+
+    }
+
+
+    /**
+     * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
+     * succeed and is evaluated to true, the expression is reduced to its effect. Predicates are evaluated in the order
+     * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression
+     * is reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
+     * <p>
+     * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+     *
+     * @param predicate1 the first predicate
+     * @param effect1    the effect associated to the first predicate
+     * @param predicate2 the second predicate
+     * @param effect2    the effect associated to the second predicate
+     * @param <O>        the type of the computation result
+     * @return a Cond expression
+     */
+    public static <O> CondExp<O> seq(final IO<Boolean> predicate1,
+                                     final Supplier<IO<O>> effect1,
+                                     final IO<Boolean> predicate2,
+                                     final Supplier<IO<O>> effect2
+                                    ) {
+
+        return new CondExpSeq<>(List.of(requireNonNull(predicate1),
+                                        requireNonNull(predicate2)
+                                       ),
+                                List.of(requireNonNull(effect1),
+                                        requireNonNull(effect2)
+                                       ),
+                                IO::NULL,
                                 null
         );
 
@@ -345,6 +622,45 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
      * succeed and is evaluated to true, the expression is reduced to its effect. Predicates are evaluated in the order
      * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression
      * is reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
+     * <p>
+     * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+     *
+     * @param predicate1 the first predicate
+     * @param effect1    the effect associated to the first predicate
+     * @param predicate2 the second predicate
+     * @param effect2    the effect associated to the second predicate
+     * @param predicate3 the third predicate
+     * @param effect3    the effect associated to the third predicate
+     * @param <O>        the type of the computation result
+     * @return a Cond expression
+     */
+    public static <O> CondExp<O> seq(final IO<Boolean> predicate1,
+                                     final Supplier<IO<O>> effect1,
+                                     final IO<Boolean> predicate2,
+                                     final Supplier<IO<O>> effect2,
+                                     final IO<Boolean> predicate3,
+                                     final Supplier<IO<O>> effect3
+                                    ) {
+
+        return new CondExpSeq<>(List.of(requireNonNull(predicate1),
+                                        requireNonNull(predicate2),
+                                        requireNonNull(predicate3)
+                                       ),
+                                List.of(requireNonNull(effect1),
+                                        requireNonNull(effect2),
+                                        requireNonNull(effect3)
+                                       ),
+                                IO::NULL,
+                                null
+        );
+
+    }
+
+    /**
+     * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
+     * succeed and is evaluated to true, the expression is reduced to its effect. Predicates are evaluated in the order
+     * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression
+     * is reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
      *
      * @param predicate1 the first predicate
      * @param effect1    the effect associated to the first predicate
@@ -385,6 +701,50 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
 
     }
 
+    /**
+     * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
+     * succeed and is evaluated to true, the expression is reduced to its effect. Predicates are evaluated in the order
+     * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression
+     * is reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
+     * <p>
+     * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+     *
+     * @param predicate1 the first predicate
+     * @param effect1    the effect associated to the first predicate
+     * @param predicate2 the second predicate
+     * @param effect2    the effect associated to the second predicate
+     * @param predicate3 the third predicate
+     * @param effect3    the effect associated to the third predicate
+     * @param predicate4 the forth predicate
+     * @param effect4    the effect associated to the forth predicate
+     * @param <O>        the type of the computation result
+     * @return a Cond expression
+     */
+    public static <O> CondExp<O> seq(final IO<Boolean> predicate1,
+                                     final Supplier<IO<O>> effect1,
+                                     final IO<Boolean> predicate2,
+                                     final Supplier<IO<O>> effect2,
+                                     final IO<Boolean> predicate3,
+                                     final Supplier<IO<O>> effect3,
+                                     final IO<Boolean> predicate4,
+                                     final Supplier<IO<O>> effect4
+                                    ) {
+
+        return new CondExpSeq<>(List.of(requireNonNull(predicate1),
+                                        requireNonNull(predicate2),
+                                        requireNonNull(predicate3),
+                                        requireNonNull(predicate4)
+                                       ),
+                                List.of(requireNonNull(effect1),
+                                        requireNonNull(effect2),
+                                        requireNonNull(effect3),
+                                        requireNonNull(effect4)
+                                       ),
+                                IO::NULL,
+                                null
+        );
+
+    }
 
     /**
      * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
@@ -433,6 +793,59 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
                                         requireNonNull(effect5)
                                        ),
                                 requireNonNull(otherwise),
+                                null
+        );
+
+
+    }
+
+    /**
+     * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
+     * succeed and is evaluated to true, the expression is reduced to its effect. Predicates are evaluated in the order
+     * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression
+     * is reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
+     * <p>
+     * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+     *
+     * @param predicate1 the first predicate
+     * @param effect1    the effect associated to the first predicate
+     * @param predicate2 the second predicate
+     * @param effect2    the effect associated to the second predicate
+     * @param predicate3 the third predicate
+     * @param effect3    the effect associated to the third predicate
+     * @param predicate4 the forth predicate
+     * @param effect4    the effect associated to the forth predicate
+     * @param predicate5 the fifth predicate
+     * @param effect5    the effect associated to the fifth predicate
+     * @param <O>        the type of the computation result
+     * @return a Cond expression
+     */
+    public static <O> CondExp<O> seq(final IO<Boolean> predicate1,
+                                     final Supplier<IO<O>> effect1,
+                                     final IO<Boolean> predicate2,
+                                     final Supplier<IO<O>> effect2,
+                                     final IO<Boolean> predicate3,
+                                     final Supplier<IO<O>> effect3,
+                                     final IO<Boolean> predicate4,
+                                     final Supplier<IO<O>> effect4,
+                                     final IO<Boolean> predicate5,
+                                     final Supplier<IO<O>> effect5
+                                    ) {
+
+
+        return new CondExpSeq<>(List.of(requireNonNull(predicate1),
+                                        requireNonNull(predicate2),
+                                        requireNonNull(predicate3),
+                                        requireNonNull(predicate4),
+                                        requireNonNull(predicate5)
+                                       ),
+                                List.of(requireNonNull(effect1),
+                                        requireNonNull(effect2),
+                                        requireNonNull(effect3),
+                                        requireNonNull(effect4),
+                                        requireNonNull(effect5)
+                                       ),
+                                IO::NULL,
                                 null
         );
 
@@ -493,6 +906,63 @@ public abstract sealed class CondExp<O> extends Exp<O> permits CondExpPar, CondE
                                         requireNonNull(effect6)
                                        ),
                                 requireNonNull(otherwise),
+                                null
+        );
+    }
+
+    /**
+     * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
+     * succeeds and is evaluated to true, the expression is reduced to its associated effect. Predicates are evaluated
+     * in the order they are passed in the constructor. If all the predicates succeeds and all are evaluated to false,
+     * the expression is reduced to the specified default effect. If a predicate terminates with an exception, the
+     * expression fails.
+     * <p>
+     * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+     *
+     * @param predicate1 the first predicate
+     * @param effect1    the effect associated to the first predicate
+     * @param predicate2 the second predicate
+     * @param effect2    the effect associated to the second predicate
+     * @param predicate3 the third predicate
+     * @param effect3    the effect associated to the third predicate
+     * @param predicate4 the forth predicate
+     * @param effect4    the effect associated to the forth predicate
+     * @param predicate5 the fifth predicate
+     * @param effect5    the effect associated to the fifth predicate
+     * @param predicate6 the sixth predicate
+     * @param effect6    the effect associated to the sixth predicate
+     * @param <O>        the type of the computation result
+     * @return a Cond expression
+     */
+    public static <O> CondExp<O> seq(final IO<Boolean> predicate1,
+                                     final Supplier<IO<O>> effect1,
+                                     final IO<Boolean> predicate2,
+                                     final Supplier<IO<O>> effect2,
+                                     final IO<Boolean> predicate3,
+                                     final Supplier<IO<O>> effect3,
+                                     final IO<Boolean> predicate4,
+                                     final Supplier<IO<O>> effect4,
+                                     final IO<Boolean> predicate5,
+                                     final Supplier<IO<O>> effect5,
+                                     final IO<Boolean> predicate6,
+                                     final Supplier<IO<O>> effect6
+                                    ) {
+
+        return new CondExpSeq<>(List.of(requireNonNull(predicate1),
+                                        requireNonNull(predicate2),
+                                        requireNonNull(predicate3),
+                                        requireNonNull(predicate4),
+                                        requireNonNull(predicate5),
+                                        requireNonNull(predicate6)
+                                       ),
+                                List.of(requireNonNull(effect1),
+                                        requireNonNull(effect2),
+                                        requireNonNull(effect3),
+                                        requireNonNull(effect4),
+                                        requireNonNull(effect5),
+                                        requireNonNull(effect6)
+                                       ),
+                                IO::NULL,
                                 null
         );
     }

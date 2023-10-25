@@ -7,19 +7,18 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Represents a command that provides descriptions of other commands.
- * Usage: {@code help command_name}
+ * Represents a command that provides descriptions of other commands. Usage: {@code help command_name}
  * <p>
- * This command allows users to obtain descriptions of specified commands. It takes
- * a list of available commands in its constructor to provide descriptions for them.
- * Users can use the following syntax to get the description of a command:
+ * This command allows users to obtain descriptions of specified commands. It takes a list of available commands in its
+ * constructor to provide descriptions for them. Users can use the following syntax to get the description of a
+ * command:
  *
  * <pre>
  *     help command_name
  * </pre>
  * <p>
- * If no command name is provided, it will display a message prompting users to type
- * the name of a command or "list" to see all possible commands.
+ * If no command name is provided, it will display a message prompting users to type the name of a command or "list" to
+ * see all possible commands.
  */
 class HelpCommand extends Command {
 
@@ -28,11 +27,16 @@ class HelpCommand extends Command {
 
     public HelpCommand(List<Command> commands) {
         super(COMMAND_NAME,
-              """
-                      Prints out the description of the specified command.
-                      Examples:
-                          help list
-                          help dump""");
+              """     
+                       Welcome to jio-console:
+                         . To know the list of available commands, type `list`
+                         . To know more about a specific command, type `help $command`
+                         . You can create variables and save them: `var-set name Rafa`
+                         . You can read variables: `var-get name` or `echo $name`
+                         . The result of the last executed command is stored in special variable called `output`
+                            But some commands doesn't store anything (configurable when creating the command)
+                         . You can extend jio-console and write your own commands!
+                      """);
         this.commands = commands;
     }
 

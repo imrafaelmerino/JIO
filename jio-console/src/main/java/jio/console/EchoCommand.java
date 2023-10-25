@@ -24,8 +24,7 @@ class EchoCommand extends Command {
                       Prints out the message into the console.
                       Usage: echo {text}
                       Example:
-                          $command hi, how are you doing?
-                          $command $var""".replace("$command", COMMAND_NAME)
+                          $command hi, how are you doing?""".replace("$command", COMMAND_NAME)
              );
     }
 

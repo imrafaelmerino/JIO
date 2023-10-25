@@ -171,6 +171,10 @@ public final class Report {
         tests++;
     }
 
+    /**
+     * returns the instant when tests started execution
+     * @return the instant when tests started execution
+     */
     public Instant getStartTime() {
         return startTime;
     }
@@ -179,6 +183,11 @@ public final class Report {
         this.startTime = startTime;
     }
 
+
+    /**
+     * returns the instant when tests ended execution
+     * @return the instant when tests ended execution
+     */
     public Instant getEndTime() {
         return endTime;
     }

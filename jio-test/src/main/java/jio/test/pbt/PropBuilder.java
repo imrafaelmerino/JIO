@@ -209,8 +209,8 @@ public final class PropBuilder<O> {
      *
      * @return this property
      */
-    public PropBuilder<O> withCollect(boolean collect) {
-        this.collect = collect;
+    public PropBuilder<O> withCollector() {
+        this.collect = true;
         return this;
     }
 
@@ -238,6 +238,10 @@ public final class PropBuilder<O> {
         return this;
     }
 
+    /**
+     * builds a property with the specified parameters
+     * @return a Property
+     */
     public Property<O> build() {
         return new Property<>(name,
                               gen,

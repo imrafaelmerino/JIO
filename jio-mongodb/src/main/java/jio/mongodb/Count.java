@@ -49,6 +49,8 @@ public final class Count extends Op implements MongoLambda<JsObj, Long> {
     }
 
     /**
+     * adds the specified mongodb options to this instance
+     *
      * @param options the options to perform the operation
      * @return this instance with the new options
      */

@@ -52,6 +52,7 @@ public class Tx<I, O> implements Lambda<I, O> {
      * @param i the input to the transaction
      * @return an IO representing the result of the transaction
      */
+    @Override
     public IO<O> apply(final I i) {
         return IO.lazy(sessionBuilder::build).then(session -> {
             var event = new MongoEvent(MongoEvent.OP.TX);

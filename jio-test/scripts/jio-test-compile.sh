@@ -34,7 +34,7 @@ if [[ -z ${VERSION} ]]
 fi
 
 "${DIR}"/jio-test-create-volume.sh
-docker run -v jio-pbt-maven-repo:/root/.m2 --rm -it jio-pbt:"${VERSION}" /bin/bash -c "${MVN_COMPILE_COMMAND}"
+docker run -v jio-test-maven-repo:/root/.m2 --rm -it jio-test:"${VERSION}" /bin/bash -c "${MVN_COMPILE_COMMAND}"
 }
 
 main "$@"

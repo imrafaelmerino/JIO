@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 public final class MongoExceptions {
 
 
+    private MongoExceptions(){}
     /**
      * This predicate checks if the given Throwable is an instance of MongoSocketReadTimeoutException. It returns true
      * if the exception is a read timeout exception and false otherwise. Read timeout exceptions typically occur when a

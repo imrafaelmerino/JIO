@@ -16,7 +16,7 @@ import static jio.mongodb.MongoEvent.OP.REPLACE_ONE;
 /**
  * A class for performing replace one operations on a MongoDB collection.
  * <p>
- * The `ReplaceOne` class is designed for performing replace operations to update a single document within a MongoDB
+ * The `ReplaceOne` class is designed for performing replace operations to updateCommands a single document within a MongoDB
  * collection. It provides flexibility in handling the result and allows you to specify various options for the replace
  * operation. You can create instances of this class with the specified collection supplier, and customize the behavior
  * using options such as replace options, executors, and more.

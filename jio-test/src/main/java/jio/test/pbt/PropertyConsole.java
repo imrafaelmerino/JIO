@@ -80,14 +80,17 @@ public final class PropertyConsole {
     private JsObj getConf(String path) throws IOException {
         Path file = Paths.get(path);
         if (!file.toFile().exists())
-            throw new IllegalArgumentException(String.format("The path %s doesnt exist", path));
+            throw new IllegalArgumentException(String.format("The path %s doesn't exist",
+                                                             path));
         if (!file.toFile().isFile())
-            throw new IllegalArgumentException(String.format("The path %s is not a file", path));
+            throw new IllegalArgumentException(String.format("The path %s is not a file",
+                                                             path));
         String conf = Files.readString(file);
         try {
             return JsObj.parse(conf);
         } catch (JsParserException e) {
-            throw new IllegalArgumentException(String.format("The content of the file %s is not a Json object", path));
+            throw new IllegalArgumentException(String.format("The content of the file %s is not a Json object",
+                                                             path));
         }
 
     }
@@ -102,7 +105,7 @@ public final class PropertyConsole {
                                                       .stream()
                                                       .peek(f -> f.setAccessible(true))
                                                       .filter(f -> f.getType().equals(Property.class)
-                                                              && f.isAnnotationPresent(jio.test.pbt.Command.class))
+                                                                   && f.isAnnotationPresent(jio.test.pbt.Command.class))
                                        )
                                .filter(f -> {
                                    try {

@@ -205,34 +205,6 @@ public final class Programs {
 
     }
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Enter text and press Enter (or press Enter twice to exit):");
-
-        StringBuilder input = new StringBuilder();
-        boolean previousLineEmpty = false;
-
-        while (true) {
-            String line = scanner.nextLine();
-
-            if (line.isEmpty()) {
-                if (previousLineEmpty) {
-                    break;
-                }
-                previousLineEmpty = true;
-            } else {
-                input.append(line);
-                input.append(System.lineSeparator());
-                previousLineEmpty = false;
-            }
-        }
-
-        System.out.println("You entered:");
-        System.out.println(input.toString());
-
-        scanner.close();
-    }
 
     /**
      * List of parameters to be considered when asking the user for typing in some text

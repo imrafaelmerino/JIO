@@ -19,6 +19,12 @@ public class TestCondExp {
                        .map(String::toUpperCase)
                        .result());
 
+        Assertions.assertNull(
+                CondExp.seq(IO.FALSE, () -> Constants.A,
+                            IO.FALSE, () -> Constants.B
+                           )
+                       .result());
+
 
         Assertions.assertEquals(
                 "C",

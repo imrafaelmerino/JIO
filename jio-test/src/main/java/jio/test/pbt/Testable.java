@@ -4,8 +4,13 @@ import jio.IO;
 import jsonvalues.JsObj;
 
 
+/**
+ * Represents a property that can be tested against different generated values a return a report
+ */
 public abstract sealed class Testable permits ParProperty, Property, SeqProperty {
 
+    Testable() {
+    }
 
     IO<Report> createTask() {
         return createTask(JsObj.empty());
@@ -17,7 +22,8 @@ public abstract sealed class Testable permits ParProperty, Property, SeqProperty
 
     /**
      * Executes the property test defined by this Testable instance.
-     * @return  The result of the test is encapsulated in a Report object.
+     *
+     * @return The result of the test is encapsulated in a Report object.
      */
     public Report check() {
         return createTask().result();
@@ -28,7 +34,7 @@ public abstract sealed class Testable permits ParProperty, Property, SeqProperty
      *
      * @param conf The JSON configuration used for property testing. The configuration provides additional information
      *             or parameters needed for the property test.
-     * @return  The result of the test is  encapsulated in a Report object.
+     * @return The result of the test is  encapsulated in a Report object.
      */
     public Report check(final JsObj conf) {
         return createTask(conf).result();

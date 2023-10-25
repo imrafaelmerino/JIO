@@ -1,11 +1,8 @@
 package jio.test;
 
-import jdk.jfr.consumer.RecordedThread;
-
-import java.time.Duration;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
+/**
+ * Utility class
+ */
 public final class Utils {
 
     private Utils() {
@@ -19,9 +16,9 @@ public final class Utils {
      */
     public static String formatTime(long time) {
         if (time < 0) throw new IllegalArgumentException("time < 0");
-        if (time >= 1000_000_000) return "%.3f sg".formatted(time/1000_000_000d);
-        if (time >= 1000_000) return "%.3f ms".formatted(time/1000_000d);
-        if (time >= 1000) return "%.3f µs".formatted(time/1000d);
+        if (time >= 1000_000_000) return "%.3f sg".formatted(time / 1000_000_000d);
+        if (time >= 1000_000) return "%.3f ms".formatted(time / 1000_000d);
+        if (time >= 1000) return "%.3f µs".formatted(time / 1000d);
         return "%d ns".formatted(time);
     }
 
@@ -31,11 +28,11 @@ public final class Utils {
      * @param code The HTTP status code to categorize.
      * @return A string representing the category of the status code.
      */
-    public static String categorizeHttpStatusCode(int code){
-        if(code < 200) return "INFORMATIONAL";
-        if(code < 300) return "SUCCESS";
-        if(code < 400) return "REDIRECTION";
-        if(code < 500) return "CLIENT_ERROR";
+    public static String categorizeHttpStatusCode(int code) {
+        if (code < 200) return "INFORMATIONAL";
+        if (code < 300) return "SUCCESS";
+        if (code < 400) return "REDIRECTION";
+        if (code < 500) return "CLIENT_ERROR";
         return "SERVER_ERROR";
     }
 

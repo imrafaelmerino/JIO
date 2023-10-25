@@ -5,7 +5,6 @@ import jio.IO;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,13 +32,17 @@ import static java.util.Objects.requireNonNull;
  */
 public final class HttpServerBuilder {
 
+
     private final AtomicLong counter = new AtomicLong(0);
-    private final Map<String, HttpHandler> handlers = new HashMap<>();
+    private final Map<String, HttpHandler> handlers;
     private Executor executor;
     private int backlog = 0;
-
     private boolean recordEvents = true;
     private HttpsConfigurator httpsConfigurator;
+
+    private HttpServerBuilder(Map<String, HttpHandler> handlers) {
+        this.handlers = handlers;
+    }
 
     private static String headersToString(Map<String, List<String>> headers) {
         return
@@ -51,6 +54,17 @@ public final class HttpServerBuilder {
                                               )
                            )
                        .collect(Collectors.joining(", "));
+    }
+
+    /**
+     * Creates an instance of the HttpServerBuilder with the specified HTTP request handlers.
+     *
+     * @param handlers A map of HTTP request handlers, where the keys are the path prefixes and the values are the
+     *                 handlers.
+     * @return An instance of HttpServerBuilder.
+     */
+    public static HttpServerBuilder of(final Map<String, HttpHandler> handlers) {
+        return new HttpServerBuilder(requireNonNull(handlers));
     }
 
     /**
@@ -74,28 +88,11 @@ public final class HttpServerBuilder {
      * @return this builder
      * @see HttpsConfigurator
      */
-
     public HttpServerBuilder withSSL(final HttpsConfigurator configurator) {
         this.httpsConfigurator = requireNonNull(configurator);
         return this;
     }
 
-    /**
-     * Associates a URI path with an HTTP request handler. Once created, all requests received by the server for the
-     * specified path will be handled by the given handler object.
-     *
-     * @param path    the root URI path to associate with the handler (the first character of the path must be '/')
-     * @param handler the handler to invoke for incoming requests
-     * @return this builder
-     */
-    public HttpServerBuilder addContext(final String path,
-                                        final HttpHandler handler
-                                       ) {
-        this.handlers.put(requireNonNull(path),
-                          requireNonNull(handler)
-                         );
-        return this;
-    }
 
     /**
      * Sets the socket backlog, specifying the number of incoming connections that can be queued for acceptance.
@@ -120,14 +117,14 @@ public final class HttpServerBuilder {
     }
 
     /**
-     * Returns an effect that when invoked will create a socket address from <strong>localhost</strong> and a port
-     * number from a given interval, starting the server in a new background thread. The background thread inherits the
-     * priority, thread group, and context class loader of the caller. A valid port value is between 0 and 65535. A port
-     * number of zero will let the system pick up an ephemeral port in a bind operation.
+     * Create a socket address from <strong>localhost</strong> and a port number from a given interval, starting the
+     * server in a new background thread. The background thread inherits the priority, thread group, and context class
+     * loader of the caller. A valid port value is between 0 and 65535. A port number of zero will let the system pick
+     * up an ephemeral port in a bind operation.
      *
      * @param start the first port number that will be tried
      * @param end   the last port number that will be tried
-     * @return an effect that deploys the HttpServer
+     * @return an HttpServer
      */
     public HttpServer startAtRandom(final int start,
                                     final int end
@@ -140,10 +137,10 @@ public final class HttpServerBuilder {
     }
 
     /**
-     * Returns an effect that when invoked will create a socket address from a hostname and a port number from a given
-     * interval, starting the server in a new background thread. The background thread inherits the priority, thread
-     * group, and context class loader of the caller. A valid port value is between 0 and 65535. A port number of zero
-     * will let the system pick up an ephemeral port in a bind operation.
+     * Create a socket address from a hostname and a port number from a given interval, starting the server in a new
+     * background thread. The background thread inherits the priority, thread group, and context class loader of the
+     * caller. A valid port value is between 0 and 65535. A port number of zero will let the system pick up an ephemeral
+     * port in a bind operation.
      *
      * @param host  the host name
      * @param start the first port number that will be tried
@@ -247,13 +244,13 @@ public final class HttpServerBuilder {
     }
 
     /**
-     * Returns an effect that when invoked will create a socket address from <strong>localhost</strong> and a port
-     * number, starting the server in a new background thread. The background thread inherits the priority, thread
-     * group, and context class loader of the caller. A valid port value is between 0 and 65535. A port number of zero
-     * will let the system pick up an ephemeral port in a bind operation.
+     * Creates a socket address from <strong>localhost</strong> and a port number, starting the server in a new
+     * background thread. The background thread inherits the priority, thread group, and context class loader of the
+     * caller. A valid port value is between 0 and 65535. A port number of zero will let the system pick up an ephemeral
+     * port in a bind operation.
      *
      * @param port the port number
-     * @return an effect that deploys the HttpServer
+     * @return an HttpServer
      */
     public HttpServer start(final int port) {
         return build("localhost",
@@ -262,13 +259,13 @@ public final class HttpServerBuilder {
     }
 
     /**
-     * Returns an effect that when invoked will create a socket address from <strong>localhost</strong> and a port
-     * number, starting the server in a new background thread. The background thread inherits the priority, thread
-     * group, and context class loader of the caller. A valid port value is between 0 and 65535. A port number of zero
-     * will let the system pick up an ephemeral port in a bind operation.
+     * Creates a socket address from a host and a port number, starting the server in a new background thread. The
+     * background thread inherits the priority, thread group, and context class loader of the caller. A valid port value
+     * is between 0 and 65535. A port number of zero will let the system pick up an ephemeral port in a bind operation.
      *
+     * @param host the host address
      * @param port the port number
-     * @return an effect that deploys the HttpServer
+     * @return an HttpServer
      */
     public HttpServer start(final String host, final int port) {
         return build(host,

@@ -7,7 +7,6 @@ import jio.Lambda;
 import jio.test.pbt.PropBuilder;
 import jio.test.pbt.TestFailure;
 import jio.test.pbt.TestResult;
-import jio.test.pbt.TestSuccess;
 import jsonvalues.JsObj;
 
 import java.net.http.HttpResponse;
@@ -48,6 +47,8 @@ public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder
      * @param p_get    The lambda function representing the HTTP GET operation.
      * @param p_update The lambda function representing the HTTP UPDATE operation.
      * @param p_delete The lambda function representing the HTTP DELETE operation.
+     * @param <O>      The type of data generated to feed the property tests.
+     * @return a CRUDPropBuilder
      */
     public static <O> CRUDPropBuilder<O> of(final String name,
                                             final Gen<O> gen,
@@ -77,6 +78,8 @@ public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder
      * @param p_get    The lambda function representing the HTTP GET operation.
      * @param p_update The lambda function representing the HTTP UPDATE operation.
      * @param p_delete The lambda function representing the HTTP DELETE operation.
+     * @param <O>      The type of data generated to feed the property tests.
+     * @return a CRUDPropBuilder
      */
     public static <O> CRUDPropBuilder<O> of(final String name,
                                             final Gen<O> gen,
@@ -97,11 +100,11 @@ public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder
     public PropBuilder<O> buildPropBuilder() {
         BiLambda<JsObj, O, TestResult> lambda =
                 (conf, body) -> post.apply(conf, body)
-                                    .then(resp ->
-                                                  switch (postAssert.apply(resp)) {
-                                                      case TestSuccess $ -> getId.apply(body, resp);
-                                                      case TestFailure f -> IO.fail(f);
-                                                  }
+                                    .then(resp -> {
+                                              TestResult result = postAssert.apply(resp);
+                                              if (result instanceof TestFailure f) return IO.fail(f);
+                                              return getId.apply(body, resp);
+                                          }
                                          )
                                     .then(id -> get.apply(conf, id)
                                                    .then(assertResp(getAssert, id))

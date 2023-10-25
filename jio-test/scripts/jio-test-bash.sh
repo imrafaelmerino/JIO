@@ -31,7 +31,7 @@ if [[ -z ${VERSION} ]]
       exit 1
 fi
 
-docker run -v jio-pbt-maven-repo:/root/.m2 --rm -it jio-pbt:"${VERSION}" bash
+docker run -v jio-test-maven-repo:/root/.m2 --rm -it jio-test:"${VERSION}" bash
 }
 
 main "$@"

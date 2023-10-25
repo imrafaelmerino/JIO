@@ -14,8 +14,8 @@ import static jio.mongodb.Converters.toBson;
 import static jio.mongodb.MongoEvent.OP.FIND_ONE_AND_REPLACE;
 
 /**
- * Represents a MongoDB find one and replace operation to update a single document in a collection asynchronously using
- * {@link jio.BiLambda lambdas}. This class allows you to specify a filter query criteria and an update document as
+ * Represents a MongoDB find one and replace operation to updateCommands a single document in a collection asynchronously using
+ * {@link jio.BiLambda lambdas}. This class allows you to specify a filter query criteria and an updateCommands document as
  * {@link jsonvalues.JsObj}, along with options for controlling the replacement behavior, such as sort criteria and projection.
  * <p>
  * The `FindOneAndReplace` class is designed for replacing a single document in a MongoDB collection that matches the specified filter criteria. This operation is performed atomically and asynchronously, allowing you to customize the replacement options and execution behavior. You can create instances of this class with the specified collection supplier, set replacement options, and choose an executor for asynchronous execution.

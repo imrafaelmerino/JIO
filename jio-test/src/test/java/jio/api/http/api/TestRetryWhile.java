@@ -12,12 +12,13 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
+import java.util.Map;
 
 
 public class TestRetryWhile {
 
     @RegisterExtension
-    static Debugger debugger =  Debugger.of(Duration.ofSeconds(2));
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
     static int port;
     static JioHttpClient httpClient;
@@ -37,9 +38,9 @@ public class TestRetryWhile {
                                              );
 
         HttpServerBuilder builder =
-                new HttpServerBuilder().addContext("/get_str",
-                                                   getStrReqHandler
-                                                  );
+                HttpServerBuilder.of(Map.of("/get_str",
+                                            getStrReqHandler
+                                           ));
 
         HttpServer server = builder.startAtRandom("localhost",
                                                   8000,

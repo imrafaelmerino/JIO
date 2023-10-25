@@ -77,7 +77,13 @@ public final class StubBuilder<O> {
         return this;
     }
 
-    public StubBuilder<O> withDelays(Gen<Duration> delaysGen) {
+
+    /**
+     * Sets the generator of delays
+     * @param delaysGen the generator of delays
+     * @return this stub builder with a delay generator
+     */
+    public StubBuilder<O> withDelays(final Gen<Duration> delaysGen) {
         this.delayGen = requireNonNull(delaysGen);
         return this;
     }

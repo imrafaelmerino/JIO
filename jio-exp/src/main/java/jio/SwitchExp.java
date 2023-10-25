@@ -11,8 +11,11 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * It's an immutable expression that implements multiple predicate-value branches like the Cond expression. However, it
- * evaluates a type I value and allows multiple value clauses based on evaluating that value.
+ * evaluates a type I value and allows multiple value clauses based on evaluating that value. If none of the branches
+ * patterns match the evaluated value, you can specify a fallback effect, or it will default to using {@link IO#NULL}
  *
+ * @param <I> the type of the value that will be matched against different patters to determine which branch will be
+ *            executed
  * @param <O> the type of the value this expression will be reduced
  */
 public final class SwitchExp<I, O> extends Exp<O> {
@@ -145,4 +148,5 @@ public final class SwitchExp<I, O> extends Exp<O> {
 
 
     }
+
 }

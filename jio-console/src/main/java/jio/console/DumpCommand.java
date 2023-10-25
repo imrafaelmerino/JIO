@@ -35,8 +35,7 @@ class DumpCommand extends Command {
                       Write the content of the output variable into the specified file (appending if the file exists).
                       Usage: $command {path_file}
                       Examples:
-                          $command /Users/rmerinogarcia/dump.txt
-                          $command $var""".replace("$command", COMMAND_NAME)
+                          $command /Users/rmerinogarcia/dump.txt""".replace("$command", COMMAND_NAME)
              );
     }
 

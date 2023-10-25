@@ -31,6 +31,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
 
     /**
      * Creates a expression that is evaluated to the empty JsObj
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq() {
         var obj = new JsObjExpSeq();
@@ -41,6 +43,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key,
                                final IO<? extends JsValue> effect
@@ -55,6 +59,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -75,6 +81,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
 
     public static JsObjExp seq(final String key1,
@@ -100,6 +108,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -130,6 +140,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -164,6 +176,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -203,6 +217,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -247,6 +263,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -297,6 +315,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -352,6 +372,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -411,6 +433,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -475,6 +499,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -544,6 +570,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -618,6 +646,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -698,6 +728,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
      * with a corresponding effect.If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp seq(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -915,6 +947,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
      * object. If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
 
     public static JsObjExp par(final String key1,
@@ -952,6 +986,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
      * object. If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
 
     public static JsObjExp par(final String key1,
@@ -994,6 +1030,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
      * object. If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
 
     public static JsObjExp par(final String key1,
@@ -1041,6 +1079,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
      * object. If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1091,6 +1131,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
      * object. If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
 
     public static JsObjExp par(final String key1,
@@ -1148,6 +1190,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
      * object. If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1208,6 +1252,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
      * object. If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1274,6 +1320,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
      * object. If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1344,6 +1392,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
      * object. If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1418,6 +1468,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
      * object. If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1498,6 +1550,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
     /**
      * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
      * object. If any of the effects fail, the entire expression fails.
+     *
+     * @return a JsObjExp
      */
     public static JsObjExp par(final String key1,
                                final IO<? extends JsValue> effect1,
@@ -1600,9 +1654,9 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
                        .collect(Collectors.toMap(Map.Entry::getKey,
                                                  e -> DebuggerHelper.debugIO(e.getValue(),
                                                                              String.format("%s[%s]",
-                                                                                         eventBuilder.exp,
-                                                                                         e.getKey()
-                                                                                        ),
+                                                                                           eventBuilder.exp,
+                                                                                           e.getKey()
+                                                                                          ),
                                                                              eventBuilder.context
                                                                             )
                                                 )

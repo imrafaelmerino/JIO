@@ -10,7 +10,6 @@ import java.util.Objects;
  * A builder class for creating MongoDB client sessions with specified options. This class simplifies the process of
  * creating client sessions and provides a convenient way to start and configure sessions with a MongoDB client.
  * Typically, this class is used internally by the `TxBuilder` to build sessions to manage transactions.
- * <p>
  * <p><b>Note:</b> MongoDB sessions are not multi-threaded. Only one thread should operate within a MongoDB session at
  * a time to avoid errors like "Only servers in a sharded cluster can start a new transaction at the active transaction
  * number."

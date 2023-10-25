@@ -77,6 +77,9 @@ public final class ClientCredsBuilder {
      *                              returning the response.
      * @param getAccessToken        lambda that takes the server response and returns the oauth token
      * @param refreshTokenPredicate predicate that checks the response to see if the access token need to be refreshed
+     *
+     * @return a ClientCredsBuilder
+     *
      * @see AccessTokenRequest
      * @see GetAccessToken
      */

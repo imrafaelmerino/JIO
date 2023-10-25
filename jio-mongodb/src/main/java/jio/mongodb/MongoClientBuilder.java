@@ -85,6 +85,11 @@ public final class MongoClientBuilder {
     }
 
 
+    /**
+     * builds the Mongo client from the specified connection
+     * @param connection the string connections. Something like mongodb://localhost:27017/?
+     * @return a mongo client
+     */
     public MongoClient build(final String connection) {
         return MongoClients.create(buildConnection.andThen(buildSettings)
                                                   .apply(requireNonNull(connection))

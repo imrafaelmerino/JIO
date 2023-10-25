@@ -29,6 +29,7 @@ import static java.util.Objects.requireNonNull;
  * If the user introduces a value that is not valid according to the specified spec, an error message will be prompted,
  * and they'll have up to three retries to get it right.
  */
+@SuppressWarnings("javadoc")
 public class JsObjConsole implements JsConsole<JsObj> {
     private final Map<String, JsConsole<?>> bindings;
 

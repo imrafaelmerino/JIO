@@ -24,6 +24,12 @@ public class TestSwitchExp {
 
         Assertions.assertEquals("A", a.result());
 
+        Assertions.assertNull(SwitchExp.<String, String>eval(IO.succeed("c"))
+                                       .match("a", x -> Constants.A,
+                                              "b", x -> Constants.B
+                                             ).result()
+                                      );
+
 
         IO<String> b =
                 SwitchExp.<String, String>eval("b")
@@ -111,6 +117,14 @@ public class TestSwitchExp {
         Assertions.assertEquals("A", a.result());
 
 
+        Assertions.assertNull(SwitchExp.<String, String>eval("d")
+                                       .match(List.of("a", "c"), x -> Constants.A,
+                                              List.of("b"), x -> Constants.B
+                                             )
+                                       .result()
+                             );
+
+
         IO<String> b =
                 SwitchExp.<String, String>eval("b")
                          .match(List.of("a"), x -> Constants.A,
@@ -191,6 +205,12 @@ public class TestSwitchExp {
 
         Assertions.assertEquals("A", a.result());
 
+        Assertions.assertNull(SwitchExp.<String, String>eval("c")
+                                       .match(x -> x.equals("a"), x -> Constants.A,
+                                              x -> x.equals("b"), x -> Constants.B
+                                             )
+                                       .result());
+
 
         IO<String> b =
                 SwitchExp.<String, String>eval("b")
@@ -258,8 +278,6 @@ public class TestSwitchExp {
         Assertions.assertEquals("H", f.result());
 
 
-
-
     }
 
     @Test
@@ -275,6 +293,7 @@ public class TestSwitchExp {
         Assertions.assertEquals("two",
                                 exp
                                );
+
 
     }
 }

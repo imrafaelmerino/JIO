@@ -11,6 +11,11 @@ import jsonvalues.JsObj;
  * @param newDoc The new document specifying the structure and content of the replacement documents.
  */
 public record QueryReplace(JsObj query, JsObj newDoc) {
+    /**
+     * Creates a query and a new doc
+     * @param query the query
+     * @param newDoc the new doc to replace the one found by the query
+     */
     public QueryReplace {
         if(query == null) throw new IllegalArgumentException("query is null");
         if(newDoc == null) throw new IllegalArgumentException("newDoc is null");

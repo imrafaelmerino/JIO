@@ -1,0 +1,10 @@
+NAME="jio-console"
+VERSION="1.0.0-RC3"
+IMAGE="${NAME}:${VERSION}"
+
+
+//go to root folder and build the image
+jio-console % docker build -t ${IMAGE} .
+
+//go to script and execute the command specifying the version
+scripts % ./jio-console-compile.sh --version ${VERSION}

@@ -20,6 +20,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 
 public class TestErrors {
@@ -27,20 +28,20 @@ public class TestErrors {
     @RegisterExtension
     static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
     HttpServer server =
-            new HttpServerBuilder().addContext("/foo",
-                                               GetStub.of(BodyStub.consAfter("hi",
-                                                                             Duration.of(2,
-                                                                                         ChronoUnit.SECONDS
-                                                                                        )
-                                                                            ),
-                                                          StatusCodeStub.cons(200),
-                                                          HeadersStub.EMPTY
-                                                         )
-                                              )
-                                   .startAtRandom("localhost",
-                                                  8000,
-                                                  9000
-                                                 );
+            HttpServerBuilder.of(Map.of("/foo",
+                                        GetStub.of(BodyStub.consAfter("hi",
+                                                                      Duration.of(2,
+                                                                                  ChronoUnit.SECONDS
+                                                                                 )
+                                                                     ),
+                                                   StatusCodeStub.cons(200),
+                                                   HeadersStub.EMPTY
+                                                  )
+                                       ))
+                             .startAtRandom("localhost",
+                                            8000,
+                                            9000
+                                           );
 
 
     @Test

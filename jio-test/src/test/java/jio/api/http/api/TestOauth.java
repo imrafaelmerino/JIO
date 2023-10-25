@@ -21,23 +21,26 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Map;
 
 public class TestOauth {
     @RegisterExtension
     static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
-    HttpServer server = new HttpServerBuilder()
-            .addContext("/token", PostStub.of(n -> body -> uri -> headers -> JsObj.of("access_token",
-                                                                                      JsStr.of(String.valueOf(n))
-                                                                                     )
-                                                                                  .toString(),
-                                              StatusCodeStub.cons(200)
-                                             )
-                       )
-            .addContext("/service", GetStub.of(n -> body -> uri -> headers -> n == 2 ? "" : String.valueOf(n),
-                                               n -> body -> uri -> headers -> n == 2 ? 401 : 200
-                                              ))
-            .start(7777);
+    HttpServer server =
+            HttpServerBuilder.of(Map.of("/token",
+                                        PostStub.of(n -> body -> uri -> headers -> JsObj.of("access_token",
+                                                                                            JsStr.of(String.valueOf(n))
+                                                                                           )
+                                                                                        .toString(),
+                                                    StatusCodeStub.cons(200)
+                                                   ),
+                                        "/service", GetStub.of(n -> body -> uri -> headers -> n == 2 ? "" : String.valueOf(n),
+                                                               n -> body -> uri -> headers -> n == 2 ? 401 : 200
+                                                              )
+                                       )
+                                )
+                             .start(7777);
 
 
     @Test

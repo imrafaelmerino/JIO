@@ -40,6 +40,8 @@ public final class CollectionBuilder {
      * @param database The supplier of the MongoDB database.
      * @param name     The name of the MongoDB collection.
      * @throws NullPointerException if either database or name is null.
+     *
+     * @return a collection builder
      */
     public static CollectionBuilder of(final DatabaseBuilder database,
                                        final String name

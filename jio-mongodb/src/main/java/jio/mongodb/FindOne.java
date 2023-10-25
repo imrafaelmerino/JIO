@@ -29,7 +29,6 @@ import java.util.concurrent.Executor;
  */
 public final class FindOne extends Find implements MongoLambda<FindBuilder, JsObj> {
 
-    private final FindAll findAll;
 
     /**
      * Constructs a new `FindOne` instance with the specified collection supplier.
@@ -38,7 +37,6 @@ public final class FindOne extends Find implements MongoLambda<FindBuilder, JsOb
      */
     private FindOne(final CollectionBuilder collection) {
         super(collection, true);
-        findAll = FindAll.of(collection);
     }
 
     /**

@@ -37,6 +37,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -57,16 +58,18 @@ public class Properties {
                                                               .append(RetryPolicies.limitRetries(5)))
                                 .withRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE));
 
-    static HttpServer server = new HttpServerBuilder()
-            .addContext("/token", PostStub.of(BodyStub.gen(JsObjGen.of("access_token", JsStrGen.alphanumeric(10, 10)).map(JsObj::toString)),
-                                              StatusCodeStub.cons(200))
-                       )
-            .addContext("/thanks", GetStub.of(BodyStub.cons("your welcome!"),
-                                              StatusCodeStub.gen(Combinators.freq(Pair.of(5, IntGen.arbitrary(200, 299)),
-                                                                                  Pair.of(1, Gen.cons(401))))
-                                             )
-                       )
-            .startAtRandom(8000, 9000);
+    static HttpServer server =
+            HttpServerBuilder.of(Map.of(
+                                     "/token", PostStub.of(BodyStub.gen(JsObjGen.of("access_token", JsStrGen.alphanumeric(10, 10)).map(JsObj::toString)),
+                                                           StatusCodeStub.cons(200))
+                                     ,
+                                     "/thanks", GetStub.of(BodyStub.cons("your welcome!"),
+                                                           StatusCodeStub.gen(Combinators.freq(Pair.of(5, IntGen.arbitrary(200, 299)),
+                                                                                               Pair.of(1, Gen.cons(401))))
+                                                          )
+                                       )
+                                )
+                             .startAtRandom(8000, 9000);
 
     private static final int port = server.getAddress().getPort();
     static OauthHttpClient oauthClient =

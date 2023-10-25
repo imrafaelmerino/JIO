@@ -25,7 +25,7 @@
         - [IO stubs](#iostubs)
         - [Clock stubs](#clockstubs)
         - [Http Server Stubs](#httpserverstubs)
-    - [Property based testing](#pbs)
+    - [Property based testing](#pbt)
     - [Installation](#test-Installation)
 - [jio-mongodb](#jio-mongodb)
     - [API](#mongodb-api)
@@ -91,7 +91,7 @@ public class SignupService implements Lambda<JsObj, JsObj> {
 
     Lambda<JsObj, Void> persistLDAP;
     Lambda<String, JsArray> normalizeAddresses;
-    Lambda<Void, Integer> countUsers;
+    Supplier<IO<Integer>> countUsers;
     Lambda<JsObj, String> persistMongo;
     Lambda<JsObj, Void> sendEmail;
     Lambda<String, Boolean> existsInLDAP;
@@ -117,7 +117,7 @@ public class SignupService implements Lambda<JsObj, JsObj> {
                                            )
                                .debugEach(context);
 
-        return JsObjExp.par("number_users", countUsers.apply(null)
+        return JsObjExp.par("number_users", countUsers.get()
                                                       .recover(exc -> -1)
                                                       .map(JsInt::of),
 
@@ -189,23 +189,23 @@ scenario, making your tests highly adaptable and expressive:
 public class SignupTests {
 
     @RegisterExtension
-    static Debugger debugger = new Debugger(Duration.ofSeconds(2));
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
     @Test
     public void test() {
 
-        Lambda<JsObj, Void> persistLDAP = user -> IO.NULL();
+        Lambda<JsObj, Void> persistLDAP = _ -> IO.NULL();
         
         Lambda<String, JsArray> normalizeAddresses =
-                address -> IO.succeed(JsArray.of("address1", "address2"));
+                _ -> IO.succeed(JsArray.of("address1", "address2"));
         
-        Lambda<Void, Integer> countUsers = nill -> IO.succeed(3);
+        Supplier<IO<Integer>> countUsers = () -> IO.succeed(3);
         
-        Lambda<JsObj, String> persistMongo = user -> IO.succeed("id");
+        Lambda<JsObj, String> persistMongo = _ -> IO.succeed("id");
         
-        Lambda<JsObj, Void> sendEmail = user -> IO.NULL();
+        Lambda<JsObj, Void> sendEmail = _ -> IO.NULL();
         
-        Lambda<String, Boolean> existsInLDAP = email -> IO.FALSE;
+        Lambda<String, Boolean> existsInLDAP = _ -> IO.FALSE;
 
         JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
                               "address", JsStr.of("Elm's Street")
@@ -320,52 +320,47 @@ public void test(){
     Gen<Duration> delayGen = IntGen.arbitrary(0, 200)
                                    .map(Duration::ofMillis);
 
-    Lambda<Void, Integer> countUsers =
-            nill -> StubBuilder.ofDelayedGen(IntGen.arbitrary(0, 100000),
-                                        delayGen
-                                             )
-                          .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                          .get();
+    Supplier<IO<Integer>> countUsers =
+            () -> StubBuilder.ofGen(IntGen.arbitrary(0, 100000))
+                            .withDelays(delayGen)          
+                            .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                            .build();
 
     Lambda<JsObj, String> persistMongo =
-            user -> StubBuilder.ofDelayedGen(StrGen.alphabetic(20, 20),
-                                        delayGen
-                                             )
-                          .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                          .get();
+            _ -> StubBuilder.ofGen(StrGen.alphabetic(20, 20))
+                            .withDelays(delayGen)
+                            .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                            .build();
 
     Lambda<JsObj, Void> sendEmail =
-            user -> StubBuilder.<Void>ofDelayedGen(Gen.cons(null),
-                                              delayGen
-                                             )
-                          .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                          .get();
+            _ -> StubBuilder.ofGen(Gen.cons(null))
+                            .withDelays(delayGen)
+                            .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                            .build();
 
     Lambda<String, Boolean> existsInLDAP =
-            email -> StubBuilder.ofDelayedGen(BoolGen.arbitrary(),
-                                         delayGen
-                                        )
-                           .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                           .get();
+            _ -> StubBuilder.ofGen(BoolGen.arbitrary())
+                            .withDelays(delayGen)
+                            .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                            .build();
+    
     Lambda<JsObj, Void> persistLDAP =
-            obj -> StubBuilder.<Void>ofDelayedGen(Gen.cons(null),
-                                             delayGen
-                                            )
-                         .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                         .get();
+            _ -> StubBuilder.ofGen(Gen.cons(null))
+                            .withDelays(delayGen)  
+                            .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                            .build();
 
     Lambda<String, JsArray> normalizeAddresses =
-            address -> StubBuilder.ofDelayedGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3),
-                                           delayGen
-                                          )
-                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                             .get();    
+            _ -> StubBuilder.ofGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3))
+                            .withDelays(delayGen)  
+                            .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                            .build();    
 }
 ```
 
-These `StubBuilder` instances are essentially Java suppliers that return IO stubs. They allow you to introduce
+These `StubBuilder` instances are essentially builders that create IO stubs. They allow you to introduce
 variability and randomness into your tests, making them more realistic and ensuring your code can handle different
-scenarios effectively.
+scenarios effectively. I recommend you take a look at [jio-test](#jio-test) and [property-based-testing](#pbt).
 
 Using that stubs the following events were printed out:
 
@@ -408,20 +403,21 @@ duration: 331,995 ms, context: signup, thread: virtual-44, event-start-time: 202
 
 ```
 
-To enhance the resilience of our code, let's introduce some retry logic for the `countUsers` lambda. We want to allow up
+To enhance the resilience of our code, let's introduce some retry logic for the `countUsers` supplier. We want to allow
+up
 to three retries:
 
 ``` code                                
         // let's add up to three retries 
-        countUsers.apply(null)
+        countUsers.get()
                   .debug(EventBuilder.of("count_users", context)) 
                   .retry(RetryPolicies.limitRetries(3))
-                  .recover(e -> -1)                                                 
+                  .recover(_ -> -1)                                                 
 ```
 
 In this code:
 
-- The `countUsers` lambda is executed, and for each execution, the `debug` method creates an event. The `EventBuilder`
+- The `countUsers` supplier is executed, and for each execution, the `debug` method creates an event. The `EventBuilder`
   allows you to specify the name of the expression being evaluated ("count_users") and the context. This helps customize
   the events sent to the JFR system.
 
@@ -503,7 +499,7 @@ duration: 4,036 sg, context: signup, thread: virtual-47, event-start-time: 2023-
 
 Key points:
 
-1. After the first failure and three retries, the value -1 from the recover function is returned
+1. After the first failure and three retries, the value -1 from the `recover` function is returned
 
 2. The `retry` method can accept a predicate, allowing you to specify which errors should trigger a retry. This
    fine-grained control is valuable for handling specific error scenarios.
@@ -536,9 +532,9 @@ First take a look at the following piece of code:
 
 ```code  
   
-int a = sum(1,2);  
+int a = sum(1,2) + 3;  
   
-int b = sum(1,2);  
+int b = sum(1,2) + 1;  
   
 ```  
 
@@ -548,9 +544,9 @@ As far as the function `sum` is **pure**, you can refactor the previous piece of
   
 int c = sum(1,2);  
   
-int a = c;  
+int a = c + 3;  
   
-int b = c;  
+int b = c + 1;  
   
 ```  
 
@@ -561,9 +557,9 @@ An effect, on the other hand, is something you can't call more than once unless 
 
 ```code  
   
-Instant a = Instant.now();  
+Instant a = Instant.now().plus(Period.ofDays(1));  
   
-Instant b = Instant.now();  
+Instant b = Instant.now().plus(Period.ofDays(2));  
   
 ```  
 
@@ -575,9 +571,9 @@ favourite IDE suggests you to do it at times!):
   
 Instant now = Instant.now();  
   
-Instant a = now;  
+Instant a = now.plus(Period.ofDays(1));  
   
-Instant b = now;  
+Instant b = now.plus(Period.ofDays(2));  
   
 ```  
 
@@ -588,9 +584,9 @@ following piece of code is equivalent to the previous where `a` and `b` are two 
   
 Supplier<Instant> now = () -> Instant.now();  
   
-Instant a = now.get();  
+Instant a = now.get().plus(Period.ofDays(1));  
   
-Instant b = now.get();  
+Instant b = now.get().plus(Period.ofDays(2));  
   
 ```  
 
@@ -602,7 +598,7 @@ What can you expect from JIO:
 - Simple and powerful API
 - Errors are first class citizens
 - Simple and powerful testing tools ([jio-test](#jio-test))
-- Easy to extend and get benefit from all the above. Examples are [jio-http](#jio-http), [jio-mongodb](#jio-mongodb). 
+- Easy to extend and get benefit from all the above. Examples are [jio-http](#jio-http) and [jio-mongodb](#jio-mongodb).
   And you can create your owns integrations!
 - I don't fall into the logging-library war. This is something that sucks in Java. I just use Java Flight Recording!
 - Almost zero dependencies (just plain Java!)
@@ -623,10 +619,11 @@ import java.util.concurrent.CompletableFuture;
 public abstract class IO<O> implements Supplier<CompletableFuture<O>> {  
   
     @Override  
-    CompletableFuture<O> get();  
-      
-    //block to get the result 
-    O result();  
+    public CompletableFuture<O> get();  
+       
+    public O result(){
+        return get().join();
+    }
 
 }  
   
@@ -637,9 +634,10 @@ Key Concepts:
 - **`IO`  Definition**: The `IO` class is a fundamental component of JIO. It's an abstract class designed to represent
   functional effects or computations.
 
-- **Lazy Computation**: `IO` is a lazy computation, implemented as a`Supplier`. This means that it's just a description
-  of a computation and won't be executed until one of the methods, such as `CompletableFuture get()`  or `O result()`,
-  is explicitly invoked.
+- **Lazy Computation**: `IO` is a lazy computation and is realized as a `Supplier`. In essence, it merely
+  outlines a computation without immediate execution, awaiting the explicit invocation of methods like `get()`
+  or `result()`. It's important to note that `result` operation is blocking, which isn't an issue when employing virtual
+  threads. As you'll soon discover, integrating virtual threads with JIO is a straightforward process!
 
 - **Asynchronous Effects**: `IO` leverages `CompletableFuture` to represent asynchronous effects. Asynchronous effects
   are essential for avoiding thread blocking, especially when dealing with operations that might introduce latency.
@@ -660,13 +658,13 @@ Now that we got the ball rolling, let's learn how to create IO effects.
   
 IO<String> effect = IO.succeed("hi");  
   
-JsObj get(int id){...}  
+JsObj get(int id) { ??? }  
 IO<String> effect = IO.succeed(get(1)); //get(1) is invoked before constructing the effect  
   
 ```  
 
-In both of the above examples, the effect will always compute the same value: either "hi" or the result of calling get(
-1). There is no lazynes here, a value is computed right away and used to create the IO effect
+In both of the above examples, the effect will always compute the same value: either "hi" or the result of calling
+`get(1)`. There is no lazynes here, a value is computed right away and used to create the IO effect
 
 **From an exception**
 
@@ -676,7 +674,8 @@ IO<String> effect = IO.fail(new RuntimeException("something went wrong :("));
   
 ```  
 
-Like with succeed, the effect will always produce the same result, in this case it fails always with the same exception,
+Like with `succeed`, the effect will always produce the same result, in this case it fails always with the same
+exception,
 which is instantiated before creating the effect. Do notice that no exception is thrown!
 
 **From a lazy computation or a supplier**
@@ -692,7 +691,7 @@ IO<Long> effect = IO.lazy(computation);
 
 In this example and effect is created but not like in `succeed` and `fail`, **nothing is evaluated**  since a `Supplier`
 is lazy. It's very important to notice the difference. On the other hand, each time the  `get` or `result` methods are
-invoked a new pottencially new value can be returned.
+invoked a potentially new value can be returned.
 
 **From a callable**
 
@@ -714,7 +713,7 @@ introduced in Java 11
 
 ```code  
   
-CompletableFuture<JsObj> get(String id){...}  
+CompletableFuture<JsObj> get(String id){ ??? }  
   
 IO<JsObj> effect = IO.effect( () -> get(1) );  
   
@@ -745,8 +744,8 @@ IO<Long> effect = IO.lazy(computation,
 
 ```code  
   
-Supplier<JsObj> blockingComputation;  
-Supplier<JsObj> blockingTask;  
+Supplier<JsObj> blockingComputation = ???;  
+Supplier<JsObj> blockingTask = ???;  
 
 IO<JsObj> effect = IO.managedLazy(blockingComputation);  
 IO<JsObj> effect = IO.managedTask(blockingTask);  
@@ -756,6 +755,7 @@ IO<JsObj> effect = IO.managedTask(blockingTask);
 **With fibers**
 
 ```code  
+
 IO<JsObj> effect = IO.lazy(blockingTask,  
                            Executors.newVirtualThreadPerTaskExecutor()  
                            );  
@@ -767,10 +767,10 @@ IO<JsObj> effect = IO.lazy(blockingTask,
 The `resource` method is used to create an IO effect that manages a resource implementing the `AutoCloseable`
 interface. It takes a `Callable` that supplies the closable resource and a mapping function to transform the resource
 into a value. This method ensures proper resource management, including automatic closing of the resource, to prevent
-memory
-leaks. It returns an IO effect encapsulating both the resource handling and mapping.
+memory leaks. It returns an IO effect encapsulating both the resource handling and mapping.
 
 ```code   
+
 static <O, I extends AutoCloseable> IO<O> resource(Callable<I> resource,  
                                                    Lambda<I, O> map  
                                                    );  
@@ -779,6 +779,7 @@ static <O, I extends AutoCloseable> IO<O> resource(Callable<I> resource,
 and an example:
 
 ```code  
+
 Callable<FileInputStream> callable = () -> new FileInputStream("example.txt");  
   
 // Create an IO effect using the resource method  
@@ -822,13 +823,15 @@ succeed with `true` and `false`, respectively.
 
 ### <a name="Lambdas"><a/> Lambdas
 
-In the world of JIO, working with effectful functions is a common practice. These functions return effects, and you'll
-often encounter them in your code:
+In the world of JIO, working with effectful functions is a common practice. The following functions return `IO` effects,
+and you'll often encounter them in your code:
 
 ```code
+
 Function<I, IO<O>>
 
 BiFunction<A,B, IO<O>>
+
 ```
 
 To make our code more concise and readable, we can give these effectful functions an alias. Let's call them "Lambdas":
@@ -848,13 +851,13 @@ Converting regular functions or predicates into Lambdas is straightforward using
 
 ```
 
-Function<Integer,Integer> opposite = n -> -n;
-BiFunction<Integer,Integer,Integer> sum = (a,b) -> a + b;
+Function<Integer, Integer> opposite = n -> -n;
+BiFunction<Integer, Integer, Integer> sum = (a,b) -> a + b;
 Predicate<Integer> isOdd = n -> n % 2 == 1;
 
-Lambda<Integer,Integer> l1 = Lambda.liftFunction(opposite);
-Lambda<Boolean,Integer> l2 = Lambda.liftPredicate(isOdd);
-BiLambda<Integer,Integer,Integer> l3 = BiLambda.liftFunction(sum);
+Lambda<Integer, Integer> l1 = Lambda.liftFunction(opposite);
+Lambda<Boolean, Integer> l2 = Lambda.liftPredicate(isOdd);
+BiLambda<Integer, Integer, Integer> l3 = BiLambda.liftFunction(sum);
 
 ```
 
@@ -894,7 +897,7 @@ reliable systems.
 
 ```code  
   
-interface IO<O> extends Supplier<Future<O>> {  
+public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
   
   IO<O> retry(Predicate<Throwable> predicate,  
               RetryPolicy policy  
@@ -914,24 +917,27 @@ Retry policies are created in a very declarative and composable way, for example
 
 ```code  
   
-import static jio.RetryPolicies.*  
-  
 Duration oneHundredMillis = Duration.ofMillis(100);  
   
 Duration oneSec = Duration.ofSeconds(1);  
   
 // up to five retries waiting 100 ms  
-constantDelay(oneHundredMillis).append(limitRetries(5))  
+RetryPolicies.constantDelay(oneHundredMillis)
+             .append(limitRetries(5))  
   
-//during 3 seconds up to 10 times  
-limitRetries(10).limitRetriesByCumulativeDelay(Duration.ofSeconds(3))  
+// during 3 seconds up to 10 times  
+RetryPolicies.limitRetries(10)
+             .limitRetriesByCumulativeDelay(Duration.ofSeconds(3))  
   
-//5 times without delay and then, if it keeps failing, an incremental delay from 100 ms up to 1 second  
-limiteRetries(5).followedBy(incrementalDelay(oneHundredMillis).capDelay(oneSec))  
+// 5 times without delay and then, if it keeps failing, 
+// an incremental delay from 100 ms up to 1 second  
+RetryPolicies.limiteRetries(5)
+             .followedBy(incrementalDelay(oneHundredMillis)
+             .capDelay(oneSec))  
   
 ```  
 
-There are very interesting policies implemented based  
+There are very interesting policies implemented based
 on [this article](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/):  exponential backoff, full
 jitter, equal jitter, decorrelated jitter etc
 
@@ -941,7 +947,7 @@ to ensure your application maintains resilience. Three key methods come into pla
 
 ```code  
   
-interface IO<O> extends Supplier<Future<O>> {  
+public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
   
   IO<O> recover(Function<Throwable, O> fn);  
     
@@ -975,7 +981,7 @@ needed.
 
 ```code  
   
-public interface IO<O> extends Supplier<Future<O>> {  
+public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
   
     IO<A> map(Function<O, A> fn);  
       
@@ -1005,7 +1011,7 @@ public interface IO<O> extends Supplier<Future<O>> {
 
 ```code  
   
-interface IO<O> extends Supplier<Future<O>> {  
+public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
   
     IO<O> timeout(long time,  
                   TimeUnit unit  
@@ -1024,7 +1030,7 @@ interface IO<O> extends Supplier<Future<O>> {
 **Being sneaky!**: Sometimes, you need to sneak a peek into the execution of an effect:
 
 ```code  
-interface IO<O> extends Supplier<Future<O>> {  
+public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
   
     IO<O> peekFailure(Consumer<Throwable> failConsumer);  
       
@@ -1048,7 +1054,7 @@ which one will be the fastest:
 
 ```code  
   
-interface IO<O> extends Supplier<CompletableFuture<O>> {  
+public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
   
     static <O> IO<O> race(IO<O> first, IO<O>... others);  
   
@@ -1059,13 +1065,14 @@ interface IO<O> extends Supplier<CompletableFuture<O>> {
 `race` method returns the result of the first effect that completes (whether it succeeds or fails), allowing you to make
 quick decisions based on the outcome.
 
-"Sometimes, it is valuable to have fine-grained control over the execution context responsible for computing the values
+Sometimes, it is valuable to have fine-grained control over the execution context responsible for computing the values
 of effects. JIO provides a set of methods with the 'on' suffix to cater to this specific need. These methods allow you  
 to specify the execution context or thread pool in which the effect's computation should occur, providing you with
 control over concurrency and resource allocation. Here are the key methods with the 'on' suffix:
 
 ```code  
-interface IO<O> extends Supplier<CompletableFuture<O>> {  
+
+public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
   
     IO<O> recoverWithOn(Lambda<Throwable, O> fn,  
                         Executor executor  
@@ -1112,12 +1119,20 @@ IO<O> exp = IfElseExp.<O>predicate(IO<Boolean> condition)
   
 ```  
 
+In this code, the `consequence` and `alternative` parameters are represented as `Supplier` instances, which means they
+are not
+computed during the construction of the expression but rather evaluated only when needed, based on the result of the
+condition. This deferred execution allows for efficient conditional evaluation of IO effects.
+
 ### SwitchExp
 
-The `SwitchExp` expression mimics the behavior of a switch construct, enabling multiple pattern-value branches. It
-evaluates an effect or value of type `I` and allows multiple clauses based on the evaluation. The `match` method
-compares the value or effect with patterns and selects the corresponding lambda. Patterns can be values, lists of
-values, or even predicates.
+Your original sentence is mostly correct but could benefit from a minor improvement for clarity:
+
+The `SwitchExp` expression simulates the behavior of a switch construct, enabling multiple pattern-value branches. It
+evaluates an effect or a value of type `I` and facilitates the use of multiple clauses based on the evaluation.
+The `match` method compares the value or effect with patterns and selects the corresponding lambda (which takes in the
+value of type `I`). Patterns can encompass values, lists of values, or even predicates. It's possible to specify a
+default branch, in case no pattern matches the input (otherwise the expression is reduced to `IO.NULL`).
 
 ```code  
   
@@ -1128,7 +1143,7 @@ IO<O> exp =
                       .match(I pattern1, Lambda<I,O> lambda1,  
                              I pattern2, Lambda<I,O> lambda2,  
                              I pattern3, Lambda<I,O> lambda3,  
-                             Lambda<I,O> otherwise  
+                             Lambda<I,O> otherwise          //optional
                             );  
   
 // matches an effect of type I  
@@ -1138,7 +1153,7 @@ IO<O> exp=
                        .match(I pattern1, Lambda<I,O> lambda1,  
                               I pattern2, Lambda<I,O> lambda2,  
                               I pattern3, Lambda<I,O> lambda3,
-                              Lambda<I,O> otherwise  
+                              Lambda<I,O> otherwise         //optional
                              );  
   
   
@@ -1174,7 +1189,7 @@ IO<O> exp=
                                           n -> IO.succeed(n + " falls into the first week"),  
                                           List.of(8, 9, 10, 11, 12, 13, 14), 
                                           n -> IO.succeed(n + " falls into the second week"),  
-                                          List.of(15, 16, 17, 18, 19, 20, 10), 
+                                          List.of(15, 16, 17, 18, 19, 20), 
                                           n -> IO.succeed(n + " falls into the third week"),  
                                           List.of(21, 12, 23, 24, 25, 26, 27), 
                                           n -> IO.succeedd(n + " falls into the forth week"),  
@@ -1190,42 +1205,45 @@ IO<O> exp=
         SwitchExp<I, O>.eval(IO<I> value)  
                        .match(Predicate<I> pattern1, Lambda<I,O> lambda1,  
                               Predicate<I> pattern2, Lambda<I,O> lambda2,  
-                              Predicate<I> pattern3, Lambda<I,O> lambda3,  
-                              Lambda<I,O> otherwise  
+                              Predicate<I> pattern3, Lambda<I,O> lambda3
                               );  
   
-// For example, the following expression reduces to the default value: "20 is greater or equal to twenty"  
+// For example, the following expression reduces to the default value: "20 is greater or equal to ten"  
   
 IO<O> exp=  
         SwitchExp<Integer, String>.eval(IO.succeed(20))  
-                                  .match(i -> i < 5, n -> IO.succeed(n + "is lower than five"),  
-                                         i -> i < 10, n -> IO.succeed(n + "is lower than ten"),  
-                                         i-> i < 20, n -> IO.succeed(n + "is lower than twenty"),  
-                                         i -> IO.succeed(i + "is greater or equal to twenty")  
+                                  .match(n -> n < 5, 
+                                         n -> IO.succeed(n + "is lower than five"),  
+                                         n -> n < 10, 
+                                         n -> IO.succeed(n + "is lower than ten"),  
+                                         n-> n > 10, 
+                                         n -> IO.succeed(n + "is greater or equal to ten")  
                                          );  
 ```  
 
 ### CondExp
 
-`CondExp` is a set of branches and a default value. Each branch consists of an effect that computes a boolean (the  
+`CondExp` is a set of branches and a default effect. Each branch consists of an effect that computes a boolean (the  
 condition) and its associated effect. The expression is reduced to the value of the first branch with a true
-condition, making the order of branches significant. If no condition is true, it computes the default effect.
+condition, making the order of branches significant. If no condition is true, it computes the default effect if
+specified
+(otherwise the expression is reduced to `IO.NULL`)
 
 ```code  
   
 IO<O> exp=  
-    CondExp.<O>seq(IO<Boolean> cond1, Supplier<IO<O>> value1,  
-                   IO<Boolean> cond2, Supplier<IO<O>> value2,  
-                   IO<Boolean> cond3, Supplier<IO<O>> value3,  
-                   Supplier<IO<O>> otherwise  
+    CondExp.<O>seq(IO<Boolean> cond1, Supplier<IO<O>> effect1,  
+                   IO<Boolean> cond2, Supplier<IO<O>> effect2,  
+                   IO<Boolean> cond3, Supplier<IO<O>> effect3,  
+                   Supplier<IO<O>> otherwise                 //optional             
                   );  
   
   
 IO<O> exp =  
-    CondExp.<O>par(IO<Boolean> cond1, Supplier<IO<O>> value1,  
-                   IO<Boolean> cond2, Supplier<IO<O>> value2,  
-                   IO<Boolean> cond3, Supplier<IO<O>> value3,  
-                   Supplier<IO<O>> otherwise  
+    CondExp.<O>par(IO<Boolean> cond1, Supplier<IO<O>> effect1,  
+                   IO<Boolean> cond2, Supplier<IO<O>> effect2,  
+                   IO<Boolean> cond3, Supplier<IO<O>> effect3,  
+                   Supplier<IO<O>> otherwise                //optional  
                   );  
   
 ```  
@@ -1245,24 +1263,24 @@ IO<Boolean> anySeq = AnyExp.seq(IO<Boolean> cond1, IO<Boolean> cond2,...);
   
 ```  
 
-You can create AllExp or AnyExp from stream of IO<Boolean> using the `parCollector` and `seqCollector`
+You can also create AllExp or AnyExp from streams of IO<Boolean> using the `parCollector` and `seqCollector`
 
 ```code
 
-Lambda<Vehicle,IO<Boolean>> isFerrari = ???
+Lambda<Vehicle, Boolean> isFerrari = ???
 
 List<Vehicle> vehicles = ???;
 
 AllExp allFerrariPar = vehicles.stream()
-                               .map(vehicle -> isFerrari.apply(vehicle))
+                               .map(isFerrary)
                                .collector(AllExp.parCollector());
 
 AllExp allFerrariSeq = vehicles.stream()
-                               .map(vehicle -> isFerrari.apply(vehicle))
+                               .map(isFerrary)
                                .collector(AllExp.seqCollector());
                                
 AnyExp anyFerrariSeq = vehicles.stream()
-                               .map(vehicle -> isFerrari.apply(vehicle))
+                               .map(isFerrary)
                                .collector(AnyExp.seqCollector());                               
 
 
@@ -1275,13 +1293,21 @@ You can compute each element either in parallel or sequentially.
 
 ```code  
   
-IO<Pair<A, B> pairPar = PairExp.par(IO<A> val1,IO<B> val2);  
+IO<Pair<A, B> pairPar = PairExp.par(IO<A> effect1, 
+                                    IO<B> effect2);  
   
-IO<Pair<A, B> pairSeq = PairExp.seq(IO<A> val1,IO<B> val2);  
+IO<Pair<A, B> pairSeq = PairExp.seq(IO<A> effect1, 
+                                    IO<B> effect2);  
   
-IO<Triple<A, B, C> triplePar = TripleExp.par(IO<A> val1,IO<B> val2,IO<C> val3);  
+IO<Triple<A, B, C> triplePar = 
+    TripleExp.par(IO<A> effect1,
+                  IO<B> effect2,
+                  IO<C> effect3);  
   
-IO<Triple<A, B, C> tripleSeq = TripleExp.seq(IO<A> val1,IO<B> val2,IO<C> val3);  
+IO<Triple<A, B, C> tripleSeq = 
+    TripleExp.seq(IO<A> effect1,
+                  IO<B> effect2,
+                  IO<C> effect3);  
   
 ```  
 
@@ -1293,28 +1319,26 @@ power in handling complex data structures.
 
 ```code  
   
-IfElseExp<JsStr> a = IfElseExp.<JsStr>predicate(IO<Boolean> condition)  
-                              .consequence(IO<JsStr> consequence)  
-                              .alternative(IO<JsStr> alternative);  
+IfElseExp<JsStr> a = IfElseExp.<JsStr>predicate(IO<Boolean> cond1)  
+                              .consequence(Supplier<IO<JsStr>> consequence)  
+                              .alternative(Supplier<IO<JsStr>> alternative);  
   
 JsArrayExp b = 
     JsArrayExp.seq(SwitchExp<Integer, JsValue>.match(n)  
-                                              .patterns(1, Supplier<IO<JsValue>> value1,  
-                                                        2, Supplier<IO<JsValue>> value2,  
-                                                        Supplier<IO<JsValue>> defaultValue  
+                                              .patterns(n -> n <= 0, Supplier<IO<JsValue>> effect1,  
+                                                        n -> n  > 0, Supplier<IO<JsValue>> effect2
                                                        ),  
-                   CondExp.par(IO<Boolean> cond1, Supplier<IO<JsValue>>value1,  
-                               IO<Boolean> cond2, Supplier<IO<JsValue>>value3,  
-                               Supplier<IO<JsValue>> defaultValue  
+                   CondExp.par(IO<Boolean> cond2, Supplier<IO<JsValue>> effect3,  
+                               IO<Boolean> cond3, Supplier<IO<JsValue>> effect4,  
+                               Supplier<IO<JsValue>> otherwise  
                               )  
                  );  
   
 JsObjExp c = JsObjExp.seq("d", AnyExp.seq(IO<Boolean> cond1, IO<Boolean> cond2)  
                                      .map(JsBool::of),  
-                          "e", AllExp.par(IO<Boolean> cond1, IO<Boolean> cond2)  
+                          "e", AllExp.par(IO<Boolean> cond2, IO<Boolean> cond3)  
                                      .map(JsBool::of),  
-                          "f", JsArrayExp.par(IO<JsValue> value1, 
-                                              IO<JsValue> value2)  
+                          "f", JsArrayExp.par(IO<JsValue> effect5, IO<JsValue> effect6)  
                           );  
   
 JsObjExp exp = JsObjExp.par("a",a,  
@@ -1348,17 +1372,18 @@ when dealing with such tasks.
 
 ### ListExp
 
-Represents an expression that is reduced to a list of values. You can create ListExp expressions using the 'seq'
-method to evaluate effects sequentially or using the 'par' method to evaluate effects in parallel. If one effect
+Represents an expression that is reduced to a list of values. You can create ListExp expressions using the `seq`
+method to evaluate effects sequentially or using the `par` method to evaluate effects in parallel. If one effect
 fails, the entire expression fails.
 
 ```code
 
-ListExp<String> par = ListExp.par(IO<String> effect1, IO<String> effect2,...)
+ListExp<String> par = ListExp.par(IO<String> effect1, IO<String> effect2, ...)
 
-ListExp<String> seq = ListExp.seq(IO<String> effect1, IO<String> effect2,...)
+ListExp<Integer> seq = ListExp.seq(IO<String> effect3, IO<String> effect3, ...)
 
 List<String> xs = par.result();
+List<Integer> ys = seq.result();
 
 ```
 
@@ -1371,12 +1396,12 @@ Lambda<String, Person> getPersonFromId = ???;
 
 List<String> ids = ???;
 
-ListExp<Person> personsIO = ids.stream()
-                               .filter(id -> id > 0)
-                               .map(id -> getPersonFromId.apply(id))
-                               .collect(ListExp.parCollector());
+ListExp<Person> xs = ids.stream()
+                        .filter(id -> id > 0)
+                        .map(getPersonFromId)
+                        .collect(ListExp.parCollector());
 
-List<Person> persons = personsIO.result();                            
+List<Person> persons = xs.result();                            
 
 ```
 
@@ -1401,11 +1426,12 @@ clocks available:
 
 ```code  
   
-sealed interface Clock extends Supplier<Long> permits Monotonic, CustomClock, RealTime {}  
+sealed interface Clock extends Supplier<Long> permits Monotonic,RealTime, CustomClock {}  
   
 ```  
 
-Every time you write _new Date()_ or _Instant.now()_ in the body of a method or function, you are creating a bug.  
+Every time you write _new Date()_ or _Instant.now()_ in the body of a method or function, you are creating a side
+effect.  
 Remember that in FP, all the inputs must appear in the signature of a function. Dealing with time, it's even more  
 important. Also, it's impossible to control by any test the value of that timestamp which leads to code difficult to  
 test.
@@ -1475,12 +1501,13 @@ where time plays a critical role.
 
 ### Why I chose JFR
 
-"In the world of Java, there has long been a multitude of logging libraries and frameworks, each with its strengths
+In the world of Java, there has long been a multitude of logging libraries and frameworks, each with its strengths
 and limitations. However, the introduction of Java Flight Recorder (JFR) has been a game-changer. JFR is a native and
 highly efficient profiling and event recording mechanism embedded within the Java Virtual Machine (JVM). Its native
 integration means it operates seamlessly with your Java applications, imposing minimal performance overhead. JFR
 provides unparalleled visibility into the inner workings of your code, allowing you to capture and analyze events with
-precision.  
+precision.
+
 Unlike external logging libraries, JFR doesn't rely on third-party dependencies or introduce additional complexity to  
 your projects. By using JFR within JIO, you harness the power of this built-in tool to gain deep insights into the  
 behavior of your functional effects and expressions, all while keeping your codebase clean and efficient. JFR is the  
@@ -1494,89 +1521,166 @@ for debugging and integration with Java Flight Recorder (JFR) to capture and ana
 
 ### Debugging Individual Effects
 
-You can enable debugging for individual effects using the debug method. This method creates a copy of the effect that  
-generates a `RecordedEvent` and sends it to the Flight Recorder system. You can customize the event using the
-`EventBuilder` provided. This feature is invaluable for monitoring the behavior of specific effects in your application.
+You have the option to enable debugging for individual effects using the `debug` method. When this method is used, a new
+effect is created that generates a `RecordedEvent` and sends it to the Flight Recorder system. You can also customize
+the event by providing an `EventBuilder`. Here's an overview:
 
-```code  
-  
-IO<O> debug(final EventBuilder<O> builder);  
-  
-```  
+The `IO` class has the following methods for debugging:
 
-`EventBuilder` key points:
+```code
+public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
 
-- It's a builder for creating JFR events.
-- The 'exp' field represents the specific expression associated with the event.
-- Allows customization of event messages for successful and failed computations.
-- The event message for successful computations is, by default, the string representation of the result and can be
-  customized using the `withSuccessOutput` method.
-- The event message for failed computations is, by default, formatted
-  as `exception.getClass().getName():exception.getMessage()` and can be customized with the `withFailureOutput` method.
-- The `EventBuilder` is associated with a specific expression, and events generated from different expressions can be
-  correlated using a specified context.
+    IO<O> debug();  
+   
+    IO<O> debug(EventBuilder<O> builder);  
+}
+```
 
-You can call `debug` without providing an EventBuilder, and JIO will use a default one with "Val" as the
-expression name and without a context.
+The resulting JFR event is defined as follows:
+
+```code
+import jdk.jfr.*;
+
+@Label("jio-eval-expression")
+@Name("jio.exp")
+@Category({"JIO"})
+@Description("JIO expressions and subexpressions results")
+class ExpEvent extends Event {
+
+    @Label("exp")
+    public String expression;
+    
+    @Label("value")
+    public String value;
+    
+    @Label("context")
+    public String context;
+    
+    @Label("result")
+    public String result;
+    public enum RESULT {SUCCESS, FAILURE}
+    
+    @Label("exception")
+    public String exception;
+
+}
+```
+
+You can use the [JIO debugger](#junit) to print the events sent to the JFR system. Here's an example:
+
+```code
+@RegisterExtension
+static Debugger debugger = Debugger of (Duration.ofSeconds(1));
+
+@Test
+public void test() {
+    
+    Integer value = IO.succeed(10).debug().result();
+
+    // result() would throw an exception!
+    CompletableFuture<Integer> failure = 
+        IO.<Integer>fail(new RuntimeException("JIO is great!"))
+          .debug()
+          .get();
+}
+```
+
+The result includes events like this:
+
+```text
+event: eval, expression: Val, result: SUCCESS, output: 10
+duration: 2,693 ms, context: , thread: main, event-start-time: 2023-10-24T23:42:51.6197205+02:00
+
+event: eval, expression: Val, result: FAILURE, output: java.lang.RuntimeException: JIO is great!
+duration: 59,291 µs, context: , thread: main, event-start-time: 2023-10-24T23:49:01.073597625+02:00
+```
+
+The event type is always "eval" (for evaluation), and the expression is "Val" (for Value), reflecting the evaluation of
+two irreducible expressions. The result is "SUCCESS" for the first evaluation, and "FAILURE" for the second. The context
+in both cases is the default (an empty string).
+
+You can customize event messages using an `EventBuilder`. For example:
+
+```code
+EventBuilder<Integer> eb =
+    EventBuilder.<Integer>of("other_exp_name", "fun")
+        .withSuccessOutput(output -> "XXX")
+        .withFailureOutput(Throwable::getMessage);
+
+Integer value = IO.succeed(10).debug(eb).result();
+
+// result() would throw an exception!
+CompletableFuture<Integer> failure = IO.<Integer>fail(new RuntimeException("JIO is great!"))
+    .debug(eb)
+    .get();
+```
+
+The result with this customization is:
+
+```text
+event: eval, expression: other_exp_name, result: SUCCESS, output: XXX
+duration: 4,071 ms, context: fun, thread: main, event-start-time: 2023-10-24T23:55:36.360573875+02:00
+
+event: eval, expression: other_exp_name, result: FAILURE, output: JIO is great!
+duration: 38,750 µs, context: fun, thread: main, event-start-time: 2023-10-24T23:55:36.364976084+02:00
+```
+
+The `EventBuilder` provides key points for customization, including specifying event messages for successful and failed
+computations and associating events with specific expressions and contexts.
 
 ### Debugging Expressions
 
-JIO's debugging capabilities extend beyond individual effects. You can attach a debug mechanism to each operand of an  
-expression using the `debugEach` method. This allows you to monitor and log the execution of each operand
-individually. This operand is recursive, if the subexpressions are expressions themselves, debugEach will be
-call on them copying before the context of the event (if specified).
-The provided `EventBuilder` or a descriptive context can be used to customize the debug events for each operand.
+JIO's debugging capabilities extend beyond individual effects. You can attach a debug mechanism to each operand of an
+expression using the `debugEach` method. This allows you to monitor and log the execution of each operand individually.
+Here's an overview:
 
-```code  
-  
-Exp<O> debugEach(final EventBuilder<O> builder);  
-  
-Exp<O> debugEach(final String context);  
-  
-```  
+```code
+public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
 
-By using `debugEach`, you can gain insights into the behavior of complex expressions and identify any issues or  
-bottlenecks that may arise during execution. All the subexpressions and the final result will be recorded with the
-same context, making it easier to relate them and analyze their interactions. Consider the
-following example:
+    Exp<O> debugEach(final EventBuilder<O> builder);  
+
+    Exp<O> debugEach(final String context);  
+}
+```
+
+By using `debugEach`, you can gain insights into the behavior of complex expressions and identify any issues or
+bottlenecks that may arise during execution. This mechanism is recursive, meaning that if subexpressions are expressions
+themselves, `debugEach` will be called on them, copying the context of the event (if specified).
+
+You can also provide an `EventBuilder` or a descriptive context to customize the debug events for each operand.
+
+Here's an example of using `debugEach`:
 
 ```code
 
-public class TestDebug {
+@RegisterExtension
+static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
-    @RegisterExtension
-    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
+@Test
+public void test() {
 
-    @Test
-    public void test() {
+    Supplier<Boolean> isLowerCase = BoolGen.arbitrary().sample();
+    Supplier<String> lowerCase = Combinators.oneOf("a", "e", "i", "o", "u").sample();
+    Supplier<String> upperCase = Combinators.oneOf("A", "E", "I", "O", "U").sample();
 
-        Supplier<Boolean> isLowerCase = BoolGen.arbitrary().sample();
-        Supplier<String> lowerCase = Combinators.oneOf("a", "e", "i", "o", "u").sample();
-        Supplier<String> upperCase = Combinators.oneOf("A", "E", "I", "O", "U").sample();
+    SwitchExp<String, String> match =
+        SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
+            .consequence(() -> IO.lazy(lowerCase))
+            .alternative(() -> IO.lazy(upperCase))
+        )
+            .match(List.of("a", "e", "i", "o", "u"),
+                s -> IO.succeed("%s %s".formatted(s, s.toUpperCase())),
+                List of("A", "E", "I", "O", "U"),
+                s -> IO.succeed("%s %s".formatted(s, s.toLowerCase()))
+            )
+            .debugEach("context");
 
-        SwitchExp<String, String> match =
-                SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
-                                                        .consequence(() -> IO.lazy(lowerCase))
-                                                        .alternative(() -> IO.lazy(upperCase))
-                                              )
-                         .match(List.of("a", "e", "i", "o", "u"),
-                                s -> IO.succeed("%s %s".formatted(s,
-                                                                  s.toUpperCase())),
-                                List.of("A", "E", "I", "O", "U"),
-                                s -> IO.succeed("%s %s".formatted(s,
-                                                                  s.toLowerCase())),
-                                s -> IO.NULL()
-                               )
-                         .debugEach("context");
+    System.out.println("The output is " + match.result());
 
-        System.out.println("The output is " + match.result());
-
-    }
 }
-
 ```
 
-and the result after executing the previous test:
+The result after executing this test includes events related to each operand:
 
 ```text
 The output is E e
@@ -1598,9 +1702,8 @@ duration: 4,057 ms, context: context, thread: main, event-start-time: 2023-10-15
 
 ```
 
-As you can see the function `debugExp` is recursive. As the eval of the `SwitchExp` is
-an `IfElseExp`, you can see the events associated to the evaluation of the expressions
-`SwitchExp-eval-predicate` and `SwitchExp-eval-alternative`.
+As mentioned earlier, the `debugExp` function is recursive. Since the `eval` subexpression of the `SwitchExp` is
+an `IfElseExp`, you can see events associated with it: `SwitchExp-eval-predicate` and `SwitchExp-eval-alternative`.
 
 ## <a name="Installation"><a/> Installation
 
@@ -1611,7 +1714,7 @@ It requires Java 17 or greater
 <dependency>  
     <groupId>com.github.imrafaelmerino</groupId>  
     <artifactId>jio-exp</artifactId>  
-    <version>1.0.0-RC1</version>  
+    <version>1.0.0-RC3</version>  
 </dependency>  
   
 ```  
@@ -1665,21 +1768,7 @@ In JIO, you can build and deploy HTTP servers using the `HttpServerBuilder`. Thi
 defining and launching HTTP servers for various purposes, including testing. The `HttpServerBuilder` allows you to
 create `HttpServer` or `HttpsServer` instances with ease.
 
-**Specifying an Executor**
-
-When creating an `HttpServer` is possible to specify an `Executor`. All HTTP requests received by the server will
-be handled in tasks provided to this executor. You can set the executor using the `withExecutor(Executor executor)`
-method.
-
-```code
-Executor executor = Executors.newVirtualThreadPerTaskExecutor(); 
-
-HttpServerBuilder serverBuilder = new HttpServerBuilder();
-
-serverBuilder.withExecutor(executor);
-```
-
-**Adding Request Handlers**
+**Specifying the Request Handlers**
 
 To handle specific URI paths, you can associate each path with an HTTP request handler. For each path, specify a handler
 that will be invoked for incoming requests.
@@ -1689,9 +1778,21 @@ HttpHandler handler = ...;
 
 HttpHandler handler1 = ...; 
 
-serverBuilder.addContext("/your-path",handler);
+HttpServerBuilder serverBuilder = HttpServerBuilder.of("/your-path", handler,
+                                                       "/your-path1", handler1);
 
-serverBuilder.addContext("/your-path1",handler1);
+```
+
+**Specifying an Executor**
+
+When creating an `HttpServer` is possible to specify an `Executor`. All HTTP requests received by the server will
+be handled in tasks provided to this executor. You can set the executor using the `withExecutor(Executor executor)`
+method.
+
+```code
+Executor executor = Executors.newVirtualThreadPerTaskExecutor(); 
+
+serverBuilder.withExecutor(executor);
 ```
 
 **Setting the Socket Backlog**
@@ -1700,7 +1801,7 @@ The `HttpServerBuilder` allows you to specify the socket backlog, which defines 
 can be queued for acceptance. You can set the backlog using the `withBacklog(int backlog)` method.
 
 ```code
-int backlog = ...; // Your desired backlog value
+int backlog = ???; // Your desired backlog value
 
 serverBuilder.withBacklog(backlog);
 ```
@@ -1711,7 +1812,7 @@ If you want to accept only SSL connections:
 
 ```code
 
-HttpsConfigurator httpsConfigurator = ...;
+HttpsConfigurator httpsConfigurator = ???;
 
 serverBuilder.withSSL(httpsConfigurator);
 
@@ -1727,51 +1828,31 @@ method.
 serverBuilder.withoutRecordedEvents();
 ```
 
-**Building the server on a Specific Port**
+**Starting the server on a Specific Port**
 
-The build methods return IO effects that allow you to create and start the HTTP server at your convenience. These IO
-effects give you control over when to initiate the server. You can use the IO.get or IO.result methods to start the
-server and obtain the HttpServer instance.
+The start methods allow you to create and start the HTTP server at your convenience.
 
 ```code
-String host="localhost"; // Host name
-int port=8080; // Port number
+String host = "localhost"; 
+int port = 8080; 
 
-IO<HttpServer> io = serverBuilder.build(host,port);
+HttpServer server = serverBuilder.start(host, port);
 ```
 
-**Building the server on a Random Available Port**
+**Starting the server on a Random Available Port**
 
 You can even pick a random port, which is useful for local testing as we'll see later.
 
 ```code
-int startPort = 8000; // Starting port
+int startPort = 8000; 
 
-int endPort = 9000;   // Ending port
+int endPort = 9000;   
 
-IO<HttpServer> io = serverBuilder.buildAtRandom(startPort, endPort);
+HttpServer server = serverBuilder.startAtRandom(startPort, endPort);
 ```
 
-**Starting the HttpServer**
-
-To start the `HttpServer`, you need to compute the effect with the method `get` or `result`.
-The server will start in a new background thread and listen for incoming HTTP requests. If
-no executor is specified, this thread will be the one handling the requests. Notice you
-can only call those methods once, otherwise you'll try to start the same server in the same
-port, and you'll get an error.
-
-```code
-
-HttpServer server = io.result();
-
-//you can stop the server, 
-
-int AFTER_FIVE_SECONDS = 5;
-server.stop(AFTER_FIVE_SECONDS);
-
-```
-
-In conclusion, with the `HttpServerBuilder`, you can easily create and deploy HTTP servers in your JIO applications,
+In conclusion, with the `HttpServerBuilder`, you can easily create and deploy HTTP/HTTPS servers in your JIO
+applications,
 making it convenient for testing and development. Whether you need to specify an executor, add request handlers, or
 start on specific or random ports, this builder provides the flexibility and functionality to meet your server
 deployment needs.
@@ -1792,17 +1873,18 @@ Find below a complete example and the events sent to the JFR system:
                                                        Pair.of(1, Gen.cons(401))))
                   );
  
- HttpServer server = new HttpServerBuilder()
-            .addContext("/token",tokenHandler)
-            .addContext("/thanks", thankHandler )
-            .buildAtRandom(8000, 9000)
-            .peekSuccess(s -> System.out.println("Server listening on port %d".formatted(s.getAddress().getPort())))
-            .result();
+ HttpServer server = 
+        HttpServerBuilder.of(Map.of("/token", tokenHandler,
+                                    "/thanks", thankHandler
+                                    )
+                            )
+                         .startAtRandom(8000, 9000);
 
 ```
 
 The example code sets up a test environment for a HTTP client with OAuth support (Client Credentials flow). It uses
-stubs from JIO-Test to create HTTP handlers for testing different scenarios. The `tokenHandler` simulates an OAuth token
+stubs from [jio-test](#jio-test) to create HTTP handlers for testing different scenarios. The `tokenHandler` simulates
+an OAuth token
 request, and the `thankHandler` simulates a response that includes a "your welcome!" message. The status code for
 the `thankHandler` is generated to return a 401 response approximately 1 out of 6 times, simulating the case where the
 access token has expired. The `HttpServerBuilder` is used to create an HTTP server on a random port to handle these
@@ -1939,15 +2021,14 @@ thread: ForkJoinPool.commonPool-worker-1, event-start-time: 2023-10-11T20:30:12.
 
 Some errors occurred due to the connection timeout being too short for this particular scenario. Thankfully, the
 retry mechanism came to the rescue! Additionally, the `HttpExceptions` class provides numerous predicates to help
-identify
-the most common errors that can occur during request execution.
+identify the most common errors that can occur during request execution.
 
 ---
 
 ### <a name="oauth"><a/> OAUTH HTTP client
 
 jio-http provides support for client credentials flow OAuth.
-Here are the possible customizations for the `ClientCredentialsHttpClientBuilder` builder:
+Here are the possible customizations for the `ClientCredsBuilder` builder:
 
 1. The request sent to the server to get the access token:
     - `accessTokenReq` parameter: A lambda that takes the regular HTTP client and returns the HTTP request to get the
@@ -1975,8 +2056,7 @@ Here are the possible customizations for the `ClientCredentialsHttpClientBuilder
 
     3. A predicate that checks if the access token needs to be refreshed:
         - `refreshTokenPredicate` parameter: A predicate that checks the response to determine if the access token needs
-          to
-          be refreshed.
+          to be refreshed.
 
     4. The authorization header name:
         - `authorizationHeaderName` field: The name of the authorization header, which is set to "Authorization" by
@@ -1991,7 +2071,7 @@ behavior of the OAuth client credentials flow support in your HTTP client. Since
 instance to create `ClientCredsBuilder`, you can specify retry policies and predicates, and of course
 you can disable the recording of JFR events for every exchange.
 
-The builder returns an instance of `ClientCredsClient`, which is an implementation of `OauthJioHttpClient`:
+The builder returns an instance of `ClientCredsClient`, which is an implementation of `OauthHttpClient`:
 
 ```code
 package jio.http.client.oauth;
@@ -2024,7 +2104,9 @@ client, relieving developers from the burden of implementing these processes.
 
 Here's an illustrative example:
 
-```java
+```code
+import java.net.URI;
+
 public class TestOauthHttpClient {
 
     @RegisterExtension
@@ -2039,23 +2121,21 @@ public class TestOauthHttpClient {
                                                               .append(RetryPolicies.limitRetries(5)))
                                 .withRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE));
 
-    static OauthJioHttpClient client =
+    static OauthHttpClient client =
             ClientCredsBuilder.of(clientBuilder,
-                                  new AccessTokenRequest("client_id",
-                                                         "client_secret",
-                                                         "localhost",
-                                                         server.getAddress().getPort(),
-                                                         "token", //uri
-                                                         false),  //ssl false
+                                  AccessTokenRequest.of("client_id",
+                                                        "client_secret",
+                                                        URI.create("http://localhost:%s/token".formatted(port))
+                                                        ), 
                                   GetAccessToken.DEFAULT, //token in access_token key in a JSON
-                                  resp -> resp.statusCode() == 401 // if 401 go for a new token
-                                 )
-                              .build();
+                                  resp ->resp.statusCode() == 401 // if 401 go for a new token
+                                  )
+                               .build();
 
     @Test
     public void testOuth() {
         client.oauthOfString()
-              .apply(HttpRequest.newBuilder().GET().uri(URI.create("http://localhost:%s/thanks".formatted(port))))
+              .apply(HttpRequest.newBuilder().uri(URI.create("http://localhost:%s/thanks".formatted(port))))
               .repeat(resp -> true, RetryPolicies.limitRetries(10))
               .result();
     }
@@ -2103,7 +2183,7 @@ thread: ForkJoinPool.commonPool-worker-1, event-start-time: 2023-10-13T10:50:23.
 In the server event generated during the token request, you can observe the Authorization header sent by the client,
 with the value "Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=". If we decode this value from Base64, we obtain "client_id:
 client_secret," which corresponds to the exact values we provided when configuring
-the `ClientCredentialsHttpClientBuilder`.
+the `ClientCredsBuilder`.
 
 ---
 
@@ -2116,7 +2196,7 @@ It requires Java 17 or greater
 <dependency>  
     <groupId>com.github.imrafaelmerino</groupId>  
     <artifactId>jio-http</artifactId>  
-    <version>1.0.0-RC1</version>  
+    <version>1.0.0-RC3</version>  
 </dependency>  
   
 ```  
@@ -2176,54 +2256,54 @@ TODO
 
 ### <a name="stubs"><a/> Stubs
 
-#### <a name="iostubs"><a/> IO stubs
+### <a name="iostubs"><a/> Creating IO Stubs
 
-In the realm of testing, there is a frequent need to construct stubs that emulate particular behaviors or responses
-within your code. To address this need, the `StubBuilder` and `Gens` classes offer practical solutions for
-crafting `IO` instances with tailor-made behaviors designed for testing scenarios. The `StubBuilder` class empowers you
-to produce stubs for generating `IO` instances through generators. These stubs offer extensive customization and are
-instrumental for simulating a wide range of behaviors, spanning from successful executions to failures and even
-controlled delays. The `Gens` class complements this by providing a diverse set of generator methods, each adept at
-generating IO instances with
+In the realm of testing, it's often necessary to construct stubs that simulate specific behaviors or responses within
+your code. To address this need, the `StubBuilder` and `Gens` classes offer practical solutions for crafting `IO`
+instances with tailored behaviors designed for testing scenarios. The `StubBuilder` class empowers you to produce stubs
+for generating `IO` instances through generators. These stubs offer extensive customization and are instrumental for
+simulating a wide range of behaviors, spanning from successful executions to failures and controlled delays. The `Gens`
+class complements this by providing a diverse set of generator methods, each adept at generating IO instances with
 unique behaviors.
 
 You can create a `StubBuilder` using various methods, depending on your testing needs:
 
-- **`ofIOGen`:** Create a stub using a generator of `IO` effects. IO generators can produce
-  exceptions as normal values, which is useful for testing how our code reacts to errors
+- **`ofIOGen`:** Create a stub using a generator of `IO` effects. IO generators can produce exceptions as normal values,
+  which is useful for testing how your code reacts to errors.
 
   ```code
-  // the first call produces a failure
-  Gens<IO<Integer>> gen = Gens.seq(n -> n == 1 ? IO.fail(new RuntimeException()) : IO.succedd(n) )
+  // The first call produces a failure
+  Gen<IO<Integer>> gen = Gens.seq(n -> n == 1 ? IO.fail(new RuntimeException()) : IO.succeed(n));
   
   StubBuilder<Integer> stub = StubBuilder.ofIOGen(gen);
   ```
 
-- **`ofDelayedIOGen`:** Create a stub using a generator of `IO` effects with a specified delay generator.
-  This can be useful for testing retry policies where retries are executed after waiting for some time.
+- **`ofGen`:** Create a stub using a generator of values (never fail). Remember that generators are created with the
+  library [java-fun](https://github.com/imrafaelmerino/java-fun).
 
-  ```code
-  // the first  call an error
-  Gens<IO<Integer>> gen = Gens.seq(n -> n == 1 ? IO.fail(new RuntimeException()) : IO.succedd(n) )
-  
-  // the first call a 1 second delay
-  Gens<Duration> delayGen = Gen.seq(n -> n == 1 ? Duration.ofSeconds(1) : Duration.ZERO )
+You can also configure your stub as follows:
 
-  StubBuilder<YourType> stub = StubBuilder.ofDelayedIOGen(gen, delayGen);
-  ```
-
-- **`ofGen`:** Create a stub using a generator of values (never fail). Remember that generators
-  are created with the library [java-fun](https://github.com/imrafaelmerino/java-fun)
-
-- **`ofDelayedGen`:** Create a stub using a generator of values with a specified delay generator.
-
-You can also specify an executor to generate the values with a thread from this executor:
+- **`withExecutor`:** Set an executor to generate values using threads from this executor. This can be useful for
+  controlling the concurrency of value generation.
 
 ```code
 
 stub.withExecutor(yourExecutor);
 
 ```
+
+- **`withDelays`:** Specify delays for the stub using a generator of `Duration`. This can be useful for testing retry
+  policies where retries are executed after waiting for some time.
+
+  ```code
+  // The first call results in an error
+  Gen<IO<Integer>> gen = Gens.seq(n -> n == 1 ? IO.fail(new RuntimeException()) : IO.succeed(n));
+  
+  // The first call has a 1-second delay
+  Gen<Duration> delayGen = Gen.seq(n -> n == 1 ? Duration.ofSeconds(1) : Duration.ZERO);
+
+  stub.withDelays(delayGen);
+  ```
 
 With these tools, you can easily create stubs and generators for testing your code with various scenarios, behaviors,
 and timing conditions. This flexibility makes it easier to ensure the robustness of your code in different situations.
@@ -2263,7 +2343,7 @@ Clock clock = ClockStub.fromReference(reference);
 
 ##### Using a Function
 
-The `fromCalls` static factory method enables you to create a clock stub where you can control the ticking time based on
+The `fromSeqCalls` static factory method enables you to create a clock stub where you can control the ticking time based on
 the number of calls made to the clock. This method provides dynamic time simulation, allowing you to simulate time
 progression based on your specific requirements.
 
@@ -2389,10 +2469,8 @@ HttpHandler create = PostStub.of(BodyStub.gen(personGen),
                                   HeadersStub.EMPTY
                                   );                            
 
-HttpServer server = new HttpServerBuilder().addContext("/saludate", saludate)
-                                          .addContext("/create", create)
-                                          .buildAtRandom("localhost", 8000, 9000)
-                                          .result();
+HttpServer server = HttpServerBuilder.of(Map.of("/saludate", saludate))
+                                     .startAtRandom("localhost", 8000, 9000);
 ```
 
 Creating servers and adding stubs for testing purposes with jio-http is remarkably straightforward. Here's why:
@@ -2418,7 +2496,7 @@ HTTP-based applications.
 
 ---
 
-### <a name="pbs"><a/> Property based testing
+### <a name="pbt"><a/> Property based testing
 
 #### Quick Example: Using Property-Based Testing to Find Hard-to-Reproduce Bugs
 
@@ -2795,7 +2873,7 @@ jio-friendly, unleashing the full potential of your code.
 
 ### Creating a Collection Supplier<a name="creating-a-collection-supplier"></a>
 
-To get started, you need a `MongoClient`, a `DatabaseBuilder`, and finally a `CollectionBuilder` that provides access 
+To get started, you need a `MongoClient`, a `DatabaseBuilder`, and finally a `CollectionBuilder` that provides access
 to a MongoDB collection. Below is an example of how to create both:
 
 ```code
@@ -2805,7 +2883,7 @@ MongoClient mongoClient = MongoClientBuilder.DEFAULT.build(connectionStr);
 
 String databaseName = "test";
 
-DatabaseBuilder database = new DatabaseBuilder(mongoClient,databaseName);
+DatabaseBuilder database =  DatabaseBuilder.of(mongoClient,databaseName);
 
 String collectionName = "Data";
 
@@ -2815,7 +2893,7 @@ CollectionBuilder collection = CollectionBuilder.of(database,collectionName);
 The `MongoClientBuilder` class is for creating MongoDB client instances with custom configurations. This class provides
 flexibility in building MongoDB client instances and allows you to specify your own connection string and settings
 functions. The default instance, `DEFAULT` is a pre-configured builder with the default settings and codecs from
-[mongo-values](https://github.com/imrafaelmerino/mongo-values) to work with JSON data from the 
+[mongo-values](https://github.com/imrafaelmerino/mongo-values) to work with JSON data from the
 [json-values](https://github.com/imrafaelmerino/json-values) library.
 
 Now that you have a `CollectionBuilder`, you can perform various operations on it.
@@ -2833,7 +2911,7 @@ JsObj query = ???;
 
 Lambda<FindBuilder, JsObj> find = FindOne.of(collection);
 
-FindBuilder builder = new FindBuilder(query);
+FindBuilder builder = FindBuilder.of(query);
 
 IO<JsObj> io = find.apply(builder);
 ```
@@ -2847,7 +2925,7 @@ JsObj query = ???;
 
 Lambda<FindBuilder, FindIterable<JsObj>>find = FindAll.of(collection);
 
-FindBuilder builder = new FindBuilder(query);
+FindBuilder builder = FindBuilder.of(query);
 
 IO<FindIterable<JsObj>>io = find.apply(builder);
 
@@ -3042,9 +3120,9 @@ The `MongoExceptions` utility class provides predicates to handle common excepti
 Here's an example of how to use these predicates for resilient applications:
 
 ```code
-JsObj query=???;
+JsObj query = ???;
 
-var builder=new FindBuilder(query);
+var builder = FindBuilder.of(query);
 
 IO<JsObj> io = FindOne.of(collection)
                       .apply(builder)
@@ -3140,7 +3218,7 @@ JsObj update = ???;
 
 BiLambda<JsObj, JsObj, JsObj> updateOne = UpdateOne.of(collection,Converters.updateResult2JsObj);
 
-UpdateOptions customOptions=new UpdateOptions().upsert(true)  // Example option
+UpdateOptions customOptions = new UpdateOptions().upsert(true)  // Example option
 
 IO<JsObj> io = updateOne.apply(query,update)
                         .withOptions(customOptions);

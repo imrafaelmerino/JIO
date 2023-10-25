@@ -53,10 +53,9 @@ import static java.util.Objects.requireNonNull;
  * @see Exp
  */
 
-@SuppressWarnings("JavadocReference")
 public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> permits Delay, Exp, Val {
 
-
+    IO(){}
     /**
      * Effect that always succeed with true
      */
@@ -96,7 +95,6 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
         return new Val<>(requireNonNull(effect));
     }
 
-
     /**
      * Creates an effect from a callable that returns a closable resource and maps it into an effect. This method is
      * designed to handle resources that implement the {@link AutoCloseable} interface, ensuring proper resource
@@ -117,8 +115,6 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
             return IO.fail(e);
         }
     }
-
-
 
 
     /**
@@ -236,11 +232,9 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
                                 ) {
         requireNonNull(supplier);
         requireNonNull(executor);
-        return new Val<>(
-                () -> CompletableFuture.supplyAsync(supplier,
-                                                    executor
-                                                   )
-        );
+        return new Val<>(() -> CompletableFuture.supplyAsync(supplier,
+                                                             executor
+                                                            ));
 
     }
 
@@ -332,8 +326,8 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
     }
 
     /**
-     * The `async` method allows you to execute an action without waiting for its result and returns immediately. It
-     * is useful when you are not interested in the outcome of the action and want to trigger it asynchronously.
+     * The `async` method allows you to execute an action without waiting for its result and returns immediately. It is
+     * useful when you are not interested in the outcome of the action and want to trigger it asynchronously.
      *
      * <p><b>Note:</b> To achieve non-blocking behavior, ensure that the caller thread and the thread executing the
      * action are different.
@@ -529,7 +523,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @return a new effect representing either the original value or the result of applying the lambda in case of
      * failure.
      */
-    public IO<O> fallbackTo(final Lambda<? super Throwable,O> lambda) {
+    public IO<O> fallbackTo(final Lambda<? super Throwable, O> lambda) {
         requireNonNull(lambda);
 
         return then(IO::succeed,
@@ -1083,6 +1077,7 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
         }).then(nill -> this);
 
     }
+
     /**
      * Computes this effect and pass the result to one of the specified consumers
      *
@@ -1090,11 +1085,12 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
      * @param failureConsumer The consumer to be called with the exception if the operation fails.
      */
     public void onResult(final Consumer<O> successConsumer,
-                         final Consumer<Throwable> failureConsumer){
+                         final Consumer<Throwable> failureConsumer
+                        ) {
         requireNonNull(successConsumer);
         requireNonNull(failureConsumer);
         var unused = get().whenComplete((value, exc) -> {
-            if(exc == null) successConsumer.accept(value);
+            if (exc == null) successConsumer.accept(value);
             else failureConsumer.accept(exc);
         });
     }

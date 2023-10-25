@@ -180,10 +180,75 @@ public sealed abstract class AllExp extends Exp<Boolean> permits AllExpPar, AllE
         return new AllExpPar(exps, null);
     }
 
+    /**
+     * Creates an AllExp expression where all the subexpressions are evaluated in parallel,
+     * <strong>as long as they are computed by a different thread</strong>. In the following example,
+     * `isDivisibleByTwo` and `isDivisibleByThree` will be computed by the same thread (the caller thread), despite the
+     * fact that the `par` constructor is used:
+     *
+     * <pre>
+     * {@code
+     *     Lambda<Integer,Boolean> isDivisibleByTwoAndThree =
+     *              n -> {
+     *
+     *                  IO<Boolean> isDivisibleByTwo = IO.fromSupplier(() -> n % 2 == 0);
+     *                  IO<Boolean> isDivisibleByThree = IO.fromSupplier(() -> n % 3 == 0);
+     *                  return AllExp.par(List.of(isDivisibleByTwo,
+     *                                            isDivisibleByThree
+     *                                            )
+     *                                    );
+     *              };
+     *
+     *
+     *     boolean result = isDivisibleByTwoAndThree.apply(6).join()
+     *
+     * }
+     * </pre>
+     *
+     * <p>
+     * On the other hand, isDivisibleByTwo and isDivisibleByThree will be computed in parallel by different threads in
+     * the following example (if the executor pool is bigger than one and at least two threads are free):
+     *
+     * <pre>
+     * {@code
+     *     Lambda<Integer,Boolean> isDivisibleByTwoAndThree =
+     *              n -> {
+     *
+     *                  IO<Boolean> isDivisibleByTwo = IO.fromSupplier(()-> n % 2 == 0, executor);
+     *
+     *                  IO<Boolean> isDivisibleByThree = IO.fromSupplier(()-> n % 3 == 0, executor);
+     *
+     *                  return AllExp.par(isDivisibleByTwo,
+     *                                    isDivisibleByThree
+     *                                    );
+     *              };
+     *
+     *
+     *     boolean result = isDivisibleByTwoAndThree.apply(6).join()
+     *
+     * }
+     * </pre>
+     *
+     * <p>
+     * Not like expressions created with the {@link #seq(List) seq} constructor, <strong>all the subexpressions must
+     * terminate before the whole expression is reduced, no matter if one fails or is evaluated to false</strong>. If
+     * one subexpression terminates with an exception, the whole expression fails.
+     *
+     * @param ios the boolean subexpressions
+     * @return an AllExp
+     */
     public static AllExp par(final List<IO<Boolean>> ios) {
         return new AllExpPar(ios, null);
     }
 
+    /**
+     * Creates an AllExp expression where all the subexpression are <strong>always</strong> evaluated sequentially. If
+     * one subexpression terminates with an exception or is evaluated to false, the whole expression ends immediately,
+     * and the rest of subexpressions (if any) are not evaluated.
+     *
+     * @param ios the list of subexpression
+     * @return an AllExp
+     */
     public static AllExp seq(final List<IO<Boolean>> ios) {
         return new AllExpSeq(ios, null);
     }

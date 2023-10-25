@@ -11,6 +11,7 @@ import java.util.stream.IntStream;
 
 final class Functions {
 
+    private Functions(){}
     static final Function<String, Json<? extends Json<?>>> toJson = str -> {
         try {
             return JsObj.parse(str);

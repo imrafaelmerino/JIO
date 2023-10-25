@@ -30,9 +30,9 @@ if [[ -z ${VERSION} ]]
       exit 1
 fi
 
-"${DIR}"/jio-pbt-create-volume.sh
+"${DIR}"/jio-test-create-volume.sh
 cd "${DIR}"
-docker run -v jio-pbt-maven-repo:/root/.m2 --rm -it jio-pbt:"${VERSION}" /bin/bash -c "${PACKAGE_COMMAND}"
+docker run -v jio-test-maven-repo:/root/.m2 --rm -it jio-test:"${VERSION}" /bin/bash -c "${PACKAGE_COMMAND}"
 }
 
 main "$@"

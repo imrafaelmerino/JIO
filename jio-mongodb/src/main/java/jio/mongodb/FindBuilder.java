@@ -36,8 +36,17 @@ public final class FindBuilder {
     private long maxAwaitTime = 0L;
     private long maxTime = 0L;
 
-    public FindBuilder(final JsObj filter) {
+    private FindBuilder(final JsObj filter) {
         this.filter = requireNonNull(filter);
+    }
+
+    /**
+     * create a builder to perform a query
+     * @param query the query
+     * @return a find builder
+     */
+    public static FindBuilder of(final JsObj query) {
+        return new FindBuilder(query);
     }
 
     /**

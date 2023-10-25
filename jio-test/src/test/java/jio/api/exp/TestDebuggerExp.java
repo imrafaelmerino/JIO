@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 
 public class TestDebuggerExp {
@@ -325,6 +326,22 @@ public class TestDebuggerExp {
                                          .debugEach("testSwitchExp")
                                          .result()
                                );
+
+    }
+
+    @Test
+    public void test() {
+
+        EventBuilder<Integer> eb =
+                EventBuilder.<Integer>of("other_exp_name", "context")
+                            .withSuccessOutput(output -> "XXX")
+                            .withFailureOutput(Throwable::getMessage);
+
+        Integer value = IO.succeed(10).debug(eb).result();
+
+// result would throw an exception!
+        CompletableFuture<Integer> failure = IO.<Integer>fail(new RuntimeException("JIO is great!")).debug(eb).get();
+
 
     }
 }

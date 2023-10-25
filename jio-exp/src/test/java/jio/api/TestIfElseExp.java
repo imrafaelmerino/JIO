@@ -1,9 +1,13 @@
 package jio.api;
 
+import jio.AllExp;
 import jio.IO;
 import jio.IfElseExp;
+import jio.Lambda;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 public class TestIfElseExp {
 
@@ -22,6 +26,8 @@ public class TestIfElseExp {
 
 
         Assertions.assertEquals(1, a.result());
+
+
     }
 
 

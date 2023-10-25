@@ -27,7 +27,6 @@ public final class IfElseExp<O> extends Exp<O> {
         super(debugger);
         this.predicate = predicate;
     }
-
     /**
      * Creates an IfElseExp with the given boolean effect as the predicate.
      *

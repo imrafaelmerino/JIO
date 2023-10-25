@@ -20,17 +20,20 @@ public final class DatabaseBuilder {
     final String name;
     volatile MongoDatabase database;
 
-    /**
-     * Constructs a new DatabaseBuilder.
-     *
-     * @param client The MongoDB client.
-     * @param name   The name of the MongoDB database to obtain.
-     */
+
     DatabaseBuilder(final MongoClient client, final String name) {
         this.client = Objects.requireNonNull(client);
         this.name = Objects.requireNonNull(name);
     }
 
+    /**
+     * Constructs a new DatabaseBuilder.
+     *
+     * @param client The MongoDB client.
+     * @param name   The name of the MongoDB database to obtain.
+     *
+     * @return a database builder
+     */
     public static DatabaseBuilder of(final MongoClient client, final String name) {
         return new DatabaseBuilder(client, name);
     }

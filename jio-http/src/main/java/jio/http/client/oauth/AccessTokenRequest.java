@@ -25,7 +25,6 @@ import static java.util.Objects.requireNonNull;
  *     Content-Type: application/x-www-form-urlencoded
  *
  * </pre>
- * <p>
  *
  * @see ClientCredsBuilder .
  */
@@ -34,8 +33,20 @@ public final class AccessTokenRequest implements Lambda<OauthHttpClient, HttpRes
     private final URI uri;
     private final String authorizationHeader;
 
+
+    private AccessTokenRequest(final String clientId,
+                               final String clientSecret,
+                               final URI uri
+                              ) {
+
+        String credentials = requireNonNull(clientId) + ":" + requireNonNull(clientSecret);
+        this.authorizationHeader = Base64.getEncoder()
+                                         .encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+        this.uri = requireNonNull(uri);
+    }
+
     /**
-     * Constructor to create the function that takes a http client and send the following request to the server
+     * Factory method to create the function that takes a http client and send the following request to the server
      * <pre>
      *
      *     POST scheme://host:port/path
@@ -51,18 +62,9 @@ public final class AccessTokenRequest implements Lambda<OauthHttpClient, HttpRes
      * @param clientId     the client id
      * @param clientSecret the client secret
      * @param uri          the uri
+     *
+     * @return a lambda to make the access token request from the http client
      */
-    private AccessTokenRequest(final String clientId,
-                               final String clientSecret,
-                               final URI uri
-                              ) {
-
-        String credentials = requireNonNull(clientId) + ":" + requireNonNull(clientSecret);
-        this.authorizationHeader = Base64.getEncoder()
-                                         .encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
-        this.uri = requireNonNull(uri);
-    }
-
     public static AccessTokenRequest of(final String clientId,
                                         final String clientSecret,
                                         final URI uri

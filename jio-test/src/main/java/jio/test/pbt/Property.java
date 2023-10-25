@@ -27,8 +27,8 @@ import static java.util.Objects.requireNonNull;
  */
 public non-sealed class Property<O> extends Testable {
     private static final RandomGenerator seedGen = new SplittableRandom();
-    public final String name;
-    public final int times;
+    final String name;
+    final int times;
     final Gen<O> gen;
     final BiLambda<JsObj, O, TestResult> property;
 
@@ -38,7 +38,7 @@ public non-sealed class Property<O> extends Testable {
     private final Path path;
     private final Map<String, Predicate<O>> classifiers;
 
-    public Property(String name, Gen<O> gen, BiLambda<JsObj, O, TestResult> property, String description, int times, Path path, boolean collect, Map<String, Predicate<O>> classifiers) {
+    Property(String name, Gen<O> gen, BiLambda<JsObj, O, TestResult> property, String description, int times, Path path, boolean collect, Map<String, Predicate<O>> classifiers) {
         this.name = name;
         this.gen = gen;
         this.property = property;

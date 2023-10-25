@@ -14,16 +14,16 @@ import static jio.mongodb.Converters.toBson;
 import static jio.mongodb.MongoEvent.OP.UPDATE_MANY;
 
 /**
- * A class for performing update many operations on a MongoDB collection.
+ * A class for performing updateCommands many operations on a MongoDB collection.
  * <p>
- * The `UpdateMany` class is designed for performing update operations to modify multiple documents within a MongoDB
- * collection. It provides flexibility in handling the result and allows you to specify various options for the update
+ * The `UpdateMany` class is designed for performing updateCommands operations to modify multiple documents within a MongoDB
+ * collection. It provides flexibility in handling the result and allows you to specify various options for the updateCommands
  * operation. You can create instances of this class with the specified collection supplier, and customize the behavior
- * using options such as update options, executors, and more.
+ * using options such as updateCommands options, executors, and more.
  * <p>
- * To use this class effectively, you can set the update options for the operation, specify an executor for asynchronous
+ * To use this class effectively, you can set the updateCommands options for the operation, specify an executor for asynchronous
  * execution, and disable the recording of Java Flight Recorder (JFR) events if needed. Additionally, you can use the
- * provided `QueryUpdate` object to define the query and update criteria for the operation.
+ * provided `QueryUpdate` object to define the query and updateCommands criteria for the operation.
  *
  * @see CollectionBuilder
  * @see QueryUpdate
@@ -34,7 +34,7 @@ public final class UpdateMany extends Op implements MongoLambda<QueryUpdate, Upd
     private UpdateOptions options = DEFAULT_OPTIONS;
 
     /**
-     * Constructs a new UpdateMany instance with the specified collection supplier and default update options.
+     * Constructs a new UpdateMany instance with the specified collection supplier and default updateCommands options.
      *
      * @param collection The supplier for the MongoDB collection.
      */
@@ -53,7 +53,7 @@ public final class UpdateMany extends Op implements MongoLambda<QueryUpdate, Upd
     }
 
     /**
-     * Sets the update options to be used for the operation.
+     * Sets the updateCommands options to be used for the operation.
      *
      * @param options The options to perform the operation.
      * @return This instance with the new options.
@@ -64,7 +64,7 @@ public final class UpdateMany extends Op implements MongoLambda<QueryUpdate, Upd
     }
 
     /**
-     * Specifies an executor to be used for running the update many operation asynchronously.
+     * Specifies an executor to be used for running the updateCommands many operation asynchronously.
      *
      * @param executor The executor to use for asynchronous execution.
      * @return This UpdateMany instance for method chaining.
@@ -75,11 +75,11 @@ public final class UpdateMany extends Op implements MongoLambda<QueryUpdate, Upd
     }
 
     /**
-     * Applies the update many operation to the specified MongoDB collection with a query and an update.
+     * Applies the updateCommands many operation to the specified MongoDB collection with a query and an updateCommands.
      *
      * @param session     The MongoDB client session, or null if not within a session.
-     * @param queryUpdate The query and update criteria for the operation.
-     * @return An IO representing the result of the update many operation.
+     * @param queryUpdate The query and updateCommands criteria for the operation.
+     * @return An IO representing the result of the updateCommands many operation.
      */
     @Override
     public IO<UpdateResult> apply(final ClientSession session, final QueryUpdate queryUpdate) {
@@ -89,12 +89,12 @@ public final class UpdateMany extends Op implements MongoLambda<QueryUpdate, Upd
             var collection = requireNonNull(this.collection.build());
             return session == null ?
                     collection.updateMany(toBson(queryUpdate.query()),
-                                          toBson(queryUpdate.update()),
+                                          toBson(queryUpdate.updateCommands()),
                                           options
                                          ) :
                     collection.updateMany(session,
                                           toBson(queryUpdate.query()),
-                                          toBson(queryUpdate.update()),
+                                          toBson(queryUpdate.updateCommands()),
                                           options
                                          );
         }, UPDATE_MANY);

@@ -18,9 +18,10 @@ abstract class Find extends Op {
         super(collection, recordEvents);
     }
 
-    public IO<FindIterable<JsObj>> query(final ClientSession session,
-                                         final FindBuilder builder
-                                        ) {
+
+    IO<FindIterable<JsObj>> query(final ClientSession session,
+                                  final FindBuilder builder
+                                 ) {
         Objects.requireNonNull(builder);
         FindOptions options = builder.build();
         Supplier<FindIterable<JsObj>> supplier =

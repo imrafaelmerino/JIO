@@ -9,4 +9,7 @@ package jio.test.pbt;
  * </p>
  */
 public final class TestSuccess implements TestResult {
+
+    TestSuccess() {
+    }
 }

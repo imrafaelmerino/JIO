@@ -8,7 +8,18 @@ import java.nio.file.Files;
 import java.util.Map;
 import java.util.Objects;
 
-public final class Utils {
+/**
+ * The `MultipartForm` class provides utility methods for creating HTTP requests with multipart/form-data content type.
+ * This allows you to create a Content-Type header and request body for sending data, including fields and files, using
+ * the multipart/form-data encoding.
+ * <p>
+ * Use the methods in this class to create the appropriate headers and request body for your HTTP requests when you need
+ * to send data as multipart form data.
+ */
+public final class MultipartForm {
+
+    private MultipartForm() {
+    }
 
     /**
      * Creates a Content-Type header value for a multipart/form-data request with the specified boundary.
@@ -17,7 +28,7 @@ public final class Utils {
      * @return A string representing the Content-Type header value.
      * @throws NullPointerException If the provided boundary is null.
      */
-    public static String createMultipartFormContentTypeHeader(final String boundary) {
+    public static String createContentTypeHeader(final String boundary) {
         return String.format("multipart/form-data; boundary=%s",
                              Objects.requireNonNull(boundary)
                             );
@@ -32,12 +43,12 @@ public final class Utils {
      * @param boundary The boundary string used to separate different parts of the multipart request.
      * @return A String representing the request body with fields and files encoded in multipart/form-data format.
      * @throws UncheckedIOException If an IO exception occurs while reading file contents.
-     * @see #createMultipartFormContentTypeHeader(String)
+     * @see #createContentTypeHeader(String)
      */
-    public static String createMultipartFormBody(final Map<String, String> fields,
-                                                 final Map<String, File> files,
-                                                 final String boundary
-                                                ) throws UncheckedIOException {
+    public static String createBody(final Map<String, String> fields,
+                                    final Map<String, File> files,
+                                    final String boundary
+                                   ) throws UncheckedIOException {
         try {
 
             StringBuilder builder = new StringBuilder();

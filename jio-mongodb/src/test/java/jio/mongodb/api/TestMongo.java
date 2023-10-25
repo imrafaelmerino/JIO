@@ -65,7 +65,7 @@ public class TestMongo {
         JsObj filter = JsObj.of("_id", JsObj.of("$lt", JsObj.of("$oid", JsStr.of(new ObjectId().toString()))));
 
         find = FindAll.of(dataCollection)
-                      .standalone().apply(new FindBuilder(filter)).map(Converters::toListOfJsObj);
+                      .standalone().apply(FindBuilder.of(filter)).map(Converters::toListOfJsObj);
 
         findAll = FindAll.of(dataCollection);
 
@@ -95,14 +95,14 @@ public class TestMongo {
                                              insertOne.standalone()
                                                       .apply(obj)
                                                       .map(Converters::toHexId)
-                                                      .then(id -> findOne.standalone().apply(new FindBuilder(Converters.toObjId(id))))
+                                                      .then(id -> findOne.standalone().apply(FindBuilder.of(Converters.toObjId(id))))
                                                       .map(it -> it.delete("_id"))
                                                       .result()
                                             );
                  });
 
         System.out.println(findAll.standalone()
-                                  .apply(new FindBuilder(JsObj.empty()))
+                                  .apply(FindBuilder.of(JsObj.empty()))
                                   .map(Converters::toJsArray)
                                   .result()
                                   .size());

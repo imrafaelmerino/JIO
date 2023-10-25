@@ -1,0 +1,10 @@
+NAME="jio-test"
+VERSION="1.0.0-RC3"
+IMAGE="${NAME}:${VERSION}"
+
+
+//go to root folder and build the image
+jio-test % docker build -t ${IMAGE} .
+
+//go to script and execute the command specifying the version
+scripts % ./jio-test-compile.sh --version ${VERSION}

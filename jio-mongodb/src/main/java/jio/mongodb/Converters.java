@@ -43,6 +43,9 @@ public final class Converters {
 
     /**
      * Converts a JSON object ({@link JsObj}) to a MongoDB BSON object ({@link Bson}).
+     *
+     * @param obj the JSON object to be converted to BSON.
+     * @return a BSON representation of the JSON object.
      */
     public static Bson toBson(final JsObj obj) {
         return new BsonDocumentWrapper<>(obj, JsValuesRegistry.INSTANCE.get(JsObj.class));
@@ -50,6 +53,9 @@ public final class Converters {
 
     /**
      * Converts a JSON array ({@link JsArray}) to a list of JSON objects ({@link JsObj}).
+     *
+     * @param array the JSON array to be converted to a list of JSON objects.
+     * @return a list of JSON objects from the JSON array.
      */
     public static List<JsObj> toListOfJsObj(final JsArray array) {
         var errors = JsSpecs.arrayOfObj().test(array);
@@ -62,6 +68,9 @@ public final class Converters {
 
     /**
      * Converts a JSON array ({@link JsArray}) to a list of MongoDB BSON objects ({@link Bson}).
+     *
+     * @param array the JSON array to be converted to a list of BSON objects.
+     * @return a list of BSON objects from the JSON array.
      */
     public static List<Bson> toListOfBson(final JsArray array) {
         var list = toListOfJsObj(requireNonNull(array));
@@ -72,6 +81,9 @@ public final class Converters {
 
     /**
      * Converts a MongoDB ObjectId ({@link BsonValue}) to its hexadecimal representation as a string.
+     *
+     * @param bsonValue the MongoDB BSON value representing an ObjectId.
+     * @return a hexadecimal string representation of the ObjectId.
      */
     public static String toHexId(final BsonValue bsonValue) {
         return requireNonNull(bsonValue).asObjectId().getValue().toHexString();
@@ -81,15 +93,21 @@ public final class Converters {
      * Converts a MongoDB {@link InsertOneResult} into a JSON object ({@link JsObj}) representing the result of a single
      * document insertion operation. The resulting JSON object contains information about the inserted document's ID and
      * the acknowledgment status.
+     *
+     * @param result the MongoDB InsertOneResult to be converted to a JSON object.
+     * @return a JSON object representing the result of the insertion operation.
      */
     public static String toHexId(final InsertOneResult result) {
         return toHexId(result.getInsertedId());
     }
 
     /**
-     * Converts a MongoDB {@link UpdateResult} into a JSON object ({@link JsObj}) representing the result of an update
+     * Converts a MongoDB {@link UpdateResult} into a JSON object ({@link JsObj}) representing the result of an updateCommands
      * operation. The resulting JSON object contains information about the upserted ID, matched count, modified count,
      * acknowledgment status, and the type of the result.
+     *
+     * @param it the MongoDB UpdateResult to be converted to a JSON object.
+     * @return an optional JSON object representing the result of the updateCommands operation.
      */
     public static Optional<String> toHexId(final UpdateResult it) {
         var upsertedId = Objects.requireNonNull(it).getUpsertedId();
@@ -100,6 +118,9 @@ public final class Converters {
     /**
      * Converts a MongoDB {@link FindIterable} into a JSON array ({@link JsArray}). This function is useful when
      * querying multiple documents and converting the result to a JSON array.
+     *
+     * @param iterable the MongoDB FindIterable to be converted to a JSON array.
+     * @return a JSON array representing the results of the query.
      */
     public static JsArray toJsArray(final FindIterable<JsObj> iterable) {
         return JsArray.ofIterable(iterable);
@@ -108,6 +129,9 @@ public final class Converters {
     /**
      * Converts a MongoDB {@link FindIterable} into a List of ({@link JsObj}). This function is useful when querying
      * multiple documents and converting the result to a List.
+     *
+     * @param iterable the MongoDB FindIterable to be converted to a List of JSON objects.
+     * @return a list of JSON objects representing the results of the query.
      */
     public static List<JsObj> toListOfJsObj(final FindIterable<JsObj> iterable) {
         List<JsObj> result = new ArrayList<>();
@@ -120,6 +144,9 @@ public final class Converters {
     /**
      * Converts a MongoDB {@link InsertManyResult} into a JSON array ({@link JsArray}) of hexadecimal IDs. This function
      * is used to represent the IDs of inserted documents in JSON format.
+     *
+     * @param result the MongoDB InsertManyResult to be converted to a list of hexadecimal IDs.
+     * @return a list of hexadecimal IDs representing the inserted documents.
      */
     public static List<String> toListOfHexIds(final InsertManyResult result) {
         var map = requireNonNull(result).getInsertedIds();
@@ -133,11 +160,21 @@ public final class Converters {
     /**
      * Converts a MongoDB {@link AggregateIterable} into a JSON array ({@link JsArray}). This function is useful when
      * performing aggregation operations and converting the results to a JSON array.
+     *
+     * @param aggregateIterable the MongoDB AggregateIterable to be converted to a JSON array.
+     * @return a JSON array representing the results of the aggregation operation.
      */
     public static JsArray toJsArray(final AggregateIterable<JsObj> aggregateIterable) {
         return JsArray.ofIterable(requireNonNull(aggregateIterable));
     }
 
+    /**
+     * Converts a MongoDB {@link AggregateIterable} into a List of ({@link JsObj}). This function is useful when
+     * querying multiple documents and converting the result to a List.
+     *
+     * @param aggregateIterable the MongoDB AggregateIterable to be converted to a List of JSON objects.
+     * @return a list of JSON objects representing the results of the aggregation operation.
+     */
     public static List<JsObj> toListOfJsObj(final AggregateIterable<JsObj> aggregateIterable) {
         List<JsObj> list = new ArrayList<>();
         for (JsObj obj : requireNonNull(aggregateIterable)) {
@@ -149,6 +186,9 @@ public final class Converters {
     /**
      * Converts a hexadecimal string ID into a JSON object ({@link JsObj}) with the format {"_id": {"$oid": "id"}}. This
      * function is used to represent MongoDB ObjectIds in JSON format.
+     *
+     * @param id the hexadecimal string ID to be converted to a JSON object.
+     * @return a JSON object representing the MongoDB ObjectId in JSON format.
      */
     public static JsObj toObjId(final String id) {
         Objects.requireNonNull(id);
@@ -158,6 +198,9 @@ public final class Converters {
     /**
      * Converts a MongoDB {@link InsertOneResult} into a JSON object ({@link JsObj}). This function is used to represent
      * the result of an insert operation for a single document in JSON format.
+     *
+     * @param result the MongoDB InsertOneResult to be converted to a JSON object.
+     * @return a JSON object representing the result of the insertion operation.
      */
     public static JsObj toJsObj(final InsertOneResult result) {
         Objects.requireNonNull(result);
@@ -170,6 +213,9 @@ public final class Converters {
     /**
      * Converts a MongoDB {@link DeleteResult} into a JSON object ({@link JsObj}). This function is used to represent
      * the result of a delete operation in JSON format.
+     *
+     * @param result the MongoDB DeleteResult to be converted to a JSON object.
+     * @return a JSON object representing the result of the delete operation.
      */
     public static JsObj toJsObj(final DeleteResult result) {
         Objects.requireNonNull(result);
@@ -180,7 +226,10 @@ public final class Converters {
 
     /**
      * Converts a MongoDB {@link UpdateResult} into a JSON object ({@link JsObj}). This function is used to represent
-     * the result of an update operation in JSON format.
+     * the result of an updateCommands operation in JSON format.
+     *
+     * @param result the MongoDB UpdateResult to be converted to a JSON object.
+     * @return a JSON object representing the result of the updateCommands operation.
      */
     public static JsObj toJsObj(UpdateResult result) {
         var optStr = toHexId(result);
@@ -192,3 +241,4 @@ public final class Converters {
                        );
     }
 }
+

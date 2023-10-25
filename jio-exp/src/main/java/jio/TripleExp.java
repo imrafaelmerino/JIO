@@ -17,6 +17,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @param <A> the type of the first computation
  * @param <B> the type of the second computation
+ * @param <C> the type of the third computation
  */
 public abstract sealed class TripleExp<A, B, C> extends Exp<Triple<A, B, C>> permits TripleExpPar, TripleExpSeq {
 

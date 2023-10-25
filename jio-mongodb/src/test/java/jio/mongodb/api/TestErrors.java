@@ -47,7 +47,7 @@ public class TestErrors {
                              JsInt.of(1)
                             );
         //"java.util.concurrent.CompletionException: jio.JioFailure: Timeout while receiving message"
-        Assertions.assertTrue(findOne.standalone().apply(new FindBuilder(obj))
+        Assertions.assertTrue(findOne.standalone().apply(FindBuilder.of(obj))
                                      .then(o -> IO.FALSE,
                                            e -> IO.succeed(MongoExceptions.READ_TIMEOUT.test(e))
                                           )
@@ -75,7 +75,7 @@ public class TestErrors {
 //                "servers=[{address=localhost:27017, type=UNKNOWN, " +
 //                "state=CONNECTING, exception={com.mongodb.MongoSocketReadTimeoutException: " +
 //                "Timeout while receiving message}, caused by {java.net.SocketTimeoutException: Read timed out}}]
-        Assertions.assertTrue(findOne.standalone().apply(new FindBuilder(obj))
+        Assertions.assertTrue(findOne.standalone().apply(FindBuilder.of(obj))
                                      .then(o -> IO.TRUE,
                                            e -> IO.succeed(MongoExceptions.CONNECTION_TIMEOUT
                                                                    .test(e))

@@ -60,11 +60,25 @@ public class GroupReport {
 
     }
 
+    /**
+     * returns a Json representation of this group
+     *
+     * @return a Json object
+     */
     public JsObj toJson() {
-        return reports.stream().reduce(
-                JsObj.empty().set(groupName, JsObj.empty()),
-                (json, report) -> json.set(groupName, json.getObj(groupName).set(report.getPropName(), report.toJson())),
-                (a, b) -> JsObj.of(groupName, a.getObj(groupName).union(b.getObj(groupName), JsArray.TYPE.LIST)));
+        return reports.stream()
+                      .reduce(JsObj.empty().set(groupName,
+                                                JsObj.empty()),
+                              (json, report) -> json.set(groupName, json.getObj(groupName)
+                                                                        .set(report.getPropName(),
+                                                                             report.toJson())
+                                                        ),
+                              (a, b) -> JsObj.of(groupName, a.getObj(groupName)
+                                                             .union(b.getObj(groupName),
+                                                                    JsArray.TYPE.LIST
+                                                                   )
+                                                )
+                             );
     }
 
     @Override

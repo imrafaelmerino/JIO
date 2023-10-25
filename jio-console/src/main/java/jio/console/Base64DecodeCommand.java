@@ -29,8 +29,7 @@ class Base64DecodeCommand extends Command {
                       Decodes a base64 encoded string into a new string using the Base64 encoding scheme.
                       Usage: $command {encoded}
                       Examples:
-                          $command aGkhIGknbGwgYmUgZW5jb2RlZCBpbnRvIGJhc2UgNjQ=
-                          $command $var""".replace("$command", COMMAND_NAME)
+                          $command aGkhIGknbGwgYmUgZW5jb2RlZCBpbnRvIGJhc2UgNjQ=""".replace("$command", COMMAND_NAME)
              );
     }
 

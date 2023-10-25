@@ -80,7 +80,7 @@ public final class ClockStub {
      * @param callsFn Function that takes the call number and returns the time.
      * @return A clock stub.
      */
-    public static Clock fromCalls(final Function<Integer, Long> callsFn) {
+    public static Clock fromSeqCalls(final Function<Integer, Long> callsFn) {
         return new ClockStub(Objects.requireNonNull(callsFn)).clock;
     }
 

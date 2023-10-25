@@ -56,8 +56,10 @@ public final class DeleteMany extends Op implements MongoLambda<JsObj, DeleteRes
     }
 
     /**
+     * adds the specified mongodb options to this instance
      * @param options the options to perform the operation
      * @return this instance with the new options
+     *
      */
     public DeleteMany withOptions(final DeleteOptions options) {
         this.options = requireNonNull(options);

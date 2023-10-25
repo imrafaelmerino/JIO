@@ -18,15 +18,18 @@ public final class Watcher implements Consumer<MongoCollection<JsObj>> {
      */
     private final Consumer<ChangeStreamIterable<JsObj>> consumer;
 
-    /**
-     * Constructs a new Watcher instance with the specified consumer.
-     *
-     * @param consumer The consumer to handle the change stream iterable.
-     */
+
      private Watcher(final Consumer<ChangeStreamIterable<JsObj>> consumer) {
         this.consumer = requireNonNull(consumer);
     }
 
+    /**
+     * returns a new Watcher instance with the specified consumer.
+     *
+     * @param consumer The consumer to handle the change stream iterable.
+     *
+     * @return a Watcher
+     */
     public static Watcher of(final Consumer<ChangeStreamIterable<JsObj>> consumer){
          return new Watcher(consumer);
     }

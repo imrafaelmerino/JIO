@@ -7,11 +7,11 @@ import jio.Lambda;
 import jio.test.pbt.PropBuilder;
 import jio.test.pbt.TestFailure;
 import jio.test.pbt.TestResult;
-import jio.test.pbt.TestSuccess;
 import jsonvalues.JsObj;
 
 import java.net.http.HttpResponse;
-import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A builder class for creating property tests for RESTful APIs that support Create (POST), Read (GET), and Delete
@@ -39,21 +39,23 @@ public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O
      * @param p_post   A function for making HTTP POST requests to create entities.
      * @param p_get    A function for making HTTP GET requests to retrieve entities by ID.
      * @param p_delete A function for making HTTP DELETE requests to delete entities by ID.
-     */
+     * @param <O>      The type of data generated to feed the property tests.
+     * @return a CRDPropBuilder
+     **/
     public static <O> CRDPropBuilder<O> of(final String name,
                                            final Gen<O> gen,
                                            final Lambda<O, HttpResponse<String>> p_post,
                                            final Lambda<String, HttpResponse<String>> p_get,
                                            final Lambda<String, HttpResponse<String>> p_delete
                                           ) {
-        Objects.requireNonNull(p_post);
-        Objects.requireNonNull(p_get);
-        Objects.requireNonNull(p_delete);
+        requireNonNull(p_post);
+        requireNonNull(p_get);
+        requireNonNull(p_delete);
         return new CRDPropBuilder<>(name,
                                     gen,
-                                    (conf, body) -> Objects.requireNonNull(p_post).apply(body),
-                                    (conf, id) -> Objects.requireNonNull(p_get).apply(id),
-                                    (conf, id) -> Objects.requireNonNull(p_delete).apply(id));
+                                    (conf, body) -> requireNonNull(p_post).apply(body),
+                                    (conf, id) -> requireNonNull(p_get).apply(id),
+                                    (conf, id) -> requireNonNull(p_delete).apply(id));
     }
 
     /**
@@ -67,6 +69,8 @@ public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O
      *                 an ID.
      * @param p_delete A bi-function for making HTTP DELETE requests to delete entities by ID, taking a configuration
      *                 and an ID.
+     * @param <O>      The type of data generated to feed the property tests.
+     * @return a CRDPropBuilder
      */
     public static <O> CRDPropBuilder<O> of(final String name,
                                            final Gen<O> gen,
@@ -86,11 +90,11 @@ public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O
     public PropBuilder<O> buildPropBuilder() {
         BiLambda<JsObj, O, TestResult> lambda =
                 (conf, body) -> post.apply(conf, body)
-                                    .then(resp ->
-                                                  switch (postAssert.apply(resp)) {
-                                                      case TestSuccess $ -> getId.apply(body, resp);
-                                                      case TestFailure f -> IO.fail(f);
-                                                  }
+                                    .then(resp -> {
+                                              TestResult result = postAssert.apply(resp);
+                                              if (result instanceof TestFailure f) return IO.fail(f);
+                                              return getId.apply(body, resp);
+                                          }
                                          )
                                     .then(id -> get.apply(conf, id)
                                                    .then(assertResp(getAssert, id))

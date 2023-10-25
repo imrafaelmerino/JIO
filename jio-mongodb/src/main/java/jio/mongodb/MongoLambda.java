@@ -6,15 +6,14 @@ import jio.Lambda;
 
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
- * Represents a function that takes an input and produces an IO effect within a MongoDB client session.
+ * Represents a function that takes an input and produces an IO effect within a MongoDB client session. Using
+ * transactions is optional, and you can leave them out by using the {@link #standalone()} method to create a Lambda
+ * that produces effects independently of any transaction.
  *
  * @param <I> the type of the input
  * @param <O> the type of the effect
- * @apiNote Using transactions is optional, and you can leave them out by using the {@link #standalone()} method to
- * create a Lambda that produces effects independently of any transaction.
  */
 public interface MongoLambda<I, O> extends BiLambda<ClientSession, I, O> {
 

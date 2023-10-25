@@ -4,13 +4,17 @@ import fun.gen.Gen;
 import jio.BiLambda;
 import jio.IO;
 import jio.Lambda;
-import jio.test.pbt.*;
+import jio.test.pbt.PropBuilder;
+import jio.test.pbt.Property;
+import jio.test.pbt.TestFailure;
+import jio.test.pbt.TestResult;
 import jsonvalues.*;
 
 import java.net.http.HttpResponse;
-import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * An abstract base class for building property tests for RESTful APIs. This class provides a flexible framework for
@@ -64,11 +68,11 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
                            BiLambda<JsObj, String, HttpResponse<String>> p_get,
                            BiLambda<JsObj, String, HttpResponse<String>> p_delete
                           ) {
-        this.post = Objects.requireNonNull(p_post);
-        this.get = Objects.requireNonNull(p_get);
-        this.delete = Objects.requireNonNull(p_delete);
-        this.name = Objects.requireNonNull(name);
-        this.gen = Objects.requireNonNull(gen);
+        this.post = requireNonNull(p_post);
+        this.get = requireNonNull(p_get);
+        this.delete = requireNonNull(p_delete);
+        this.name = requireNonNull(name);
+        this.gen = requireNonNull(gen);
         this.getId = getIdFromPath.apply(JsPath.fromKey("id"));
     }
 
@@ -80,7 +84,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      */
     @SuppressWarnings("unchecked")
     public A withPostAssert(final Function<HttpResponse<String>, TestResult> postAssert) {
-        this.postAssert = Objects.requireNonNull(postAssert);
+        this.postAssert = requireNonNull(postAssert);
         return (A) this;
     }
 
@@ -92,7 +96,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      */
     @SuppressWarnings("unchecked")
     public A withGetAssert(final Function<HttpResponse<String>, TestResult> getAssert) {
-        this.getAssert = Objects.requireNonNull(getAssert);
+        this.getAssert = requireNonNull(getAssert);
         return (A) this;
     }
 
@@ -104,7 +108,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      */
     @SuppressWarnings("unchecked")
     public A withDeleteAssert(final Function<HttpResponse<String>, TestResult> deleteAssert) {
-        this.deleteAssert = Objects.requireNonNull(deleteAssert);
+        this.deleteAssert = requireNonNull(deleteAssert);
         return (A) this;
     }
 
@@ -121,7 +125,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      */
     @SuppressWarnings("unchecked")
     public A withGetId(BiFunction<O, HttpResponse<String>, IO<String>> getId) {
-        this.getId = Objects.requireNonNull(getId);
+        this.getId = requireNonNull(getId);
         return (A) this;
     }
 
@@ -133,7 +137,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      */
     @SuppressWarnings("unchecked")
     public A withGetIdFromJSONRespPath(final JsPath path) {
-        this.getId = getIdFromPath.apply(Objects.requireNonNull(path));
+        this.getId = getIdFromPath.apply(requireNonNull(path));
         return (A) this;
     }
 
@@ -145,7 +149,7 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      */
     @SuppressWarnings("unchecked")
     public A withGetIdFromReqBody(final Function<O, String> p_getId) {
-        Objects.requireNonNull(p_getId);
+        requireNonNull(p_getId);
         this.getId = (body, resp) -> {
             String id = p_getId.apply(body);
             return id == null || id.isBlank() || id.isEmpty() ?
@@ -158,15 +162,26 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
     Lambda<HttpResponse<String>, IdResp> assertResp(Function<HttpResponse<String>, TestResult> assertResp,
                                                     String id
                                                    ) {
-        return resp ->
-                switch (assertResp.apply(resp)) {
-                    case TestFailure f -> IO.fail(f);
-                    case TestSuccess $ -> IO.succeed(new IdResp(id, resp));
-                };
+        return resp -> {
+            TestResult result = assertResp.apply(resp);
+            if (result instanceof TestFailure f) return IO.fail(f);
+            return IO.succeed(new IdResp(id, resp));
+        };
     }
 
+    /**
+     * returns a property builder. If no further customization is needed, you can use {@link #build()}
+     *
+     * @return a property builder
+     */
     public abstract PropBuilder<O> buildPropBuilder();
 
+    /**
+     * Build a property with the default parameters. For further customization (times of generations, description,
+     * executor etc), use {@link #buildPropBuilder()} that returns a property builder
+     *
+     * @return a property
+     */
     public Property<O> build() {
         return buildPropBuilder().build();
     }
