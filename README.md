@@ -739,8 +739,8 @@ IO<JsObj> effect = IO.effect( () -> get(1) );
 Like with `lazy` and `task`, the previous example doesn't evaluate anything to create the effect  
 since the effect method takes in a `Supplier`.
 
-In all the above examples, when the `get` or `result`methods are invoked, the values **will be computed on the caller  
-thread**. Sometimes we need to control on what thread to perform a computation, especially when it's blocking.  
+In all the above examples, when the `get` or `result`methods are invoked, the values will be computed on the caller  
+thread. Sometimes we need to control on what thread to perform a computation, especially when it's blocking.  
 Whe can specify an executor, or to make use of the **ForkJoin** pool, which is not a problem since **JIO uses
 internally
 the [ManagedBlocker](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ForkJoinPool.ManagedBlocker.html)**
@@ -750,7 +750,7 @@ interface, or you can even get benefit from the Loom project and use fibers!
 
 ```code  
   
-Suplier<Long> computation;  
+Suplier<Long> computation = ???;  
   
 IO<Long> effect = IO.lazy(computation,  
                           Executors.newCachedThreadPool()  
@@ -769,7 +769,7 @@ IO<JsObj> effect = IO.managedTask(blockingTask);
 
 ```  
 
-**With fibers**
+**With virtual threads**
 
 ```code  
 
@@ -779,7 +779,7 @@ IO<JsObj> effect = IO.lazy(blockingTask,
   
 ```  
 
-**From autoclosable resources**
+**From auto-closable resources**
 
 The `resource` method is used to create an IO effect that manages a resource implementing the `AutoCloseable`
 interface. It takes a `Callable` that supplies the closable resource and a mapping function to transform the resource
@@ -899,9 +899,9 @@ Lambda<A,C> third = first.then(second);
 
 ### <a name="Operations-with-effects"><a/> Operations with effects
 
-#### <a name="Making our code more resilient"><a/> Making our code more resilient
 
-**Being persistent!**
+#### Making our code more resilient being persistent!
+
 Retrying failed operations is a crucial aspect of handling errors effectively in JIO. In real-world
 scenarios,errors can sometimes be transient or caused by temporary issues, such as network glitches or resource
 unavailability.  
@@ -958,7 +958,8 @@ There are very interesting policies implemented based
 on [this article](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/):  exponential backoff, full
 jitter, equal jitter, decorrelated jitter etc
 
-**Having a Backup plan!**
+#### Making our code more resilient having a Backup plan!
+
 In scenarios where errors persist despite retries, JIO offers robust error-handling mechanisms
 to ensure your application maintains resilience. Three key methods come into play:
 
@@ -989,12 +990,10 @@ provided function) when an error occurs. However, it introduces an important dis
 encounters an error, 'fallbackTo' will return the original error from the first effect. This ensures that error
 propagation is maintained while enabling you to gracefully handle errors and fallback to alternative operations when
 needed.
-  
----  
 
-#### Other common operations
+#### Being Functional!
 
-**Being Functional**: JIO encourages a functional programming style with the following methods:
+JIO encourages a functional programming style with the following methods:
 
 ```code  
   
@@ -1024,7 +1023,9 @@ public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
 - `debug`: New effect that sends an event to the JFR system after computing the result. You can customize the event with
   a builder.
 
-**Being Impatient!**: Time is of the essence, and JIO offers methods to deal with timeouts:
+#### Being Impatient!
+
+Time is of the essence, and JIO offers methods to deal with timeouts:
 
 ```code  
   
@@ -1038,13 +1039,19 @@ public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
                         TimeUnit unit,  
                         Supplier<O> defaultVal  
                        );    
+                       
+    IO<Void> async();                   
 }  
 ```  
 
 - `timeout`: Sets a timeout for the effect, allowing you to limit how long you are willing to wait for its completion.
 - `timeoutOrElse`: Similar to `timeout`, but with a fallback value that is returned if the timeout is exceeded.
+- `async`: Allows to execute an action without waiting for its result and returns immediately. It is
+   useful when you are not interested in the outcome of the effect (returns void) and want to trigger it asynchronously.
 
-**Being sneaky!**: Sometimes, you need to sneak a peek into the execution of an effect:
+####  Being sneaky!
+
+Sometimes, you need to sneak a peek into the execution of an effect:
 
 ```code  
 public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
@@ -1066,7 +1073,9 @@ public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
 - `peek`: Combines both success and failure consumers, giving you full visibility into the effect's execution.  
   Exceptions occurring here are logged in the JFR system and do not alter the result of the effect.
 
-**I race you!**: When you require a result as quickly as possible among multiple alternatives, and you're uncertain
+### I race you!
+
+When you require a result as quickly as possible among multiple alternatives, and you're uncertain
 which one will be the fastest:
 
 ```code  
@@ -1081,6 +1090,8 @@ public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
 
 `race` method returns the result of the first effect that completes (whether it succeeds or fails), allowing you to make
 quick decisions based on the outcome.
+
+### Specifying executors
 
 Sometimes, it is valuable to have fine-grained control over the execution context responsible for computing the values
 of effects. JIO provides a set of methods with the 'on' suffix to cater to this specific need. These methods allow you  
@@ -1110,7 +1121,7 @@ public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
 }  
 ```  
 
-**Pulling the trigger!**
+#### Pulling the trigger!
 
 Given an `IO<O>` effect, how do you trigger the execution to compute the final value of type `O`?
 There are three ways:

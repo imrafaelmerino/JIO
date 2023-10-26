@@ -63,13 +63,13 @@ public class TestProperties {
         Gen<Duration> delayGen = Gen.cons(1).map(Duration::ofSeconds);
 
         Lambda<Void, Integer> countUsers =
-                _ -> StubBuilder.ofGen(Gen.seq(n -> n <= 4 ?
+                $ -> StubBuilder.ofGen(Gen.seq(n -> n <= 4 ?
                                                   IO.fail(new RuntimeException(n + "")) :
                                                   IO.succeed(n)
                                                  )
                                          )
                                    .withDelays(delayGen)
-                                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                                   .withExecutor(Executors.newCachedThreadPool())
                                    .build();
 
 
