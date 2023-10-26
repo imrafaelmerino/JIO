@@ -1,6 +1,7 @@
 package jio.api.http.api;
 
 import com.sun.net.httpserver.HttpServer;
+import fun.gen.Gen;
 import jio.IO;
 import jio.http.client.HttpExceptions;
 import jio.http.client.JioHttpClient;
@@ -46,6 +47,9 @@ public class TestErrors {
 
     @Test
     public void test_http_connect_timeout() {
+
+         var gen1 = Gen.seq(n -> IO.succeed(n));
+         var gen2 = Gen.cons(IO.fail(new RuntimeException("bad luck!")));
 
         JioHttpClient client =
                 JioHttpClientBuilder.of(HttpClient.newBuilder()

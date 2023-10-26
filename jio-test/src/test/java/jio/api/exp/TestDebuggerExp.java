@@ -1,10 +1,10 @@
 package jio.api.exp;
 
+import fun.gen.Gen;
 import fun.tuple.Pair;
 import fun.tuple.Triple;
 import jio.*;
 import jio.test.junit.Debugger;
-import jio.test.stub.Gens;
 import jio.test.stub.StubBuilder;
 import jsonvalues.JsArray;
 import jsonvalues.JsInt;
@@ -60,10 +60,9 @@ public class TestDebuggerExp {
 
 
         StubBuilder<Boolean> trueAfterFailure =
-                StubBuilder.ofIOGen(Gens.seq(
-                        n -> n <= 1
-                                ? IO.fail(new RuntimeException(Integer.toString(n)))
-                                : IO.TRUE));
+                StubBuilder.ofGen(Gen.seq(n -> n <= 1
+                        ? IO.fail(new RuntimeException(Integer.toString(n)))
+                        : IO.TRUE));
 
 
         Assertions.assertTrue(AllExp.seq(trueAfterFailure.build(),
@@ -75,7 +74,7 @@ public class TestDebuggerExp {
                              );
 
         StubBuilder<Boolean> falseAfterFailure =
-                StubBuilder.ofIOGen(Gens.seq(n -> n <= 1
+                StubBuilder.ofGen(Gen.seq(n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.FALSE));
 
@@ -95,7 +94,7 @@ public class TestDebuggerExp {
     @Test
     public void testAllExpParRetries() {
         StubBuilder<Boolean> trueAfterFailure =
-                StubBuilder.ofIOGen(Gens.seq(n -> n <= 1
+                StubBuilder.ofGen(Gen.seq(n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.TRUE));
 
@@ -109,7 +108,7 @@ public class TestDebuggerExp {
 
 
         StubBuilder<Boolean> falseAfterFailure =
-                StubBuilder.ofIOGen(Gens.seq(n -> n <= 1
+                StubBuilder.ofGen(Gen.seq(n -> n <= 1
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.FALSE));
 

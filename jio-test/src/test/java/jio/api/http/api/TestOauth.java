@@ -35,9 +35,10 @@ public class TestOauth {
                                                                                         .toString(),
                                                     StatusCodeStub.cons(200)
                                                    ),
-                                        "/service", GetStub.of(n -> body -> uri -> headers -> n == 2 ? "" : String.valueOf(n),
-                                                               n -> body -> uri -> headers -> n == 2 ? 401 : 200
-                                                              )
+                                        "/service",
+                                        GetStub.of(n -> body -> uri -> headers -> n == 2 ? "" : String.valueOf(n),
+                                                   n -> body -> uri -> headers -> n == 2 ? 401 : 200
+                                                  )
                                        )
                                 )
                              .start(7777);

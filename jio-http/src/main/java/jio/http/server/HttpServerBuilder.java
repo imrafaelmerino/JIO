@@ -167,8 +167,7 @@ public final class HttpServerBuilder {
         if (start == end) throw new IllegalArgumentException("range of ports exhausted");
         return build(requireNonNull(host),
                      start
-                    )
-                .recoverWith(error -> buildAtRandomRec(host, start + 1, end));
+                    ).recoverWith(error -> buildAtRandomRec(host, start + 1, end));
     }
 
     /**

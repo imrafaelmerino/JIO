@@ -10,13 +10,11 @@
     - [Clocks](#Clocks)
     - [Debugging and JFR integration](#Debugging-and-JFR-integration)
     - [Installation](#Installation)
-    - [What ChatGPT think of jio-exp?](#jioexpchatgp)
 - [jio-http](#jio-http)
     - [HTTP server](#httpserver)
     - [HTTP client](#httpclient)
     - [OAUTH HTTP client](#oauth)
     - [Installation](#http-Installation)
-    - [What ChatGPT think of jio-http?](#jiohttpchatgp)
 - [jio-test](#jio-test)
     - [Junit integration](#junit)
     - [Stubs](#stubs)
@@ -26,7 +24,20 @@
     - [Property based testing](#pbt)
     - [Installation](#test-Installation)
 - [jio-mongodb](#jio-mongodb)
-    - [API](#mongodb-api)
+    - [MongoLambda](#monglambda)
+    - [API](#jio-mongodb-gs)
+        - [Find Operations](#find-operations)
+        - [Insert Operations](#insert-operations)
+        - [Delete Operations](#delete-operations)
+        - [Update and Replace Operations](#update-and-replace-operations)
+        - [Count](#count)
+        - [FindAndXXX operations](#findoneandxxx-operations)
+        - [Aggregate](#aggregate)
+        - [Watcher](#watcher)
+        - [Specifying an Executor](#mongo-executors)
+        - [Configuring options](#mongo-options)
+    - [Transactions](#transactions)
+    - [Common exceptions](#common-exceptions)
     - [Debugging and JFR integration](#mongo-Debugging-and-JFR-integration)
     - [Installation](#mongo-Installation)
 - [jio-console](#jio-console)
@@ -319,37 +330,37 @@ public void test(){
                                    .map(Duration::ofMillis);
 
     Supplier<IO<Integer>> countUsers =
-            () -> StubBuilder.ofGen(IntGen.arbitrary(0, 100000))
+            () -> StubBuilder.ofSucGen(IntGen.arbitrary(0, 100000))
                             .withDelays(delayGen)          
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                             .build();
 
     Lambda<JsObj, String> persistMongo =
-            _ -> StubBuilder.ofGen(StrGen.alphabetic(20, 20))
+            _ -> StubBuilder.ofSucGen(StrGen.alphabetic(20, 20))
                             .withDelays(delayGen)
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                             .build();
 
     Lambda<JsObj, Void> sendEmail =
-            _ -> StubBuilder.ofGen(Gen.cons(null))
+            _ -> StubBuilder.ofSucGen(Gen.cons(null))
                             .withDelays(delayGen)
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                             .build();
 
     Lambda<String, Boolean> existsInLDAP =
-            _ -> StubBuilder.ofGen(BoolGen.arbitrary())
+            _ -> StubBuilder.ofSucGen(BoolGen.arbitrary())
                             .withDelays(delayGen)
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                             .build();
     
     Lambda<JsObj, Void> persistLDAP =
-            _ -> StubBuilder.ofGen(Gen.cons(null))
+            _ -> StubBuilder.ofSucGen(Gen.cons(null))
                             .withDelays(delayGen)  
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                             .build();
 
     Lambda<String, JsArray> normalizeAddresses =
-            _ -> StubBuilder.ofGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3))
+            _ -> StubBuilder.ofSucGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3))
                             .withDelays(delayGen)  
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                             .build();    
@@ -609,7 +620,6 @@ What can you expect from JIO:
 
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-exp/1.0.0-RC3)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-exp/1.0.0-RC3/jar "jio-ex")
 
-
 Let's model a funcional effect in Java!
 
 ```code  
@@ -617,16 +627,7 @@ Let's model a funcional effect in Java!
 import java.util.function.Supplier;  
 import java.util.concurrent.CompletableFuture;  
   
-public abstract class IO<O> implements Supplier<CompletableFuture<O>> {  
-  
-    @Override  
-    public CompletableFuture<O> get();  
-       
-    public O result(){
-        return get().join();
-    }
-
-}  
+public abstract class IO<O> implements Supplier<CompletableFuture<O>> {}  
   
 ```  
 
@@ -646,6 +647,10 @@ Key Concepts:
 - **Handling Errors**: A critical aspect of JIO is that `CompletableFuture` can represent both successful and failed
   computations. This approach ensures that errors are treated as first-class citizens, avoiding the need to throw  
   exceptions whenever an error occurs.
+
+It's worth noting that JIO utilizes CompletableFuture under the hood but shields the client from having to work with
+futures and callbacks. The JIO API remains functional and expressive, providing a straightforward experience for
+developers.
 
 ---  
 
@@ -1094,6 +1099,30 @@ public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
 }  
 ```  
 
+**Pulling the trigger!**
+
+Given an `IO<O>` effect, how do you trigger the execution to compute the final value of type `O`?
+There are three ways:
+
+- Getting a future of the evaluation with the method `get()`
+- Block and wait till the evaluation is done with the method `result()`. It can throw a runtime exception.
+  It's syntactic sugar for `get().join()`. If you are using virtual threads, blocking is not a problem.
+- Callback style with the method `onResult(ouput -> {}, failure -> {})`
+
+```code
+
+IO<O> effect = ???;
+
+CompletableFuture<O> future = effect.get();
+
+O output = effect.result();
+
+effect.onResult(output -> System.out.println(" :) "), 
+                exc -> System.out.println(" :( ")
+               );
+
+```
+
   
 ---  
 
@@ -1121,9 +1150,8 @@ IO<O> exp = IfElseExp.<O>predicate(IO<Boolean> condition)
 ```  
 
 In this code, the `consequence` and `alternative` parameters are represented as `Supplier` instances, which means they
-are not
-computed during the construction of the expression but rather evaluated only when needed, based on the result of the
-condition. This deferred execution allows for efficient conditional evaluation of IO effects.
+are not computed during the construction of the expression but rather evaluated only when needed, based on the result of
+the condition. This deferred execution allows for efficient conditional evaluation of IO effects.
 
 ### SwitchExp
 
@@ -1722,45 +1750,6 @@ It requires Java 17 or greater
 
 [json-values](https://github.com/imrafaelmerino/json-values) is the only dependency
 
-## <a name="jioexpchatgp"><a/> What ChatGPT think of jio-exp?
-
-I asked ChatGPT about jio-exp and this is what I got.
-
-JIO appears to be a Java library that aims to provide tools and abstractions for functional programming in Java. It
-introduces a set of classes and expressions that can help developers work with effects, control flow, and time-related
-operations in a functional and composable way. Here are some key points based on the information you shared:
-
-1. **Functional Programming Tools**: JIO provides tools and abstractions for developers who want to apply functional
-   programming concepts in Java. It offers expressive ways to work with effects, manage control flow, and handle
-   time-related operations.
-
-2. **Expressive Expressions**: The library introduces various expressions, such as `IfElseExp`, `SwitchExp`, `CondExp`,
-   and others, which allow developers to model complex logic in a readable and composable manner. These expressions make
-   it easier to work with functional constructs.
-
-3. **Clocks for Time Management**: JIO introduces the concept of clocks, which can be used to manage time-related
-   operations in a functional way. It provides three types of clocks: Realtime, Monotonic, and Custom, giving developers
-   flexibility in handling time in their applications.
-
-4. **Debugging and JFR Integration**: JIO offers debugging support for individual effects and expressions. It integrates
-   with Java Flight Recorder (JFR) to capture and analyze events, making it easier to troubleshoot and monitor the
-   behavior of functional effects.
-
-5. **Testing and Testability**: The ability to pass custom clocks and control time is highlighted as a way to improve
-   testability in applications. By making time an explicit input, developers can create more predictable and reliable
-   tests.
-
-6. **Modularity and Parallelism**: JIO encourages modularity by allowing developers to work on individual components
-   without affecting others. It also supports parallelism for improved performance.
-
-7. **Maven Dependency**: It provides clear installation instructions and includes a Maven dependency for easy
-   integration into Java projects.
-
-In summary, JIO appears to be a library designed to enhance functional programming capabilities in Java, with a focus on
-readability, expressiveness, and testability. It provides tools to manage effects, control flow, and time-related
-operations, along with debugging and JFR integration for monitoring and troubleshooting. Its modularity and focus on
-testability are likely to be appreciated by developers looking to apply functional programming principles in Java.
-
 ## <a name="jio-http"><a/> jio-http
 
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-http/1.0.0-RC3)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-http/1.0.0-RC3/jar "jio-http")
@@ -2205,49 +2194,6 @@ It requires Java 17 or greater
 
 [jio-exp](#jio-exp) is the only dependency
 
-### <a name="jiohttpchatgp"><a/> What ChatGPT think of jio-http?
-
-I asked ChatGPT about jio-http and this is what I got.
-
-**jio-http** appears to be a Java library designed to simplify working with HTTP requests and responses. It provides
-various features for creating HTTP servers and clients with a focus on ease of use and flexibility. Here are some
-aspects that stand out:
-
-1. **Ease of Use**: The library provides a clean and straightforward API for building and deploying HTTP servers and
-   clients. Developers can easily specify request handlers, set up custom behaviors, and control the server or client's
-   operation.
-
-2. **HTTP Server Builder**: The `HttpServerBuilder` offers a convenient way to create and customize HTTP servers. It
-   allows setting an executor, associating request handlers with specific URI paths, and defining socket backlog.
-
-3. **HTTP Client**: The library also offers an HTTP client with different response handling options, such as working
-   with response bodies as strings, bytes, or custom types. The client integrates with Java's native `HttpClient`, which
-   was introduced in Java 11.
-
-4. **HTTP client for OAuth**: jio-http includes support for OAuth client credentials flow.
-   The `ClientCredentialsHttpClientBuilder` simplifies the process of obtaining and refreshing access tokens.
-
-5. **Retries and Error Handling**: The library includes mechanisms for handling errors, including retry policies and
-   predicates, which can be useful for making requests more robust and resilient.
-
-6. **Java Flight Recorder (JFR) Integration**: The library provides integration with Java Flight Recorder, allowing
-   developers to capture and analyze HTTP request and response events for debugging and performance analysis.
-
-7. **Maven Central Integration**: The library is available on Maven Central, making it easy for users to include it in
-   their projects.
-
-8. **Readability of Readme**: The library's readme is well-structured and includes detailed explanations, code examples,
-   and event samples. This makes it easier for users to understand how to use the library effectively.
-
-9. **Extensibility**: The library appears to be designed with extensibility in mind, allowing developers to customize
-   the behavior of HTTP clients and servers according to their requirements.
-
-10. **Support for Different Response Types**: The ability to work with different response types (strings, bytes, custom
-    types) is beneficial for various use cases.
-
-Overall, jio-http seems to be a promising Java library for simplifying HTTP-related tasks and can be valuable for
-developers working on Java projects that involve HTTP communication.
-
 ---
 
 ## <a name="jio-test"><a/> jio-test
@@ -2256,14 +2202,9 @@ developers working on Java projects that involve HTTP communication.
 
 ### <a name="junit"><a/> Junit integration
 
-To enable debugging of various components in your tests, Jio provides a JUnit extension called `Debugger`. This
-extension offers the flexibility to enable and configure debugging for different components, such as HTTP clients, HTTP
-servers, MongoDB clients, and expression evaluation.
-
-#### Enabling Debugging
-
-The `Debugger` extension allows you to enable and configure debugging for specific components in your JUnit tests. You
-can control the duration of debugging and specify custom debugging configurations.
+To enable debugging Jio provides a JUnit extension called `Debugger`. This extension offers the flexibility to enable
+and configure debugging for different JIO components, such as HTTP clients and HTTP servers from jio-http,
+MongoDB clients from jio-mongodb, and any expression evaluation (jio-exp).
 
 #### Usage Example
 
@@ -2287,21 +2228,20 @@ will be monitored for debugging events for a duration of 2 seconds.
 
 #### Configuring Debugging
 
-You can configure debugging by specifying a custom Java Flight Recorder (JFR) configuration. Most of the time, leaving
-this parameter empty and using the default configuration is sufficient. The debugging duration determines how long the
-test execution will be monitored for debugging events.
+You can configure debugging by specifying a custom Java Flight Recorder (JFR) configuration
 
-#### Component-Specific Debugging
+```code 
 
-Each component's debugging events are collected from the JFR system via Jio, providing insights into the behavior of
-various components during test execution. The Debugger extension uses the `jdk.jfr.consumer.RecordingStream` internally
-to
-capture and analyze JFR events.
+    @RegisterExtension
+    static Debugger debugger = Debugger.of("profile", Duration.ofSeconds(2));
 
-- `jio.exp`: For expression evaluation debugging.
-- `jio.httpclient`: For debugging HTTP clients.
-- `jio.httpserver`: For debugging HTTP servers.
-- `jio.mongodb`: For debugging MongoDB clients.
+```
+
+For testing purposes, leaving the configuration parameter empty and using the default one is sufficient.
+
+There are two pre-installed configurations: Default and Profile. The Default configuration has low overhead (about 1%).
+That's why it works well for continuous profiling. The Profile configuration has overhead about 2% and can be used for
+more detailed application profiling.
 
 #### Important Considerations
 
@@ -2313,11 +2253,9 @@ helping you identify and resolve issues more effectively.
 
 ---
 
-Feel free to adjust and expand this section as needed for your README.
-
 ### <a name="stubs"><a/> Stubs
 
-### <a name="iostubs"><a/> Creating IO Stubs
+#### <a name="iostubs"><a/> Creating IO Stubs
 
 In the realm of testing, it's often necessary to construct stubs that simulate specific behaviors or responses within
 your code. To address this need, the `StubBuilder` and `Gens` classes offer practical solutions for crafting `IO`
@@ -2329,47 +2267,52 @@ unique behaviors.
 
 You can create a `StubBuilder` using various methods, depending on your testing needs:
 
-- **`ofIOGen`:** Create a stub using a generator of `IO` effects. IO generators can produce exceptions as normal values,
+- **`ofGen`:** Creates a stub using a generator of `IO` effects. IO generators can produce exceptions as normal values,
   which is useful for testing how your code reacts to errors.
 
-  ```code
-  // The first call produces a failure
-  Gen<IO<Integer>> gen = Gens.seq(n -> n == 1 ? IO.fail(new RuntimeException()) : IO.succeed(n));
-  
-  StubBuilder<Integer> stub = StubBuilder.ofIOGen(gen);
-  ```
-
-- **`ofGen`:** Create a stub using a generator of values (never fail). Remember that generators are created with the
-  library [java-fun](https://github.com/imrafaelmerino/java-fun).
+- **`ofSucGen`:** Creates a stub using a generator of values (never fails). It's syntactic sugar for
+  mapping values into effects:
+  ```code 
+    Gen<O> gen = ???; //generator of values 
+    Gen<IO<O>> io = gen.map(IO::succeed) //generator of effects
+   ```
 
 You can also configure your stub as follows:
 
 - **`withExecutor`:** Set an executor to generate values using threads from this executor. This can be useful for
   controlling the concurrency of value generation.
 
-```code
-
-stub.withExecutor(yourExecutor);
-
-```
-
 - **`withDelays`:** Specify delays for the stub using a generator of `Duration`. This can be useful for testing retry
   policies where retries are executed after waiting for some time.
 
-  ```code
-  // The first call results in an error
-  Gen<IO<Integer>> gen = Gens.seq(n -> n == 1 ? IO.fail(new RuntimeException()) : IO.succeed(n));
-  
-  // The first call has a 1-second delay
-  Gen<Duration> delayGen = Gen.seq(n -> n == 1 ? Duration.ofSeconds(1) : Duration.ZERO);
+Some examples:
 
-  stub.withDelays(delayGen);
-  ```
+```code
+
+IO<Integer> x =
+        StubBuilder.ofGen(Gen.seq(n -> n < 3 ? IO.fail(new RuntimeException(n +" is < 3"))
+                                             : IO.succeed(n)
+                                 )
+                         )
+                   .withDelays(Gen.seq(n -> n < 3 ? Duration.ofSeconds(1) : Duration.ZERO))  
+                   .withExecutor(Executors.newVirtualThreadPerTaskExecutor()) 
+                   .build();
+                   
+x.get(); // fails after 1 second
+
+x.get(); // fails after 1 second
+
+x.get(); // 3 immediatly
+
+x.get(); // 4 immediatly
+
+```
 
 With these tools, you can easily create stubs and generators for testing your code with various scenarios, behaviors,
 and timing conditions. This flexibility makes it easier to ensure the robustness of your code in different situations.
 
 Happy testing!
+
 
 ---
 
@@ -2405,8 +2348,7 @@ Clock clock = ClockStub.fromReference(reference);
 ##### Using a Function
 
 The `fromSeqCalls` static factory method enables you to create a clock stub where you can control the ticking time based
-on
-the number of calls made to the clock. This method provides dynamic time simulation, allowing you to simulate time
+on the number of calls made to the clock. This method provides dynamic time simulation, allowing you to simulate time
 progression based on your specific requirements.
 
 ```code
@@ -2574,7 +2516,7 @@ At first glance, you might think it's bug-free – after all, it's just a sum an
 software development, assumptions like this can be misleading. Bugs can lurk even in the simplest-looking code.
 
 Let's start by creating a generator to produce inputs, which are pairs of integers (`a` and `b`) with the constraint
-that `a` is less than `b`. We can achieve this using the "java-fun" library:
+that `a` is less than `b`. We can achieve this using the [java-fun](https://github.com/imrafaelmerino/java-fun) library:
 
 ```code
 Gen<Pair<Integer, Integer>> gen = 
@@ -2951,21 +2893,11 @@ benefit
 from all the powerful features of `jio-exp` and `jio-test`. `jio-mongodb` is an example of how you can make any API
 under the sun jio-friendly, unleashing the full potential of your code.
 
-### MongoLambda
-
-Sure, here's a readme section for the `MongoLambda` interface from your class:
-
----
-
-## MongoDB Lambdas
+### <a name="monglambda"><a/> MongoLambda
 
 The `MongoLambda` interface in Jio provides a versatile way to define MongoDB operations that produce IO effects within
 a MongoDB client session. These lambdas can be used with or without transactions, offering flexibility in working with
 MongoDB databases.
-
-### Interface Overview
-
-#### Definition
 
 The `MongoLambda<I, O>` interface represents a function that takes an input of type `I` and produces an IO effect of
 type `O` within a MongoDB client session.
@@ -3006,7 +2938,7 @@ the `jio-mongodb`.
 
 ---
 
-### Creating a Collection Builder<a name="creating-a-collection-supplier"></a>
+### <a name="jio-mongodb-gs"><a/> API
 
 To get started, you need a `MongoClient`, a `DatabaseBuilder`, and finally a `CollectionBuilder` that provides access
 to a MongoDB collection. Below is an example of how to create both:
@@ -3033,12 +2965,12 @@ functions. The default instance, `DEFAULT` is a pre-configured builder with the 
 
 Now that you have a `CollectionBuilder`, you can perform various operations on it.
 
-## Find Operations<a name="find-operations"></a>
+#### <a name="find-operations"><a/> Find Operations
 
 The key class for creating queries and specifying options for find operations is `FindBuilder`. Here's how to perform
 find operations:
 
-### FindOne
+##### FindOne
 
 ```code
 CollectionBuilder collection = ???;
@@ -3052,7 +2984,7 @@ IO<JsObj> io = find.apply(builder);
 
 ```
 
-### FindAll
+##### FindAll
 
 ```code
 
@@ -3071,9 +3003,9 @@ IO<List<JsObj>> ioList = xs.map(Converters::toListOfJsObj);
 IO<JsArray> ioArray = xs.map(Converters::toJsArray);
 ```
 
-## Insert Operations<a name="insert-operations"></a>
+#### Insert Operations<a name="insert-operations"></a>
 
-### InsertOne
+##### InsertOne
 
 ```code
 
@@ -3085,7 +3017,7 @@ IO<String> x = insert.apply(doc).map(Converters::toHexId);
 
 ```
 
-### InsertMany
+##### InsertMany
 
 ```code
 List<JsObj> docs = ???;
@@ -3096,9 +3028,9 @@ IO<List<String>> xs = insert.apply(docs).map(Converters::toListOfHexIds);
 
 ```
 
-## Delete Operations<a name="delete-operations"></a>
+#### Delete Operations<a name="delete-operations"></a>
 
-### DeleteOne
+##### DeleteOne
 
 ```code
 
@@ -3110,7 +3042,7 @@ IO<JsObj> x = deleteOne.apply(query).map(Converters::toJsObj);
 
 ```
 
-### DeleteMany
+##### DeleteMany
 
 ```code
 
@@ -3122,9 +3054,9 @@ IO<JsObj> x = deleteMany.apply(query).map(Converters::toJsObj);
 
 ```
 
-## Update and Replace Operations<a name="update-and-replace-operations"></a>
+#### Update and Replace Operations<a name="update-and-replace-operations"></a>
 
-### UpdateOne
+##### UpdateOne
 
 ```code
 
@@ -3137,7 +3069,7 @@ IO<JsObj> x = updateOne.apply(new QueryUpdate(query,update)).map(Converters::toJ
 
 ```
 
-### UpdateMany
+##### UpdateMany
 
 ```code
 
@@ -3150,7 +3082,7 @@ IO<JsObj> x = updateOne.apply(new QueryUpdate(query,update)).map(Converters::toJ
 
 ```
 
-### ReplaceOne
+##### ReplaceOne
 
 ```code
 
@@ -3163,7 +3095,7 @@ IO<JsObj> x = replaceOne.apply(new QueryReplace(query,newDoc)).map(Converters::t
 
 ```
 
-## Count<a name="count"></a>
+#### Count<a name="count"></a>
 
 ```code
 JsObj query = ???;
@@ -3173,9 +3105,9 @@ Lambda<JsObj, Long> count = Count.of(collection).standalone();
 IO<Long> io = count.apply(query);
 ```
 
-## FindOneAndXXX Operations<a name="findoneandxxx-operations"></a>
+#### FindOneAndXXX Operations<a name="findoneandxxx-operations"></a>
 
-### FindOneAndUpdate
+##### FindOneAndUpdate
 
 ```code
 JsObj query = ???;
@@ -3187,7 +3119,7 @@ Lambda<QueryUpdate, JsObj> findOneUpdate = FindOneAndUpdate.of(collection).stand
 IO<JsObj> x = findOneUpdate.apply(new QueryUpdate(query,update));
 ```
 
-### FindOneAndReplace
+##### FindOneAndReplace
 
 ```code
 JsObj query = ???;
@@ -3199,7 +3131,7 @@ Lambda<QueryReplace, JsObj> findOneReplace = FindOneAndReplace.of(collection).st
 IO<JsObj> x = findOneReplace.apply(new QueryReplace(query,newDoc));
 ```
 
-### FindOneAndDelete
+##### FindOneAndDelete
 
 ```code
 JsObj query = ???;
@@ -3209,7 +3141,7 @@ Lambda<JsObj, JsObj> findOneDelete = FindOneAndDelete.of(collection).standalone(
 IO<JsObj> x = findOneDelete.apply(query);
 ```
 
-## Aggregate<a name="aggregate"></a>
+#### Aggregate<a name="aggregate"></a>
 
 ```code
 
@@ -3229,7 +3161,7 @@ Lambda<List<JsObj>, List<JsObj>> y =
 
 ```
 
-## Watcher<a name="watcher"></a>
+#### Watcher<a name="watcher"></a>
 
 You can set up a change stream on a MongoDB collection to monitor changes using the `Watcher` class:
 
@@ -3242,65 +3174,7 @@ Consumer<ChangeStreamIterable<JsObj>> consumer = iter -> { ??? };
 Watcher.of(consumer).accept(builder);
 ```
 
-## Common Exceptions<a name="common-exceptions"></a>
-
-The `MongoExceptions` utility class provides predicates to handle common exceptions:
-
-1. `READ_TIMEOUT`:
-    - **Description**: This predicate checks if the given Throwable is an instance of `MongoSocketReadTimeoutException`.
-      It returns true if the exception is a read timeout exception and false otherwise. Read timeout exceptions
-      typically occur when a read operation (e.g., reading data from the database) takes longer than the specified
-      timeout.
-
-2. `CONNECTION_TIMEOUT`:
-    - **Description**: This predicate checks if the given Throwable is an instance of `MongoTimeoutException`. It
-      returns true if the exception is a connection timeout exception and false otherwise. Connection timeout exceptions
-      usually happen when there's a timeout while attempting to establish a connection to the MongoDB server.
-
-Here's an example of how to use these predicates for resilient applications:
-
-```code
-JsObj query = ???;
-
-var builder = FindBuilder.of(query);
-
-IO<JsObj> io = FindOne.of(collection)
-                      .apply(builder)
-                      .retry(MongoExceptions.CONNECTION_TIMEOUT,
-                             RetryPolicies.limitRetries(3)
-                             );
-```
-
-## JFR Integration<a name="jfr-integration"></a>
-
-By default, all operations create an event when finished and send it to the Java Flight Recorder (JFR) system. You can
-disable this behavior using the `withoutRecordedEvents` method.
-
-Register the Junit Debugger extension from `jio-test` in your tests:
-
-```code
-
-@RegisterExtension
-static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
-
-```
-
-This extension enables you to see printed-out events like the following:
-
-```plaintext
-
-event: mongodb, op: INSERT_ONE, duration: 37,800 ms, result: SUCCESS
-thread: ForkJoinPool.commonPool-worker-23, event-start-time: 2023-10-17T19:10:30.86140575+02:00
-
-event: mongodb, op: INSERT_ONE, duration: 37,416 ms, result: SUCCESS
-thread: ForkJoinPool.commonPool-worker-27, event-start-time: 2023-10-17T19:10:30.861923625+02:00
-
-event: mongodb, op: FIND, duration: 1,362 ms, result: SUCCESS
-thread: ForkJoinPool.commonPool-worker-18, event-start-time: 2023-10-17T19:10:30.899902583+02:00
-
-```
-
-## Specifying an Executor<a name="specifying-an-executor"></a>
+#### Specifying an Executor<a name="mongo-executors"></a>
 
 Every operation (FindOne, InsertOne, DeleteOne, etc.) type has a method `on(Executor executor)` to specify the executor
 from which thread will be used to evaluate the Lambdas. You can use virtual threads if you are running `jio-mongodb` in
@@ -3327,7 +3201,7 @@ Certainly! When working with the `jio-mongodb` package, you have the flexibility
 configure various options to customize the behavior of MongoDB operations. Here's a brief explanation of how to pass
 other converters and options:
 
-## Configuring Options
+#### Configuring options <a name="mongo-options"></a>
 
 You can also configure various options for MongoDB operations using the `withOptions` method available for some
 operations. Options allow you to specify things like the write concern, bypass document validation, and more.
@@ -3347,7 +3221,7 @@ Lambda<QueryUpdate, UpdateResult> updateOne =
 
 By passing custom options, you can fine-tune the behavior of your MongoDB operations to match your specific use case.
 
-## Transactions with jio-mongodb
+### Transactions<a name="transactions"></a>
 
 Up to this point, we have been using the standalone method provided by MongoLambdas for operations that do not require
 transactions. Now, let's explore how to create and work with transactions in jio-mongodb.
@@ -3356,32 +3230,24 @@ jio-mongodb provides a convenient way to work with MongoDB transactions. Transac
 multiple operations within a single session, ensuring that either all the operations are executed or none of them,
 providing a consistent view of your data.
 
-### TxBuilder
+#### TxBuilder
 
 The `TxBuilder` class is used to create transactions in a MongoDB client session. It offers options to configure
 transaction settings and create transaction instances.
 
-#### Methods:
+`TxBuilder` methods:
 
 - `of(ClientSessionBuilder sessionBuilder)`: Creates a new `TxBuilder` instance with the provided session builder.
 - `withTxOptions(TransactionOptions transactionOptions)`: Sets the transaction options for the transactions created with
   this builder.
-- `build(MongoLambda<I, O> mongoLambda)`: Builds a transaction with the specified MongoDB Lambda function and
+- `build(MongoLambda<I, O> mongoLambda)`: Builds a transaction `Tx` with the specified MongoDB Lambda function and
   transaction options.
-
-### Tx
 
 The `Tx` class represents a MongoDB transaction that can be applied within a MongoDB client session. This class ensures
 that the transaction is executed consistently and provides methods for defining and applying the transaction.
 
-#### Methods:
-
-- `apply(I i)`: Applies the MongoDB transaction to the given input, executing it within a MongoDB client session.
-
-**Note:** MongoDB sessions are not multi-threaded. Only one thread should operate within a MongoDB session at a time to
+MongoDB sessions are not multi-threaded. Only one thread should operate within a MongoDB session at a time to
 avoid errors like "Only servers in a sharded cluster can start a new transaction at the active transaction number."
-
-### Example: Inserting JSON Documents in a Transaction
 
 The following example demonstrates how to use jio-mongodb to insert a list of JSON documents within a MongoDB
 transaction:
@@ -3441,6 +3307,64 @@ being multi-threaded.
 On the other hand, when using `TxBuilder` and `Tx`, you don't have to worry about the intricacies of committing or
 rolling back the transaction in the event of an error, or explicitly closing the session. All of these essential
 operations are automatically handled for you, making your code more robust and convenient.
+
+### Common Exceptions<a name="common-exceptions"></a>
+
+The `MongoExceptions` utility class provides predicates to handle common exceptions:
+
+1. `READ_TIMEOUT`:
+    - **Description**: This predicate checks if the given Throwable is an instance of `MongoSocketReadTimeoutException`.
+      It returns true if the exception is a read timeout exception and false otherwise. Read timeout exceptions
+      typically occur when a read operation (e.g., reading data from the database) takes longer than the specified
+      timeout.
+
+2. `CONNECTION_TIMEOUT`:
+    - **Description**: This predicate checks if the given Throwable is an instance of `MongoTimeoutException`. It
+      returns true if the exception is a connection timeout exception and false otherwise. Connection timeout exceptions
+      usually happen when there's a timeout while attempting to establish a connection to the MongoDB server.
+
+Here's an example of how to use these predicates for resilient applications:
+
+```code
+JsObj query = ???;
+
+var builder = FindBuilder.of(query);
+
+IO<JsObj> io = FindOne.of(collection)
+                      .apply(builder)
+                      .retry(MongoExceptions.CONNECTION_TIMEOUT,
+                             RetryPolicies.limitRetries(3)
+                             );
+```
+
+### JFR Integration<a name="mongodb-jfr-integration"></a>
+
+By default, all operations create an event when finished and send it to the Java Flight Recorder (JFR) system. You can
+disable this behavior using the `withoutRecordedEvents` method.
+
+Register the Junit Debugger extension from `jio-test` in your tests:
+
+```code
+
+@RegisterExtension
+static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
+
+```
+
+This extension enables you to see printed-out events like the following:
+
+```plaintext
+
+event: mongodb, op: INSERT_ONE, duration: 37,800 ms, result: SUCCESS
+thread: ForkJoinPool.commonPool-worker-23, event-start-time: 2023-10-17T19:10:30.86140575+02:00
+
+event: mongodb, op: INSERT_ONE, duration: 37,416 ms, result: SUCCESS
+thread: ForkJoinPool.commonPool-worker-27, event-start-time: 2023-10-17T19:10:30.861923625+02:00
+
+event: mongodb, op: FIND, duration: 1,362 ms, result: SUCCESS
+thread: ForkJoinPool.commonPool-worker-18, event-start-time: 2023-10-17T19:10:30.899902583+02:00
+
+```
 
 ## <a name="jio-console"><a/> jio-console
 

@@ -55,16 +55,17 @@ import static java.util.Objects.requireNonNull;
 
 public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> permits Delay, Exp, Val {
 
-    IO(){}
     /**
      * Effect that always succeed with true
      */
     public static final IO<Boolean> TRUE = succeed(true);
-
     /**
      * Effect that always succeed with false
      */
     public static final IO<Boolean> FALSE = succeed(false);
+
+    IO() {
+    }
 
     /**
      * Creates an effect that always produces a result of null. This method is generic and captures the type of the
@@ -1075,6 +1076,37 @@ public sealed abstract class IO<O> implements Supplier<CompletableFuture<O>> per
             }
 
         }).then(nill -> this);
+
+    }
+
+    /**
+     * Sleeps for the specified duration before evaluating this effect.
+     * <p>
+     * This method introduces a pause in the execution flow for the specified duration using the
+     * {@link Thread#sleep(long)} method. It can be useful for testing purposes, or when working with virtual threads.
+     * However, it should be used with caution, as introducing delays in a program's execution blocking threads can
+     * impact performance and behavior.
+     * </p>
+     * <p>
+     * Threads from the provided executor will sleep for the specified duration before evaluating the effect. This can
+     * be beneficial for controlling the thread on which the sleep occurs.
+     * </p>
+     *
+     * @param duration The duration to sleep for.
+     * @param executor The executor responsible for executing the sleep operation.
+     * @return An {@code IO<O>} representing the delayed operation.
+     */
+    public IO<O> sleep(final Duration duration, final Executor executor) {
+        Objects.requireNonNull(duration);
+        return IO.lazy(() -> {
+            try {
+                Thread.sleep(duration.toMillis());
+                return null;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+        }, executor).then($ -> this);
 
     }
 

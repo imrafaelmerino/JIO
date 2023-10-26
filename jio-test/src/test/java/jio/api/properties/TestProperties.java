@@ -14,26 +14,25 @@ import java.util.function.BiFunction;
 
 public class TestProperties {
 
-    static BiFunction<Integer, Integer, Integer> medium = (a, b) -> a + (b - a) / 2;
+    static BiFunction<Integer, Integer, Integer> medium = (a, b) -> (a + b) >>> 1;
     @Command
     static Property<Pair<Integer, Integer>> mediumProperty =
             PropBuilder.of("medium",
                            PairGen.of(IntGen.biased(0),
-                                              IntGen.biased(0)
-                                             )
-                                          .suchThat(pair -> pair.first() <= pair.second()),
-                                   pair -> {
-                                       var a = pair.first();
-                                       var b = pair.second();
-                                       var mean = medium.apply(a, b);
-                                       if (mean < a)
-                                           return TestFailure.reason("mean lower than a");
-                                       if (mean > b)
-                                           return TestFailure.reason("mean greater than b");
-                                       return TestResult.SUCCESS;
-                                   }
+                                      IntGen.biased(0)
+                                     )
+                                  .suchThat(pair -> pair.first() <= pair.second()),
+                           pair -> {
+                               var a = pair.first();
+                               var b = pair.second();
+                               var mean = medium.apply(a, b);
+                               if (mean < a)
+                                   return TestFailure.reason("mean lower than a");
+                               if (mean > b)
+                                   return TestFailure.reason("mean greater than b");
+                               return TestResult.SUCCESS;
+                           }
                           )
-
                        .withClassifiers(Map.of("both",
                                                p -> p.first() > Integer.MAX_VALUE / 2
                                                     && p.second() > Integer.MAX_VALUE / 2,
@@ -43,6 +42,7 @@ public class TestProperties {
                                               ),
                                         "one"
                                        )
+
                        .build();
 
     public static void main(String[] args) throws IOException {

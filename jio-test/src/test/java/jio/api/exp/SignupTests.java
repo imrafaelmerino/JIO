@@ -59,7 +59,7 @@ public class SignupTests {
 
 
     @RegisterExtension
-    static Debugger debugger = Debugger.of(Duration.ofSeconds(10));
+    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
 
     @Test
@@ -69,7 +69,7 @@ public class SignupTests {
         final Lambda<String, JsArray> normalizeAddresses = a -> IO.succeed(JsArray.of("address1", "address2"));
         final Lambda<Void, Integer> countUsers = a -> IO.succeed(3);
         final Lambda<JsObj, String> persistMongo = a -> IO.succeed("id");
-        final Lambda<JsObj, Void> sendEmail = a -> IO.NULL();
+        final Lambda<JsObj, Void> sendEmail = a -> IO.fail(new RuntimeException());
         final Lambda<String, Boolean> existsInLDAP = a -> IO.FALSE;
 
         JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
@@ -90,23 +90,7 @@ public class SignupTests {
         Assertions.assertTrue(resp.containsKey("id"));
         Assertions.assertTrue(resp.containsKey("addresses"));
         Assertions.assertTrue(resp.containsKey("timestamp"));
-        Callable<FileInputStream> callable = () -> new FileInputStream("example.txt");
 
-        IO<String> resultEffect =
-                IO.resource(callable,
-                            stream -> {
-                                try {
-                                    // Read the content of the file and return it as a String
-                                    byte[] bytes = new byte[stream.available()];
-                                    stream.read(bytes);
-                                    return IO.succeed(new String(bytes,
-                                                                 StandardCharsets.UTF_8));
-                                }
-                                catch (IOException e) {
-                                    return IO.fail(e);
-                                }
-                            }
-                           );
     }
 
 

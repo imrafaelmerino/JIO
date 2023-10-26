@@ -66,14 +66,17 @@ public final class Debugger implements AfterAllCallback, BeforeAllCallback {
     }
 
     /**
-     * Create an instance of the Debugger with a custom JFR configuration and duration.
+     * Create an instance of the Debugger with a custom JFR configuration and duration. There are two JFR pre-installed
+     * configurations: Default and Profile. The Default configuration has low overhead (about 1%). That's why it works
+     * well for continuous profiling. The Profile configuration has overhead about 2% and can be used for more detailed
+     * application profiling.
      *
      * @param conf     A custom JFR configuration for debugging events.
      * @param duration The duration for monitoring test execution with debugging.
      * @return A Debugger instance.
      */
-    public static Debugger of(final String conf, final Duration duration){
-        return new Debugger(conf,duration);
+    public static Debugger of(final String conf, final Duration duration) {
+        return new Debugger(conf, duration);
     }
 
     /**
@@ -82,8 +85,8 @@ public final class Debugger implements AfterAllCallback, BeforeAllCallback {
      * @param duration The duration for monitoring test execution with debugging.
      * @return A Debugger instance with the default JFR configuration.
      */
-    public static Debugger of(final Duration duration){
-        return new Debugger("default",duration);
+    public static Debugger of(final Duration duration) {
+        return new Debugger("default", duration);
     }
 
 
