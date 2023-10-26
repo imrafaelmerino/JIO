@@ -38,6 +38,7 @@ public class TestRespHandlers {
                                               StatusCodeStub.cons(200),
                                               HeadersStub.EMPTY
                                              );
+
         GetStub getJsonReqHandler = GetStub.of(BodyStub.cons(JsObj.of("a",
                                                                       JsStr.of("b")
                                                                      )

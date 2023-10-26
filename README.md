@@ -99,7 +99,7 @@ import static java.util.Objects.requireNonNull;
 public class SignupService implements Lambda<JsObj, JsObj> {
 
     Lambda<JsObj, Void> persistLDAP;
-    Lambda<String, JsArray> normalizeAddresses;
+    Lambda<String, JsArray> normalizeAddress;
     Supplier<IO<Integer>> countUsers;
     Lambda<JsObj, String> persistMongo;
     Lambda<JsObj, Void> sendEmail;
@@ -134,7 +134,7 @@ public class SignupService implements Lambda<JsObj, JsObj> {
                                               .apply(user)
                                               .map(JsStr::of),
 
-                            "addresses", normalizeAddresses.apply(address),
+                            "addresses", normalizeAddress.apply(address),
 
                             "timestamp", IO.lazy(clock)
                                            .map(ms -> JsInstant.of(Instant.ofEpochMilli(ms)))
@@ -205,7 +205,7 @@ public class SignupTests {
 
         Lambda<JsObj, Void> persistLDAP = _ -> IO.NULL();
         
-        Lambda<String, JsArray> normalizeAddresses =
+        Lambda<String, JsArray> normalizeAddress =
                 _ -> IO.succeed(JsArray.of("address1", "address2"));
         
         Supplier<IO<Integer>> countUsers = () -> IO.succeed(3);
@@ -221,7 +221,7 @@ public class SignupTests {
                              );
 
         JsObj resp = new SignupService(persistLDAP,
-                                       normalizeAddresses,
+                                       normalizeAddress,
                                        countUsers,
                                        persistMongo,
                                        sendEmail,
@@ -270,7 +270,7 @@ code's behavior without relying on external logging libraries or complex setups.
 And finally, find below all the events that are printed out during the execution of the previous JUnit test.
 
 ```
-Started JFR stream for 10,000 sg in SignupTests
+Started JFR stream for 2 sg in SignupTests
 
 event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: 3
 duration: 1,856 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.540570333+02:00
@@ -330,7 +330,7 @@ public void test(){
                                    .map(Duration::ofMillis);
 
     Supplier<IO<Integer>> countUsers =
-            () -> StubBuilder.ofSucGen(IntGen.arbitrary(0, 100000))
+           () -> StubBuilder.ofSucGen(IntGen.arbitrary(0, 100000))
                             .withDelays(delayGen)          
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                             .build();
@@ -435,22 +435,22 @@ In this code:
 
 - The `recover` method specifies what value to return in case of a failure.
 
-And to test it, let's change the stub for the `countUser` lambda:
+And to test it, let's change the stub for the `countUser` supplier:
 
 ```code
 
 //let's change the delay of every stub to 1 sec, for the sake of clarity
 Gen<Duration> delayGen = Gen.cons(1).map(Duration::ofSeconds);
         
-Lambda<Void, Integer> countUsers =
-        nill -> StubBuilder.ofDelayedIOGen(Gens.seq(n -> n <= 4 ?
-                                               IO.fail(new RuntimeException(n + "")) :
-                                               IO.succeed(n)
-                                               ),
-                                      delayGen
-                                      )
+Supplier<IO<Integer>> countUsers =
+       _ -> StubBuilder.ofGen(Gen.seq(n -> n <= 4 ?
+                                           IO.fail(new RuntimeException(n + "")) :
+                                           IO.succeed(n)
+                                     )
+                              )
+                       .withDelays(delayGen)
                        .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                       .get();
+                       .build();
 
 ```
 
@@ -458,7 +458,7 @@ In this code:
 
 - The `Gen.cons(1).map(Duration::ofSeconds)` defines a generator `delayGen` that provides a constant delay of 1 second.
 
-- The `countUsers` lambda is defined to use the `StubBuilder` with a sequence generator (`Gens.seq`) that allows you to
+- The `countUsers` supplier is defined to use the `StubBuilder` with a sequence generator (`Gen.seq`) that allows you to
   choose different values for each call. In this case the first four calls triggers a failure, which is treated as a
   value that can be returned.
 
@@ -572,9 +572,9 @@ Instant b = Instant.now().plus(Period.ofDays(2));
   
 ```  
 
-Because _now()_ returns a different value each time it's called and therefore is not a pure function, `a` and `b` are
-different instants. Doing the following refactoring would change completely the meaning of the program (and still your
-favourite IDE suggests you to do it at times!):
+Because _now()_ returns a different value each time it's called and therefore is not a pure function, the following
+refactoring would change completely the meaning of the program (and still your favourite IDE suggests you to do it at
+times!):
 
 ```code  
   
@@ -587,7 +587,7 @@ Instant b = now.plus(Period.ofDays(2));
 ```  
 
 Here's when laziness comes into play. Since Java 8, we have suppliers. They are indispensable to do FP in Java. The
-following piece of code is equivalent to the previous where `a` and `b` are two different instants:
+following piece of code is equivalent to the original one without changing the meaning of the program:
 
 ```code  
   
@@ -627,7 +627,12 @@ Let's model a funcional effect in Java!
 import java.util.function.Supplier;  
 import java.util.concurrent.CompletableFuture;  
   
-public abstract class IO<O> implements Supplier<CompletableFuture<O>> {}  
+public abstract class IO<O> implements Supplier<CompletableFuture<O>> {
+
+    CompletableFuture<O> get();
+    
+    O result();
+}  
   
 ```  
 
@@ -647,6 +652,12 @@ Key Concepts:
 - **Handling Errors**: A critical aspect of JIO is that `CompletableFuture` can represent both successful and failed
   computations. This approach ensures that errors are treated as first-class citizens, avoiding the need to throw  
   exceptions whenever an error occurs.
+
+- According to Erik Meyer, as mentioned in [this video](https://www.youtube.com/watch?v=z0N1aZ6SnBk), honesty is at
+  the core of functional programming. I find this perspective to be quite insightful. Latency and failures hold such
+  significance that they should be explicitly denoted in a function or method's signature with the `IO` type. Without
+  this distinction, it becomes impossible to differentiate functions that are free from failure and latency from
+  those that aren't, making our code difficult to reason about.
 
 It's worth noting that JIO utilizes CompletableFuture under the hood but shields the client from having to work with
 futures and callbacks. The JIO API remains functional and expressive, providing a straightforward experience for
@@ -1759,6 +1770,10 @@ It requires Java 17 or greater
 In JIO, you can build and deploy HTTP servers using the `HttpServerBuilder`. This builder is a versatile tool for
 defining and launching HTTP servers for various purposes, including testing. The `HttpServerBuilder` allows you to
 create `HttpServer` or `HttpsServer` instances with ease.
+
+Employing the `HttpServer` native class to initiate servers for your tests simplifies both setup and teardown
+procedures, as the server is embedded within the Java process running the test. **This ensures that you'll never leave a 
+port lingering**.
 
 **Specifying the Request Handlers**
 
