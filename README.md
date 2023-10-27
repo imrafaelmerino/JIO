@@ -251,7 +251,7 @@ Here's a breakdown of how it works:
    the `@RegisterExtension` annotation. You specify the duration for which the debugger captures events.
 
 2. **Using `debug` and `debugEach`**: Within your code, you utilize the `debug` and `debugEach` methods provided by JIO.
-   These methods allow you to send events to the JFR system after a value or expression is being evaluated.
+   These methods allow you to send events to the JFR system after a value or expression is evaluated.
 
 3. **Event Printing**: During the execution of the test for the specified duration, the Debugger extension prints out
    all the events that were sent to the JFR system. These events include information about the expressions being
@@ -267,7 +267,7 @@ In summary, the Debugger extension in JIO transforms the testing and debugging p
 informative experience with minimal effort from developers. It empowers developers to gain deep insights into their
 code's behavior without relying on external logging libraries or complex setups.
 
-And finally, find below all the events that are printed out during the execution of the previous JUnit test.
+Find below all the events that are printed out during the execution of the previous JUnit test.
 
 ```
 Started JFR stream for 2 sg in SignupTests
@@ -413,8 +413,7 @@ duration: 331,995 ms, context: signup, thread: virtual-44, event-start-time: 202
 ```
 
 To enhance the resilience of our code, let's introduce some retry logic for the `countUsers` supplier. We want to allow
-up
-to three retries:
+up to three retries:
 
 ``` code                                
         // let's add up to three retries 
@@ -456,7 +455,7 @@ Supplier<IO<Integer>> countUsers =
 
 In this code:
 
-- The `Gen.cons(1).map(Duration::ofSeconds)` defines a generator `delayGen` that provides a constant delay of 1 second.
+- The generator `delayGen` provides a constant delay of 1 second.
 
 - The `countUsers` supplier is defined to use the `StubBuilder` with a sequence generator (`Gen.seq`) that allows you to
   choose different values for each call. In this case the first four calls triggers a failure, which is treated as a
@@ -701,7 +700,7 @@ This is a very common case, and you will use it all the time to create effects.
 
 ```code  
 
-Suplier<JsObj> computation;  
+Suplier<JsObj> computation = ???;  
 IO<Long> effect = IO.lazy(computation);  
   
 ```  
@@ -717,7 +716,7 @@ fail.
 
 ```code  
   
-Callable<Long> callable;  
+Callable<Long> callable = ???;  
   
 IO<Long> effect = IO.task(callable);  
   
@@ -741,9 +740,9 @@ since the effect method takes in a `Supplier`.
 
 In all the above examples, when the `get` or `result`methods are invoked, the values will be computed on the caller  
 thread. Sometimes we need to control on what thread to perform a computation, especially when it's blocking.  
-Whe can specify an executor, or to make use of the **ForkJoin** pool, which is not a problem since **JIO uses
+Whe can specify an executor, or to make use of the **ForkJoin** pool, which is not a problem since JIO uses
 internally
-the [ManagedBlocker](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ForkJoinPool.ManagedBlocker.html)**
+the [ManagedBlocker](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ForkJoinPool.ManagedBlocker.html)
 interface, or you can even get benefit from the Loom project and use fibers!
 
 **From a lazy computation or supplier that has to be executed on a specific pool**
@@ -899,7 +898,6 @@ Lambda<A,C> third = first.then(second);
 
 ### <a name="Operations-with-effects"><a/> Operations with effects
 
-
 #### Making our code more resilient being persistent!
 
 Retrying failed operations is a crucial aspect of handling errors effectively in JIO. In real-world
@@ -929,8 +927,8 @@ public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
 
 While the `retry` method is primarily used to retry an operation when an error occurs (based on a specified exception
 condition), the `repeat` method allows you to repeat an operation based on the result or outcome of the effect itself,  
-providing flexibility for scenarios where retries are needed for reasons other than errors.  
-Retry policies are created in a very declarative and composable way, for example:
+providing flexibility for scenarios where retries are needed for reasons other than errors. Retry policies are created
+in a very declarative and composable way, for example:
 
 ```code  
   
@@ -1002,9 +1000,7 @@ public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
     IO<A> map(Function<O, A> fn);  
       
     IO<A> then(Lambda<O, A> fn);  
-    
-    IO<Void> async();
-    
+        
     IO<O> debug();
   
     IO<O> debug(EventBuilder builder);
@@ -1017,11 +1013,70 @@ public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
 - `then` (akin to `flatMap` or `bind` in other languages and a core function in monads): Applies a lambda function to  
   the result of the effect, creating a new effect that depends on the previous result. The name 'then' is used here for
   conciseness.
-- `async`: The `async` method allows you to execute an effect without waiting for its result and returns
-  immediately. It is useful when you are not interested in the outcome of the action and want to trigger it
-  asynchronously.
-- `debug`: New effect that sends an event to the JFR system after computing the result. You can customize the event with
-  a builder.
+
+#### Houston, we have a problem!
+
+```code  
+  
+sealed abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
+        
+    IO<O> debug();
+  
+    IO<O> debug(EventBuilder builder);
+}  
+
+// all the JIO expressions are subtypes of Exp
+sealed abstract class Exp<O> extends IO<O> {
+    
+    Exp<O> debugEach(String context);
+    
+    Exp<O> debugEach(EventBuilder<O> messageBuilder)
+
+}
+
+  
+```  
+
+Debugging and logging events play a pivotal role in software development. Some of the advantages that you'll get are:
+
+1. **Simplifying Debugging**: Debugging is the process of identifying and fixing issues in your code. When testing an
+   application, developers often need to trace the execution of specific parts of their code to locate bugs or
+   performance bottlenecks. These debugging methods allow you to attach debug mechanisms to expressions, making it
+   easier to monitor and log the execution of each operand individually. This granular level of insight is invaluable
+   when diagnosing and resolving problems.
+
+2. **Testing Efficiency**: During the testing phase, the ability to debug and log events efficiently is a time-saving
+   and productivity-enhancing feature. These methods let you generate and send events to the Flight Recorder system,
+   which can then be analyzed to gain insights into the behavior of your code. You can customize these events using the
+   provided `EventBuilder`, tailoring the information collected to suit your specific testing needs.
+
+3. **No Setup Overhead**: One of the key advantages of these methods is that they require minimal setup. This means that
+   you can integrate debugging and event logging into your codebase without the need for extensive configuration or
+   external tools. It's a straightforward and hassle-free way to gather essential information about the execution of
+   your code.
+
+4. **Recursive Debugging with debugEach**: When you apply the debugEach method to an expression, it attaches a debugging
+   mechanism to that expression and all its subexpressions. If any subexpression within the main expression is itself an
+   expression, debugEach is applied to it recursively, passing along the same context.
+
+5. **Customization with EventBuilder**
+
+Customization with the `EventBuilder` is a powerful feature that streamlines your debugging and event logging. It allows
+you to tailor events to your specific needs and focus on the most relevant information:
+
+- **Event Naming**: You can categorize events by specifying the name for the expression being evaluated and the context
+  you're observing, making it easier to analyze different aspects of your code.
+
+- **Mapping Success Output**: Transform the result of a successful expression into a format that provides clear and
+  concise information, helping you capture expected outcomes.
+
+- **Mapping Failure Output**: Customize how exceptions are presented by mapping `Throwable` objects into a format that
+  aids in debugging and troubleshooting. This can include error messages, stack traces, or other relevant details.
+
+In conclusion, the ability to debug and log events with minimal setup is highly valuable for developers. It simplifies
+the debugging process, enhances testing efficiency, and provides data-rich insights into code execution. These methods
+are indispensable tools for maintaining software quality, diagnosing issues, and optimizing performance during the
+development and testing phases.
 
 #### Being Impatient!
 
@@ -1047,9 +1102,9 @@ public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
 - `timeout`: Sets a timeout for the effect, allowing you to limit how long you are willing to wait for its completion.
 - `timeoutOrElse`: Similar to `timeout`, but with a fallback value that is returned if the timeout is exceeded.
 - `async`: Allows to execute an action without waiting for its result and returns immediately. It is
-   useful when you are not interested in the outcome of the effect (returns void) and want to trigger it asynchronously.
+  useful when you are not interested in the outcome of the effect (returns void) and want to trigger it asynchronously.
 
-####  Being sneaky!
+#### Being sneaky!
 
 Sometimes, you need to sneak a peek into the execution of an effect:
 
@@ -1094,7 +1149,7 @@ quick decisions based on the outcome.
 ### Specifying executors
 
 Sometimes, it is valuable to have fine-grained control over the execution context responsible for computing the values
-of effects. JIO provides a set of methods with the 'on' suffix to cater to this specific need. These methods allow you  
+of effects. JIO provides a set of methods with the 'on' suffix to cater to this specific need. These methods allow you
 to specify the execution context or thread pool in which the effect's computation should occur, providing you with
 control over concurrency and resource allocation. Here are the key methods with the 'on' suffix:
 
@@ -1161,9 +1216,7 @@ predicate evaluates to true, the consequence is computed, and if it's false, the
 the consequence and alternative are represented as lazy computations of IO effects.
 
 ```code  
-  
-import jio.IfElseExp;  
-  
+    
 IO<O> exp = IfElseExp.<O>predicate(IO<Boolean> condition)  
                      .consequence(Supplier<IO<O>> consequence)  
                      .alternative(Supplier<IO<O>> alternative);  
@@ -1226,26 +1279,26 @@ The same as before but using lists instead of constants as patterns.
 ```code  
   
 IO<O> exp =  
-          SwitchExp<I, O>.eval(I value)  
-                         .match(List<I> pattern1, Lambda<I,O> lambda1,  
-                                List<I> pattern2, Lambda<I,O> lambda2,  
-                                List<I> pattern3, Lambda<I,O> lambda3,  
-                                Lamda<I,O> otherwise  
-                                );  
+    SwitchExp<I, O>.eval(I value)  
+                   .match(List<I> pattern1, Lambda<I,O> lambda1,  
+                          List<I> pattern2, Lambda<I,O> lambda2,  
+                          List<I> pattern3, Lambda<I,O> lambda3,  
+                          Lamda<I,O> otherwise  
+                         );  
   
 // For example, the following expression reduces to "20 falls into the third week"  
 IO<O> exp=  
-         SwitchExp<Integer, String>.eval(20)  
-                                   .match(List.of(1, 2, 3, 4, 5, 6, 7), 
-                                          n -> IO.succeed(n + " falls into the first week"),  
-                                          List.of(8, 9, 10, 11, 12, 13, 14), 
-                                          n -> IO.succeed(n + " falls into the second week"),  
-                                          List.of(15, 16, 17, 18, 19, 20), 
-                                          n -> IO.succeed(n + " falls into the third week"),  
-                                          List.of(21, 12, 23, 24, 25, 26, 27), 
-                                          n -> IO.succeedd(n + " falls into the forth week"),  
-                                          n -> IO.succeed(n + " falls into the last days of the month")  
-                                         );  
+    SwitchExp<Integer, String>.eval(20)  
+                              .match(List.of(1, 2, 3, 4, 5, 6, 7), 
+                                     n -> IO.succeed(n + " falls into the first week"),  
+                                     List.of(8, 9, 10, 11, 12, 13, 14), 
+                                     n -> IO.succeed(n + " falls into the second week"),  
+                                     List.of(15, 16, 17, 18, 19, 20), 
+                                     n -> IO.succeed(n + " falls into the third week"),  
+                                     List.of(21, 12, 23, 24, 25, 26, 27), 
+                                     n -> IO.succeedd(n + " falls into the forth week"),  
+                                     n -> IO.succeed(n + " falls into the last days of the month")  
+                                     );  
 ```  
 
 Last but not least, you can use predicates as patterns instead of values or list of values:
@@ -1259,7 +1312,8 @@ IO<O> exp=
                               Predicate<I> pattern3, Lambda<I,O> lambda3
                               );  
   
-// For example, the following expression reduces to the default value: "20 is greater or equal to ten"  
+// For example, the following expression reduces to the default value: 
+// "20 is greater or equal to ten"  
   
 IO<O> exp=  
         SwitchExp<Integer, String>.eval(IO.succeed(20))  
@@ -1277,8 +1331,7 @@ IO<O> exp=
 `CondExp` is a set of branches and a default effect. Each branch consists of an effect that computes a boolean (the  
 condition) and its associated effect. The expression is reduced to the value of the first branch with a true
 condition, making the order of branches significant. If no condition is true, it computes the default effect if
-specified
-(otherwise the expression is reduced to `IO.NULL`)
+specified (otherwise the expression is reduced to `IO.NULL`)
 
 ```code  
   
@@ -1286,7 +1339,7 @@ IO<O> exp=
     CondExp.<O>seq(IO<Boolean> cond1, Supplier<IO<O>> effect1,  
                    IO<Boolean> cond2, Supplier<IO<O>> effect2,  
                    IO<Boolean> cond3, Supplier<IO<O>> effect3,  
-                   Supplier<IO<O>> otherwise                 //optional             
+                   Supplier<IO<O>> otherwise                   //optional             
                   );  
   
   
@@ -1294,14 +1347,14 @@ IO<O> exp =
     CondExp.<O>par(IO<Boolean> cond1, Supplier<IO<O>> effect1,  
                    IO<Boolean> cond2, Supplier<IO<O>> effect2,  
                    IO<Boolean> cond3, Supplier<IO<O>> effect3,  
-                   Supplier<IO<O>> otherwise                //optional  
+                   Supplier<IO<O>> otherwise                  //optional  
                   );  
   
 ```  
 
 ### AllExp and AnyExp
 
-`AllExp` and `AnyExp` provide idiomatic boolean expressions for "AND" and "OR." They allow you to compute multiple  
+`AllExp` and `AnyExp` provide idiomatic boolean expressions for "AND" and "OR." They allow you to compute multiple
 boolean effects, either sequentially or in parallel.
 
 ```code  
@@ -1350,21 +1403,19 @@ IO<Pair<A, B> pairPar = PairExp.par(IO<A> effect1,
 IO<Pair<A, B> pairSeq = PairExp.seq(IO<A> effect1, 
                                     IO<B> effect2);  
   
-IO<Triple<A, B, C> triplePar = 
-    TripleExp.par(IO<A> effect1,
-                  IO<B> effect2,
-                  IO<C> effect3);  
+IO<Triple<A, B, C> triplePar = TripleExp.par(IO<A> effect1,
+                                             IO<B> effect2,
+                                             IO<C> effect3);  
   
-IO<Triple<A, B, C> tripleSeq = 
-    TripleExp.seq(IO<A> effect1,
-                  IO<B> effect2,
-                  IO<C> effect3);  
+IO<Triple<A, B, C> tripleSeq = TripleExp.seq(IO<A> effect1,
+                                             IO<B> effect2,
+                                             IO<C> effect3);  
   
 ```  
 
 ### JsObjExp and JsArrayExp
 
-`JsObjExp` and `JsArrayExp` are data structures resembling raw JSON. You can compute their values sequentially or in  
+`JsObjExp` and `JsArrayExp` are data structures resembling raw JSON. You can compute their values sequentially or in
 parallel. You can mix all the expressions discussed so far and nest them, providing you with immense flexibility and  
 power in handling complex data structures.
 
@@ -1376,20 +1427,18 @@ IfElseExp<JsStr> a = IfElseExp.<JsStr>predicate(IO<Boolean> cond1)
   
 JsArrayExp b = 
     JsArrayExp.seq(SwitchExp<Integer, JsValue>.match(n)  
-                                              .patterns(n -> n <= 0, Supplier<IO<JsValue>> effect1,  
-                                                        n -> n  > 0, Supplier<IO<JsValue>> effect2
+                                              .patterns(n -> n <= 0, Supplier<IO<JsValue>> e1,  
+                                                        n -> n  > 0, Supplier<IO<JsValue>> e2
                                                        ),  
-                   CondExp.par(IO<Boolean> cond2, Supplier<IO<JsValue>> effect3,  
-                               IO<Boolean> cond3, Supplier<IO<JsValue>> effect4,  
+                   CondExp.par(IO<Boolean> cond2, Supplier<IO<JsValue>> e3,  
+                               IO<Boolean> cond3, Supplier<IO<JsValue>> e4,  
                                Supplier<IO<JsValue>> otherwise  
                               )  
                  );  
   
-JsObjExp c = JsObjExp.seq("d", AnyExp.seq(IO<Boolean> cond1, IO<Boolean> cond2)  
-                                     .map(JsBool::of),  
-                          "e", AllExp.par(IO<Boolean> cond2, IO<Boolean> cond3)  
-                                     .map(JsBool::of),  
-                          "f", JsArrayExp.par(IO<JsValue> effect5, IO<JsValue> effect6)  
+JsObjExp c = JsObjExp.seq("d", AnyExp.seq(IO<JsBool> cond1, IO<JsBool> cond2)  
+                          "e", AllExp.par(IO<JsBool> cond2, IO<JsBool> cond3)  
+                          "f", JsArrayExp.par(IO<JsValue> e5, IO<JsValue> e6)  
                           );  
   
 JsObjExp exp = JsObjExp.par("a",a,  
@@ -1579,7 +1628,7 @@ the event by providing an `EventBuilder`. Here's an overview:
 The `IO` class has the following methods for debugging:
 
 ```code
-public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
+sealed abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
 
     IO<O> debug();  
    
@@ -1655,15 +1704,15 @@ You can customize event messages using an `EventBuilder`. For example:
 ```code
 EventBuilder<Integer> eb =
     EventBuilder.<Integer>of("other_exp_name", "fun")
-        .withSuccessOutput(output -> "XXX")
-        .withFailureOutput(Throwable::getMessage);
+                .withSuccessOutput(output -> "XXX")
+                .withFailureOutput(Throwable::getMessage);
 
 Integer value = IO.succeed(10).debug(eb).result();
 
 // result() would throw an exception!
 CompletableFuture<Integer> failure = IO.<Integer>fail(new RuntimeException("JIO is great!"))
-    .debug(eb)
-    .get();
+                                       .debug(eb)
+                                       .get();
 ```
 
 The result with this customization is:
@@ -1686,11 +1735,11 @@ expression using the `debugEach` method. This allows you to monitor and log the 
 Here's an overview:
 
 ```code
-public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
+sealed abstract class Exp<O> extends Supplier<CompletableFuture<O>> {  
 
-    Exp<O> debugEach(final EventBuilder<O> builder);  
+    Exp<O> debugEach(EventBuilder<O> builder);  
 
-    Exp<O> debugEach(final String context);  
+    Exp<O> debugEach(String context);  
 }
 ```
 
@@ -1716,15 +1765,15 @@ public void test() {
 
     SwitchExp<String, String> match =
         SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
-            .consequence(() -> IO.lazy(lowerCase))
-            .alternative(() -> IO.lazy(upperCase))
-        )
-            .match(List.of("a", "e", "i", "o", "u"),
-                s -> IO.succeed("%s %s".formatted(s, s.toUpperCase())),
-                List of("A", "E", "I", "O", "U"),
-                s -> IO.succeed("%s %s".formatted(s, s.toLowerCase()))
-            )
-            .debugEach("context");
+                                                .consequence(() -> IO.lazy(lowerCase))
+                                                .alternative(() -> IO.lazy(upperCase))
+                                       )
+                 .match(List.of("a", "e", "i", "o", "u"),
+                        s -> IO.succeed("%s %s".formatted(s, s.toUpperCase())),
+                        List.of("A", "E", "I", "O", "U"),
+                        s -> IO.succeed("%s %s".formatted(s, s.toLowerCase()))
+                       )
+                 .debugEach("context");
 
     System.out.println("The output is " + match.result());
 
@@ -1783,7 +1832,7 @@ defining and launching HTTP servers for various purposes, including testing. The
 create `HttpServer` or `HttpsServer` instances with ease.
 
 Employing the `HttpServer` native class to initiate servers for your tests simplifies both setup and teardown
-procedures, as the server is embedded within the Java process running the test. **This ensures that you'll never leave a 
+procedures, as the server is embedded within the Java process running the test. **This ensures that you'll never leave a
 port lingering**.
 
 **Specifying the Request Handlers**
@@ -1804,8 +1853,7 @@ HttpServerBuilder serverBuilder = HttpServerBuilder.of("/your-path", handler,
 **Specifying an Executor**
 
 When creating an `HttpServer` is possible to specify an `Executor`. All HTTP requests received by the server will
-be handled in tasks provided to this executor. You can set the executor using the `withExecutor(Executor executor)`
-method.
+be handled in tasks provided to this executor.
 
 ```code
 Executor executor = Executors.newVirtualThreadPerTaskExecutor(); 
@@ -1839,11 +1887,12 @@ serverBuilder.withSSL(httpsConfigurator);
 **Recording JFR Events (Java Flight Recorder)**
 
 By default, the `HttpServer` records Java Flight Recorder (JFR) events for HTTP requests, which can be helpful for
-debugging and performance analysis. However, you can disable this feature if needed using the `withoutRecordedEvents()`
-method.
+debugging and performance analysis. However, you can disable this feature:
 
 ```code
+
 serverBuilder.withoutRecordedEvents();
+
 ```
 
 **Starting the server on a Specific Port**
@@ -1902,11 +1951,10 @@ Find below a complete example and the events sent to the JFR system:
 
 The example code sets up a test environment for a HTTP client with OAuth support (Client Credentials flow). It uses
 stubs from [jio-test](#jio-test) to create HTTP handlers for testing different scenarios. The `tokenHandler` simulates
-an OAuth token
-request, and the `thankHandler` simulates a response that includes a "your welcome!" message. The status code for
-the `thankHandler` is generated to return a 401 response approximately 1 out of 6 times, simulating the case where the
-access token has expired. The `HttpServerBuilder` is used to create an HTTP server on a random port to handle these
-requests. This setup allows testing of various scenarios, including token expiration handling.
+an OAuth token request, and the `thankHandler` simulates a response that includes a "your welcome!" message. The status
+code for the `thankHandler` is generated to return a 401 response approximately 1 out of 6 times, simulating the case
+where the access token has expired. The `HttpServerBuilder` is used to create an HTTP server on a random port to handle
+these requests. This setup allows testing of various scenarios, including token expiration handling.
 
   
 ---  
@@ -1960,34 +2008,34 @@ selecting what errors to retry, and enabling or disabling the recording of Java 
 requests and responses. JFR event recording is enabled by default:
 
 - `withRetryPolicy`: Sets a default retry policy for handling exceptions during requests.
-    - `withRetryPredicate`: Sets a default predicate for selectively applying the retry policy based on the type or
-      condition of the exception.
-    - `withoutRecordEvents`: Disables the recording of JFR events for HTTP requests.
+- `withRetryPredicate`: Sets a default predicate for selectively applying the retry policy based on the type or
+  condition of the exception.
+- `withoutRecordEvents`: Disables the recording of JFR events for HTTP requests.
 
 Below is a complete example, making requests to the famous PetStore service, illustrating how to use create and use the
 JIO HTTP client.
 
-```java
+```code
 
 public class TestHttpClient {
 
     @RegisterExtension
     static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
-    static JioHttpClient client =
-            JioHttpClientBuilder.of(HttpClient.newBuilder()
-                                              .connectTimeout(Duration.ofMillis(300))
-                                   )
-                                .setRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
-                                                             .append(RetryPolicies.limitRetries(5)))
-                                .setRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE))
-                                .build();
+    static JioHttpClient client = 
+         JioHttpClientBuilder.of(HttpClient.newBuilder()
+                                           .connectTimeout(Duration.ofMillis(300))
+                                )
+                             .setRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
+                                                          .append(RetryPolicies.limitRetries(5)))
+                             .setRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE))
+                             .build();
 
+    static String uri = "https://petstore.swagger.io/v2/%s/%s";
     static BiFunction<String, String, HttpRequest.Builder> GET =
             (entity, id) -> HttpRequest.newBuilder()
                                        .GET()
-                                       .uri(URI.create("https://petstore.swagger.io/v2/%s/%s".formatted(entity,
-                                                                                                        id)));
+                                       .uri(URI.create(uri.formatted(entity,id)));
 
 
     @Test
@@ -2062,27 +2110,27 @@ Here are the possible customizations for the `ClientCredsBuilder` builder:
 
       ```
 
-    2. A function to read the access token from the server response:
-        - `getAccessToken` parameter: A lambda that takes the server response and returns the OAuth token. You can use
-          the
-          existing implementation `GetAccessToken`, which parses the response into a `JsObj` and returns the access
-          token
-          located at the "access_token" field. If the token is not found, the lambda fails with the
-          exception `AccessTokenNotFound`. The `GetAccessToken` class is a singleton with a private constructor, and you
-          can
-          use the `GetAccessToken.DEFAULT` instance for this purpose.
+2. A function to read the access token from the server response:
+    - `getAccessToken` parameter: A lambda that takes the server response and returns the OAuth token. You can use
+      the
+      existing implementation `GetAccessToken`, which parses the response into a `JsObj` and returns the access
+      token
+      located at the "access_token" field. If the token is not found, the lambda fails with the
+      exception `AccessTokenNotFound`. The `GetAccessToken` class is a singleton with a private constructor, and you
+      can
+      use the `GetAccessToken.DEFAULT` instance for this purpose.
 
-    3. A predicate that checks if the access token needs to be refreshed:
-        - `refreshTokenPredicate` parameter: A predicate that checks the response to determine if the access token needs
-          to be refreshed.
+3. A predicate that checks if the access token needs to be refreshed:
+    - `refreshTokenPredicate` parameter: A predicate that checks the response to determine if the access token needs
+      to be refreshed.
 
-    4. The authorization header name:
-        - `authorizationHeaderName` field: The name of the authorization header, which is set to "Authorization" by
-          default.
+4. The authorization header name:
+    - `authorizationHeaderName` field: The name of the authorization header, which is set to "Authorization" by
+      default.
 
-    5. A function to create the authorization header value from the access token:
-        - `authorizationHeaderValue` field: A function that takes the access token and returns the authorization header
-          value. By default, it is set to "Bearer ${Access Token}".
+5. A function to create the authorization header value from the access token:
+   - `authorizationHeaderValue` field: A function that takes the access token and returns the authorization header
+   value. By default, it is set to "Bearer ${Access Token}".
 
 You can customize these options when creating an instance of `ClientCredsBuilder` to configure the
 behavior of the OAuth client credentials flow support in your HTTP client. Since you need a JioHttpClientBuilder
@@ -2096,7 +2144,6 @@ package jio.http.client.oauth;
 
 import jio.http.client.HttpLambda;
 import jio.http.client.JioHttpClient;
-
 import java.net.http.HttpResponse;
 
 public interface OauthHttpClient extends JioHttpClient {
@@ -2132,17 +2179,18 @@ public class TestOauthHttpClient {
     //HttpServer creation from one of the previous examples!!!
 
     static JioHttpClientBuilder clientBuilder =
-            JioHttpClientBuilder.of(HttpClient.newBuilder()
-                                              .connectTimeout(Duration.ofMillis(300)))
-                                .withRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
-                                                              .append(RetryPolicies.limitRetries(5)))
-                                .withRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE));
+        JioHttpClientBuilder.of(HttpClient.newBuilder()
+                                          .connectTimeout(Duration.ofMillis(300)))
+                            .withRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
+                                                          .append(RetryPolicies.limitRetries(5)))
+                            .withRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE));
 
+    static tokenUri = URI.create("http://localhost:%s/token".formatted(port));
     static OauthHttpClient client =
             ClientCredsBuilder.of(clientBuilder,
                                   AccessTokenRequest.of("client_id",
                                                         "client_secret",
-                                                        URI.create("http://localhost:%s/token".formatted(port))
+                                                        tokenUri
                                                         ), 
                                   GetAccessToken.DEFAULT, //token in access_token key in a JSON
                                   resp ->resp.statusCode() == 401 // if 401 go for a new token
@@ -2151,10 +2199,12 @@ public class TestOauthHttpClient {
 
     @Test
     public void testOuth() {
+        URI uri = URI.create("http://localhost:%s/thanks".formatted(port));
         client.oauthOfString()
-              .apply(HttpRequest.newBuilder().uri(URI.create("http://localhost:%s/thanks".formatted(port))))
+              .apply(HttpRequest.newBuilder().uri(uri))
               .repeat(resp -> true, RetryPolicies.limitRetries(10))
               .result();
+    
     }
 
 }

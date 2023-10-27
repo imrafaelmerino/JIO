@@ -5,7 +5,9 @@ import fun.gen.IntGen;
 import fun.gen.PairGen;
 import fun.tuple.Pair;
 import jio.IO;
+import jio.IfElseExp;
 import jio.Lambda;
+import jio.SwitchExp;
 import jio.test.pbt.*;
 import jio.test.stub.StubBuilder;
 import org.junit.jupiter.api.Test;
@@ -74,6 +76,18 @@ public class TestProperties {
 
 
         mediumProperty.check().assertAllSuccess();
+
+        SwitchExp<String, String> match =
+                SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
+                                                        .consequence(() -> IO.lazy(lowerCase))
+                                                        .alternative(() -> IO.lazy(upperCase))
+                                              )
+                         .match(List.of("a", "e", "i", "o", "u"),
+                                s -> IO.succeed("%s %s".formatted(s, s.toUpperCase())),
+                                List.of("A", "E", "I", "O", "U"),
+                                s -> IO.succeed("%s %s".formatted(s, s.toLowerCase()))
+                               )
+                         .debugEach("context");
 
     }
 
