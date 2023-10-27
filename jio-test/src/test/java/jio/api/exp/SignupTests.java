@@ -69,7 +69,7 @@ public class SignupTests {
         final Lambda<String, JsArray> normalizeAddresses = a -> IO.succeed(JsArray.of("address1", "address2"));
         final Lambda<Void, Integer> countUsers = a -> IO.succeed(3);
         final Lambda<JsObj, String> persistMongo = a -> IO.succeed("id");
-        final Lambda<JsObj, Void> sendEmail = a -> IO.fail(new RuntimeException());
+        final Lambda<JsObj, Void> sendEmail = a -> IO.NULL();
         final Lambda<String, Boolean> existsInLDAP = a -> IO.FALSE;
 
         JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),

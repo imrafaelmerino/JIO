@@ -6,7 +6,6 @@
  * <p>Key Classes:</p>
  *
  * <ul>
- *   <li>{@link jio.test.stub.Gens}: Utility class for generating `IO` instances using generators, commonly used for creating stubs in testing scenarios.</li>
  *   <li>{@link jio.test.stub.StubBuilder}: A stub for generating `IO` instances using generators. This allows you to specify the behavior of IO operations.</li>
  *   <li>{@link jio.test.stub.ClockStub}: Class for creating different kinds of stubs that stand in for {@link jio.time.Clock clocks}. Useful for controlling time-related behavior during testing.</li>
  * </ul>
@@ -16,8 +15,8 @@
  * <p>Generating IO instances with generators:</p>
  * <pre>
  * {@code
- * var gen1 = Gens.seq(n -> IO.succeed(n));
- * var gen2 = Gens.fail(new RuntimeException("bad luck!"));
+ * var gen1 = Gen.seq(n -> IO.succeed(n));
+ * var gen2 = Gen.seq(n-> IO.fail(new RuntimeException("bad luck!")));
  * var gen = Combinators.oneOf(gen1, gen2);
  * }
  * </pre>
@@ -39,7 +38,6 @@
  * <p>
  * For creating stubs in the {@link com.sun.net.httpserver.HttpServer}, exists the subpackage {@link jio.test.stub.httpserver}
  *
- * @see jio.test.stub.Gens
  * @see jio.test.stub.StubBuilder
  * @see jio.test.stub.ClockStub
  * @see jio.test.stub.httpserver
