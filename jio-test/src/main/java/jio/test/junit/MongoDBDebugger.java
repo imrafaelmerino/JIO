@@ -6,13 +6,13 @@ import jio.test.Utils;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
-
+@SuppressWarnings("InlineFormatString")
 final class MongoDBDebugger implements Consumer<RecordedEvent> {
-    private static String FORMAT_SUC = """
+    private static final String FORMAT_SUC = """
             event: mongodb, op: %s, duration: %s, result: %s
             thread: %s, event-start-time: %s
             """;
-    private static String FORMAT_ERR = """
+    private static final String FORMAT_ERR = """
             event: mongodb, op: %s, duration: %s, result: %s, exception: %s
             thread: %s, event-start-time: %s
             """;
@@ -20,13 +20,13 @@ final class MongoDBDebugger implements Consumer<RecordedEvent> {
     @Override
     public void accept(RecordedEvent e) {
         String exception = e.getValue("exception");
-        boolean isSuccess = exception == null || "".equals(exception);
+        boolean isSuccess = exception == null || exception.isEmpty();
         var str = isSuccess ?
                 String.format(FORMAT_SUC,
                               e.getValue("operation"),
                               Utils.formatTime(e.getDuration().toNanos()),
                               e.getValue("result"),
-                              DebuggerUtils.getThreadName(e.getThread()),
+                              Utils.getThreadName(e.getThread()),
                               e.getStartTime()
                                .atZone(ZoneId.systemDefault())
                                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
@@ -36,7 +36,7 @@ final class MongoDBDebugger implements Consumer<RecordedEvent> {
                               Utils.formatTime(e.getDuration().toNanos()),
                               e.getValue("result"),
                               exception,
-                              DebuggerUtils.getThreadName(e.getThread()),
+                              Utils.getThreadName(e.getThread()),
                               e.getStartTime()
                                .atZone(ZoneId.systemDefault())
                                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)

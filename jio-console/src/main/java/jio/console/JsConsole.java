@@ -4,14 +4,11 @@ import jio.IO;
 import jio.Lambda;
 import jio.RetryPolicies;
 import jsonvalues.JsNothing;
-import jsonvalues.JsParserException;
 import jsonvalues.JsPath;
 import jsonvalues.JsValue;
-import jsonvalues.spec.JsIO;
-import jsonvalues.spec.JsReader;
+import jsonvalues.spec.JsParserException;
 import jsonvalues.spec.JsSpec;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import static jio.console.Functions.indent;
@@ -39,7 +36,7 @@ public interface JsConsole<T extends JsValue> extends Lambda<JsPath, T> {
      */
     static JsConsole<JsValue> of(final JsSpec spec) {
         Objects.requireNonNull(spec);
-        return path -> Programs.PRINT_LINE(String.format("%s%s ->",
+        return path -> Programs.PRINT_LINE(String.format("%s%s -> ",
                                                          indent(path),
                                                          path
                                                         )
@@ -49,9 +46,7 @@ public interface JsConsole<T extends JsValue> extends Lambda<JsPath, T> {
                                      {
                                          try {
                                              if (s.isEmpty()) return IO.succeed(JsNothing.NOTHING);
-                                             JsReader reader = JsIO.INSTANCE.createReader(s.getBytes(StandardCharsets.UTF_8));
-                                             return IO.succeed(spec.readNextValue(reader)
-                                                              );
+                                             return IO.succeed(spec.parse(s));
                                          } catch (JsParserException e) {
                                              return IO.fail(e);
                                          }

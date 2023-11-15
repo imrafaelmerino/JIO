@@ -1,6 +1,7 @@
 package jio.console;
 
 import jsonvalues.*;
+import jsonvalues.spec.JsParserException;
 
 import java.util.Arrays;
 import java.util.List;

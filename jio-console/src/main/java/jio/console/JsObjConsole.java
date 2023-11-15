@@ -817,9 +817,8 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                  var currentPath = path.append(JsPath.fromKey(entry.getKey()));
                                  var nextValue = entry.getValue();
                                  result = result
-                                         .thenCombine(nextValue
-                                                              .apply(currentPath)
-                                                              .get(),
+                                         .thenCombine(nextValue.apply(currentPath)
+                                                               .get(),
                                                       (obj, value) -> obj.set(entry.getKey(),
                                                                               value
                                                                              )

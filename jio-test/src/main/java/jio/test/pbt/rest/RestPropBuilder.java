@@ -9,6 +9,7 @@ import jio.test.pbt.Property;
 import jio.test.pbt.TestFailure;
 import jio.test.pbt.TestResult;
 import jsonvalues.*;
+import jsonvalues.spec.JsParserException;
 
 import java.net.http.HttpResponse;
 import java.util.function.BiFunction;

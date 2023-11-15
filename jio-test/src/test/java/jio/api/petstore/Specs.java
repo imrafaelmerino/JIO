@@ -1,10 +1,7 @@
 package jio.api.petstore;
 
-import jsonvalues.JsStr;
 import jsonvalues.spec.JsObjSpec;
 import jsonvalues.spec.JsSpecs;
-
-import java.util.List;
 
 public class Specs {
 
@@ -35,10 +32,10 @@ public class Specs {
                          "petId", JsSpecs.longInteger(),
                          "quantity", JsSpecs.integer(),
                          "shipDate", JsSpecs.str(),
-                         "status", JsSpecs.oneOf(List.of(JsStr.of("placed"),
-                                                         JsStr.of("approved"),
-                                                         JsStr.of("delivered"))
-                                                ),
+                         "status", JsSpecs.oneStringOf("placed",
+                                                       "approved",
+                                                       "delivered"
+                                                      ),
                          "complete", JsSpecs.bool()
                         );
 
@@ -52,16 +49,16 @@ public class Specs {
                          "category", categorySpec, // Reference to the "Category" definition
                          "name", JsSpecs.str(),
                          "photoUrls", JsSpecs.arrayOfStr(),
-                         "tags", JsSpecs.arrayOfObjSpec(JsObjSpec.of("id", JsSpecs.longInteger(),
-                                                                     "name", JsSpecs.str()
-                                                                    )
-                                                       ), // Reference to the "Tag" definition
-                         "status", JsSpecs.oneOf(List.of(JsStr.of("available"),
-                                                         JsStr.of("pending"),
-                                                         JsStr.of("sold"))
-                                                )
-                        )
-                     .withReqKeys(Fields.REQ_PET_FIELDS);
+                         "tags", JsSpecs.arrayOfSpec(JsObjSpec.of("id", JsSpecs.longInteger(),
+                                                                  "name", JsSpecs.str()
+                                                                 )
+                                                    ), // Reference to the "Tag" definition
+                         "status", JsSpecs.oneStringOf("available",
+                                                       "pending",
+                                                       "sold"))
+                             .
+
+                     withReqKeys(Fields.REQ_PET_FIELDS);
 
 
 }

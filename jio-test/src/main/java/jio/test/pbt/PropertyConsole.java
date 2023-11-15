@@ -3,7 +3,7 @@ package jio.test.pbt;
 import jio.console.Command;
 import jio.console.Console;
 import jsonvalues.JsObj;
-import jsonvalues.JsParserException;
+import jsonvalues.spec.JsParserException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -110,12 +110,11 @@ public final class PropertyConsole {
                                .filter(f -> {
                                    try {
                                        //if f is not static it throws a NullPointerException
-                                       f.get(null);
+                                       var unused = f.get(null);
                                        return true;
                                    } catch (Exception e) {
-                                       System.out.println(String.format("Property %s need to be static to be converted in a command callable from the console",
-                                                                        f.getName())
-                                                         );
+                                       System.out.printf("Property %s need to be static to be converted in a command callable from the console%n",
+                                                         f.getName());
                                        return false;
                                    }
                                })

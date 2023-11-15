@@ -3,7 +3,7 @@ package jio.http.client.oauth;
 import jio.IO;
 import jio.Lambda;
 import jsonvalues.JsObj;
-import jsonvalues.JsParserException;
+import jsonvalues.spec.JsParserException;
 import jsonvalues.JsPath;
 
 import java.net.http.HttpResponse;

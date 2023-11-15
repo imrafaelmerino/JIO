@@ -60,7 +60,15 @@ public final class Debugger implements AfterAllCallback, BeforeAllCallback {
     EventStream stream;
     Map<String, Consumer<RecordedEvent>> debuggers = new HashMap<>();
 
+    private Debugger() {
+        debuggers.put("jio.exp", new EvalExpDebugger());
+        debuggers.put("jio.httpclient", new HttpClientDebugger());
+        debuggers.put("jio.httpserver", new HttpServerDebugger());
+        debuggers.put("jio.mongodb", new MongoDBDebugger());
+    }
+
     private Debugger(final String conf, final Duration duration) {
+        this();
         this.conf = Objects.requireNonNull(conf);
         this.duration = Objects.requireNonNull(duration);
     }
@@ -89,6 +97,23 @@ public final class Debugger implements AfterAllCallback, BeforeAllCallback {
         return new Debugger("default", duration);
     }
 
+    /**
+     * Adds a custom event consumer to the Debugger instance for capturing Java Flight Recorder (JFR) events.
+     * The consumer is associated with a specific event type identified by its name. This allows users to customize
+     * debugging by providing their own logic to handle events for a particular component.
+     *
+     * @param eventName     The name of the JFR event type to associate with the consumer.
+     * @param eventConsumer The consumer function to handle events of the specified type.
+     * @return The updated Debugger instance with the additional event consumer.
+     */
+    public Debugger registerEventConsumer(final String eventName,
+                                          final Consumer<RecordedEvent> eventConsumer
+                                         ) {
+        debuggers.put(Objects.requireNonNull(eventName),
+                      Objects.requireNonNull(eventConsumer));
+        return this;
+
+    }
 
     @Override
     public void afterAll(ExtensionContext extensionContext) throws Exception {
@@ -101,10 +126,6 @@ public final class Debugger implements AfterAllCallback, BeforeAllCallback {
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
-        debuggers.put("jio.exp", new EvalExpDebugger());
-        debuggers.put("jio.httpclient", new HttpClientDebugger());
-        debuggers.put("jio.httpserver", new HttpServerDebugger());
-        debuggers.put("jio.mongodb", new MongoDBDebugger());
         stream = new RecordingStream(Configuration.getConfiguration(conf));
 
         for (var entry : debuggers.entrySet()) {

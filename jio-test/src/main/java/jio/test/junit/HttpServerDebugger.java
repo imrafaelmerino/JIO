@@ -6,7 +6,7 @@ import jio.test.Utils;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
-
+@SuppressWarnings("InlineFormatString")
 final class HttpServerDebugger implements Consumer<RecordedEvent> {
 
     private static final String FORMAT_SUC = """
@@ -25,7 +25,7 @@ final class HttpServerDebugger implements Consumer<RecordedEvent> {
     @Override
     public void accept(RecordedEvent e) {
         String exception = e.getValue("exception");
-        boolean isSuccess = exception == null || "".equals(exception);
+        boolean isSuccess = exception == null || exception.isEmpty();
         var str = String.format(isSuccess ? FORMAT_SUC : FORMAT_ERR,
                                 isSuccess ?
                                         Utils.categorizeHttpStatusCode(e.getValue("statusCode")) :
@@ -41,7 +41,7 @@ final class HttpServerDebugger implements Consumer<RecordedEvent> {
                                 e.getValue("remoteHostAddress"),
                                 e.getValue("remoteHostPort"),
                                 e.getValue("reqHeaders"),
-                                DebuggerUtils.getThreadName(e.getThread()),
+                                Utils.getThreadName(e.getThread()),
                                 e.getStartTime()
                                  .atZone(ZoneId.systemDefault())
                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)

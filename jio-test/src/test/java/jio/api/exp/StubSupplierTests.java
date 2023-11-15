@@ -119,6 +119,7 @@ public class StubSupplierTests {
                                    )
                                 .toSeconds();
 
+
         Assertions.assertEquals(JsObj.of("a", JsObj.of("a", JsStr.of("a"),
                                                        "b", JsStr.of("b")
                                                       ),
@@ -225,6 +226,7 @@ public class StubSupplierTests {
                                     ChronoUnit.NANOS
                                    )
                                 .toSeconds();
+
 
         Assertions.assertEquals(List.of("a",
                                         "b",
