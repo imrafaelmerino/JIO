@@ -53,7 +53,7 @@ public final class HttpClientEventFormatter implements Function<RecordedEvent, S
                                  e.getDuration().toMillis(),
                                  e.getValue("reqCounter")
                                 );
-        return String.format("method: %s, uri: %s, result: %s, exception: %s duration: %s, req-counter: %s",
+        return String.format("method: %s, uri: %s, result: %s, exception: %s, duration: %s, req-counter: %s",
                              e.getValue("method"),
                              e.getValue("uri"),
                              e.getValue("result"),

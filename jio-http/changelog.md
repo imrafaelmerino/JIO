@@ -14,3 +14,8 @@ New:
 New:
 - JFR failure events find the ultimate cause of exceptions which gives more information about what happened
 - `HttpClientEventFormatter` now has a singleton instance 
+
+** Version 1.1.2 **
+
+Bugs:
+- `HttpClientEventFormatter` missing a comma the format of errors 

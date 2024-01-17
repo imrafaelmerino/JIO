@@ -41,6 +41,7 @@
     - [Debugging and JFR integration](#mongo-Debugging-and-JFR-integration)
     - [Installation](#mongo-installation)
 - [jio-console](#jio-console)
+- [jio-jdbc](#jio-jdbc)
 
 ## <a name="cwa"><a/> Code wins arguments
 
@@ -1823,7 +1824,7 @@ It requires Java 17 or greater
 
 ## <a name="jio-http"><a/> jio-http
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-http/1.1.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-http/1.1.1/jar "jio-http")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-http/1.1.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-http/1.1.2/jar "jio-http")
 
 ### <a name="httpserver"><a/> HTTP server
 
@@ -2263,7 +2264,7 @@ It requires Java 17 or greater
 <dependency>  
     <groupId>com.github.imrafaelmerino</groupId>  
     <artifactId>jio-http</artifactId>  
-    <version>1.1.1</version>  
+    <version>1.1.2</version>  
 </dependency>  
   
 ```  
@@ -3460,3 +3461,6 @@ It requires Java 17 or greater
 
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-console/1.0.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-console/1.0.1/jar "jio-console")
 
+## <a name="jio-jdbc"><a/> jio-jdbc
+
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-jdbc/0.0.4)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-jdbc/0.0.4/jar "jio-jdbc")
