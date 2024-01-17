@@ -4,6 +4,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * A thread-safe builder for building a MongoDB database instance.
@@ -14,7 +15,7 @@ import java.util.Objects;
  *
  * @see CollectionBuilder
  */
-public final class DatabaseBuilder {
+public final class DatabaseBuilder implements Supplier<MongoDatabase> {
 
     final MongoClient client;
     final String name;
@@ -39,7 +40,8 @@ public final class DatabaseBuilder {
     }
 
 
-    MongoDatabase build() {
+    @Override
+    public MongoDatabase get() {
 
         MongoDatabase localRef = database;
         if (localRef == null) {

@@ -7,7 +7,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 @SuppressWarnings("InlineFormatString")
-final class HttpClientDebugger implements Consumer<RecordedEvent> {
+final class HttpClientTestDebugger implements Consumer<RecordedEvent> {
 
     private static final String FORMAT_SUC = """
             event: httpclient-req, result: %s, status-code: %s
@@ -23,6 +23,7 @@ final class HttpClientDebugger implements Consumer<RecordedEvent> {
 
     @Override
     public void accept(RecordedEvent e) {
+        assert e.getEventType().getName().equals("jio.httpclient");
         String exception = e.getValue("exception");
         boolean isSuccess = exception == null || exception.isEmpty();
         var str = String.format(isSuccess ? FORMAT_SUC : FORMAT_ERR,

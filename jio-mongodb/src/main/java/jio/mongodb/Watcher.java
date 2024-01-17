@@ -1,7 +1,6 @@
 package jio.mongodb;
 
 import com.mongodb.client.ChangeStreamIterable;
-import com.mongodb.client.MongoCollection;
 import jsonvalues.JsObj;
 
 import java.util.function.Consumer;
@@ -41,6 +40,6 @@ public final class Watcher implements Consumer<CollectionBuilder> {
      */
     @Override
     public void accept(final CollectionBuilder collection) {
-        consumer.accept(requireNonNull(collection).build().watch());
+        consumer.accept(requireNonNull(collection).get().watch());
     }
 }

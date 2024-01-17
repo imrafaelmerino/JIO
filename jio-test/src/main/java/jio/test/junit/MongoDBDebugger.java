@@ -9,23 +9,24 @@ import java.util.function.Consumer;
 @SuppressWarnings("InlineFormatString")
 final class MongoDBDebugger implements Consumer<RecordedEvent> {
     private static final String FORMAT_SUC = """
-            event: mongodb, op: %s, duration: %s, result: %s
+            event: mongodb, op: %s, result: %s duration: %s
             thread: %s, event-start-time: %s
             """;
     private static final String FORMAT_ERR = """
-            event: mongodb, op: %s, duration: %s, result: %s, exception: %s
-            thread: %s, event-start-time: %s
+            event: mongodb, op: %s, result: %s, duration: %s
+            exception: %s, thread: %s, event-start-time: %s
             """;
 
     @Override
     public void accept(RecordedEvent e) {
+        assert e.getEventType().getName().equals("jio.mongodb");
         String exception = e.getValue("exception");
         boolean isSuccess = exception == null || exception.isEmpty();
         var str = isSuccess ?
                 String.format(FORMAT_SUC,
                               e.getValue("operation"),
-                              Utils.formatTime(e.getDuration().toNanos()),
                               e.getValue("result"),
+                              Utils.formatTime(e.getDuration().toNanos()),
                               Utils.getThreadName(e.getThread()),
                               e.getStartTime()
                                .atZone(ZoneId.systemDefault())
@@ -33,8 +34,8 @@ final class MongoDBDebugger implements Consumer<RecordedEvent> {
                              ) :
                 String.format(FORMAT_ERR,
                               e.getValue("operation"),
-                              Utils.formatTime(e.getDuration().toNanos()),
                               e.getValue("result"),
+                              Utils.formatTime(e.getDuration().toNanos()),
                               exception,
                               Utils.getThreadName(e.getThread()),
                               e.getStartTime()

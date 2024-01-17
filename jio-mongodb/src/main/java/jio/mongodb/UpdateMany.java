@@ -86,7 +86,7 @@ public final class UpdateMany extends Op implements MongoLambda<QueryUpdate, Upd
         Objects.requireNonNull(queryUpdate);
 
         Supplier<UpdateResult> supplier = eventWrapper(() -> {
-            var collection = requireNonNull(this.collection.build());
+            var collection = requireNonNull(this.collection.get());
             return session == null ?
                     collection.updateMany(toBson(queryUpdate.query()),
                                           toBson(queryUpdate.updateCommands()),

@@ -5,6 +5,7 @@ import jio.RetryPolicy;
 import java.net.http.HttpClient;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Builder for creating custom {@link JioHttpClient} instances with configurable options. This builder allows you to
@@ -14,7 +15,7 @@ import java.util.function.Predicate;
  * <p>The builder also provides an option to disable the recording of Java Flight Recorder (JFR) events for
  * HTTP requests. JFR event recording is enabled by default.</p>
  */
-public final class JioHttpClientBuilder {
+public final class JioHttpClientBuilder implements Supplier<JioHttpClient> {
     private final HttpClient.Builder client;
     private Predicate<Throwable> reqRetryPredicate;
     private RetryPolicy reqRetryPolicy;
@@ -83,7 +84,8 @@ public final class JioHttpClientBuilder {
      * @see JioHttpClient
      */
 
-    public JioHttpClient build() {
+    @Override
+    public JioHttpClient get() {
         return new JioHttpClientImpl(client,
                                      reqRetryPolicy,
                                      reqRetryPredicate,

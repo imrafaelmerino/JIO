@@ -6,6 +6,7 @@ import jio.test.Utils;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
+
 @SuppressWarnings("InlineFormatString")
 final class EvalExpDebugger implements Consumer<RecordedEvent> {
     private static final String FORMAT = """
@@ -15,6 +16,7 @@ final class EvalExpDebugger implements Consumer<RecordedEvent> {
 
     @Override
     public void accept(RecordedEvent e) {
+        assert e.getEventType().getName().equals("jio.exp");
         String exc = e.getValue("exception");
         boolean isSuccess = exc == null || exc.isEmpty();
         var str = String.format(FORMAT,

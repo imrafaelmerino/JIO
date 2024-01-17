@@ -13,8 +13,8 @@ import static java.util.Objects.requireNonNull;
 @Label("jio-httpclient-req")
 @Name("jio.httpclient")
 @Category("JIO")
-@Description("Http request sent by the JIO http client and it's response.")
-final class ClientReqEvent extends Event {
+@Description("Http request sent by jio-http")
+final class ReqEvent extends Event {
 
     /**
      * the method of the request
@@ -44,9 +44,9 @@ final class ClientReqEvent extends Event {
     @Label("reqCounter")
     public long reqCounter;
 
-    ClientReqEvent(final String method,
-                   final URI uri
-                  ) {
+    ReqEvent(final String method,
+             final URI uri
+            ) {
         this.method = requireNonNull(method);
         this.uri = requireNonNull(uri).toString();
     }

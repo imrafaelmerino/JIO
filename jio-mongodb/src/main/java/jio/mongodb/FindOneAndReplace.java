@@ -82,7 +82,7 @@ public final class FindOneAndReplace extends Op implements MongoLambda<QueryRepl
         Objects.requireNonNull(queryReplace);
         Supplier<JsObj> supplier =
                 eventWrapper(() -> {
-                                 var collection = requireNonNull(this.collection.build());
+                                 var collection = requireNonNull(this.collection.get());
                                  return session == null ?
                                          collection
                                                  .findOneAndReplace(toBson(queryReplace.query()),

@@ -5,6 +5,7 @@ import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * A builder class for creating MongoDB client sessions with specified options. This class simplifies the process of
@@ -19,7 +20,7 @@ import java.util.Objects;
  * @see ClientSessionOptions
  * @see TxBuilder
  */
-public final class ClientSessionBuilder {
+public final class ClientSessionBuilder implements Supplier<ClientSession> {
 
     final MongoClient client;
     final ClientSessionOptions options;
@@ -61,7 +62,8 @@ public final class ClientSessionBuilder {
     }
 
 
-    ClientSession build() {
+    @Override
+    public ClientSession get() {
         return client.startSession(options);
     }
 }

@@ -3,9 +3,11 @@ package jio.test.stub;
 import fun.gen.Gen;
 import jio.IO;
 import jio.Lambda;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -29,7 +31,7 @@ import static java.util.Objects.requireNonNull;
  * @see Gen
  * @see fun.gen.Combinators
  */
-public final class StubBuilder<O> {
+public final class StubBuilder<O> implements Supplier<IO<O>> {
 
     private final Gen<IO<O>> gen;
     private Executor executor;
@@ -94,7 +96,8 @@ public final class StubBuilder<O> {
      * @return The generated `IO` stub instance.
      */
 
-    public IO<O> build() {
+    @Override
+    public IO<O> get() {
         Lambda<IO<O>, O> delay = it -> delayGen == null ? it : IO.lazy(delayGen.sample())
                                                                  .then(it::sleep);
         return executor == null ?

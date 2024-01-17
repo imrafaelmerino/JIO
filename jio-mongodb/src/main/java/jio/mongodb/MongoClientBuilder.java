@@ -79,8 +79,7 @@ public final class MongoClientBuilder {
      * @param buildSettings The function to build client settings from a connection string.
      * @return A new instance of {@code MongoClientBuilder} with the custom settings function.
      */
-    public static MongoClientBuilder of(final Function<ConnectionString, MongoClientSettings> buildSettings
-                                       ) {
+    public static MongoClientBuilder of(final Function<ConnectionString, MongoClientSettings> buildSettings) {
         return new MongoClientBuilder(requireNonNull(buildSettings));
     }
 

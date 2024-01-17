@@ -4,6 +4,7 @@ import com.mongodb.client.MongoCollection;
 import jsonvalues.JsObj;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * A builder that provides a MongoDB collection of JSON objects ({@link JsObj}). This builder ensures that the MongoDB
@@ -12,7 +13,7 @@ import java.util.Objects;
  * <p>Instances of this class can be used to obtain a reference to a specific collection within a MongoDB database,
  * which can then be used to perform various database operations.</p>
  *
- * <p><strong>Note:</strong> This class is thread-safe, and its {@link #build()} method ensures safe and efficient
+ * <p><strong>Note:</strong> This class is thread-safe, and its {@link #get()} method ensures safe and efficient
  * lazy initialization of the MongoDB collection.</p>
  * <p>
  * This class is used internally by the MongoLambdas implemented in the package jio.mongodb: {@link InsertOne},
@@ -20,7 +21,7 @@ import java.util.Objects;
  *
  * @see DatabaseBuilder
  */
-public final class CollectionBuilder {
+public final class CollectionBuilder implements Supplier<MongoCollection<JsObj>> {
 
     final DatabaseBuilder database;
     final String name;
@@ -57,14 +58,15 @@ public final class CollectionBuilder {
      *
      * @return The MongoDB collection of JSON objects.
      */
-    MongoCollection<JsObj> build() {
+    @Override
+    public MongoCollection<JsObj> get() {
 
         var localRef = collection;
         if (localRef == null) {
             synchronized (this) {
                 localRef = collection;
                 if (localRef == null) {
-                    collection = localRef = database.build().getCollection(name, JsObj.class);
+                    collection = localRef = database.get().getCollection(name, JsObj.class);
                 }
             }
         }

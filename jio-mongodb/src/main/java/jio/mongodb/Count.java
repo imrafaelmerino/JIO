@@ -79,7 +79,7 @@ public final class Count extends Op implements MongoLambda<JsObj, Long> {
         Supplier<Long> supplier =
                 eventWrapper(() -> {
                     var queryBson = Converters.toBson(requireNonNull(query));
-                    var collection = requireNonNull(this.collection.build());
+                    var collection = requireNonNull(this.collection.get());
                     return session == null ?
                             collection.countDocuments(queryBson, options) :
                             collection.countDocuments(session, queryBson, options);

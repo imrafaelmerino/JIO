@@ -1,4 +1,4 @@
-package jio.mongodb.api;
+package jio.mongodb;
 
 
 import com.mongodb.client.MongoClient;

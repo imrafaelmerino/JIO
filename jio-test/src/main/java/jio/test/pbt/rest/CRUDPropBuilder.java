@@ -12,6 +12,7 @@ import jsonvalues.JsObj;
 import java.net.http.HttpResponse;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A builder class for creating property tests that cover CRUD (Create, Read, Update, Delete) operations on a RESTful
@@ -19,7 +20,7 @@ import java.util.function.Function;
  *
  * @param <O> The type of data generated to feed the property tests.
  */
-public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder<O>> {
+public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder<O>> implements Supplier<PropBuilder<O>> {
 
 
     private final BiLambda<JsObj, HttpResponse<String>, HttpResponse<String>> update;
@@ -97,7 +98,7 @@ public final class CRUDPropBuilder<O> extends RestPropBuilder<O, CRUDPropBuilder
      * @return A property test for the CRUD operations defined by this builder.
      */
     @Override
-    public PropBuilder<O> buildPropBuilder() {
+    public PropBuilder<O> get() {
         BiLambda<JsObj, O, TestResult> lambda =
                 (conf, body) -> post.apply(conf, body)
                                     .then(resp -> {

@@ -11,6 +11,11 @@ jio-http/target
 jio-http/deploy.sh
 jio-http/settings.xml
 
+jio-jdbc/jio-http.iml
+jio-jdbc/target
+jio-jdbc/deploy.sh
+jio-jdbc/settings.xml
+
 jio-mongodb/jio-mongodb.iml
 jio-mongodb/target
 jio-mongodb/deploy.sh

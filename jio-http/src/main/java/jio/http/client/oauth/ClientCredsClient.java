@@ -39,7 +39,7 @@ final class ClientCredsClient implements OauthHttpClient {
                       final Lambda<HttpResponse<String>, String> getAccessToken,
                       final Predicate<HttpResponse<?>> refreshTokenPredicate
                      ) {
-        this.httpClient = client.build();
+        this.httpClient = client.get();
         this.accessTokenReq = accessTokenReq;
         this.authorizationHeaderName = authorizationHeaderName;
         this.authorizationHeaderValue = authorizationHeaderValue;

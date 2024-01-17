@@ -49,7 +49,7 @@ public class TestProperties {
                                         "one"
                                        )
 
-                       .build();
+                       .get();
 
     public static void main(String[] args) throws IOException {
         new PropertyConsole(List.of(TestProperties.class)).start(args);
@@ -70,7 +70,7 @@ public class TestProperties {
                                          )
                                    .withDelays(delayGen)
                                    .withExecutor(Executors.newCachedThreadPool())
-                                   .build();
+                                   .get();
 
 
         mediumProperty.check().assertAllSuccess();

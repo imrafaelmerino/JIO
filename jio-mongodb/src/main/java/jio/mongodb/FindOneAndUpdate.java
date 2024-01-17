@@ -90,7 +90,7 @@ public final class FindOneAndUpdate extends Op implements MongoLambda<QueryUpdat
         Objects.requireNonNull(queryUpdate);
         Supplier<JsObj> supplier =
                 eventWrapper(() -> {
-                                 var collection = requireNonNull(this.collection.build());
+                                 var collection = requireNonNull(this.collection.get());
                                  return session == null ?
                                          collection
                                                  .findOneAndUpdate(toBson(queryUpdate.query()),

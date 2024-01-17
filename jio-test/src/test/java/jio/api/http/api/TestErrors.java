@@ -1,7 +1,6 @@
 package jio.api.http.api;
 
 import com.sun.net.httpserver.HttpServer;
-import fun.gen.Gen;
 import jio.IO;
 import jio.http.client.HttpExceptions;
 import jio.http.client.JioHttpClient;
@@ -54,7 +53,7 @@ public class TestErrors {
                                                           Duration.of(1,
                                                                       ChronoUnit.NANOS
                                                                      )
-                                                                 )).build();
+                                                                 )).get();
 
         boolean isConnectTimeout =
                 client.ofString().apply(HttpRequest.newBuilder()
@@ -75,7 +74,7 @@ public class TestErrors {
     public void test_domain_doesnt_exists() {
 
         JioHttpClient client =
-                JioHttpClientBuilder.of(HttpClient.newBuilder()).build();
+                JioHttpClientBuilder.of(HttpClient.newBuilder()).get();
 
         boolean isUnresolved =
                 client.ofString().apply(HttpRequest.newBuilder()
@@ -103,7 +102,7 @@ public class TestErrors {
                                                                              )
                                                                  )
                                        )
-                                    .build();
+                                    .get();
 
 
         URI uri = URI.create("http://localhost:" + server.getAddress()

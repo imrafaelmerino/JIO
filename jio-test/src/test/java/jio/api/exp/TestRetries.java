@@ -31,7 +31,7 @@ public class TestRetries {
         Gen<IO<Integer>> gen = Gen.seq(n -> n < 3500 ? IO.fail(new RuntimeException()) : IO.succeed(1));
         StubBuilder<Integer> stub = StubBuilder.ofGen(gen);
 
-        CompletableFuture<Integer> future = stub.build()
+        CompletableFuture<Integer> future = stub.get()
                                                 .retry(RetryPolicies.limitRetries(3500))
                                                 .get();
 
@@ -53,13 +53,13 @@ public class TestRetries {
 
         StubBuilder<String> val = StubBuilder.ofGen(gen);
         Assertions.assertEquals("a",
-                                val.build()
+                                val.get()
                                    .retry(RetryPolicies.limitRetries(3))
                                    .result()
                                );
 
         Assertions.assertEquals("a",
-                                val.build()
+                                val.get()
                                    .retry(e -> e instanceof RuntimeException,
                                           RetryPolicies.limitRetries(3)
                                          )
@@ -76,7 +76,7 @@ public class TestRetries {
         StubBuilder<String> val = StubBuilder.ofGen(gen);
 
         Assertions.assertThrows(CompletionException.class,
-                                () -> val.build()
+                                () -> val.get()
                                          .retry(RetryPolicies.limitRetries(2))
                                          .result()
                                );
@@ -89,7 +89,7 @@ public class TestRetries {
         Gen<IO<String>> gen =
                 Gen.seq(n -> n <= 3 ? IO.fail(new RuntimeException()) : IO.succeed("b"));
 
-        IO<String> val = StubBuilder.ofGen(gen).build();
+        IO<String> val = StubBuilder.ofGen(gen).get();
 
         RetryPolicy retryPolicy = RetryPolicies.limitRetries(3)
                                                .append(incrementalDelay(Duration.ofSeconds(1)));
@@ -112,7 +112,7 @@ public class TestRetries {
         Gen<IO<String>> gen =
                 Gen.seq(n -> n <= 3 ? IO.fail(new RuntimeException()) : IO.succeed("b"));
 
-        IO<String> val = StubBuilder.ofGen(gen).build();
+        IO<String> val = StubBuilder.ofGen(gen).get();
 
         RetryPolicy retryPolicy = RetryPolicies.limitRetries(2)
                                                .append(incrementalDelay(Duration.ofSeconds(1)));

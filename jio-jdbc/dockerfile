@@ -1,0 +1,8 @@
+#TODO find image with maven and java 21
+FROM maven:3.8.1-openjdk-21
+COPY pom.xml /tmp/jio-jdbc/pom.xml
+COPY src /tmp/jio-jdbc/src/
+COPY .mvn /tmp/jio-jdbc/.mvn/
+
+WORKDIR /tmp/jio-jdbc/
+ENV CLASSPATH=/tmp/jio/jio-jdbc/target/*

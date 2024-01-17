@@ -58,7 +58,7 @@ public class TestOauth {
 
                                      );
 
-        OauthHttpClient client = builder.build();
+        OauthHttpClient client = builder.get();
 
         HttpResponse<String> unused = client.oauthOfString()
                                             .apply(HttpRequest.newBuilder()

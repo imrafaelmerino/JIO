@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;
-import static jio.http.client.ClientReqEvent.RESULT.FAILURE;
-import static jio.http.client.ClientReqEvent.RESULT.SUCCESS;
+import static jio.http.client.ReqEvent.RESULT.FAILURE;
+import static jio.http.client.ReqEvent.RESULT.SUCCESS;
 
 final class JioHttpClientImpl implements JioHttpClient {
 
@@ -50,8 +50,8 @@ final class JioHttpClientImpl implements JioHttpClient {
 
         if (recordEvents) {
 
-            ClientReqEvent event = new ClientReqEvent(request.method(),
-                                                      request.uri());
+            ReqEvent event = new ReqEvent(request.method(),
+                                          request.uri());
             event.begin();
 
             event.reqCounter = myClient.counter.incrementAndGet();

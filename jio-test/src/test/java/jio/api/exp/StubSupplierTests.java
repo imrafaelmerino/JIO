@@ -26,8 +26,8 @@ public class StubSupplierTests {
     public void ifelse_exp_measuring_time() {
         long start = System.nanoTime();
         var x = IfElseExp.<String>predicate(IO.FALSE)
-                         .consequence(A_AFTER_1_SEC::build)
-                         .alternative(B_AFTER_1_SEC::build)
+                         .consequence(A_AFTER_1_SEC::get)
+                         .alternative(B_AFTER_1_SEC::get)
                          .debugEach("context")
                          .result();
 
@@ -50,9 +50,9 @@ public class StubSupplierTests {
         long start = System.nanoTime();
 
         Triple<String, String, String> triple =
-                TripleExp.seq(A_AFTER_1_SEC.build(),
-                              B_AFTER_1_SEC.build(),
-                              C_AFTER_1_SEC.build()
+                TripleExp.seq(A_AFTER_1_SEC.get(),
+                              B_AFTER_1_SEC.get(),
+                              C_AFTER_1_SEC.get()
                              )
                          .result();
 
@@ -76,9 +76,9 @@ public class StubSupplierTests {
     public void triple_exp_parallel_measuring_time() {
         long start = System.nanoTime();
         Triple<String, String, String> triple =
-                TripleExp.par(A_AFTER_1_SEC.build(),
-                              B_AFTER_1_SEC.build(),
-                              C_AFTER_1_SEC.build()
+                TripleExp.par(A_AFTER_1_SEC.get(),
+                              B_AFTER_1_SEC.get(),
+                              C_AFTER_1_SEC.get()
                              )
                          .debugEach("context")
                          .result();
@@ -103,11 +103,11 @@ public class StubSupplierTests {
     @Test
     public void jobj_exp_parallel_measuring_time() {
         long start = System.nanoTime();
-        var obj = JsObjExp.par("a", JsObjExp.par("a", A_AFTER_1_SEC.build().map(JsStr::of),
-                                                 "b", B_AFTER_1_SEC.build().map(JsStr::of)
+        var obj = JsObjExp.par("a", JsObjExp.par("a", A_AFTER_1_SEC.get().map(JsStr::of),
+                                                 "b", B_AFTER_1_SEC.get().map(JsStr::of)
                                                 ),
-                               "b", JsArrayExp.par(A_AFTER_1_SEC.build().map(JsStr::of),
-                                                   B_AFTER_1_SEC.build().map(JsStr::of)
+                               "b", JsArrayExp.par(A_AFTER_1_SEC.get().map(JsStr::of),
+                                                   B_AFTER_1_SEC.get().map(JsStr::of)
                                                   )
                               )
                           .debugEach("context")
@@ -139,8 +139,8 @@ public class StubSupplierTests {
         long start = System.nanoTime();
 
         Pair<String, String> pair =
-                PairExp.seq(A_AFTER_1_SEC.build(),
-                            B_AFTER_1_SEC.build())
+                PairExp.seq(A_AFTER_1_SEC.get(),
+                            B_AFTER_1_SEC.get())
                        .result();
 
 
@@ -164,8 +164,8 @@ public class StubSupplierTests {
     public void pair_exp_parallel_measuring_time() {
         long start = System.nanoTime();
         Pair<String, String> pair =
-                PairExp.par(A_AFTER_1_SEC.build(),
-                            B_AFTER_1_SEC.build())
+                PairExp.par(A_AFTER_1_SEC.get(),
+                            B_AFTER_1_SEC.get())
                        .debugEach("context")
                        .result();
 
@@ -188,8 +188,8 @@ public class StubSupplierTests {
     @Test
     public void array_exp_seq_time() {
         long start = System.nanoTime();
-        var arr = JsArrayExp.seq(A_AFTER_1_SEC.build().map(JsStr::of),
-                                 B_AFTER_1_SEC.build().map(JsStr::of)
+        var arr = JsArrayExp.seq(A_AFTER_1_SEC.get().map(JsStr::of),
+                                 B_AFTER_1_SEC.get().map(JsStr::of)
                                 )
                             .debugEach("context")
                             .result();
@@ -214,9 +214,9 @@ public class StubSupplierTests {
     public void list_exp_parallel_measuring_time() {
         long start = System.nanoTime();
         List<String> list =
-                ListExp.par(A_AFTER_1_SEC.build(),
-                            B_AFTER_1_SEC.build(),
-                            C_AFTER_1_SEC.build()
+                ListExp.par(A_AFTER_1_SEC.get(),
+                            B_AFTER_1_SEC.get(),
+                            C_AFTER_1_SEC.get()
                            )
                        .debugEach("context")
                        .result();

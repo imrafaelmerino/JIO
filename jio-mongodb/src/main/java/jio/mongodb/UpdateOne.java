@@ -85,7 +85,7 @@ public final class UpdateOne extends Op implements MongoLambda<QueryUpdate, Upda
     public IO<UpdateResult> apply(final ClientSession session, final QueryUpdate queryUpdate) {
         Objects.requireNonNull(queryUpdate);
         Supplier<UpdateResult> supplier = eventWrapper(() -> {
-            var collection = requireNonNull(this.collection.build());
+            var collection = requireNonNull(this.collection.get());
             return session == null ?
                     collection.updateOne(toBson(queryUpdate.query()),
                                          toBson(queryUpdate.updateCommands()),

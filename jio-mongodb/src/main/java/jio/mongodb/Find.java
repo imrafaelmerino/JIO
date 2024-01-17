@@ -41,7 +41,7 @@ abstract class Find extends Op {
                                  var min = options.min() != null ?
                                          toBson(options.min()) :
                                          null;
-                                 var collection = requireNonNull(this.collection.build());
+                                 var collection = requireNonNull(this.collection.get());
                                  var iter =
                                          session == null ?
                                                  collection.find(toBson(options.filter())) :

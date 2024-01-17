@@ -5,6 +5,7 @@ import jio.BiLambda;
 import jio.IO;
 import jio.Lambda;
 import jsonvalues.JsObj;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,7 +39,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @param <O> the type of the data generated to feed the property tests
  */
-public final class PropBuilder<O> {
+public final class PropBuilder<O> implements Supplier<Property<O>>{
     private static final int DEFAULT_TESTS = 1000;
     private final String name;
     private final Gen<O> gen;
@@ -242,7 +243,8 @@ public final class PropBuilder<O> {
      * builds a property with the specified parameters
      * @return a Property
      */
-    public Property<O> build() {
+    @Override
+    public Property<O> get() {
         return new Property<>(name,
                               gen,
                               property,

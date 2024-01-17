@@ -85,7 +85,7 @@ public final class DeleteMany extends Op implements MongoLambda<JsObj, DeleteRes
         Objects.requireNonNull(query);
         Supplier<DeleteResult> supplier =
                 eventWrapper(() -> {
-                                 var collection = requireNonNull(this.collection.build());
+                                 var collection = requireNonNull(this.collection.get());
                                  return
                                          session == null ?
                                                  collection.deleteMany(toBson(query),

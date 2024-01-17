@@ -24,6 +24,7 @@ final class HttpServerDebugger implements Consumer<RecordedEvent> {
 
     @Override
     public void accept(RecordedEvent e) {
+        assert e.getEventType().getName().equals("jio.httpserver");
         String exception = e.getValue("exception");
         boolean isSuccess = exception == null || exception.isEmpty();
         var str = String.format(isSuccess ? FORMAT_SUC : FORMAT_ERR,

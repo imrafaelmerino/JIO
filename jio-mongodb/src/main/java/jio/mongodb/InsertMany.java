@@ -87,7 +87,7 @@ public final class InsertMany extends Op implements MongoLambda<List<JsObj>, Ins
         Objects.requireNonNull(docs);
         Supplier<InsertManyResult> supplier =
                 eventWrapper(() -> {
-                                 var col = requireNonNull(collection.build());
+                                 var col = requireNonNull(collection.get());
                                  return
                                          session == null ?
                                                  col.insertMany(docs, options) :

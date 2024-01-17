@@ -90,7 +90,7 @@ public final class DeleteOne extends Op implements MongoLambda<JsObj, DeleteResu
         Objects.requireNonNull(query);
         Supplier<DeleteResult> supplier =
                 eventWrapper(() -> {
-                                 var collection = requireNonNull(this.collection.build());
+                                 var collection = requireNonNull(this.collection.get());
                                  final Bson result = toBson(requireNonNull(query));
                                  return session == null ?
                                          collection.deleteOne(result, options) :

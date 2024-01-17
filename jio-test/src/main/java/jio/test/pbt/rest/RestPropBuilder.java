@@ -175,16 +175,16 @@ abstract class RestPropBuilder<O, A extends RestPropBuilder<O, A>> {
      *
      * @return a property builder
      */
-    public abstract PropBuilder<O> buildPropBuilder();
+    public abstract PropBuilder<O> get();
 
     /**
      * Build a property with the default parameters. For further customization (times of generations, description,
-     * executor etc), use {@link #buildPropBuilder()} that returns a property builder
+     * executor etc), use {@link #get()} that returns a property builder
      *
      * @return a property
      */
     public Property<O> build() {
-        return buildPropBuilder().build();
+        return get().get();
     }
 
 }

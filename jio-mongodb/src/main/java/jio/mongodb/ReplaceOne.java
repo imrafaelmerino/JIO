@@ -86,7 +86,7 @@ public final class ReplaceOne extends Op implements MongoLambda<QueryReplace, Up
         Objects.requireNonNull(queryReplace);
 
         Supplier<UpdateResult> supplier = eventWrapper(() -> {
-            var collection = requireNonNull(this.collection.build());
+            var collection = requireNonNull(this.collection.get());
             return session == null ?
                     collection.replaceOne(toBson(queryReplace.query()),
                                           queryReplace.newDoc(),

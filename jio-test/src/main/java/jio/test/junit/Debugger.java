@@ -62,7 +62,8 @@ public final class Debugger implements AfterAllCallback, BeforeAllCallback {
 
     private Debugger() {
         debuggers.put("jio.exp", new EvalExpDebugger());
-        debuggers.put("jio.httpclient", new HttpClientDebugger());
+        debuggers.put("jio.httpclient", new HttpClientTestDebugger());
+        debuggers.put("jio.jdbc", new HttpClientTestDebugger());
         debuggers.put("jio.httpserver", new HttpServerDebugger());
         debuggers.put("jio.mongodb", new MongoDBDebugger());
     }

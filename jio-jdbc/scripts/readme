@@ -1,0 +1,9 @@
+NAME="jio-jdbc"
+VERSION="0.0.1"
+IMAGE="${NAME}:${VERSION}"
+
+
+//go to root folder jio-jdbc
+
+docker build -t ${IMAGE} .
+./scripts/jio-jdbc-compile.sh --version ${VERSION}

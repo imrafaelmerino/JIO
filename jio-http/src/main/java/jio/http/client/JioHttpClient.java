@@ -10,7 +10,7 @@ import java.util.function.Predicate;
  * {@link jio.Lambda lambdas} and therefore taking advantage of the JIO API. Instances of this interface can be created
  * using the builder {@link JioHttpClientBuilder}.
  * <p>
- * For every request, an event {@link ClientReqEvent} is created and written to the Flight Recorder system. This allows
+ * For every request, an event {@link ReqEvent} is created and written to the Flight Recorder system. This allows
  * you to capture request and response details for debugging and performance analysis. Event recording is enabled by
  * default.
  * <p>
@@ -18,7 +18,7 @@ import java.util.function.Predicate;
  * options {@link JioHttpClientBuilder#withRetryPolicy(RetryPolicy)} and
  * {@link JioHttpClientBuilder#withRetryPredicate(Predicate)}.
  *
- * @see ClientReqEvent
+ * @see ReqEvent
  * @see JioHttpClientBuilder#withoutRecordedEvents To disable event recording.
  */
 public interface JioHttpClient {

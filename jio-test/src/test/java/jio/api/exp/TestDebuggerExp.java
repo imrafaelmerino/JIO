@@ -16,7 +16,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 
 public class TestDebuggerExp {
@@ -65,8 +64,8 @@ public class TestDebuggerExp {
                         : IO.TRUE));
 
 
-        Assertions.assertTrue(AllExp.seq(trueAfterFailure.build(),
-                                         trueAfterFailure.build()
+        Assertions.assertTrue(AllExp.seq(trueAfterFailure.get(),
+                                         trueAfterFailure.get()
                                         )
                                     .debugEach("test")
                                     .retryEach(RetryPolicies.limitRetries(1))
@@ -80,8 +79,8 @@ public class TestDebuggerExp {
 
 
         // second effect is not evaluated since the first one is false
-        Assertions.assertFalse(AllExp.seq(falseAfterFailure.build(),
-                                          falseAfterFailure.build()
+        Assertions.assertFalse(AllExp.seq(falseAfterFailure.get(),
+                                          falseAfterFailure.get()
                                          )
                                      .debugEach("test1")
                                      .retryEach(RetryPolicies.limitRetries(1))
@@ -98,8 +97,8 @@ public class TestDebuggerExp {
                         ? IO.fail(new RuntimeException(Integer.toString(n)))
                         : IO.TRUE));
 
-        Assertions.assertTrue(AllExp.par(trueAfterFailure.build(),
-                                         trueAfterFailure.build()
+        Assertions.assertTrue(AllExp.par(trueAfterFailure.get(),
+                                         trueAfterFailure.get()
                                         )
                                     .debugEach("test")
                                     .retryEach(RetryPolicies.limitRetries(1))
@@ -113,8 +112,8 @@ public class TestDebuggerExp {
                         : IO.FALSE));
 
         // all effects are evaluated even the first one is false,not like with the seq constructor
-        Assertions.assertFalse(AllExp.par(falseAfterFailure.build(),
-                                          falseAfterFailure.build()
+        Assertions.assertFalse(AllExp.par(falseAfterFailure.get(),
+                                          falseAfterFailure.get()
                                          )
                                      .debugEach("test1")
                                      .retryEach(RetryPolicies.limitRetries(1))

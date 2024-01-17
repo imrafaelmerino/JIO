@@ -85,7 +85,7 @@ public final class InsertOne extends Op implements MongoLambda<JsObj, InsertOneR
         Objects.requireNonNull(message);
         Supplier<InsertOneResult> supplier =
                 eventWrapper(() -> {
-                                 var collection = requireNonNull(this.collection.build());
+                                 var collection = requireNonNull(this.collection.get());
                                  return session == null ?
                                          collection.insertOne(message, options) :
                                          collection.insertOne(session, message, options);

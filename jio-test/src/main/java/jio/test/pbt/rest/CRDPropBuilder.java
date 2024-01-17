@@ -10,6 +10,7 @@ import jio.test.pbt.TestResult;
 import jsonvalues.JsObj;
 
 import java.net.http.HttpResponse;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -19,7 +20,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @param <O> The type of data generated to feed the property tests.
  */
-public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O>> {
+public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O>> implements Supplier<PropBuilder<O>> {
 
 
     private CRDPropBuilder(String name,
@@ -87,7 +88,7 @@ public final class CRDPropBuilder<O> extends RestPropBuilder<O, CRDPropBuilder<O
      * @return A property test for Create (POST), Read (GET), and Delete (DELETE) operations on a RESTful API.
      */
     @Override
-    public PropBuilder<O> buildPropBuilder() {
+    public PropBuilder<O> get() {
         BiLambda<JsObj, O, TestResult> lambda =
                 (conf, body) -> post.apply(conf, body)
                                     .then(resp -> {

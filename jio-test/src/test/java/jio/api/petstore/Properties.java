@@ -79,7 +79,7 @@ public class Properties {
                                                         URI.create("http://localhost:%d/token".formatted(port))),
                                   GetAccessToken.DEFAULT,
                                   resp -> resp.statusCode() == 401)
-                              .build();
+                              .get();
     static Predicate<HttpResponse<String>> is2XX =
             resp -> resp.statusCode() < 300
                     && Specs.apiResponseSpec.test(JsObj.parse(resp.body())).isEmpty();
@@ -165,7 +165,7 @@ public class Properties {
 
                                     )
                            .withTimes(100)
-                           .build();
+                           .get();
     }
 
     @Test
@@ -178,7 +178,7 @@ public class Properties {
                                                                 .map(resp -> assertResp(is400, "4XX status code was expected").apply(resp))
                                     )
                            .withTimes(100)
-                           .build();
+                           .get();
 
     }
 
@@ -190,7 +190,8 @@ public class Properties {
                                   post("pet"),
                                   get("pet"),
                                   delete("pet"))
-                              .build();
+                              .get()
+                              .get();
 
         Property<JsObj> userPetFlow =
                 CRDPropBuilder.of("user_crud",
@@ -199,7 +200,8 @@ public class Properties {
                                   get("user"),
                                   delete("user"))
                               .withGetIdFromReqBody(body -> body.getStr("username"))
-                              .build();
+                              .get()
+                              .get();
 
         var report = Group.of("petstore",
                               List.of(crudPetFlow, userPetFlow)

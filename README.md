@@ -333,37 +333,37 @@ public void test(){
            () -> StubBuilder.ofSucGen(IntGen.arbitrary(0, 100000))
                             .withDelays(delayGen)          
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                            .build();
+                            .get();
 
     Lambda<JsObj, String> persistMongo =
             _ -> StubBuilder.ofSucGen(StrGen.alphabetic(20, 20))
                             .withDelays(delayGen)
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                            .build();
+                            .get();
 
     Lambda<JsObj, Void> sendEmail =
             _ -> StubBuilder.ofSucGen(Gen.cons(null))
                             .withDelays(delayGen)
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                            .build();
+                            .get();
 
     Lambda<String, Boolean> existsInLDAP =
             _ -> StubBuilder.ofSucGen(BoolGen.arbitrary())
                             .withDelays(delayGen)
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                            .build();
+                            .get();
     
     Lambda<JsObj, Void> persistLDAP =
             _ -> StubBuilder.ofSucGen(Gen.cons(null))
                             .withDelays(delayGen)  
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                            .build();
+                            .get();
 
     Lambda<String, JsArray> normalizeAddresses =
             _ -> StubBuilder.ofSucGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3))
                             .withDelays(delayGen)  
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                            .build();    
+                            .get();    
 }
 ```
 
@@ -449,7 +449,7 @@ Supplier<IO<Integer>> countUsers =
                               )
                        .withDelays(delayGen)
                        .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                       .build();
+                       .get();
 
 ```
 
@@ -2029,7 +2029,7 @@ public class TestHttpClient {
                              .setRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
                                                           .append(RetryPolicies.limitRetries(5)))
                              .setRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE))
-                             .build();
+                             .get();
 
     static String uri = "https://petstore.swagger.io/v2/%s/%s";
     static BiFunction<String, String, HttpRequest.Builder> GET =
@@ -2195,7 +2195,7 @@ public class TestOauthHttpClient {
                                   GetAccessToken.DEFAULT, //token in access_token key in a JSON
                                   resp ->resp.statusCode() == 401 // if 401 go for a new token
                                   )
-                               .build();
+                               .get();
 
     @Test
     public void testOuth() {
@@ -2263,7 +2263,7 @@ It requires Java 17 or greater
 <dependency>  
     <groupId>com.github.imrafaelmerino</groupId>  
     <artifactId>jio-http</artifactId>  
-    <version>1.0.0</version>  
+    <version>1.1.0</version>  
 </dependency>  
   
 ```  
@@ -2372,7 +2372,7 @@ IO<Integer> x =
                          )
                    .withDelays(Gen.seq(n -> n < 3 ? Duration.ofSeconds(1) : Duration.ZERO))  
                    .withExecutor(Executors.newVirtualThreadPerTaskExecutor()) 
-                   .build();
+                   .get();
                    
 x.get(); // fails after 1 second
 
@@ -2629,7 +2629,7 @@ public class TestProperties {
                            prop
                            )
                        .withDescription("medium must fall between bounds")
-                       .build();
+                       .get();
                
     @Test
     public void testMedium() {
@@ -2698,7 +2698,7 @@ static Property<Pair<Integer, Integer>> mediumProperty =
                                          "one"
                                         )
                        .withDescription("medium must fall between bounds")
-                       .build();
+                       .get();
 
 
 ```
@@ -2943,7 +2943,7 @@ It requires Java 17 or greater
 <dependency>  
     <groupId>com.github.imrafaelmerino</groupId>  
     <artifactId>jio-test</artifactId>  
-    <version>1.0.0</version>  
+    <version>1.1.0</version>  
 </dependency>  
   
 ```  

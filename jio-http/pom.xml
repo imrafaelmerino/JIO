@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-http</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <name>jio-http</name>
     <description>Functional and reactive http client in Java</description>
     <url>https://github.com/imrafaelmerino/jio</url>

@@ -50,7 +50,7 @@ public class TestRetryWhile {
         port = server.getAddress()
                      .getPort();
 
-        httpClient = JioHttpClientBuilder.of(HttpClient.newBuilder()).build();
+        httpClient = JioHttpClientBuilder.of(HttpClient.newBuilder()).get();
 
     }
 

@@ -9,6 +9,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -29,7 +30,7 @@ import static java.util.Objects.requireNonNull;
  * @see #withAuthorizationHeaderName(String)
  * @see #withAuthorizationHeaderValue(Function)
  */
-public final class ClientCredsBuilder {
+public final class ClientCredsBuilder implements Supplier<OauthHttpClient> {
     private final Function<OauthHttpClient, IO<HttpResponse<String>>> accessTokenReq;
     private final Lambda<HttpResponse<String>, String> getAccessToken;
     private final Predicate<HttpResponse<?>> refreshTokenPredicate;
@@ -77,9 +78,7 @@ public final class ClientCredsBuilder {
      *                              returning the response.
      * @param getAccessToken        lambda that takes the server response and returns the oauth token
      * @param refreshTokenPredicate predicate that checks the response to see if the access token need to be refreshed
-     *
      * @return a ClientCredsBuilder
-     *
      * @see AccessTokenRequest
      * @see GetAccessToken
      */
@@ -99,7 +98,8 @@ public final class ClientCredsBuilder {
      *
      * @return a ClientCredentialsHttpClient
      */
-    public OauthHttpClient build() {
+    @Override
+    public OauthHttpClient get() {
         return new ClientCredsClient(client,
                                      accessTokenReq,
                                      authorizationHeaderName,

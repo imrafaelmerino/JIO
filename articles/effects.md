@@ -3,13 +3,13 @@
 En este post vamos a introducir el concepto de Monads y explicar 
 las ideas fundamentales de la librería JIO.
 
-Joshua Blosh comenta en la charla _**How To Design A Good API and 
-Why it Matters**_, que hay que evitar la transliteración de APIs. 
-Éste es precisamente el problema que existe en el ecosistema Java 
-con algunas librerías de programación funcional (en lo sucesivo 
-FP). Son traducciones literales de otros lenguajes, lo que 
-termina en APIs complejos y nada familiares para el programador. 
-Precisamente el reto de JIO es beneficiarse de ideas de la FP 
+En la charla _**How To Design A Good API and 
+Why it Matters**_, Joshua Blosh comenta que hay que evitar la transliteración de APIs.
+Este es precisamente el problema que existe en el ecosistema Java
+con algunas librerías de programación funcional (en lo sucesivo
+FP). Son traducciones literales de otros lenguajes, lo que
+termina en API complejos y nada familiares para el programador.
+Precisamente el reto de JIO es beneficiarse de ideas de la FP
 pero adecuando la sintaxis a un Java muy estándar.
 
 En lo sucesivo hablaremos indistintamente de métodos o funciones

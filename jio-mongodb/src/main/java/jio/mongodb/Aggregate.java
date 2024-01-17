@@ -69,7 +69,7 @@ public final class Aggregate extends Op implements MongoLambda<List<Bson>, Aggre
         Objects.requireNonNull(stages);
         Supplier<AggregateIterable<JsObj>> supplier =
                 eventWrapper(() -> {
-                                 var collection = requireNonNull(this.collection.build());
+                                 var collection = requireNonNull(this.collection.get());
                                  return session == null ?
                                          collection.aggregate(stages) :
                                          collection.aggregate(session, stages);
