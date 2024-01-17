@@ -18,3 +18,12 @@ New:
 
 - `JdbcLambda` new interface to model any interaction with the database
 - `QueryOneStm` and `QueryOneStmBuilder` to query for just one row
+
+** Version 0.0.5**
+
+New: 
+
+- All the builders return `JdbcLambda` and all its implementations (`QueryStm`, `UpdateStm` are hidden)
+
+Internal:
+- Refactor `JdbcEventFormatter` and `StmEvent`

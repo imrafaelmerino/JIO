@@ -1,8 +1,11 @@
 package jio;
 
 import jdk.jfr.consumer.RecordedEvent;
+
 import java.util.Objects;
 import java.util.function.Function;
+
+import static jio.ExpEvent.*;
 
 /**
  * A class that converts Java Flight Recorder (JFR) RecordedEvents related to expressions to formatted strings.
@@ -56,15 +59,15 @@ public final class ExpEventFormatter implements Function<RecordedEvent, String> 
     @Override
     public String apply(RecordedEvent e) {
         assert e.getEventType().getName().equals("jio.exp");
-        String exception = e.getValue("exception");
+        String exception = e.getValue(EXCEPTION_LABEL);
         boolean isSuccess = exception == null || exception.isEmpty();
 
         return String.format("expression: %s, result: %s, output: %s, duration: %s, context: %s",
-                             e.getValue("expression"),
-                             e.getValue("result"),
-                             isSuccess ? formatOutput.apply(e.getValue("value")) : exception,
+                             e.getValue(EXCEPTION_LABEL),
+                             e.getValue(RESULT_LABEL),
+                             isSuccess ? formatOutput.apply(e.getValue(VALUE_LABEL)) : exception,
                              e.getDuration().toMillis(),
-                             e.getValue("context")
+                             e.getValue(CONTEXT_LABEL)
                             );
     }
 }

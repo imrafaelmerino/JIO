@@ -2,6 +2,7 @@ package jio.jdbc;
 
 import jio.BiLambda;
 import jio.IO;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.function.Function;
  * @param <I> Type of the input parameters for the SQL query.
  * @param <O> Type of the objects produced by the result set mapper.
  */
-public final class QueryStm<I, O> implements JdbcLambda<I, List<O>> {
+final class QueryStm<I, O> implements JdbcLambda<I, List<O>> {
 
 
     private final ResultSetMapper<O> mapper;

@@ -17,14 +17,15 @@ import java.util.function.Predicate;
  */
 public final class HttpExceptions {
 
-    private HttpExceptions(){}
+    private HttpExceptions() {
+    }
 
     /**
      * Predicate that returns true when an attempt to invoke a network operation is made upon an unresolved socket address.
      */
     public final static Predicate<Throwable> UNRESOLVED_SOCKET_ADDRESS =
             exc -> exc instanceof ConnectException c
-                   && c.getCause() instanceof UnresolvedAddressException;
+                    && c.getCause() instanceof UnresolvedAddressException;
 
     /**
      * Predicate that returns true when the network connection is unreachable. This could happen due to various reasons,
@@ -33,8 +34,8 @@ public final class HttpExceptions {
     public final static Predicate<Throwable> NETWORK_UNREACHABLE =
             exc ->
                     exc instanceof ConnectException c
-                    && c.getCause() instanceof SocketException
-                    && Objects.equals("Network is unreachable", exc.getMessage());
+                            && c.getCause() instanceof SocketException
+                            && Objects.equals("Network is unreachable", exc.getMessage());
 
     /**
      * Predicate that returns true when a response is not received from the server within a specified time period.

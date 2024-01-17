@@ -22,7 +22,7 @@ import java.util.function.BiFunction;
  * @param <I> The type of the input object for setting parameters in the update statement.
  * @param <O> The type of the output object generated from the ResultSet.
  */
-public final class UpdateGenStm<I, O> implements JdbcLambda<I, O> {
+ final class UpdateGenStm<I, O> implements JdbcLambda<I, O> {
 
     final String sql;
 

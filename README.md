@@ -3463,4 +3463,4 @@ It requires Java 17 or greater
 
 ## <a name="jio-jdbc"><a/> jio-jdbc
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-jdbc/0.0.5)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-jdbc/0.0.5/jar "jio-jdbc")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-jdbc/0.0.6)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-jdbc/0.0.6/jar "jio-jdbc")

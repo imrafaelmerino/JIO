@@ -7,11 +7,14 @@ import jdk.jfr.*;
 @Category({"JIO", "DATABASE", "MONGODB"})
 @Description("MongoDB CRUD operations like find, replace, delete, insert...")
 final class MongoEvent extends Event {
-    @Label("operation")
+    static final String OPERATION_LABEL = "operation";
+    static final String RESULT_LABEL = "result";
+    static final String EXCEPTION_LABEL = "exception";
+    @Label(OPERATION_LABEL)
     public final String operation;
-    @Label("result")
+    @Label(RESULT_LABEL)
     public String result;
-    @Label("exception")
+    @Label(EXCEPTION_LABEL)
     public String exception;
 
 

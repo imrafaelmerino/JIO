@@ -31,7 +31,6 @@ public final class JioHttpClientBuilder implements Supplier<JioHttpClient> {
      * Constructs a JioHttpClientBuilder with the specified HTTP client.
      *
      * @param builder The HTTP client builder to be used for building JioHttpClient instances.
-     *
      * @return a JIO http client builder
      * @see HttpClient
      */
@@ -89,7 +88,8 @@ public final class JioHttpClientBuilder implements Supplier<JioHttpClient> {
         return new JioHttpClientImpl(client,
                                      reqRetryPolicy,
                                      reqRetryPredicate,
-                                     recordEvents);
+                                     recordEvents
+        );
     }
 
 

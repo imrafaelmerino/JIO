@@ -15,33 +15,45 @@ import static java.util.Objects.requireNonNull;
 @Category("JIO")
 @Description("Http request sent by jio-http")
 final class ReqEvent extends Event {
+    static final String METHOD_LABEL = "method";
+
+    static final String URI_LABEL = "uri";
+
+    static final String STATUS_CODE_LABEL = "statusCode";
+
+    static final String RESULT_LABEL = "result";
+
+    static final String REQ_COUNTER_LABEL = "reqCounter";
+
+    static final String EXCEPTION_LABEL = "exception";
+
 
     /**
      * the method of the request
      */
-    @Label("method")
+    @Label(METHOD_LABEL)
     public final String method;
     /**
      * the uri of the request
      */
-    @Label("uri")
+    @Label(URI_LABEL)
     public final String uri;
     /**
      * the status code of the response
      */
-    @Label("statusCode")
+    @Label(STATUS_CODE_LABEL)
     public int statusCode;
     /**
      * the result of the exchange: a success if a response is received or an exception
      */
-    @Label("result")
+    @Label(RESULT_LABEL)
     public String result;
     /**
      * the exception in case of one happens during the exchange
      */
-    @Label("exception")
+    @Label(EXCEPTION_LABEL)
     public String exception = "";
-    @Label("reqCounter")
+    @Label(REQ_COUNTER_LABEL)
     public long reqCounter;
 
     ReqEvent(final String method,

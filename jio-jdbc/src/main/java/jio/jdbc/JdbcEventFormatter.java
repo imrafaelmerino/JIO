@@ -4,8 +4,6 @@ import jdk.jfr.consumer.RecordedEvent;
 
 import java.util.function.Function;
 
-import static jio.jdbc.StmEvent.SQL_LABEL;
-
 /**
  * A class that converts Java Flight Recorder (JFR) RecordedEvents to formatted strings. This class is intended to be
  * used as a Function for transforming RecordedEvents into human-readable strings.
@@ -34,6 +32,23 @@ public final class JdbcEventFormatter implements Function<RecordedEvent, String>
      * The singleton instance of JdbcEventFormatter.
      */
     public static final JdbcEventFormatter INSTANCE = new JdbcEventFormatter();
+    private final Function<String, String> sqlToStr;
+
+    /**
+     * Constructs a JdbcEventFormatter with a custom SQL-to-String function.
+     *
+     * @param sqlToStr The function to convert SQL statements to strings.
+     */
+    public JdbcEventFormatter(Function<String, String> sqlToStr) {
+        this.sqlToStr = sqlToStr;
+    }
+
+    /**
+     * Constructs a JdbcEventFormatter with the default identity function for SQL statements.
+     */
+    private JdbcEventFormatter() {
+        sqlToStr = Function.identity();
+    }
 
     /**
      * Converts a RecordedEvent to a formatted string.
@@ -60,23 +75,5 @@ public final class JdbcEventFormatter implements Function<RecordedEvent, String>
                               sqlToStr.apply(e.getValue(StmEvent.SQL_LABEL)),
                               e.getValue(StmEvent.OP_COUNTER_LABEL)
                              );
-    }
-
-    private final Function<String, String> sqlToStr;
-
-    /**
-     * Constructs a JdbcEventFormatter with a custom SQL-to-String function.
-     *
-     * @param sqlToStr The function to convert SQL statements to strings.
-     */
-    public JdbcEventFormatter(Function<String, String> sqlToStr) {
-        this.sqlToStr = sqlToStr;
-    }
-
-    /**
-     * Constructs a JdbcEventFormatter with the default identity function for SQL statements.
-     */
-    private JdbcEventFormatter() {
-        sqlToStr = Function.identity();
     }
 }

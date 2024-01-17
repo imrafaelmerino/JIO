@@ -1,9 +1,10 @@
 package jio.jdbc;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public final class QueryStmBuilder<I, O> implements Supplier<QueryStm<I, O>> {
+public final class QueryStmBuilder<I, O> implements Supplier<JdbcLambda<I, List<O>>> {
     private static final int DEFAULT_FETCH_SIZE = 1000;
 
     private final String sqlQuery;

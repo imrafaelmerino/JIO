@@ -51,7 +51,8 @@ final class JioHttpClientImpl implements JioHttpClient {
         if (recordEvents) {
 
             ReqEvent event = new ReqEvent(request.method(),
-                                          request.uri());
+                                          request.uri()
+            );
             event.begin();
 
             event.reqCounter = myClient.counter.incrementAndGet();

@@ -17,7 +17,7 @@ import java.util.function.BiFunction;
  * @param <I> The type of the input object for setting parameters in the update statement.
  * @param <O> The type of the output object generated from the ResultSet.
  */
-public final class UpdateStm<I, O> implements JdbcLambda<I, O> {
+final class UpdateStm<I, O> implements JdbcLambda<I, O> {
 
     /**
      * The SQL update statement.
@@ -72,7 +72,7 @@ public final class UpdateStm<I, O> implements JdbcLambda<I, O> {
                         ps.setQueryTimeout((int) timeout.toSeconds());
                         int unused = setParams.apply(input).apply(ps);
                         assert unused > 0;
-                        return mapResult.apply(input,ps.executeUpdate());
+                        return mapResult.apply(input, ps.executeUpdate());
                     }
                 }
             }, sql, enableJFR);

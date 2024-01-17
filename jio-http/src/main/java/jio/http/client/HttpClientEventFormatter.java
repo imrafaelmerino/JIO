@@ -4,6 +4,8 @@ import jdk.jfr.consumer.RecordedEvent;
 
 import java.util.function.Function;
 
+import static jio.http.client.ReqEvent.*;
+
 /**
  * A class that converts Java Flight Recorder (JFR) RecordedEvents related to HTTP client operations to formatted
  * strings. This class is intended to be used as a Function for transforming RecordedEvents into human-readable
@@ -42,24 +44,24 @@ public final class HttpClientEventFormatter implements Function<RecordedEvent, S
     @Override
     public String apply(RecordedEvent e) {
         assert e.getEventType().getName().equals("jio.httpclient");
-        String exception = e.getValue("exception");
+        String exception = e.getValue(EXCEPTION_LABEL);
         boolean isSuccess = exception == null || exception.isEmpty();
         if (isSuccess)
             return String.format("method: %s, uri: %s, result: %s, status-code: %s duration: %s, req-counter: %s",
-                                 e.getValue("method"),
-                                 e.getValue("uri"),
-                                 e.getValue("result"),
-                                 e.getValue("statusCode"),
+                                 e.getValue(METHOD_LABEL),
+                                 e.getValue(URI_LABEL),
+                                 e.getValue(RESULT_LABEL),
+                                 e.getValue(STATUS_CODE_LABEL),
                                  e.getDuration().toMillis(),
-                                 e.getValue("reqCounter")
+                                 e.getValue(REQ_COUNTER_LABEL)
                                 );
         return String.format("method: %s, uri: %s, result: %s, exception: %s, duration: %s, req-counter: %s",
-                             e.getValue("method"),
-                             e.getValue("uri"),
-                             e.getValue("result"),
+                             e.getValue(METHOD_LABEL),
+                             e.getValue(URI_LABEL),
+                             e.getValue(RESULT_LABEL),
                              exception,
                              e.getDuration().toMillis(),
-                             e.getValue("reqCounter")
+                             e.getValue(REQ_COUNTER_LABEL)
                             );
 
     }

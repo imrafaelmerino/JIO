@@ -4,14 +4,14 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * Builder class for constructing instances of {@link QueryOneStm}, which represents a JDBC query
- * operation returning a single result. This builder allows customization of the SQL query, parameter setting,
- * result mapping, and the option to disable Java Flight Recorder (JFR) event recording for the query execution.
+ * Builder class for constructing instances of {@link QueryOneStm}, which represents a JDBC query operation returning a
+ * single result. This builder allows customization of the SQL query, parameter setting, result mapping, and the option
+ * to disable Java Flight Recorder (JFR) event recording for the query execution.
  *
  * @param <I> The type of input parameters for the JDBC query.
  * @param <O> The type of the output result for the JDBC query.
  */
-public final class QueryOneStmBuilder<I, O> implements Supplier<QueryOneStm<I, O>> {
+public final class QueryOneStmBuilder<I, O> implements Supplier<JdbcLambda<I, O>> {
 
     private final String sqlQuery;
     private final ParamsSetter<I> setter;
@@ -25,8 +25,8 @@ public final class QueryOneStmBuilder<I, O> implements Supplier<QueryOneStm<I, O
     }
 
     /**
-     * Creates a new instance of {@code QueryOneStmBuilder} with the specified SQL query,
-     * parameter setter, and result mapper.
+     * Creates a new instance of {@code QueryOneStmBuilder} with the specified SQL query, parameter setter, and result
+     * mapper.
      *
      * @param sqlQuery The SQL query string.
      * @param setter   The parameter setter for the SQL query.
@@ -55,7 +55,7 @@ public final class QueryOneStmBuilder<I, O> implements Supplier<QueryOneStm<I, O
      * @return A new instance of {@code QueryOneStm}.
      */
     @Override
-    public QueryOneStm<I, O> get() {
+    public JdbcLambda<I, O> get() {
         return new QueryOneStm<>(sqlQuery, setter, mapper, enableJFR);
     }
 }

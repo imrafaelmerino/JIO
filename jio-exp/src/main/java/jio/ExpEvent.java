@@ -9,21 +9,26 @@ import jdk.jfr.*;
 @Description("JIO expressions and subexpressions results")
 class ExpEvent extends Event {
 
-    @Label("exp")
+    static final String EXP_LABEL = "exp";
+    static final String VALUE_LABEL = "value";
+    static final String CONTEXT_LABEL = "context";
+    static final String RESULT_LABEL = "result";
+    static final String EXCEPTION_LABEL = "exception";
+    @Label(EXP_LABEL)
     public String expression;
-    @Label("value")
+    @Label(VALUE_LABEL)
     public String value = "";
-    @Label("context")
+    @Label(CONTEXT_LABEL)
     public String context = "";
     /**
      * Either SUCCESS OR FAILURE
      */
-    @Label("result")
+    @Label(RESULT_LABEL)
     public String result;
     /**
      * The exception in case of failure
      */
-    @Label("exception")
+    @Label(EXCEPTION_LABEL)
     public String exception = "";
 
     public enum RESULT {SUCCESS, FAILURE}

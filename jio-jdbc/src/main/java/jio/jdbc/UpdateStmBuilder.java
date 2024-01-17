@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public final class UpdateStmBuilder<I, O> implements Supplier<UpdateStm<I, O>> {
+public final class UpdateStmBuilder<I, O> implements Supplier<JdbcLambda<I, O>> {
     private final String sql;
     private final ParamsSetter<I> setParams;
     private final BiFunction<I, Integer, O> mapResult;
@@ -27,7 +27,7 @@ public final class UpdateStmBuilder<I, O> implements Supplier<UpdateStm<I, O>> {
     }
 
     @Override
-    public UpdateStm<I, O> get() {
+    public JdbcLambda<I, O> get() {
         return new UpdateStm<>(sql, setParams, mapResult, enableJFR);
     }
 }
