@@ -2,9 +2,8 @@ package jio.jdbc;
 
 import jio.BiLambda;
 import jio.IO;
+
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
@@ -19,13 +18,12 @@ import java.util.function.Function;
  * @param <I> Type of the input parameters for the SQL query.
  * @param <O> Type of the objects produced by the result set mapper.
  */
-public final class QueryStm<I, O> implements JdbcLambda<I, List<O>> {
+public final class QueryOneStm<I, O> implements JdbcLambda<I, O> {
 
 
     private final ResultSetMapper<O> mapper;
     private final String sql;
     private final Function<I, PrStmSetter> setter;
-    private final int fetchSize;
     private final boolean enableJFR;
 
     /**
@@ -34,14 +32,12 @@ public final class QueryStm<I, O> implements JdbcLambda<I, List<O>> {
      * @param sqlQuery  The SQL query to execute.
      * @param setter    The parameter setter for the SQL query.
      * @param mapper    The result set mapper for processing query results.
-     * @param fetchSize The fetch size for the query results.
      * @param enableJFR Indicates whether to enable Java Flight Recorder integration.
      */
-    QueryStm(String sqlQuery, ParamsSetter<I> setter, ResultSetMapper<O> mapper, int fetchSize, boolean enableJFR) {
+    QueryOneStm(String sqlQuery, ParamsSetter<I> setter, ResultSetMapper<O> mapper, boolean enableJFR) {
         this.sql = sqlQuery;
         this.mapper = mapper;
         this.setter = setter;
-        this.fetchSize = fetchSize;
         this.enableJFR = enableJFR;
     }
 
@@ -53,7 +49,7 @@ public final class QueryStm<I, O> implements JdbcLambda<I, List<O>> {
      * @return A lambda function for executing the SQL query and processing results.
      */
     @Override
-    public BiLambda<Duration, I, List<O>> apply(DatasourceBuilder dsb) {
+    public BiLambda<Duration, I, O> apply(DatasourceBuilder dsb) {
         return (timeout, input) -> {
             return IO.task(() -> {
                 try (var connection = dsb.get().getConnection()) {
@@ -61,11 +57,9 @@ public final class QueryStm<I, O> implements JdbcLambda<I, List<O>> {
                         return JfrEventDecorator.decorate(() -> {
                             var unused = setter.apply(input).apply(ps);
                             ps.setQueryTimeout((int) timeout.toSeconds());
-                            ps.setFetchSize(fetchSize);
+                            ps.setFetchSize(1);
                             var rs = ps.executeQuery();
-                            List<O> result = new ArrayList<>();
-                            while (rs.next()) result.add(mapper.apply(rs));
-                            return result;
+                            return rs.next() ? mapper.apply(rs) : null;
                         }, sql, enableJFR);
                     }
                 }

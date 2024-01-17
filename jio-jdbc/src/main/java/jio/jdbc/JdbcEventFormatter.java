@@ -4,6 +4,8 @@ import jdk.jfr.consumer.RecordedEvent;
 
 import java.util.function.Function;
 
+import static jio.jdbc.StmEvent.SQL_LABEL;
+
 /**
  * A class that converts Java Flight Recorder (JFR) RecordedEvents to formatted strings. This class is intended to be
  * used as a Function for transforming RecordedEvents into human-readable strings.
@@ -42,21 +44,21 @@ public final class JdbcEventFormatter implements Function<RecordedEvent, String>
     @Override
     public String apply(RecordedEvent e) {
         assert e.getEventType().getName().equals("jio.jdbc");
-        String exception = e.getValue("exception");
+        String exception = e.getValue(StmEvent.EXCEPTION_LABEL);
         boolean isSuccess = exception == null || exception.isEmpty();
         return isSuccess ?
-                String.format("result: %s, duration: %s, sql: %s, counter: %s",
-                              e.getValue("result"),
+                String.format("result: %s; duration: %s; sql: %s; op-counter: %s",
+                              e.getValue(StmEvent.RESULT_LABEL),
                               e.getDuration().toMillis(),
-                              sqlToStr.apply(e.getValue("sql")),
-                              e.getValue("opCounter")
+                              sqlToStr.apply(e.getValue(StmEvent.SQL_LABEL)),
+                              e.getValue(StmEvent.OP_COUNTER_LABEL)
                              ) :
-                String.format("result: %s, exception: %s, duration: %s, sql: %s, counter: %s",
-                              e.getValue("result"),
+                String.format("result: %s; exception: %s; duration: %s; sql: %s; op-counter: %s",
+                              e.getValue(StmEvent.RESULT_LABEL),
                               exception,
                               e.getDuration().toMillis(),
-                              sqlToStr.apply(e.getValue("sql")),
-                              e.getValue("opCounter")
+                              sqlToStr.apply(e.getValue(StmEvent.SQL_LABEL)),
+                              e.getValue(StmEvent.OP_COUNTER_LABEL)
                              );
     }
 

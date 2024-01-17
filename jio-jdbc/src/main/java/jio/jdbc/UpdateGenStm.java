@@ -9,7 +9,6 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * A class representing a generic update operation with a generated key in a relational database using JDBC. The class
@@ -23,7 +22,7 @@ import java.util.function.Function;
  * @param <I> The type of the input object for setting parameters in the update statement.
  * @param <O> The type of the output object generated from the ResultSet.
  */
-public final class UpdateGenStm<I, O> implements Function<DatasourceBuilder, BiLambda<Duration, I, O>> {
+public final class UpdateGenStm<I, O> implements JdbcLambda<I, O> {
 
     final String sql;
 
@@ -32,7 +31,7 @@ public final class UpdateGenStm<I, O> implements Function<DatasourceBuilder, BiL
     final BiFunction<I, Integer, ResultSetMapper<O>> mapResult;
     private final boolean enableJFR;
 
-    UpdateGenStm(String sql, ParamsSetter<I> setParams, BiFunction<I,Integer, ResultSetMapper<O>> mapResult, boolean enableJFR) {
+    UpdateGenStm(String sql, ParamsSetter<I> setParams, BiFunction<I, Integer, ResultSetMapper<O>> mapResult, boolean enableJFR) {
         this.sql = Objects.requireNonNull(sql);
         this.setParams = Objects.requireNonNull(setParams);
         this.mapResult = mapResult;
@@ -57,7 +56,7 @@ public final class UpdateGenStm<I, O> implements Function<DatasourceBuilder, BiL
                         assert unused > 0;
                         int n = ps.executeUpdate();
                         try (ResultSet resultSet = ps.getGeneratedKeys()) {
-                            if (resultSet.next()) return mapResult.apply(req,n).apply(resultSet);
+                            if (resultSet.next()) return mapResult.apply(req, n).apply(resultSet);
                             throw new ColumnNotGeneratedException(sql);
                         }
                     }

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-jdbc</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <name>jio-jdbc</name>
     <description>Functional and reactive JDBC client in Java</description>
     <url>https://github.com/imrafaelmerino/jio</url>

@@ -8,7 +8,6 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * A class representing a generic update operation with a generated key in a relational database using JDBC. The class
@@ -18,7 +17,7 @@ import java.util.function.Function;
  * @param <I> The type of the input object for setting parameters in the update statement.
  * @param <O> The type of the output object generated from the ResultSet.
  */
-public final class UpdateStm<I, O> implements Function<DatasourceBuilder, BiLambda<Duration, I, O>> {
+public final class UpdateStm<I, O> implements JdbcLambda<I, O> {
 
     /**
      * The SQL update statement.

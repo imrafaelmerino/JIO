@@ -2,6 +2,7 @@ package jio.jdbc;
 
 import jdk.jfr.*;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -14,30 +15,34 @@ import java.util.concurrent.atomic.AtomicLong;
 @Description("Database statements performed by jio-jdbc")
 final class StmEvent extends Event {
 
-    public static final AtomicLong counter = new AtomicLong(0);
+    static final AtomicLong counter = new AtomicLong(0);
+    static final String OP_COUNTER_LABEL = "opCounter";
+    static final String RESULT_LABEL = "result";
+    static final String SQL_LABEL = "sql";
+    static final String EXCEPTION_LABEL = "exception";
 
     /**
      * the method of the request
      */
-    @Label("sql")
+    @Label(SQL_LABEL)
     public final String sql;
 
     /**
      * the result of the exchange: a success if a response is received or an exception
      */
-    @Label("result")
+    @Label(RESULT_LABEL)
     public String result;
     /**
      * the exception in case of one happens during the exchange
      */
-    @Label("exception")
+    @Label(EXCEPTION_LABEL)
     public String exception = "";
 
-    @Label("opCounter")
+    @Label(OP_COUNTER_LABEL)
     public long opCounter = counter.incrementAndGet();
 
     public StmEvent(String sql) {
-        this.sql = sql;
+        this.sql = Objects.requireNonNull(sql);
     }
 
     enum RESULT {
