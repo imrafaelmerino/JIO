@@ -5,15 +5,16 @@ import java.util.concurrent.Callable;
 
 class JfrEventDecorator {
 
-    private JfrEventDecorator(){}
+    private JfrEventDecorator() {
+    }
 
     /**
      * Wraps the provided operation with JFR events if enabled.
      *
-     * @param op         The operation to wrap.
-     * @param sql        The SQL statement associated with the operation.
-     * @param enableJFR  Indicates whether to enable JFR events.
-     * @param <O>        The type of the operation result.
+     * @param op        The operation to wrap.
+     * @param sql       The SQL statement associated with the operation.
+     * @param enableJFR Indicates whether to enable JFR events.
+     * @param <O>       The type of the operation result.
      * @return The result of the operation.
      * @throws Exception If an exception occurs during the operation.
      */
@@ -30,10 +31,11 @@ class JfrEventDecorator {
 
         } catch (Exception e) {
             if (enableJFR) {
+                var cause = findUltimateCause(e);
                 event.result = StmEvent.RESULT.FAILURE.name();
                 event.exception = String.format("%s:%s",
-                                                e.getClass().getName(),
-                                                e.getMessage()
+                                                cause.getClass().getName(),
+                                                cause.getMessage()
                                                );
             }
             throw e;
@@ -41,5 +43,16 @@ class JfrEventDecorator {
             if (enableJFR) event.commit();
 
         }
+    }
+
+    private static Throwable findUltimateCause(Throwable exception) {
+        Throwable ultimateCause = exception;
+
+        // Iterate through the exception chain until the ultimate cause is found
+        while (ultimateCause.getCause() != null) {
+            ultimateCause = ultimateCause.getCause();
+        }
+
+        return ultimateCause;
     }
 }

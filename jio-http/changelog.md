@@ -9,3 +9,7 @@ New:
 
 - `HttpClientEventFormatter` to format JFR events into strings
 
+** Version 1.1.1 **
+
+New:
+- JFR failure events find the ultimate cause of exceptions which gives more information about what happened

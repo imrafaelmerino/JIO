@@ -8,7 +8,7 @@ public final class UpdateStmBuilder<I, O> implements Supplier<UpdateStm<I, O>> {
     private final String sql;
     private final ParamsSetter<I> setParams;
     private final BiFunction<I, Integer, O> mapResult;
-    private boolean enableJFR;
+    private boolean enableJFR = true;
 
     private UpdateStmBuilder(String sql, ParamsSetter<I> setParams, BiFunction<I, Integer, O> mapResult) {
         this.sql = Objects.requireNonNull(sql);

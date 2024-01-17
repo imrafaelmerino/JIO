@@ -65,7 +65,7 @@ final class JioHttpClientImpl implements JioHttpClient {
                                               event.statusCode = resp.statusCode();
                                               event.result = SUCCESS.name();
                                           } else {
-                                              Throwable cause = failure.getCause();
+                                              var cause = findUltimateCause(failure.getCause());
                                               event.exception = String.format("%s:%s",
                                                                               cause.getClass().getName(),
                                                                               cause.getMessage()
@@ -79,6 +79,17 @@ final class JioHttpClientImpl implements JioHttpClient {
         } else return myClient.client.sendAsync(request,
                                                 handler
                                                );
+    }
+
+    private static Throwable findUltimateCause(Throwable exception) {
+        Throwable ultimateCause = exception;
+
+        // Iterate through the exception chain until the ultimate cause is found
+        while (ultimateCause.getCause() != null) {
+            ultimateCause = ultimateCause.getCause();
+        }
+
+        return ultimateCause;
     }
 
     @Override

@@ -11,7 +11,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -233,14 +232,26 @@ public final class HttpServerBuilder {
             event.statusCode = exchange.getResponseCode();
             event.result = ServerReqEvent.RESULT.SUCCESS.name();
         } catch (IOException e) {
+            var cause = findUltimateCause(e);
             event.exception = String.format("%s:%s",
-                                            e.getClass().getName(),
-                                            e.getMessage()
+                                            cause.getClass().getName(),
+                                            cause.getMessage()
                                            );
             event.result = ServerReqEvent.RESULT.FAILURE.name();
         } finally {
             event.commit();
         }
+    }
+
+    private static Throwable findUltimateCause(Throwable exception) {
+        Throwable ultimateCause = exception;
+
+        // Iterate through the exception chain until the ultimate cause is found
+        while (ultimateCause.getCause() != null) {
+            ultimateCause = ultimateCause.getCause();
+        }
+
+        return ultimateCause;
     }
 
     /**

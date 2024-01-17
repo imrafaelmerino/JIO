@@ -17,6 +17,17 @@ abstract class Op {
         this.recordEvents = recordEvents;
     }
 
+    private static Throwable findUltimateCause(Throwable exception) {
+        Throwable ultimateCause = exception;
+
+        // Iterate through the exception chain until the ultimate cause is found
+        while (ultimateCause.getCause() != null) {
+            ultimateCause = ultimateCause.getCause();
+        }
+
+        return ultimateCause;
+    }
+
     <O> Supplier<O> eventWrapper(final Supplier<O> task,
                                  final MongoEvent.OP op
                                 ) {
@@ -29,10 +40,11 @@ abstract class Op {
                     event.result = MongoEvent.RESULT.SUCCESS.name();
                     return result;
                 } catch (Throwable exc) {
+                    var cause = findUltimateCause(exc);
                     event.result = MongoEvent.RESULT.FAILURE.name();
                     event.exception = String.format("%s:%s",
-                                                    exc.getClass().getName(),
-                                                    exc.getMessage()
+                                                    cause.getClass().getName(),
+                                                    cause.getMessage()
                                                    );
                     throw exc;
                 } finally {

@@ -65,6 +65,16 @@ public final class EventBuilder<O> {
         return EventBuilder.of(exp, "");
     }
 
+    private static Throwable findUltimateCause(Throwable exception) {
+        Throwable ultimateCause = exception;
+
+        // Iterate through the exception chain until the ultimate cause is found
+        while (ultimateCause.getCause() != null) {
+            ultimateCause = ultimateCause.getCause();
+        }
+
+        return ultimateCause;
+    }
 
     /**
      * Set the function that takes the result of the expression and produces the event value. By default, the value of
@@ -90,7 +100,6 @@ public final class EventBuilder<O> {
         return this;
     }
 
-
     ExpEvent updateEvent(final O o, final ExpEvent event) {
         event.result = ExpEvent.RESULT.SUCCESS.name();
         event.value = successValue.apply(o);
@@ -100,10 +109,11 @@ public final class EventBuilder<O> {
     }
 
     ExpEvent updateEvent(final Throwable exc, final ExpEvent event) {
+        var cause = findUltimateCause(exc);
         event.result = ExpEvent.RESULT.FAILURE.name();
         event.context = context;
         event.expression = exp;
-        event.exception = failureMessage.apply(exc);
+        event.exception = failureMessage.apply(cause);
         return event;
     }
 
