@@ -49,14 +49,14 @@ public final class JdbcEventFormatter implements Function<RecordedEvent, String>
                               e.getValue("result"),
                               e.getDuration().toMillis(),
                               sqlToStr.apply(e.getValue("sql")),
-                              e.getValue("counter")
+                              e.getValue("opCounter")
                              ) :
                 String.format("result: %s, exception: %s, duration: %s, sql: %s, counter: %s",
                               e.getValue("result"),
                               exception,
                               e.getDuration().toMillis(),
                               sqlToStr.apply(e.getValue("sql")),
-                              e.getValue("counter")
+                              e.getValue("opCounter")
                              );
     }
 
