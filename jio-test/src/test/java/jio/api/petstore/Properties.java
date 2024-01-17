@@ -1,6 +1,5 @@
 package jio.api.petstore;
 
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import fun.gen.Combinators;
 import fun.gen.Gen;
@@ -88,12 +87,12 @@ public class Properties {
                     && Specs.apiResponseSpec.test(JsObj.parse(resp.body())).isEmpty();
 
     static {
-        HttpHandler accessToken = PostStub.of(BodyStub.gen(JsObjGen.of("access_token", JsStrGen.alphanumeric(10, 10)).map(JsObj::toString)),
-                                              StatusCodeStub.cons(200));
-        HttpHandler handler = GetStub.of(BodyStub.cons("your welcome!"),
-                                         StatusCodeStub.gen(Combinators.freq(Pair.of(5, IntGen.arbitrary(200, 299)),
-                                                                             Pair.of(1, Gen.cons(401))))
-                                        );
+        PostStub.of(BodyStub.gen(JsObjGen.of("access_token", JsStrGen.alphanumeric(10, 10)).map(JsObj::toString)),
+                    StatusCodeStub.cons(200));
+        GetStub.of(BodyStub.cons("your welcome!"),
+                   StatusCodeStub.gen(Combinators.freq(Pair.of(5, IntGen.arbitrary(200, 299)),
+                                                       Pair.of(1, Gen.cons(401))))
+                  );
 
     }
 
@@ -144,7 +143,7 @@ public class Properties {
         IO<HttpResponse<String>> getPet = oauthClient.ofString().apply(GET.apply("pet", "1"));
         IO<HttpResponse<String>> getOrder = oauthClient.ofString().apply(GET.apply("store/order", "1"));
 
-        List<Integer> status = ListExp.par(getPet, getOrder)
+        List<Integer> unused = ListExp.par(getPet, getOrder)
                                       .map(responses -> responses.stream()
                                                                  .map(HttpResponse::statusCode)
                                                                  .toList()

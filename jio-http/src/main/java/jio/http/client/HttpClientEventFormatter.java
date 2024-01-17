@@ -31,6 +31,14 @@ import java.util.function.Function;
  */
 public final class HttpClientEventFormatter implements Function<RecordedEvent, String> {
 
+    /**
+     * The singleton instance of HttpClientEventFormatter.
+     */
+    public static final HttpClientEventFormatter INSTANCE = new HttpClientEventFormatter();
+
+    private HttpClientEventFormatter() {
+    }
+
     @Override
     public String apply(RecordedEvent e) {
         assert e.getEventType().getName().equals("jio.httpclient");

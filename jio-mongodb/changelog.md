@@ -13,4 +13,6 @@ New:
 ** Version 1.1.1 **
 
 New:
+
 - JFR failure events find the ultimate cause of exceptions which gives more information about what happened
+- `MongoClientEventFormatter` now has a singleton

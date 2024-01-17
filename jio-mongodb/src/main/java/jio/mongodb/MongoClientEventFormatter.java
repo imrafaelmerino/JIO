@@ -11,6 +11,12 @@ import java.util.function.Function;
 public final class MongoClientEventFormatter implements Function<RecordedEvent, String> {
 
     /**
+     * The singleton instance of HttpClientEventFormatter.
+     */
+    public static final MongoClientEventFormatter INSTANCE = new MongoClientEventFormatter();
+
+    private MongoClientEventFormatter(){}
+    /**
      * Formats a recorded event into a human-readable string representation.
      *
      * @param e The recorded event to be formatted.

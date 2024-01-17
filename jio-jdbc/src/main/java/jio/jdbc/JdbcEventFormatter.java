@@ -28,16 +28,10 @@ import java.util.function.Function;
  */
 public final class JdbcEventFormatter implements Function<RecordedEvent, String> {
 
-    private final Function<String, String> sqlToStr;
-
-    public JdbcEventFormatter(Function<String, String> sqlToStr) {
-        this.sqlToStr = sqlToStr;
-    }
-
-    public JdbcEventFormatter() {
-        this(Function.identity());
-    }
-
+    /**
+     * The singleton instance of JdbcEventFormatter.
+     */
+    public static final JdbcEventFormatter INSTANCE = new JdbcEventFormatter();
 
     /**
      * Converts a RecordedEvent to a formatted string.
@@ -64,5 +58,23 @@ public final class JdbcEventFormatter implements Function<RecordedEvent, String>
                               sqlToStr.apply(e.getValue("sql")),
                               e.getValue("counter")
                              );
+    }
+
+    private final Function<String, String> sqlToStr;
+
+    /**
+     * Constructs a JdbcEventFormatter with a custom SQL-to-String function.
+     *
+     * @param sqlToStr The function to convert SQL statements to strings.
+     */
+    public JdbcEventFormatter(Function<String, String> sqlToStr) {
+        this.sqlToStr = sqlToStr;
+    }
+
+    /**
+     * Constructs a JdbcEventFormatter with the default identity function for SQL statements.
+     */
+    private JdbcEventFormatter() {
+        sqlToStr = Function.identity();
     }
 }

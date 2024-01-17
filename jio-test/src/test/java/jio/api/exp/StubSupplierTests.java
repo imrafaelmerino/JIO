@@ -26,8 +26,8 @@ public class StubSupplierTests {
     public void ifelse_exp_measuring_time() {
         long start = System.nanoTime();
         var x = IfElseExp.<String>predicate(IO.FALSE)
-                         .consequence(A_AFTER_1_SEC::get)
-                         .alternative(B_AFTER_1_SEC::get)
+                         .consequence(A_AFTER_1_SEC)
+                         .alternative(B_AFTER_1_SEC)
                          .debugEach("context")
                          .result();
 

@@ -13,3 +13,4 @@ New:
 
 New:
 - JFR failure events find the ultimate cause of exceptions which gives more information about what happened
+- `HttpClientEventFormatter` now has a singleton instance 

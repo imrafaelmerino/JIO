@@ -62,7 +62,7 @@ public class TestProperties {
 //let's change the delay of every stub to 1 sec, for the sake of clarity
         Gen<Duration> delayGen = Gen.cons(1).map(Duration::ofSeconds);
 
-        Lambda<Void, Integer> countUsers =
+        Lambda<Void, Integer> unused =
                 $ -> StubBuilder.ofGen(Gen.seq(n -> n <= 4 ?
                                                   IO.fail(new RuntimeException(n + "")) :
                                                   IO.succeed(n)

@@ -11,3 +11,8 @@ New:
 
 - `JdbcTestDebugger` to debug events from jio-jdbc
 - All debuggers assert that they received the appropriate event
+
+
+** Version 1.1.0 **
+
+- upgrade java-fun to version 2.0.0
