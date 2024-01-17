@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.Executors;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -28,10 +29,10 @@ public final class UpdateGenStm<I, O> implements Function<DatasourceBuilder, BiL
 
     final ParamsSetter<I> setParams;
 
-    final Function<I, ResultSetMapper<O>> mapResult;
+    final BiFunction<I, Integer, ResultSetMapper<O>> mapResult;
     private final boolean enableJFR;
 
-    public UpdateGenStm(String sql, ParamsSetter<I> setParams, Function<I, ResultSetMapper<O>> mapResult, boolean enableJFR) {
+    UpdateGenStm(String sql, ParamsSetter<I> setParams, BiFunction<I,Integer, ResultSetMapper<O>> mapResult, boolean enableJFR) {
         this.sql = Objects.requireNonNull(sql);
         this.setParams = Objects.requireNonNull(setParams);
         this.mapResult = mapResult;
@@ -54,10 +55,9 @@ public final class UpdateGenStm<I, O> implements Function<DatasourceBuilder, BiL
                         ps.setQueryTimeout((int) timeout.toSeconds());
                         int unused = setParams.apply(req).apply(ps);
                         assert unused > 0;
-                        int xs = ps.executeUpdate();
-                        assert xs >= 0;
+                        int n = ps.executeUpdate();
                         try (ResultSet resultSet = ps.getGeneratedKeys()) {
-                            if (resultSet.next()) return mapResult.apply(req).apply(resultSet);
+                            if (resultSet.next()) return mapResult.apply(req,n).apply(resultSet);
                             throw new ColumnNotGeneratedException(sql);
                         }
                     }

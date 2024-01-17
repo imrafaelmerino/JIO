@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.Executors;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -32,7 +33,7 @@ public final class UpdateStm<I, O> implements Function<DatasourceBuilder, BiLamb
     /**
      * The function to map the ResultSet to the output object.
      */
-    final Function<I, ResultSetMapper<O>> mapResult;
+    final BiFunction<I, Integer, O> mapResult;
 
     /**
      * Flag indicating whether Java Flight Recorder (JFR) events should be enabled.
@@ -49,7 +50,7 @@ public final class UpdateStm<I, O> implements Function<DatasourceBuilder, BiLamb
      * @param mapResult The function to map the ResultSet to the output object.
      * @param enableJFR Flag indicating whether to enable JFR events.
      */
-    UpdateStm(String sql, ParamsSetter<I> setParams, Function<I, ResultSetMapper<O>> mapResult, boolean enableJFR) {
+    UpdateStm(String sql, ParamsSetter<I> setParams, BiFunction<I, Integer, O> mapResult, boolean enableJFR) {
         this.sql = Objects.requireNonNull(sql);
         this.setParams = Objects.requireNonNull(setParams);
         this.mapResult = mapResult;
@@ -65,19 +66,14 @@ public final class UpdateStm<I, O> implements Function<DatasourceBuilder, BiLamb
      */
     @Override
     public BiLambda<Duration, I, O> apply(DatasourceBuilder dsb) {
-        return (timeout, req) -> IO.task(() -> {
+        return (timeout, input) -> IO.task(() -> {
             return JfrEventDecorator.decorate(() -> {
                 try (var connection = dsb.get().getConnection()) {
                     try (var ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                         ps.setQueryTimeout((int) timeout.toSeconds());
-                        int unused = setParams.apply(req).apply(ps);
+                        int unused = setParams.apply(input).apply(ps);
                         assert unused > 0;
-                        int xs = ps.executeUpdate();
-                        assert xs >= 0;
-                        try (var resultSet = ps.getGeneratedKeys()) {
-                            if (resultSet.next()) return mapResult.apply(req).apply(resultSet);
-                            throw new ColumnNotGeneratedException(sql);
-                        }
+                        return mapResult.apply(input,ps.executeUpdate());
                     }
                 }
             }, sql, enableJFR);
