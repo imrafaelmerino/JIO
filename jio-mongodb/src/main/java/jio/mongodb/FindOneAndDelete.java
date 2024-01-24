@@ -2,16 +2,16 @@ package jio.mongodb;
 
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.model.FindOneAndDeleteOptions;
+import java.util.concurrent.Executors;
 import jio.IO;
 import jsonvalues.JsObj;
 
 import java.util.Objects;
-import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.Converters.toBson;
-import static jio.mongodb.MongoEvent.OP.FIND_ONE_AND_DELETE;
+import static jio.mongodb.MongoOpEvent.OP.FIND_ONE_AND_DELETE;
 
 /**
  * Represents a MongoDB find one and delete operation to remove a single document from a collection asynchronously using
@@ -32,83 +32,77 @@ import static jio.mongodb.MongoEvent.OP.FIND_ONE_AND_DELETE;
  */
 public final class FindOneAndDelete extends Op implements MongoLambda<JsObj, JsObj> {
 
-    private static final FindOneAndDeleteOptions DEFAULT_OPTIONS = new FindOneAndDeleteOptions();
-    private FindOneAndDeleteOptions options = DEFAULT_OPTIONS;
+  private static final FindOneAndDeleteOptions DEFAULT_OPTIONS = new FindOneAndDeleteOptions();
+  private FindOneAndDeleteOptions options = DEFAULT_OPTIONS;
 
-    /**
-     * Constructs a new `FindOneAndDelete` instance with the specified collection supplier and default deletion
-     * options.
-     *
-     * @param collection The supplier of the MongoDB collection.
-     */
-    private FindOneAndDelete(final CollectionBuilder collection) {
-        super(collection, true);
-    }
+  /**
+   * Constructs a new `FindOneAndDelete` instance with the specified collection supplier and default deletion options.
+   *
+   * @param collection The supplier of the MongoDB collection.
+   */
+  private FindOneAndDelete(final CollectionBuilder collection) {
+    super(collection,
+          true);
+  }
 
-    /**
-     * Creates a new instance of `FindOneAndDelete` with the specified MongoDB collection supplier and default deletion
-     * options.
-     *
-     * @param collection The supplier of the MongoDB collection to perform the deletion operation.
-     * @return A new `FindOneAndDelete` instance with default deletion options.
-     */
-    public static FindOneAndDelete of(final CollectionBuilder collection) {
-        return new FindOneAndDelete(collection);
-    }
+  /**
+   * Creates a new instance of `FindOneAndDelete` with the specified MongoDB collection supplier and default deletion
+   * options.
+   *
+   * @param collection The supplier of the MongoDB collection to perform the deletion operation.
+   * @return A new `FindOneAndDelete` instance with default deletion options.
+   */
+  public static FindOneAndDelete of(final CollectionBuilder collection) {
+    return new FindOneAndDelete(collection);
+  }
 
-    /**
-     * Sets the deletion options to be used for the operation.
-     *
-     * @param options The options to perform the operation.
-     * @return This instance with the new options.
-     */
-    public FindOneAndDelete withOptions(final FindOneAndDeleteOptions options) {
-        this.options = requireNonNull(options);
-        return this;
-    }
+  /**
+   * Sets the deletion options to be used for the operation.
+   *
+   * @param options The options to perform the operation.
+   * @return This instance with the new options.
+   */
+  public FindOneAndDelete withOptions(final FindOneAndDeleteOptions options) {
+    this.options = requireNonNull(options);
+    return this;
+  }
 
-    /**
-     * Specifies an executor to be used for running the find one and delete operation asynchronously.
-     *
-     * @param executor The executor for asynchronous execution.
-     * @return This `FindOneAndDelete` instance.
-     */
-    public FindOneAndDelete withExecutor(final Executor executor) {
-        this.executor = Objects.requireNonNull(executor);
-        return this;
-    }
 
-    /**
-     * Applies the find one and delete operation to the specified MongoDB collection with the provided query criteria.
-     *
-     * @param session The MongoDB client session, or null if not within a session.
-     * @param query   The query criteria for identifying the document to delete.
-     * @return An IO representing the result of the find one and delete operation.
-     */
-    @Override
-    public IO<JsObj> apply(final ClientSession session, final JsObj query) {
-        Objects.requireNonNull(query);
-        Supplier<JsObj> supplier =
-                eventWrapper(() -> {
-                                 var collection = requireNonNull(this.collection.get());
-                                 return session == null ?
-                                         collection.findOneAndDelete(toBson(query), options) :
-                                         collection.findOneAndDelete(session, toBson(query), options);
-                             }, FIND_ONE_AND_DELETE
-                            );
-        return executor == null ?
-                IO.managedLazy(supplier) :
-                IO.lazy(supplier, executor);
-    }
+  /**
+   * Applies the find one and delete operation to the specified MongoDB collection with the provided query criteria.
+   *
+   * @param session The MongoDB client session, or null if not within a session.
+   * @param query   The query criteria for identifying the document to delete.
+   * @return An IO representing the result of the find one and delete operation.
+   */
+  @Override
+  public IO<JsObj> apply(final ClientSession session,
+                         final JsObj query) {
+    Objects.requireNonNull(query);
+    Supplier<JsObj> supplier =
+        decorateWithEvent(() -> {
+                       var collection = requireNonNull(this.collection.get());
+                       return session == null ?
+                              collection.findOneAndDelete(toBson(query),
+                                                          options) :
+                              collection.findOneAndDelete(session,
+                                                          toBson(query),
+                                                          options);
+                     },
+                          FIND_ONE_AND_DELETE
+                         );
+    return IO.lazy(supplier,
+                   Executors.newVirtualThreadPerTaskExecutor());
+  }
 
-    /**
-     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation
-     * will not generate or log JFR events for its operations.
-     *
-     * @return This operation instance with JFR event recording disabled.
-     */
-    public FindOneAndDelete withoutRecordedEvents() {
-        this.recordEvents = false;
-        return this;
-    }
+  /**
+   * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation will
+   * not generate or log JFR events for its operations.
+   *
+   * @return This operation instance with JFR event recording disabled.
+   */
+  public FindOneAndDelete withoutRecordedEvents() {
+    this.recordEvents = false;
+    return this;
+  }
 }

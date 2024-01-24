@@ -14,5 +14,17 @@ New:
 
 New:
 
-- JFR failure events find the ultimate cause of exceptions which gives more information about what happened
+- JFR failure events find the ultimate cause of exceptions which gives more information about what
+  happened
 - `MongoClientEventFormatter` now has a singleton
+
+** Version 1.2.0 **
+
+- Upgrade dependencies
+
+** Version 2.0.0 **
+
+Breaking:
+
+- This version only support Java 21 or greater
+- All the operations use virtual-threads and no executor can be specified

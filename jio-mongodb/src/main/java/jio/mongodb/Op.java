@@ -1,57 +1,45 @@
 package jio.mongodb;
 
-import java.util.concurrent.Executor;
 import java.util.function.Supplier;
+import jio.Fun;
 
 abstract class Op {
 
 
-    final CollectionBuilder collection;
-    boolean recordEvents;
-    Executor executor;
+  final CollectionBuilder collection;
+  boolean recordEvents;
 
-    public Op(CollectionBuilder collection,
-              boolean recordEvents
-             ) {
-        this.collection = collection;
-        this.recordEvents = recordEvents;
-    }
+  public Op(CollectionBuilder collection,
+            boolean recordEvents
+           ) {
+    this.collection = collection;
+    this.recordEvents = recordEvents;
+  }
 
-    private static Throwable findUltimateCause(Throwable exception) {
-        Throwable ultimateCause = exception;
-
-        // Iterate through the exception chain until the ultimate cause is found
-        while (ultimateCause.getCause() != null) {
-            ultimateCause = ultimateCause.getCause();
+  <Output> Supplier<Output> decorateWithEvent(final Supplier<Output> task,
+                                              final MongoOpEvent.OP op
+                                             ) {
+    if (recordEvents) {
+      return () -> {
+        MongoOpEvent event = new MongoOpEvent(op);
+        try {
+          event.begin();
+          Output result = task.get();
+          event.result = MongoOpEvent.RESULT.SUCCESS.name();
+          return result;
+        } catch (Throwable exc) {
+          var cause = Fun.findUltimateCause(exc);
+          event.result = MongoOpEvent.RESULT.FAILURE.name();
+          event.exception = cause.getClass()
+                                 .getName();
+          throw exc;
+        } finally {
+          event.commit();
         }
-
-        return ultimateCause;
+      };
+    } else {
+      return task;
     }
-
-    <O> Supplier<O> eventWrapper(final Supplier<O> task,
-                                 final MongoEvent.OP op
-                                ) {
-        if (recordEvents)
-            return () -> {
-                MongoEvent event = new MongoEvent(op);
-                try {
-                    event.begin();
-                    O result = task.get();
-                    event.result = MongoEvent.RESULT.SUCCESS.name();
-                    return result;
-                } catch (Throwable exc) {
-                    var cause = findUltimateCause(exc);
-                    event.result = MongoEvent.RESULT.FAILURE.name();
-                    event.exception = String.format("%s:%s",
-                                                    cause.getClass().getName(),
-                                                    cause.getMessage()
-                                                   );
-                    throw exc;
-                } finally {
-                    event.commit();
-                }
-            };
-        else return task::get;
-    }
+  }
 
 }

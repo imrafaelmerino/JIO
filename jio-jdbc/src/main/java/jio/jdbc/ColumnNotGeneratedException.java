@@ -7,13 +7,13 @@ package jio.jdbc;
 @SuppressWarnings("serial")
 public final class ColumnNotGeneratedException extends RuntimeException {
 
-    /**
-     * Constructs a new {@code ColumnNotGeneratedException} with a detail message indicating the SQL statement for which
-     * no generated key was produced.
-     *
-     * @param sql The SQL statement that did not produce any generated key.
-     */
-    ColumnNotGeneratedException(String sql) {
-        super("No generated key by the sql `%s`".formatted(sql));
-    }
+  /**
+   * Constructs a new {@code ColumnNotGeneratedException} with a detail message indicating the SQL statement for which
+   * no generated key was produced.
+   *
+   * @param sql The SQL statement that did not produce any generated key.
+   */
+  ColumnNotGeneratedException(String sql) {
+    super("No generated key by the sql `%s`".formatted(sql));
+  }
 }

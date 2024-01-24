@@ -17,41 +17,43 @@ import java.util.function.Supplier;
  */
 public final class DatabaseBuilder implements Supplier<MongoDatabase> {
 
-    final MongoClient client;
-    final String name;
-    volatile MongoDatabase database;
+  final MongoClient client;
+  final String name;
+  volatile MongoDatabase database;
 
 
-    DatabaseBuilder(final MongoClient client, final String name) {
-        this.client = Objects.requireNonNull(client);
-        this.name = Objects.requireNonNull(name);
-    }
+  DatabaseBuilder(final MongoClient client,
+                  final String name) {
+    this.client = Objects.requireNonNull(client);
+    this.name = Objects.requireNonNull(name);
+  }
 
-    /**
-     * Constructs a new DatabaseBuilder.
-     *
-     * @param client The MongoDB client.
-     * @param name   The name of the MongoDB database to obtain.
-     *
-     * @return a database builder
-     */
-    public static DatabaseBuilder of(final MongoClient client, final String name) {
-        return new DatabaseBuilder(client, name);
-    }
+  /**
+   * Constructs a new DatabaseBuilder.
+   *
+   * @param client The MongoDB client.
+   * @param name   The name of the MongoDB database to obtain.
+   * @return a database builder
+   */
+  public static DatabaseBuilder of(final MongoClient client,
+                                   final String name) {
+    return new DatabaseBuilder(client,
+                               name);
+  }
 
 
-    @Override
-    public MongoDatabase get() {
+  @Override
+  public MongoDatabase get() {
 
-        MongoDatabase localRef = database;
+    MongoDatabase localRef = database;
+    if (localRef == null) {
+      synchronized (this) {
+        localRef = database;
         if (localRef == null) {
-            synchronized (this) {
-                localRef = database;
-                if (localRef == null) {
-                    database = localRef = client.getDatabase(name);
-                }
-            }
+          database = localRef = client.getDatabase(name);
         }
-        return localRef;
+      }
     }
+    return localRef;
+  }
 }

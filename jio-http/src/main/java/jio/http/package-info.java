@@ -1,7 +1,7 @@
 /**
- * The {@code jio.http} package provides a comprehensive framework for building HTTP clients and servers using the JIO API.
- * It offers a seamless and asynchronous approach to making HTTP requests and handling responses, making it well-suited
- * for various use cases, including client-server communication and web services integration.
+ * The {@code jio.http} package provides a comprehensive framework for building HTTP clients and servers using the JIO
+ * API. It offers a seamless and asynchronous approach to making HTTP requests and handling responses, making it
+ * well-suited for various use cases, including client-server communication and web services integration.
  * <p>
  * This package includes the following key components:
  * <ul>

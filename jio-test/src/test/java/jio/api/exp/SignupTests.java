@@ -53,46 +53,48 @@ import java.util.concurrent.Callable;
  * each individual operation and for the overall service.
  */
 
-
 //only for java 21
 public class SignupTests {
 
 
-    @RegisterExtension
-    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
+  @RegisterExtension
+  static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
 
-    @Test
-    public void test() {
+  @Test
+  public void test() {
 
-        final Lambda<JsObj, Void> persistLDAP = a -> IO.NULL();
-        final Lambda<String, JsArray> normalizeAddresses = a -> IO.succeed(JsArray.of("address1", "address2"));
-        final Lambda<Void, Integer> countUsers = a -> IO.succeed(3);
-        final Lambda<JsObj, String> persistMongo = a -> IO.succeed("id");
-        final Lambda<JsObj, Void> sendEmail = a -> IO.NULL();
-        final Lambda<String, Boolean> existsInLDAP = a -> IO.FALSE;
+    final Lambda<JsObj, Void> persistLDAP = a -> IO.NULL();
+    final Lambda<String, JsArray> normalizeAddresses = a -> IO.succeed(
+        JsArray.of("address1",
+                   "address2"));
+    final Lambda<Void, Integer> countUsers = a -> IO.succeed(3);
+    final Lambda<JsObj, String> persistMongo = a -> IO.succeed("id");
+    final Lambda<JsObj, Void> sendEmail = a -> IO.NULL();
+    final Lambda<String, Boolean> existsInLDAP = a -> IO.FALSE;
 
-        JsObj user = JsObj.of("email", JsStr.of("imrafaelmerino@gmail.com"),
-                              "address", JsStr.of("Elm's Street")
-                             );
+    JsObj user = JsObj.of("email",
+                          JsStr.of("imrafaelmerino@gmail.com"),
+                          "address",
+                          JsStr.of("Elm's Street")
+                         );
 
-        var resp = new SignupService(persistLDAP,
-                                     normalizeAddresses,
-                                     countUsers,
-                                     persistMongo,
-                                     sendEmail,
-                                     existsInLDAP,
-                                     Clock.realTime)
-                .apply(user)
-                .result();
+    var resp = new SignupService(persistLDAP,
+                                 normalizeAddresses,
+                                 countUsers,
+                                 persistMongo,
+                                 sendEmail,
+                                 existsInLDAP,
+                                 Clock.realTime)
+        .apply(user)
+        .result();
 
-        Assertions.assertTrue(resp.containsKey("number_users"));
-        Assertions.assertTrue(resp.containsKey("id"));
-        Assertions.assertTrue(resp.containsKey("addresses"));
-        Assertions.assertTrue(resp.containsKey("timestamp"));
+    Assertions.assertTrue(resp.containsKey("number_users"));
+    Assertions.assertTrue(resp.containsKey("id"));
+    Assertions.assertTrue(resp.containsKey("addresses"));
+    Assertions.assertTrue(resp.containsKey("timestamp"));
 
-    }
-
+  }
 
 
 }

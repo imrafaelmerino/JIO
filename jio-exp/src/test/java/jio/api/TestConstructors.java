@@ -22,153 +22,193 @@ import java.util.stream.Collectors;
 
 public class TestConstructors {
 
-    @Test
-    public void succeed_constructor() {
+  @Test
+  public void succeed_constructor() {
 
-        IO<String> foo = IO.succeed("foo");
+    IO<String> foo = IO.succeed("foo");
 
-        Assertions.assertEquals("foo", foo.result());
+    Assertions.assertEquals("foo",
+                            foo.result());
 
-        Instant before = Instant.now();
-        IO<Instant> now = IO.lazy(Instant::now);
+    Instant before = Instant.now();
+    IO<Instant> now = IO.lazy(Instant::now);
 
-        Assertions.assertTrue(before.isBefore(now.result()));
+    Assertions.assertTrue(before.isBefore(now.result()));
 
+  }
+
+
+  @Test
+  public void computation_constructor() {
+
+    String forkJoinPoolThreadName = IO.lazy(
+                                          () -> Thread.currentThread()
+                                                      .getName(),
+                                          ForkJoinPool.commonPool()
+                                           )
+                                      .result();
+
+    Assertions.assertTrue(forkJoinPoolThreadName.startsWith("ForkJoinPool.commonPool-worker-"));
+
+    String executorThreadName =
+        IO.lazy(
+              () -> Thread.currentThread()
+                          .getName(),
+              Executors.newSingleThreadExecutor()
+               )
+          .result();
+
+    System.out.println("----------" + executorThreadName);
+
+    Assertions.assertTrue(executorThreadName.startsWith("pool") &&
+                              executorThreadName.endsWith("thread-1"));
+
+  }
+
+  @Test
+  public void testSupplier() throws InterruptedException {
+
+    Supplier<String> a = () -> {
+      throw new RuntimeException();
+    };
+
+    IO<String> b = IO.lazy(a,
+                           Executors.newSingleThreadExecutor());
+
+    CompletableFuture<String> fut = b.get();
+
+    Thread.sleep(1000);
+    Assertions.assertTrue(fut.isCompletedExceptionally());
+  }
+
+
+  @Test
+  public void testAll() {
+
+    IO<Boolean> par = AllExp.par(IO.FALSE,
+                                 IO.TRUE,
+                                 IO.FALSE)
+                            .debugEach("my-op");
+
+    Assertions.assertFalse(par.result());
+
+    IO<Boolean> seq = AllExp.seq(IO.FALSE,
+                                 IO.TRUE,
+                                 IO.FALSE)
+                            .debugEach("my-op");
+
+    Assertions.assertFalse(seq.result());
+
+
+  }
+
+  @Test
+  public void testIfElse() {
+    Assertions.assertEquals("alternative",
+                            IfElseExp.<String>predicate(IO.FALSE)
+                                     .consequence(() -> IO.succeed("consequence"))
+                                     .alternative(() -> IO.succeed("alternative"))
+                                     .debugEach("my-op")
+                                     .result()
+                           );
+  }
+
+  @Test
+  public void testJsObj() {
+    Assertions.assertEquals(JsObj.of("a",
+                                     JsInt.of(1),
+                                     "b",
+                                     JsInt.of(2),
+                                     "c",
+                                     JsInt.of(3),
+                                     "d",
+                                     JsObj.of("e",
+                                              JsInt.of(4),
+                                              "f",
+                                              JsInt.of(5),
+                                              "g",
+                                              JsArray.of(true,
+                                                         false)
+                                             )
+                                    ),
+                            JsObjExp.par("a",
+                                         IO.succeed(1)
+                                           .map(JsInt::of),
+                                         "b",
+                                         IO.succeed(2)
+                                           .map(JsInt::of),
+                                         "c",
+                                         IO.succeed(3)
+                                           .map(JsInt::of),
+                                         "d",
+                                         JsObjExp.seq("e",
+                                                      IO.succeed(4)
+                                                        .map(JsInt::of),
+                                                      "f",
+                                                      IO.succeed(5)
+                                                        .map(JsInt::of),
+                                                      "g",
+                                                      JsArrayExp.seq(IO.TRUE.map(JsBool::of),
+                                                                     IO.FALSE.map(JsBool::of)
+                                                                    )
+                                                     )
+                                        )
+                                    .debugEach("my-op")
+                                    .result()
+
+                           );
+  }
+
+  @Test
+  public void testResource() {
+
+    String a = IO.resource(() -> {
+                             File file = File.createTempFile("example",
+                                                             "text");
+                             Files.writeString(file.toPath(),
+                                               "hola");
+                             BufferedReader bufferedReader = new BufferedReader(
+                                 new FileReader(file,
+                                                StandardCharsets.UTF_8));
+                             return bufferedReader;
+                           },
+                           it -> IO.succeed(it.lines()
+                                              .collect(Collectors.joining())))
+                 .result();
+
+    Assertions.assertEquals("hola",
+                            a);
+  }
+
+  @Test
+  public void testOn() {
+
+    try {
+      IO.task(() -> {
+          throw new IllegalArgumentException("hola");
+        })
+        .debug()
+        .result();
+    } catch (Exception e) {
+      Assertions.assertEquals("hola",
+                              e.getCause()
+                               .getMessage());
     }
 
-
-    @Test
-    public void computation_constructor() {
-
-        String forkJoinPoolThreadName = IO.lazy(
-                () -> Thread.currentThread().getName(),
-                ForkJoinPool.commonPool()
-                                                       ).result();
-
-        Assertions.assertTrue(forkJoinPoolThreadName.startsWith("ForkJoinPool.commonPool-worker-"));
-
-        String executorThreadName =
-                IO.lazy(
-                        () -> Thread.currentThread().getName(),
-                        Executors.newSingleThreadExecutor()
-                               ).result();
-
-        System.out.println("----------" + executorThreadName);
-
-        Assertions.assertTrue(executorThreadName.startsWith("pool") &&
-                                      executorThreadName.endsWith("thread-1"));
-
+    try {
+      IO.task(() -> {
+                throw new IllegalArgumentException("hola");
+              },
+              Executors.newCachedThreadPool()
+             )
+        .debug()
+        .result();
+    } catch (Exception e) {
+      Assertions.assertEquals("hola",
+                              e.getCause()
+                               .getMessage());
     }
-
-    @Test
-    public void testSupplier() throws InterruptedException {
-
-        Supplier<String> a = () -> {
-            throw new RuntimeException();
-        };
-
-        IO<String> b = IO.lazy(a, Executors.newSingleThreadExecutor());
-
-        CompletableFuture<String> fut = b.get();
-
-        Thread.sleep(1000);
-        Assertions.assertTrue(fut.isCompletedExceptionally());
-    }
-
-
-    @Test
-    public void testAll() {
-
-        IO<Boolean> par = AllExp.par(IO.FALSE, IO.TRUE, IO.FALSE).debugEach("my-op");
-
-        Assertions.assertFalse(par.result());
-
-        IO<Boolean> seq = AllExp.seq(IO.FALSE, IO.TRUE, IO.FALSE).debugEach("my-op");
-
-        Assertions.assertFalse(seq.result());
-
-
-    }
-
-    @Test
-    public void testIfElse() {
-        Assertions.assertEquals("alternative",
-                                IfElseExp.<String>predicate(IO.FALSE)
-                                         .consequence(() -> IO.succeed("consequence"))
-                                         .alternative(() -> IO.succeed("alternative"))
-                                         .debugEach("my-op")
-                                         .result()
-                               );
-    }
-
-    @Test
-    public void testJsObj() {
-        Assertions.assertEquals(JsObj.of("a", JsInt.of(1),
-                                         "b", JsInt.of(2),
-                                         "c", JsInt.of(3),
-                                         "d", JsObj.of("e", JsInt.of(4),
-                                                       "f", JsInt.of(5),
-                                                       "g", JsArray.of(true, false)
-                                                      )
-                                        ),
-                                JsObjExp.par("a", IO.succeed(1).map(JsInt::of),
-                                             "b", IO.succeed(2).map(JsInt::of),
-                                             "c", IO.succeed(3).map(JsInt::of),
-                                             "d", JsObjExp.seq("e", IO.succeed(4).map(JsInt::of),
-                                                               "f", IO.succeed(5).map(JsInt::of),
-                                                               "g", JsArrayExp.seq(IO.TRUE.map(JsBool::of),
-                                                                                   IO.FALSE.map(JsBool::of)
-                                                                                  )
-                                                              )
-                                            )
-                                        .debugEach("my-op")
-                                        .result()
-
-                               );
-    }
-
-    @Test
-    public void testResource() {
-
-
-        String a = IO.resource(() -> {
-                                   File file = File.createTempFile("example", "text");
-                                   Files.writeString(file.toPath(), "hola");
-                                   BufferedReader bufferedReader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8));
-                                   return bufferedReader;
-                               },
-                               it -> IO.succeed(it.lines().collect(Collectors.joining())))
-                     .result();
-
-
-        Assertions.assertEquals("hola", a);
-    }
-
-    @Test
-    public void testOn() {
-
-        try {
-            IO.task(() -> {
-                  throw new IllegalArgumentException("hola");
-              })
-              .debug()
-              .result();
-        } catch (Exception e) {
-            Assertions.assertEquals("hola", e.getCause().getMessage());
-        }
-
-        try {
-            IO.task(() -> {
-                          throw new IllegalArgumentException("hola");
-                      },
-                        Executors.newCachedThreadPool()
-                       )
-              .debug()
-              .result();
-        } catch (Exception e) {
-            Assertions.assertEquals("hola", e.getCause().getMessage());
-        }
-    }
+  }
 
 
 }

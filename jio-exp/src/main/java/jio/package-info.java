@@ -4,9 +4,9 @@
  * CompletableFuture and provide a powerful toolset for working with asynchronous operations, error handling, and
  * composition of complex computations.
  *
- * <p>The primary building blocks in this package are the {@link jio.IO} type, which represents an effectful
- * computation, and various subtypes like {@link jio.Val} and {@link jio.Exp}. The key concepts and classes in this
- * package are as follows:
+ * <p>The primary building blocks in this package are the {@link jio.IO} type, which represents an
+ * effectful computation, and various subtypes like {@link jio.Val} and {@link jio.Exp}. The key concepts and classes in
+ * this package are as follows:
  *
  * <h2>IO: Effectful Computations</h2>
  * The core abstraction in this package is the {@link jio.IO} interface, which represents an effectful computation. It
@@ -29,8 +29,9 @@
  * Implementations of this interface allow you to control how and when a computation should be retried based on
  * specified criteria.
  *
- * <p>Overall, the {@code jio} package provides a robust framework for building and managing complex, asynchronous
- * computations in a functional style. It encourages the separation of effectful operations from their execution,
- * promotes composability, and offers powerful error handling mechanisms to create resilient and reliable applications.
+ * <p>Overall, the {@code jio} package provides a robust framework for building and managing
+ * complex, asynchronous computations in a functional style. It encourages the separation of effectful operations from
+ * their execution, promotes composability, and offers powerful error handling mechanisms to create resilient and
+ * reliable applications.
  */
 package jio;

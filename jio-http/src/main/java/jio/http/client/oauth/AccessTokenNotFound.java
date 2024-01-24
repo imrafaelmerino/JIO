@@ -8,15 +8,15 @@ import java.util.Objects;
 @SuppressWarnings("serial")
 public final class AccessTokenNotFound extends Exception {
 
-    AccessTokenNotFound(String message) {
-        super(Objects.requireNonNull(message));
-    }
+  AccessTokenNotFound(String message) {
+    super(Objects.requireNonNull(message));
+  }
 
-    AccessTokenNotFound(String message,
-                        Throwable cause
-                       ) {
-        super(Objects.requireNonNull(message),
-              Objects.requireNonNull(cause)
-             );
-    }
+  AccessTokenNotFound(String message,
+                      Throwable cause
+                     ) {
+    super(Objects.requireNonNull(message),
+          Objects.requireNonNull(cause)
+         );
+  }
 }

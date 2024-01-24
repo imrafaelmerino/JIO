@@ -3,15 +3,15 @@ package jio.mongodb;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.model.InsertOneOptions;
 import com.mongodb.client.result.InsertOneResult;
+import java.util.concurrent.Executors;
 import jio.IO;
 import jsonvalues.JsObj;
 
 import java.util.Objects;
-import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
-import static jio.mongodb.MongoEvent.OP.INSERT_ONE;
+import static jio.mongodb.MongoOpEvent.OP.INSERT_ONE;
 
 /**
  * A class for performing insert one operations on a MongoDB collection.
@@ -28,82 +28,77 @@ import static jio.mongodb.MongoEvent.OP.INSERT_ONE;
  * @see CollectionBuilder
  */
 public final class InsertOne extends Op implements MongoLambda<JsObj, InsertOneResult> {
-    private static final InsertOneOptions DEFAULT_OPTIONS = new InsertOneOptions();
-    private InsertOneOptions options = DEFAULT_OPTIONS;
 
-    /**
-     * Constructs a new `InsertOne` instance with the specified collection supplier and default insert options.
-     *
-     * @param collection The supplier for the MongoDB collection.
-     */
-    private InsertOne(final CollectionBuilder collection) {
-        super(collection, true);
-    }
+  private static final InsertOneOptions DEFAULT_OPTIONS = new InsertOneOptions();
+  private InsertOneOptions options = DEFAULT_OPTIONS;
 
-    /**
-     * Creates an `InsertOne` instance with the specified collection supplier and result converter using default
-     * options.
-     *
-     * @param collection The supplier for the MongoDB collection.
-     * @return An `InsertOne` instance with default options.
-     */
-    public static InsertOne of(final CollectionBuilder collection) {
-        return new InsertOne(collection);
-    }
+  /**
+   * Constructs a new `InsertOne` instance with the specified collection supplier and default insert options.
+   *
+   * @param collection The supplier for the MongoDB collection.
+   */
+  private InsertOne(final CollectionBuilder collection) {
+    super(collection,
+          true);
+  }
 
-    /**
-     * Sets the insert options to be used for the operation.
-     *
-     * @param options The options to perform the operation.
-     * @return This instance with the new options.
-     */
-    public InsertOne withOptions(final InsertOneOptions options) {
-        this.options = requireNonNull(options);
-        return this;
-    }
+  /**
+   * Creates an `InsertOne` instance with the specified collection supplier and result converter using default options.
+   *
+   * @param collection The supplier for the MongoDB collection.
+   * @return An `InsertOne` instance with default options.
+   */
+  public static InsertOne of(final CollectionBuilder collection) {
+    return new InsertOne(collection);
+  }
 
-    /**
-     * Specifies an executor to be used for running the insert one operation asynchronously.
-     *
-     * @param executor The executor to use.
-     * @return This `InsertOne` instance for method chaining.
-     */
-    public InsertOne withExecutor(final Executor executor) {
-        this.executor = requireNonNull(executor);
-        return this;
-    }
+  /**
+   * Sets the insert options to be used for the operation.
+   *
+   * @param options The options to perform the operation.
+   * @return This instance with the new options.
+   */
+  public InsertOne withOptions(final InsertOneOptions options) {
+    this.options = requireNonNull(options);
+    return this;
+  }
 
-    /**
-     * Applies the insert one operation to the specified MongoDB collection with a `JsObj` document.
-     *
-     * @param session The MongoDB client session, or null if not within a session.
-     * @param message The `JsObj` document to insert.
-     * @return An IO representing the result of the insert one operation.
-     */
-    @Override
-    public IO<InsertOneResult> apply(final ClientSession session, final JsObj message) {
-        Objects.requireNonNull(message);
-        Supplier<InsertOneResult> supplier =
-                eventWrapper(() -> {
-                                 var collection = requireNonNull(this.collection.get());
-                                 return session == null ?
-                                         collection.insertOne(message, options) :
-                                         collection.insertOne(session, message, options);
-                             }, INSERT_ONE
-                            );
-        return executor == null ?
-                IO.managedLazy(supplier) :
-                IO.lazy(supplier, executor);
-    }
 
-    /**
-     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation
-     * will not generate or log JFR events for its operations.
-     *
-     * @return This operation instance with JFR event recording disabled.
-     */
-    public InsertOne withoutRecordedEvents() {
-        this.recordEvents = false;
-        return this;
-    }
+  /**
+   * Applies the insert one operation to the specified MongoDB collection with a `JsObj` document.
+   *
+   * @param session The MongoDB client session, or null if not within a session.
+   * @param message The `JsObj` document to insert.
+   * @return An IO representing the result of the insert one operation.
+   */
+  @Override
+  public IO<InsertOneResult> apply(final ClientSession session,
+                                   final JsObj message) {
+    Objects.requireNonNull(message);
+    Supplier<InsertOneResult> supplier =
+        decorateWithEvent(() -> {
+                       var collection = requireNonNull(this.collection.get());
+                       return session == null ?
+                              collection.insertOne(message,
+                                                   options) :
+                              collection.insertOne(session,
+                                                   message,
+                                                   options);
+                     },
+                          INSERT_ONE
+                         );
+    return IO.lazy(supplier,
+                   Executors.newVirtualThreadPerTaskExecutor());
+  }
+
+  /**
+   * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation will
+   * not generate or log JFR events for its operations.
+   *
+   * @return This operation instance with JFR event recording disabled.
+   */
+  public InsertOne withoutRecordedEvents() {
+    this.recordEvents = false;
+    return this;
+  }
 }

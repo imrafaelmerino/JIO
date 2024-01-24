@@ -23,53 +23,55 @@ import java.util.function.Supplier;
  */
 public final class CollectionBuilder implements Supplier<MongoCollection<JsObj>> {
 
-    final DatabaseBuilder database;
-    final String name;
-    volatile MongoCollection<JsObj> collection;
+  final DatabaseBuilder database;
+  final String name;
+  volatile MongoCollection<JsObj> collection;
 
 
-    CollectionBuilder(final DatabaseBuilder database,
-                      final String name
-                     ) {
-        this.database = Objects.requireNonNull(database);
-        this.name = Objects.requireNonNull(name);
-    }
+  CollectionBuilder(final DatabaseBuilder database,
+                    final String name
+                   ) {
+    this.database = Objects.requireNonNull(database);
+    this.name = Objects.requireNonNull(name);
+  }
 
-    /**
-     * Constructs a CollectionBuilder.of with the given DatabaseBuilder and collection name.
-     *
-     * @param database The supplier of the MongoDB database.
-     * @param name     The name of the MongoDB collection.
-     * @throws NullPointerException if either database or name is null.
-     *
-     * @return a collection builder
-     */
-    public static CollectionBuilder of(final DatabaseBuilder database,
-                                       final String name
-                                      ) {
-        return new CollectionBuilder(database, name);
-    }
+  /**
+   * Constructs a CollectionBuilder with the given DatabaseBuilder and collection name.
+   *
+   * @param database The supplier of the MongoDB database.
+   * @param name     The name of the MongoDB collection.
+   * @return a collection builder
+   * @throws NullPointerException if either database or name is null.
+   */
+  public static CollectionBuilder of(final DatabaseBuilder database,
+                                     final String name
+                                    ) {
+    return new CollectionBuilder(database,
+                                 name);
+  }
 
-    /**
-     * Gets the MongoDB collection. If the collection has not been initialized, it will be lazily initialized using the
-     * associated database supplier.
-     *
-     * <p>This method is thread-safe, ensuring safe and efficient lazy initialization of the MongoDB collection.</p>
-     *
-     * @return The MongoDB collection of JSON objects.
-     */
-    @Override
-    public MongoCollection<JsObj> get() {
+  /**
+   * Gets the MongoDB collection. If the collection has not been initialized, it will be lazily initialized using the
+   * associated database supplier.
+   *
+   * <p>This method is thread-safe, ensuring safe and efficient lazy initialization of the MongoDB collection.</p>
+   *
+   * @return The MongoDB collection of JSON objects.
+   */
+  @Override
+  public MongoCollection<JsObj> get() {
 
-        var localRef = collection;
+    var localRef = collection;
+    if (localRef == null) {
+      synchronized (this) {
+        localRef = collection;
         if (localRef == null) {
-            synchronized (this) {
-                localRef = collection;
-                if (localRef == null) {
-                    collection = localRef = database.get().getCollection(name, JsObj.class);
-                }
-            }
+          collection = localRef = database.get()
+                                          .getCollection(name,
+                                                         JsObj.class);
         }
-        return localRef;
+      }
     }
+    return localRef;
+  }
 }

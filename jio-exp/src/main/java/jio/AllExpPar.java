@@ -14,62 +14,68 @@ import static java.util.Objects.requireNonNull;
 final class AllExpPar extends AllExp {
 
 
-    public AllExpPar(final List<IO<Boolean>> exps,
-                     final Function<ExpEvent, BiConsumer<Boolean, Throwable>> debugger
-                    ) {
-        super(debugger,
-              exps
-             );
-    }
+  public AllExpPar(final List<IO<Boolean>> exps,
+                   final Function<EvalExpEvent, BiConsumer<Boolean, Throwable>> debugger
+                  ) {
+    super(
+        debugger,
+        exps
+         );
+  }
 
-    @Override
-    public AllExp retryEach(final Predicate<? super Throwable> predicate,
-                            final RetryPolicy policy
-                           ) {
-        requireNonNull(predicate);
-        requireNonNull(policy);
-        return new AllExpPar(exps.stream()
-                                 .map(it -> it.retry(predicate,
-                                                     policy
-                                                    )
-                                     )
-                                 .toList(),
-                             jfrPublisher
-        );
-    }
-
-
-    @Override
-    @SuppressWarnings("unchecked")
-    CompletableFuture<Boolean> reduceExp() {
-        CompletableFuture<Boolean>[] cfs =
-                exps.stream()
-                    .map(Supplier::get)
-                    .toArray(CompletableFuture[]::new);
-
-        return
-                CompletableFuture.allOf(cfs)
-                                 .thenApply(l -> Arrays.stream(cfs)
-                                                       .allMatch(CompletableFuture::join)
-                                           );
-    }
+  @Override
+  public AllExp retryEach(
+      final Predicate<? super Throwable> predicate,
+      final RetryPolicy policy
+                         ) {
+    requireNonNull(predicate);
+    requireNonNull(policy);
+    return new AllExpPar(
+        exps.stream()
+            .map(it -> it.retry(
+                predicate,
+                policy
+                               ))
+            .toList(),
+        jfrPublisher
+    );
+  }
 
 
-    @Override
-    public AllExp debugEach(final EventBuilder<Boolean> builder) {
-        Objects.requireNonNull(builder);
-        return new AllExpPar(DebuggerHelper.debugConditions(exps,
-                                                            builder
-                                                           ),
-                             getJFRPublisher(builder)
-        );
-    }
+  @Override
+  @SuppressWarnings("unchecked")
+  CompletableFuture<Boolean> reduceExp() {
+    CompletableFuture<Boolean>[] cfs = exps.stream()
+                                           .map(Supplier::get)
+                                           .toArray(CompletableFuture[]::new);
 
-    @Override
-    public AllExp debugEach(final String context) {
-        return debugEach(EventBuilder.of(this.getClass().getSimpleName(), context));
+    return CompletableFuture.allOf(cfs)
+                            .thenApply(l -> Arrays.stream(cfs)
+                                                  .allMatch(CompletableFuture::join));
+  }
 
-    }
+
+  @Override
+  public AllExp debugEach(final EventBuilder<Boolean> builder) {
+    Objects.requireNonNull(builder);
+    return new AllExpPar(
+        DebuggerHelper.debugConditions(
+            exps,
+            builder
+                                      ),
+        getJFRPublisher(builder)
+    );
+  }
+
+  @Override
+  public AllExp debugEach(final String context) {
+    return debugEach(EventBuilder.of(
+        this.getClass()
+            .getSimpleName(),
+        context
+                                    ));
+
+  }
 
 
 }

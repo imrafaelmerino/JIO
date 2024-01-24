@@ -26,59 +26,60 @@ import static java.util.Objects.requireNonNull;
  */
 class PropertyCommand extends Command {
 
-    static final Pattern parPattern =
-            Pattern.compile("prop \\w+ par \\d+");
-    static final Pattern seqPattern =
-            Pattern.compile("prop \\w+ seq \\d+");
-    private static final String PREFIX_COMMAND = "prop";
-    private final Property<?> prop;
+  static final Pattern parPattern =
+      Pattern.compile("prop \\w+ par \\d+");
+  static final Pattern seqPattern =
+      Pattern.compile("prop \\w+ seq \\d+");
+  private static final String PREFIX_COMMAND = "prop";
+  private final Property<?> prop;
 
 
-    /**
-     * Creates a PropertyCommand from a property.
-     *
-     * @param prop The property to execute.
-     */
-    private PropertyCommand(final Property<?> prop) {
-        super(String.format("%s %s",
-                            PREFIX_COMMAND,
-                            requireNonNull(prop).name
-                           ),
-              prop.description,
-              tokens ->
-                      tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
-                              && tokens[1].equalsIgnoreCase(prop.name)
-             );
-        this.prop = requireNonNull(prop);
-    }
-    /**
-     * Creates a PropertyCommand from a property.
-     *
-     * @param prop The property to execute.
-     */
-    public static PropertyCommand of(final Property<?> prop){
-        return new PropertyCommand(prop);
-    }
+  /**
+   * Creates a PropertyCommand from a property.
+   *
+   * @param prop The property to execute.
+   */
+  private PropertyCommand(final Property<?> prop) {
+    super(String.format("%s %s",
+            PREFIX_COMMAND,
+            requireNonNull(prop).name
+        ),
+        prop.description,
+        tokens ->
+            tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
+                && tokens[1].equalsIgnoreCase(prop.name)
+    );
+    this.prop = requireNonNull(prop);
+  }
 
-    @Override
-    public Function<String[], IO<String>> apply(final JsObj conf,
-                                                final State state
-                                               ) {
-        return tokens -> {
-            String command = String.join(" ", Arrays.stream(tokens).toList());
-            if (parPattern.matcher(command).matches()) {
-                int n = Integer.parseInt(tokens[3]);
-                return IO.succeed(prop.repeatPar(n).createTask(conf).result().toString());
-            }
-            if (seqPattern.matcher(command).matches()) {
-                int n = Integer.parseInt(tokens[3]);
-                return IO.succeed(prop.repeatPar(n).createTask(conf).result().toString());
-            }
-            return prop.createTask(conf).map(Report::toString);
+  /**
+   * Creates a PropertyCommand from a property.
+   *
+   * @param prop The property to execute.
+   */
+  public static PropertyCommand of(final Property<?> prop) {
+    return new PropertyCommand(prop);
+  }
+
+  @Override
+  public Function<String[], IO<String>> apply(final JsObj conf,
+      final State state
+  ) {
+    return tokens -> {
+      String command = String.join(" ", Arrays.stream(tokens).toList());
+      if (parPattern.matcher(command).matches()) {
+        int n = Integer.parseInt(tokens[3]);
+        return IO.succeed(prop.repeatPar(n).createTask(conf).result().toString());
+      }
+      if (seqPattern.matcher(command).matches()) {
+        int n = Integer.parseInt(tokens[3]);
+        return IO.succeed(prop.repeatPar(n).createTask(conf).result().toString());
+      }
+      return prop.createTask(conf).map(Report::toString);
 
 
-        };
-    }
+    };
+  }
 
 
 }

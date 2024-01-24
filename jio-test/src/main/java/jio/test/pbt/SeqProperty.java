@@ -7,23 +7,30 @@ import jsonvalues.JsObj;
 import java.util.Objects;
 
 
-non-sealed class SeqProperty<O> extends Testable {
+non-sealed class SeqProperty<GenValue> extends Testable {
 
-    int n;
+  final int executionTimes;
 
-    Property<O> prop;
+  final Property<GenValue> prop;
 
-    SeqProperty(int n, Property<O> prop) {
-        this.n = n;
-        this.prop = prop;
+  SeqProperty(int executionTimes,
+              Property<GenValue> prop) {
+    this.executionTimes = executionTimes;
+    this.prop = prop;
+  }
+
+  @Override
+  IO<Report> createTask(JsObj conf) {
+    if (executionTimes < 1) {
+      throw new IllegalArgumentException("n < 1");
     }
-
-    @Override
-    IO<Report> createTask(JsObj conf) {
-        if (n < 1) throw new IllegalArgumentException("n < 1");
-        final IO<Report> test = prop.createTask(Objects.requireNonNull(conf));
-        var result = ListExp.seq(test);
-        for (int i = 1; i < n; i++) result = result.append(test);
-        return result.map(it -> it.stream().reduce(Report::aggregate).get());
+    final IO<Report> test = prop.createTask(Objects.requireNonNull(conf));
+    var result = ListExp.seq(test);
+    for (int i = 1; i < executionTimes; i++) {
+      result = result.append(test);
     }
+    return result.map(it -> it.stream()
+                              .reduce(Report::aggregate)
+                              .get());
+  }
 }

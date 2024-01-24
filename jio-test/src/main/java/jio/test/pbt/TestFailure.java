@@ -9,22 +9,22 @@ import static java.util.Objects.requireNonNull;
 @SuppressWarnings("serial")
 public final class TestFailure extends Exception implements TestResult {
 
-    /**
-     * Constructs a new TestFailure with the specified failure reason.
-     *
-     * @param reason The reason explaining why the test failed.
-     */
-    TestFailure(String reason) {
-        super(reason);
-    }
+  /**
+   * Constructs a new TestFailure with the specified failure reason.
+   *
+   * @param reason The reason explaining why the test failed.
+   */
+  TestFailure(String reason) {
+    super(reason);
+  }
 
-    /**
-     * Creates a TestFailure with the given failure reason.
-     *
-     * @param reason The failure reason.
-     * @return A TestFailure instance representing the failure reason.
-     */
-    public static TestFailure reason(final String reason) {
-        return new TestFailure(requireNonNull(reason));
-    }
+  /**
+   * Creates a TestFailure with the given failure reason.
+   *
+   * @param reason The failure reason.
+   * @return A TestFailure instance representing the failure reason.
+   */
+  public static TestFailure reason(final String reason) {
+    return new TestFailure(requireNonNull(reason));
+  }
 }

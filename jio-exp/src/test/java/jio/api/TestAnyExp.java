@@ -7,42 +7,50 @@ import org.junit.jupiter.api.Test;
 
 public class TestAnyExp {
 
-    @Test
-    public void sequential_constructor() {
+  @Test
+  public void sequential_constructor() {
 
-        var a = AnyExp.seq(AnyExp.seq(IO.FALSE, IO.FALSE), IO.TRUE);
+    var a = AnyExp.seq(AnyExp.seq(IO.FALSE,
+                                  IO.FALSE),
+                       IO.TRUE);
 
-        Assertions.assertTrue(a.result());
+    Assertions.assertTrue(a.result());
 
-        var b = AnyExp.seq(AnyExp.seq(IO.FALSE, IO.FALSE), IO.FALSE);
+    var b = AnyExp.seq(AnyExp.seq(IO.FALSE,
+                                  IO.FALSE),
+                       IO.FALSE);
 
-        Assertions.assertFalse(b.result());
+    Assertions.assertFalse(b.result());
 
-    }
+  }
 
-    @Test
-    public void parallel_constructor() {
+  @Test
+  public void parallel_constructor() {
 
-        var a = AnyExp.par(AnyExp.par(IO.TRUE, IO.FALSE), IO.FALSE);
+    var a = AnyExp.par(AnyExp.par(IO.TRUE,
+                                  IO.FALSE),
+                       IO.FALSE);
 
-        Assertions.assertTrue(a.result());
+    Assertions.assertTrue(a.result());
 
-        var b = AnyExp.seq(AnyExp.par(IO.FALSE, IO.FALSE), IO.FALSE);
+    var b = AnyExp.seq(AnyExp.par(IO.FALSE,
+                                  IO.FALSE),
+                       IO.FALSE);
 
-        Assertions.assertFalse(b.result());
-    }
+    Assertions.assertFalse(b.result());
+  }
 
-    @Test
-    public void test_debugeach() {
-        var exp = AnyExp.par(IO.FALSE,
-                             IO.TRUE
-                            )
-                        .debugEach("context")
-                        .result();
+  @Test
+  public void test_debugeach() {
+    var exp = AnyExp.par(IO.FALSE,
+                         IO.TRUE
+                        )
+                    .debugEach("context")
+                    .result();
 
-        Assertions.assertEquals(true,
-                                exp
-                               );
+    Assertions.assertEquals(true,
+                            exp
+                           );
 
-    }
+  }
 }

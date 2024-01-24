@@ -6,9 +6,9 @@ package jio.test.pbt;
  */
 public sealed interface TestResult permits TestFailure, TestSuccess {
 
-    /**
-     * A singleton that represents a successful execution of a property test.
-     */
-    TestSuccess SUCCESS = new TestSuccess();
+  /**
+   * A singleton that represents a successful execution of a property test.
+   */
+  TestSuccess SUCCESS = new TestSuccess();
 }
 

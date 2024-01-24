@@ -1,53 +1,42 @@
 package jio.jdbc;
 
-import jdk.jfr.*;
+import jdk.jfr.Event;
 
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
+import jdk.jfr.StackTrace;
 
-/**
- * Event that is created and written to the Flight Recorder system when a request response is received or an exception
- * happens during the exchange
- */
-@Label("jio-jdbc-statement")
-@Name("jio.jdbc")
-@Category("JIO")
-@Description("Database statements performed by jio-jdbc")
-final class StmEvent extends Event {
+@StackTrace(value = false)
+abstract class StmEvent extends Event {
 
-    static final AtomicLong counter = new AtomicLong(0);
-    static final String OP_COUNTER_LABEL = "opCounter";
-    static final String RESULT_LABEL = "result";
-    static final String SQL_LABEL = "sql";
-    static final String EXCEPTION_LABEL = "exception";
+  static final AtomicLong counter = new AtomicLong(0);
+  static final String OP_COUNTER_FIELD = "opCounter";
+  static final String RESULT_FIELD = "result";
+  static final String SQL_FIELD = "sql";
+  static final String EXCEPTION_FIELD = "exception";
+  static final String LABEL_FIELD = "label";
 
-    /**
-     * the method of the request
-     */
-    @Label(SQL_LABEL)
-    public final String sql;
+  /**
+   * the method of the request
+   */
+  String sql;
 
-    /**
-     * the result of the exchange: a success if a response is received or an exception
-     */
-    @Label(RESULT_LABEL)
-    public String result;
-    /**
-     * the exception in case of one happens during the exchange
-     */
-    @Label(EXCEPTION_LABEL)
-    public String exception = "";
+  /**
+   * the result of the exchange: a success if a response is received or an exception
+   */
+  String result;
+  /**
+   * the exception in case of one happens during the exchange
+   */
+  String exception;
 
-    @Label(OP_COUNTER_LABEL)
-    public long opCounter = counter.incrementAndGet();
+  /**
+   * Short label to identify the statement
+   */
+  String label;
 
-    public StmEvent(String sql) {
-        this.sql = Objects.requireNonNull(sql);
-    }
+  long opCounter = counter.incrementAndGet();
 
-    enum RESULT {
-        SUCCESS, FAILURE
-    }
-
-
+  enum RESULT {
+    SUCCESS, FAILURE
+  }
 }

@@ -12,34 +12,34 @@ import static java.util.Objects.requireNonNull;
  */
 public final class Watcher implements Consumer<CollectionBuilder> {
 
-    /**
-     * The consumer to handle the change stream iterable.
-     */
-    private final Consumer<ChangeStreamIterable<JsObj>> consumer;
+  /**
+   * The consumer to handle the change stream iterable.
+   */
+  private final Consumer<ChangeStreamIterable<JsObj>> consumer;
 
 
-     private Watcher(final Consumer<ChangeStreamIterable<JsObj>> consumer) {
-        this.consumer = requireNonNull(consumer);
-    }
+  private Watcher(final Consumer<ChangeStreamIterable<JsObj>> consumer) {
+    this.consumer = requireNonNull(consumer);
+  }
 
-    /**
-     * returns a new Watcher instance with the specified consumer.
-     *
-     * @param consumer The consumer to handle the change stream iterable.
-     *
-     * @return a Watcher
-     */
-    public static Watcher of(final Consumer<ChangeStreamIterable<JsObj>> consumer){
-         return new Watcher(consumer);
-    }
+  /**
+   * returns a new Watcher instance with the specified consumer.
+   *
+   * @param consumer The consumer to handle the change stream iterable.
+   * @return a Watcher
+   */
+  public static Watcher of(final Consumer<ChangeStreamIterable<JsObj>> consumer) {
+    return new Watcher(consumer);
+  }
 
-    /**
-     * Accepts a MongoDB collection and starts watching for changes.
-     *
-     * @param collection The MongoDB collection to watch.
-     */
-    @Override
-    public void accept(final CollectionBuilder collection) {
-        consumer.accept(requireNonNull(collection).get().watch());
-    }
+  /**
+   * Accepts a MongoDB collection and starts watching for changes.
+   *
+   * @param collection The MongoDB collection to watch.
+   */
+  @Override
+  public void accept(final CollectionBuilder collection) {
+    consumer.accept(requireNonNull(collection).get()
+                                              .watch());
+  }
 }

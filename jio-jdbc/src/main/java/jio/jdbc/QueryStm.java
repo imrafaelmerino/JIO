@@ -1,13 +1,12 @@
 package jio.jdbc;
 
-import jio.BiLambda;
 import jio.IO;
+import jio.Lambda;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
-import java.util.function.Function;
 
 /**
  * Represents a utility class for executing parameterized SQL queries and processing the results. Optionally integrates
@@ -17,60 +16,79 @@ import java.util.function.Function;
  * Note: The operation is executed on a virtual thread.
  * </p>
  *
- * @param <I> Type of the input parameters for the SQL query.
- * @param <O> Type of the objects produced by the result set mapper.
+ * @param <Params> Type of the input parameters for the SQL query.
+ * @param <Output> Type of the objects produced by the result set mapper.
  */
-final class QueryStm<I, O> implements JdbcLambda<I, List<O>> {
+final class QueryStm<Params, Output> implements JdbcLambda<Params, List<Output>> {
+
+  final Duration timeout;
+
+  private final ResultSetMapper<Output> mapper;
+  private final String sql;
+  private final ParamsSetter<Params> setter;
+  private final int fetchSize;
+  private final boolean enableJFR;
+  private final String label;
+
+  /**
+   * Constructs a {@code QueryStm} with specified parameters.
+   *
+   * @param sqlQuery  The SQL query to execute.
+   * @param setter    The parameter setter for the SQL query.
+   * @param mapper    The result set mapper for processing query results.
+   * @param fetchSize The fetch size for the query results.
+   * @param enableJFR Indicates whether to enable Java Flight Recorder integration.
+   * @param label     The label to identify the statement
+   */
+  QueryStm(Duration timeout,
+           String sqlQuery,
+           ParamsSetter<Params> setter,
+           ResultSetMapper<Output> mapper,
+           int fetchSize,
+           boolean enableJFR,
+           String label) {
+    this.timeout = timeout;
+    this.sql = sqlQuery;
+    this.mapper = mapper;
+    this.setter = setter;
+    this.fetchSize = fetchSize;
+    this.enableJFR = enableJFR;
+    this.label = label;
+  }
 
 
-    private final ResultSetMapper<O> mapper;
-    private final String sql;
-    private final Function<I, PrStmSetter> setter;
-    private final int fetchSize;
-    private final boolean enableJFR;
-
-    /**
-     * Constructs a {@code QueryStm} with specified parameters.
-     *
-     * @param sqlQuery  The SQL query to execute.
-     * @param setter    The parameter setter for the SQL query.
-     * @param mapper    The result set mapper for processing query results.
-     * @param fetchSize The fetch size for the query results.
-     * @param enableJFR Indicates whether to enable Java Flight Recorder integration.
-     */
-    QueryStm(String sqlQuery, ParamsSetter<I> setter, ResultSetMapper<O> mapper, int fetchSize, boolean enableJFR) {
-        this.sql = sqlQuery;
-        this.mapper = mapper;
-        this.setter = setter;
-        this.fetchSize = fetchSize;
-        this.enableJFR = enableJFR;
-    }
-
-
-    /**
-     * Applies the specified {@code DatasourceBuilder} to create a lambda function for executing the SQL query.
-     *
-     * @param dsb The datasource builder for obtaining database connections.
-     * @return A lambda function for executing the SQL query and processing results.
-     */
-    @Override
-    public BiLambda<Duration, I, List<O>> apply(DatasourceBuilder dsb) {
-        return (timeout, input) -> {
-            return IO.task(() -> {
-                try (var connection = dsb.get().getConnection()) {
-                    try (var ps = connection.prepareStatement(sql)) {
-                        return JfrEventDecorator.decorate(() -> {
-                            var unused = setter.apply(input).apply(ps);
-                            ps.setQueryTimeout((int) timeout.toSeconds());
-                            ps.setFetchSize(fetchSize);
-                            var rs = ps.executeQuery();
-                            List<O> result = new ArrayList<>();
-                            while (rs.next()) result.add(mapper.apply(rs));
-                            return result;
-                        }, sql, enableJFR);
-                    }
-                }
-            }, Executors.newVirtualThreadPerTaskExecutor());
-        };
-    }
+  /**
+   * Applies the specified {@code DatasourceBuilder} to create a lambda function for executing the SQL query.
+   *
+   * @param dsb The datasource builder for obtaining database connections.
+   * @return A lambda function for executing the SQL query and processing results.
+   */
+  @Override
+  public Lambda<Params, List<Output>> apply(DatasourceBuilder dsb) {
+    return params -> IO.task(() -> {
+                               try (var connection = dsb.get()
+                                                        .getConnection()
+                               ) {
+                                 try (var ps = connection.prepareStatement(sql)) {
+                                   return JfrEventDecorator.decorateQueryStm(() -> {
+                                                                               var unused = setter.apply(params)
+                                                                                                  .apply(ps);
+                                                                               ps.setQueryTimeout((int) timeout.toSeconds());
+                                                                               ps.setFetchSize(fetchSize);
+                                                                               var rs = ps.executeQuery();
+                                                                               List<Output> result = new ArrayList<>();
+                                                                               while (rs.next()) {
+                                                                                 result.add(mapper.apply(rs));
+                                                                               }
+                                                                               return result;
+                                                                             },
+                                                                             sql,
+                                                                             enableJFR,
+                                                                             label,
+                                                                             fetchSize);
+                                 }
+                               }
+                             },
+                             Executors.newVirtualThreadPerTaskExecutor());
+  }
 }

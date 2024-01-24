@@ -15,113 +15,111 @@ import static java.util.Objects.requireNonNull;
  * Expressions made up of different subexpressions generate different JFR events that can be correlated with a context
  * specified with the constructor {@link EventBuilder#EventBuilder(String, String)}.
  *
- * @param <O> the type of the result of a computation in case of success
+ * @param <Output> the type of the result of a computation in case of success
  * @see IO#debug(EventBuilder)
  * @see Exp#debugEach(EventBuilder)
  * @see Exp#debugEach(String)
  */
-public final class EventBuilder<O> {
+public final class EventBuilder<Output> {
 
-    final String exp;
-    final String context;
-    Function<O, String> successValue = val -> val == null ? "null" : val.toString();
-    Function<Throwable, String> failureMessage =
-            e -> String.format("%s:%s",
-                               e.getClass().getName(),
-                               e.getMessage()
-                              );
+  final String exp;
+  final String context;
+  Function<Output, String> successValue = val -> val == null ? "null" : val.toString();
+  Function<Throwable, String> failureMessage =
+      e -> Fun.findUltimateCause(e)
+              .toString();
 
-    private EventBuilder(final String exp,
-                         final String context
-                        ) {
-        this.exp = requireNonNull(exp);
-        if (exp.isBlank() || exp.isEmpty()) throw new IllegalArgumentException("exp must be a legible string");
-        this.context = requireNonNull(context);
+  private EventBuilder(final String exp,
+                       final String context
+                      ) {
+    this.exp = requireNonNull(exp);
+    if (exp.isBlank() || exp.isEmpty()) {
+      throw new IllegalArgumentException("exp must be a legible string");
     }
+    this.context = requireNonNull(context);
+  }
 
-    /**
-     * Creates a new instance of {@code EventBuilder} with the specified expression and context.
-     *
-     * @param exp     the expression for the event
-     * @param context the context for the event
-     * @param <O>     the type of the result of a computation in case of success
-     * @return a new {@code EventBuilder} instance
-     */
-    public static <O> EventBuilder<O> of(final String exp,
-                                         final String context
-                                        ) {
-        return new EventBuilder<>(exp, context);
-    }
+  /**
+   * Creates a new instance of {@code EventBuilder} with the specified expression and context.
+   *
+   * @param exp      the expression for the event
+   * @param context  the context for the event
+   * @param <Output> the type of the result of a computation in case of success
+   * @return a new {@code EventBuilder} instance
+   */
+  public static <Output> EventBuilder<Output> of(final String exp,
+                                                 final String context
+                                                ) {
+    return new EventBuilder<>(exp,
+                              context);
+  }
 
-    /**
-     * Creates a new instance of {@code EventBuilder} with the specified expression and an empty context.
-     *
-     * @param exp the expression for the event
-     * @param <O> the type of the result of a computation in case of success
-     * @return a new {@code EventBuilder} instance
-     */
-    public static <O> EventBuilder<O> of(final String exp
-                                        ) {
-        return EventBuilder.of(exp, "");
-    }
+  /**
+   * Creates a new instance of {@code EventBuilder} with the specified expression and an empty context.
+   *
+   * @param exp the expression for the event
+   * @param <O> the type of the result of a computation in case of success
+   * @return a new {@code EventBuilder} instance
+   */
+  public static <O> EventBuilder<O> of(final String exp
+                                      ) {
+    return EventBuilder.of(exp,
+                           "");
+  }
 
-    private static Throwable findUltimateCause(Throwable exception) {
-        Throwable ultimateCause = exception;
+  /**
+   * Set the function that takes the result of the expression and produces the event value. By default, the value of the
+   * event is <code>result.toString()</code>.
+   *
+   * @param successValue a function that takes the result of the expression and produces the event value
+   * @return this event builder
+   */
+  public EventBuilder<Output> withSuccessOutput(final Function<Output, String> successValue) {
+    this.successValue = requireNonNull(successValue);
+    return this;
+  }
 
-        // Iterate through the exception chain until the ultimate cause is found
-        while (ultimateCause.getCause() != null) {
-            ultimateCause = ultimateCause.getCause();
-        }
+  /**
+   * Set the function that produces the event failure message from the exception produced by an expression. By default,
+   * the event failure message is
+   * <code>exception.getClass().getName:exception.getMessage</code>.
+   *
+   * @param failureMessage a function that produces the event failure message from the exception
+   * @return this event builder
+   */
+  public EventBuilder<Output> withFailureOutput(final Function<Throwable, String> failureMessage) {
+    this.failureMessage = requireNonNull(failureMessage);
+    return this;
+  }
 
-        return ultimateCause;
-    }
+  EvalExpEvent updateEvent(final Output output,
+                           final EvalExpEvent event) {
+    event.result = EvalExpEvent.RESULT.SUCCESS.name();
+    event.value = successValue.apply(output);
+    event.context = context;
+    event.expression = exp;
+    return event;
+  }
 
-    /**
-     * Set the function that takes the result of the expression and produces the event value. By default, the value of
-     * the event is <code>result.toString()</code>.
-     *
-     * @param successValue a function that takes the result of the expression and produces the event value
-     * @return this event builder
-     */
-    public EventBuilder<O> withSuccessOutput(final Function<O, String> successValue) {
-        this.successValue = requireNonNull(successValue);
-        return this;
-    }
+  EvalExpEvent updateEvent(final Throwable exc,
+                           final EvalExpEvent event) {
+    var cause = Fun.findUltimateCause(exc);
+    event.result = EvalExpEvent.RESULT.FAILURE.name();
+    event.context = context;
+    event.expression = exp;
+    event.exception = failureMessage.apply(cause);
+    return event;
+  }
 
-    /**
-     * Set the function that produces the event failure message from the exception produced by an expression. By
-     * default, the event failure message is <code>exception.getClass().getName:exception.getMessage</code>.
-     *
-     * @param failureMessage a function that produces the event failure message from the exception
-     * @return this event builder
-     */
-    public EventBuilder<O> withFailureOutput(final Function<Throwable, String> failureMessage) {
-        this.failureMessage = requireNonNull(failureMessage);
-        return this;
-    }
+  void updateAndCommit(final Output output,
+                       final EvalExpEvent event) {
+    updateEvent(output,
+                event).commit();
+  }
 
-    ExpEvent updateEvent(final O o, final ExpEvent event) {
-        event.result = ExpEvent.RESULT.SUCCESS.name();
-        event.value = successValue.apply(o);
-        event.context = context;
-        event.expression = exp;
-        return event;
-    }
-
-    ExpEvent updateEvent(final Throwable exc, final ExpEvent event) {
-        var cause = findUltimateCause(exc);
-        event.result = ExpEvent.RESULT.FAILURE.name();
-        event.context = context;
-        event.expression = exp;
-        event.exception = failureMessage.apply(cause);
-        return event;
-    }
-
-    void updateAndCommit(final O o, final ExpEvent event) {
-        updateEvent(o, event).commit();
-    }
-
-    void updateAndCommit(final Throwable exc, final ExpEvent event) {
-        updateEvent(exc, event).commit();
-    }
+  void updateAndCommit(final Throwable exc,
+                       final EvalExpEvent event) {
+    updateEvent(exc,
+                event).commit();
+  }
 }

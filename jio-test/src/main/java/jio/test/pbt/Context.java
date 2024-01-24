@@ -19,30 +19,35 @@ record Context(Instant start,
                String tags
 ) {
 
-    /**
-     * Serializes this record into a JSON object, converting the input data into a string with its
-     * toString method. The JSON schema is as follows:
-     *
-     * <pre>
-     *     {@code
-     *     {
-     *         "start": instant,
-     *         "seed": long,
-     *         "seq_number": int,
-     *         "input": string,
-     *         "tags": string
-     *     }
-     *     }
-     * </pre>
-     *
-     * @return A JSON representation of the test context.
-     */
-    public JsObj toJson() {
-        return JsObj.of("start", JsInstant.of(start),
-                        "seed", JsLong.of(seed),
-                        "seq_number", JsInt.of(generatedSeqNumber),
-                        "input", JsStr.of(input.toString()),
-                        "tags",JsStr.of(tags)
-                       );
-    }
+  /**
+   * Serializes this record into a JSON object, converting the input data into a string with its toString method. The
+   * JSON schema is as follows:
+   *
+   * <pre>
+   *     {@code
+   *     {
+   *         "start": instant,
+   *         "seed": long,
+   *         "seq_number": int,
+   *         "input": string,
+   *         "tags": string
+   *     }
+   *     }
+   * </pre>
+   *
+   * @return A JSON representation of the test context.
+   */
+  public JsObj toJson() {
+    return JsObj.of("start",
+                    JsInstant.of(start),
+                    "seed",
+                    JsLong.of(seed),
+                    "seq_number",
+                    JsInt.of(generatedSeqNumber),
+                    "input",
+                    JsStr.of(input.toString()),
+                    "tags",
+                    JsStr.of(tags)
+                   );
+  }
 }

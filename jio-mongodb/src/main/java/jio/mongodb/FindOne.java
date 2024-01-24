@@ -5,8 +5,6 @@ import com.mongodb.client.MongoIterable;
 import jio.IO;
 import jsonvalues.JsObj;
 
-import java.util.Objects;
-import java.util.concurrent.Executor;
 
 /**
  * Represents a MongoDB find operation to retrieve a single document from a collection asynchronously using
@@ -30,56 +28,49 @@ import java.util.concurrent.Executor;
 public final class FindOne extends Find implements MongoLambda<FindBuilder, JsObj> {
 
 
-    /**
-     * Constructs a new `FindOne` instance with the specified collection supplier.
-     *
-     * @param collection The supplier of the MongoDB collection.
-     */
-    private FindOne(final CollectionBuilder collection) {
-        super(collection, true);
-    }
+  /**
+   * Constructs a new `FindOne` instance with the specified collection supplier.
+   *
+   * @param collection The supplier of the MongoDB collection.
+   */
+  private FindOne(final CollectionBuilder collection) {
+    super(collection,
+          true);
+  }
 
-    /**
-     * Creates a new instance of `FindOne` with the specified MongoDB collection supplier.
-     *
-     * @param collection The supplier of the MongoDB collection to query.
-     * @return A new `FindOne` instance for querying a single document in the collection.
-     */
-    public static FindOne of(final CollectionBuilder collection) {
-        return new FindOne(collection);
-    }
+  /**
+   * Creates a new instance of `FindOne` with the specified MongoDB collection supplier.
+   *
+   * @param collection The supplier of the MongoDB collection to query.
+   * @return A new `FindOne` instance for querying a single document in the collection.
+   */
+  public static FindOne of(final CollectionBuilder collection) {
+    return new FindOne(collection);
+  }
 
-    /**
-     * Sets the executor to use for performing the find one and delete operation asynchronously.
-     *
-     * @param executor The executor for asynchronous execution.
-     * @return This instance.
-     */
-    public FindOne withExecutor(final Executor executor) {
-        this.executor = Objects.requireNonNull(executor);
-        return this;
-    }
 
-    /**
-     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation
-     * will not generate or log JFR events for its operations.
-     *
-     * @return This operation instance with JFR event recording disabled.
-     */
-    public FindOne withoutRecordedEvents() {
-        this.recordEvents = false;
-        return this;
-    }
+  /**
+   * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation will
+   * not generate or log JFR events for its operations.
+   *
+   * @return This operation instance with JFR event recording disabled.
+   */
+  public FindOne withoutRecordedEvents() {
+    this.recordEvents = false;
+    return this;
+  }
 
-    /**
-     * Applies the find one operation to the specified MongoDB collection using the provided query builder.
-     *
-     * @param session The MongoDB client session, or null if not within a session.
-     * @param builder The query builder for customizing the find operation.
-     * @return An IO representing the result of the find one operation as a {@link jsonvalues.JsObj}.
-     */
-    @Override
-    public IO<JsObj> apply(final ClientSession session, final FindBuilder builder) {
-        return query(session, builder).map(MongoIterable::first);
-    }
+  /**
+   * Applies the find one operation to the specified MongoDB collection using the provided query builder.
+   *
+   * @param session The MongoDB client session, or null if not within a session.
+   * @param builder The query builder for customizing the find operation.
+   * @return An IO representing the result of the find one operation as a {@link jsonvalues.JsObj}.
+   */
+  @Override
+  public IO<JsObj> apply(final ClientSession session,
+                         final FindBuilder builder) {
+    return query(session,
+                 builder).map(MongoIterable::first);
+  }
 }

@@ -24,38 +24,39 @@ import java.util.function.Function;
  * @see JsObjConsole
  */
 public class JsObjConsoleCommand extends Command {
-    private static final String COMMAND_NAME = "json-console";
-    private final JsConsole<? extends Json<?>> program;
+
+  private static final String COMMAND_NAME = "json-console";
+  private final JsConsole<? extends Json<?>> program;
 
 
-    /**
-     * Constructor to create a JsObjConsoleCommand.
-     *
-     * @param name        the name of the command
-     * @param description the description (will show up if the user types in the help command)
-     * @param objConsole  the program that composes the JSON
-     * @see JsObjConsole
-     */
-    public JsObjConsoleCommand(final String name,
-                               final String description,
-                               final JsObjConsole objConsole
-                              ) {
-        super(String.format("%s %s",
-                            COMMAND_NAME,
-                            name),
-              description,
-              tokens ->
-                      tokens.length == 2
-                              && tokens[0].equalsIgnoreCase(COMMAND_NAME)
-                              && tokens[1].equalsIgnoreCase(name));
-        this.program = objConsole;
-    }
+  /**
+   * Constructor to create a JsObjConsoleCommand.
+   *
+   * @param name        the name of the command
+   * @param description the description (will show up if the user types in the help command)
+   * @param objConsole  the program that composes the JSON
+   * @see JsObjConsole
+   */
+  public JsObjConsoleCommand(final String name,
+                             final String description,
+                             final JsObjConsole objConsole
+                            ) {
+    super(String.format("%s %s",
+                        COMMAND_NAME,
+                        name),
+          description,
+          tokens ->
+              tokens.length == 2
+                  && tokens[0].equalsIgnoreCase(COMMAND_NAME)
+                  && tokens[1].equalsIgnoreCase(name));
+    this.program = objConsole;
+  }
 
-    @Override
-    public Function<String[], IO<String>> apply(final JsObj conf,
-                                                final State state
-                                               ) {
-        return tokens -> program.apply(JsPath.empty())
-                                .map(Json::toPrettyString);
-    }
+  @Override
+  public Function<String[], IO<String>> apply(final JsObj conf,
+                                              final State state
+                                             ) {
+    return tokens -> program.apply(JsPath.empty())
+                            .map(Json::toPrettyString);
+  }
 }

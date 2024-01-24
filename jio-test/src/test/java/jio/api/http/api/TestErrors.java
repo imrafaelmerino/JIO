@@ -25,102 +25,107 @@ import java.util.Map;
 
 public class TestErrors {
 
-    @RegisterExtension
-    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
-    HttpServer server =
-            HttpServerBuilder.of(Map.of("/foo",
-                                        GetStub.of(BodyStub.consAfter("hi",
-                                                                      Duration.of(2,
-                                                                                  ChronoUnit.SECONDS
-                                                                                 )
-                                                                     ),
-                                                   StatusCodeStub.cons(200),
-                                                   HeadersStub.EMPTY
-                                                  )
-                                       ))
-                             .startAtRandom("localhost",
-                                            8000,
-                                            9000
-                                           );
+  @RegisterExtension
+  static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
+  HttpServer server =
+      HttpServerBuilder.of(Map.of("/foo",
+                                  GetStub.of(BodyStub.consAfter("hi",
+                                                                Duration.of(2,
+                                                                            ChronoUnit.SECONDS
+                                                                           )
+                                                               ),
+                                             StatusCodeStub.cons(200),
+                                             HeadersStub.EMPTY
+                                            )
+                                 ))
+                       .startAtRandom("localhost",
+                                      8000,
+                                      9000
+                                     );
 
 
-    @Test
-    public void test_http_connect_timeout() {
+  @Test
+  public void test_http_connect_timeout() {
 
-        JioHttpClient client =
-                JioHttpClientBuilder.of(HttpClient.newBuilder()
-                                                  .connectTimeout(
-                                                          Duration.of(1,
+    JioHttpClient client =
+        JioHttpClientBuilder.of(HttpClient.newBuilder()
+                                          .connectTimeout(
+                                              Duration.of(1,
+                                                          ChronoUnit.NANOS
+                                                         )
+                                                         ))
+                            .get();
+
+    boolean isConnectTimeout =
+        client.ofString()
+              .apply(HttpRequest.newBuilder()
+                                .GET()
+                                .uri(URI.create("https://www.google.com")))
+              .then(response -> IO.FALSE,
+                    failure ->
+                        IO.succeed(HttpExceptions.CONNECTION_TIMEOUT.test(failure)
+                                         )
+                   )
+              .result();
+    Assertions.assertTrue(isConnectTimeout);
+  }
+
+  /**
+   * you also receive the failure UNRESOLVED_ADDRESS_CAUSE_PRISM whe the router is off
+   */
+  @Test
+  public void test_domain_doesnt_exists() {
+
+    JioHttpClient client =
+        JioHttpClientBuilder.of(HttpClient.newBuilder())
+                            .get();
+
+    boolean isUnresolved =
+        client.ofString()
+              .apply(HttpRequest.newBuilder()
+                                .GET()
+                                .uri(URI.create("https://www.google.foo")))
+              .then(response -> IO.FALSE,
+                    failure ->
+                        IO.succeed(HttpExceptions.UNRESOLVED_ADDRESS
+                                       .test(failure)
+                                  )
+                   )
+              .result();
+
+    Assertions.assertTrue(isUnresolved);
+
+  }
+
+  @Test
+  public void test_http_timeout() {
+
+    JioHttpClient client =
+        JioHttpClientBuilder.of(HttpClient.newBuilder()
+                                          .connectTimeout(Duration.of(1,
                                                                       ChronoUnit.NANOS
                                                                      )
-                                                                 )).get();
+                                                         )
+                               )
+                            .get();
 
-        boolean isConnectTimeout =
-                client.ofString().apply(HttpRequest.newBuilder()
-                                                   .GET()
-                                                   .uri(URI.create("https://www.google.com")))
-                      .then(response -> IO.FALSE,
-                            failure -> IO.succeed(HttpExceptions.CONNECTION_TIMEOUT.test(failure)
-                                                 )
-                           )
-                      .result();
-        Assertions.assertTrue(isConnectTimeout);
-    }
+    URI uri = URI.create("http://localhost:" + server.getAddress()
+                                                     .getPort() + "/foo");
+    boolean isTimeout =
+        client.ofString()
+              .apply(HttpRequest.newBuilder()
+                                .GET()
+                                .uri(uri)
+                    )
+              .then(response -> IO.FALSE,
+                    failure -> IO.succeed(HttpExceptions.CONNECTION_TIMEOUT
+                                              .test(failure)
+                                         )
+                   )
+              .result();
 
-    /**
-     * you also receive the failure UNRESOLVED_ADDRESS_CAUSE_PRISM whe the router is off
-     */
-    @Test
-    public void test_domain_doesnt_exists() {
+    Assertions.assertTrue(isTimeout);
 
-        JioHttpClient client =
-                JioHttpClientBuilder.of(HttpClient.newBuilder()).get();
-
-        boolean isUnresolved =
-                client.ofString().apply(HttpRequest.newBuilder()
-                                                   .GET()
-                                                   .uri(URI.create("https://www.google.foo")))
-                      .then(response -> IO.FALSE,
-                            failure -> IO.succeed(HttpExceptions.UNRESOLVED_SOCKET_ADDRESS
-                                                          .test(failure)
-                                                 )
-                           )
-                      .result();
-
-        Assertions.assertTrue(isUnresolved);
-
-    }
-
-    @Test
-    public void test_http_timeout() {
-
-
-        JioHttpClient client =
-                JioHttpClientBuilder.of(HttpClient.newBuilder()
-                                                  .connectTimeout(Duration.of(1,
-                                                                              ChronoUnit.NANOS
-                                                                             )
-                                                                 )
-                                       )
-                                    .get();
-
-
-        URI uri = URI.create("http://localhost:" + server.getAddress()
-                                                         .getPort() + "/foo");
-        boolean isTimeout =
-                client.ofString().apply(HttpRequest.newBuilder()
-                                                   .GET()
-                                                   .uri(uri)
-                                       )
-                      .then(response -> IO.FALSE,
-                            failure -> IO.succeed(HttpExceptions.CONNECTION_TIMEOUT
-                                                          .test(failure)
-                                                 )
-                           )
-                      .result();
-
-        Assertions.assertTrue(isTimeout);
-
-    }
+  }
 
 }

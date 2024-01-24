@@ -3,16 +3,16 @@ package jio.mongodb;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.model.InsertManyOptions;
 import com.mongodb.client.result.InsertManyResult;
+import java.util.concurrent.Executors;
 import jio.IO;
 import jsonvalues.JsObj;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
-import static jio.mongodb.MongoEvent.OP.INSERT_MANY;
+import static jio.mongodb.MongoOpEvent.OP.INSERT_MANY;
 
 /**
  * A class for performing insert many operations on a MongoDB collection.
@@ -30,83 +30,78 @@ import static jio.mongodb.MongoEvent.OP.INSERT_MANY;
  */
 public final class InsertMany extends Op implements MongoLambda<List<JsObj>, InsertManyResult> {
 
-    private static final InsertManyOptions DEFAULT_OPTIONS = new InsertManyOptions();
-    private InsertManyOptions options = DEFAULT_OPTIONS;
+  private static final InsertManyOptions DEFAULT_OPTIONS = new InsertManyOptions();
+  private InsertManyOptions options = DEFAULT_OPTIONS;
 
-    /**
-     * Constructs a new `InsertMany` instance with the specified collection supplier and default insert options.
-     *
-     * @param collection The supplier for the MongoDB collection.
-     */
-    private InsertMany(final CollectionBuilder collection) {
-        super(collection, true);
-    }
+  /**
+   * Constructs a new `InsertMany` instance with the specified collection supplier and default insert options.
+   *
+   * @param collection The supplier for the MongoDB collection.
+   */
+  private InsertMany(final CollectionBuilder collection) {
+    super(collection,
+          true);
+  }
 
-    /**
-     * Creates an `InsertMany` instance with the specified collection supplier and result converter using default
-     * options.
-     *
-     * @param collection The supplier for the MongoDB collection.
-     * @return An `InsertMany` instance with default options.
-     */
-    public static InsertMany of(final CollectionBuilder collection) {
-        return new InsertMany(collection);
-    }
+  /**
+   * Creates an `InsertMany` instance with the specified collection supplier and result converter using default
+   * options.
+   *
+   * @param collection The supplier for the MongoDB collection.
+   * @return An `InsertMany` instance with default options.
+   */
+  public static InsertMany of(final CollectionBuilder collection) {
+    return new InsertMany(collection);
+  }
 
-    /**
-     * Sets the insert options to be used for the operation.
-     *
-     * @param options The options to perform the operation.
-     * @return This instance with the new options.
-     */
-    public InsertMany withOptions(final InsertManyOptions options) {
-        this.options = requireNonNull(options);
-        return this;
-    }
+  /**
+   * Sets the insert options to be used for the operation.
+   *
+   * @param options The options to perform the operation.
+   * @return This instance with the new options.
+   */
+  public InsertMany withOptions(final InsertManyOptions options) {
+    this.options = requireNonNull(options);
+    return this;
+  }
 
-    /**
-     * Specifies an executor to be used for running the insert many operation asynchronously.
-     *
-     * @param executor The executor to use.
-     * @return This `InsertMany` instance for method chaining.
-     */
-    public InsertMany withExecutor(final Executor executor) {
-        this.executor = Objects.requireNonNull(executor);
-        return this;
-    }
 
-    /**
-     * Applies the insert many operation to the specified MongoDB collection with a list of `JsObj` documents.
-     *
-     * @param session The MongoDB client session, or null if not within a session.
-     * @param docs    The list of `JsObj` documents to insert.
-     * @return An IO representing the result of the insert many operation.
-     */
-    @Override
-    public IO<InsertManyResult> apply(final ClientSession session, final List<JsObj> docs) {
-        Objects.requireNonNull(docs);
-        Supplier<InsertManyResult> supplier =
-                eventWrapper(() -> {
-                                 var col = requireNonNull(collection.get());
-                                 return
-                                         session == null ?
-                                                 col.insertMany(docs, options) :
-                                                 col.insertMany(session, docs, options);
-                             }, INSERT_MANY
-                            );
-        return executor == null ?
-                IO.managedLazy(supplier) :
-                IO.lazy(supplier, executor);
-    }
+  /**
+   * Applies the insert many operation to the specified MongoDB collection with a list of `JsObj` documents.
+   *
+   * @param session The MongoDB client session, or null if not within a session.
+   * @param docs    The list of `JsObj` documents to insert.
+   * @return An IO representing the result of the insert many operation.
+   */
+  @Override
+  public IO<InsertManyResult> apply(final ClientSession session,
+                                    final List<JsObj> docs) {
+    Objects.requireNonNull(docs);
+    Supplier<InsertManyResult> supplier =
+        decorateWithEvent(() -> {
+                       var col = requireNonNull(collection.get());
+                       return
+                           session == null ?
+                           col.insertMany(docs,
+                                          options) :
+                           col.insertMany(session,
+                                          docs,
+                                          options);
+                     },
+                          INSERT_MANY
+                         );
+    return IO.lazy(supplier,
+                   Executors.newVirtualThreadPerTaskExecutor());
+  }
 
-    /**
-     * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation
-     * will not generate or log JFR events for its operations.
-     *
-     * @return This operation instance with JFR event recording disabled.
-     */
-    public InsertMany withoutRecordedEvents() {
-        this.recordEvents = false;
-        return this;
-    }
+  /**
+   * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation will
+   * not generate or log JFR events for its operations.
+   *
+   * @return This operation instance with JFR event recording disabled.
+   */
+  public InsertMany withoutRecordedEvents() {
+    this.recordEvents = false;
+    return this;
+  }
 }

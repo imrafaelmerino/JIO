@@ -27,48 +27,55 @@ import java.util.function.Function;
  */
 class ReadVarCommand extends Command {
 
-    private static final String COMMAND_NAME = "var-get";
+  private static final String COMMAND_NAME = "var-get";
 
-    public ReadVarCommand() {
-        super(COMMAND_NAME,
-              """
-                      Read the content of the specified variable.
-                      var-get {name}
-                      Examples:
-                          $command age
-                          $command $var""".replace("$command", COMMAND_NAME)
-             );
-    }
+  public ReadVarCommand() {
+    super(COMMAND_NAME,
+          """
+              Read the content of the specified variable.
+              var-get {name}
+              Examples:
+                  $command age
+                  $command $var""".replace("$command",
+                                           COMMAND_NAME)
+         );
+  }
 
-    @Override
-    public Function<String[], IO<String>> apply(final JsObj conf,
-                                                final State state
-                                               ) {
-        Lambda<String, String> program = var -> IO.lazy(() -> {
-            var value = state.variables.get(var);
-            if (value != null) return value;
-            var list = state.listsVariables.get(var);
-            if (list != null) return String.join("\n", list);
-            return "";
-        });
+  @Override
+  public Function<String[], IO<String>> apply(final JsObj conf,
+                                              final State state
+                                             ) {
+    Lambda<String, String> program = var -> IO.lazy(() -> {
+      var value = state.variables.get(var);
+        if (value != null) {
+            return value;
+        }
+      var list = state.listsVariables.get(var);
+        if (list != null) {
+            return String.join("\n",
+                               list);
+        }
+      return "";
+    });
 
-        return tokens -> {
-            int nTokens = tokens.length;
+    return tokens -> {
+      int nTokens = tokens.length;
 
-            if (nTokens == 1)
-                return Programs.ASK_FOR_INPUT(new AskForInputParams("Type the name of the variable",
-                                                                    name -> state.variables.containsKey(name) ||
-                                                                            state.listsVariables.containsKey(name),
-                                                                    "The variable doesn't exist",
-                                                                    RetryPolicies.limitRetries(3)
-                                              )
-                                             )
-                               .then(program);
+        if (nTokens == 1) {
+            return Programs.ASK_FOR_INPUT(new AskForInputParams("Type the name of the variable",
+                                                                name -> state.variables.containsKey(name) ||
+                                                                    state.listsVariables.containsKey(name),
+                                                                "The variable doesn't exist",
+                                                                RetryPolicies.limitRetries(3)
+                                          )
+                                         )
+                           .then(program);
+        }
 
-            return program.apply(tokens[1]);
+      return program.apply(tokens[1]);
 
 
-        };
-    }
+    };
+  }
 
 }

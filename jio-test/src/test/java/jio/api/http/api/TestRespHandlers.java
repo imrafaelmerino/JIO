@@ -26,97 +26,98 @@ import java.util.Map;
 
 public class TestRespHandlers {
 
-    @RegisterExtension
-    static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
-    static int port;
-    static JioHttpClient httpClient;
+  @RegisterExtension
+  static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
+  static int port;
+  static JioHttpClient httpClient;
 
-    @BeforeAll
-    public static void prepare() {
+  @BeforeAll
+  public static void prepare() {
 
-        GetStub getStrReqHandler = GetStub.of(BodyStub.cons("foo"),
-                                              StatusCodeStub.cons(200),
-                                              HeadersStub.EMPTY
+    GetStub getStrReqHandler = GetStub.of(BodyStub.cons("foo"),
+                                          StatusCodeStub.cons(200),
+                                          HeadersStub.EMPTY
+                                         );
+
+    GetStub getJsonReqHandler = GetStub.of(BodyStub.cons(JsObj.of("a",
+                                                                  JsStr.of("b")
+                                                                 )
+                                                              .toString()),
+                                           StatusCodeStub.cons(200),
+                                           HeadersStub.EMPTY
+                                          );
+    HttpServerBuilder builder =
+        HttpServerBuilder.of(Map.of("/get_str",
+                                    getStrReqHandler,
+                                    "/get_json",
+                                    getJsonReqHandler
+                                   )
+                            );
+
+    HttpServer server = builder.startAtRandom("localhost",
+                                              8000,
+                                              9000
                                              );
 
-        GetStub getJsonReqHandler = GetStub.of(BodyStub.cons(JsObj.of("a",
-                                                                      JsStr.of("b")
-                                                                     )
-                                                                  .toString()),
-                                               StatusCodeStub.cons(200),
-                                               HeadersStub.EMPTY
-                                              );
-        HttpServerBuilder builder =
-                HttpServerBuilder.of(Map.of("/get_str",
-                                            getStrReqHandler,
-                                            "/get_json",
-                                            getJsonReqHandler
-                                           )
-                                    );
+    port = server.getAddress()
+                 .getPort();
 
-        HttpServer server = builder.startAtRandom("localhost",
-                                                  8000,
-                                                  9000
-                                                 );
+    httpClient = JioHttpClientBuilder.of(HttpClient.newBuilder())
+                                     .get();
 
-        port = server.getAddress()
-                     .getPort();
+  }
 
-        httpClient = JioHttpClientBuilder.of(HttpClient.newBuilder()).get();
+  @Test
+  public void test_get_str() {
 
-    }
+    String uri = String.format("http://localhost:%s/get_str",
+                               port
+                              );
 
-    @Test
-    public void test_get_str() {
+    IO<HttpResponse<String>> val =
+        httpClient.ofString()
+                  .apply(HttpRequest.newBuilder()
+                                    .GET()
+                                    .uri(URI.create(uri))
+                        );
 
-        String uri = String.format("http://localhost:%s/get_str",
-                                   port
-                                  );
+    HttpResponse<String> resp = val.get()
+                                   .join();
+    Assertions.assertEquals("foo",
+                            resp.body()
+                           );
+    Assertions.assertEquals(200,
+                            resp.statusCode()
+                           );
 
-        IO<HttpResponse<String>> val =
-                httpClient.ofString().apply(HttpRequest.newBuilder()
-                                                       .GET()
-                                                       .uri(URI.create(uri))
-                                           );
+  }
 
 
-        HttpResponse<String> resp = val.get()
-                                       .join();
-        Assertions.assertEquals("foo",
-                                resp.body()
-                               );
-        Assertions.assertEquals(200,
-                                resp.statusCode()
-                               );
+  @Test
+  public void test_get_json() {
 
-    }
+    String uri = String.format("http://localhost:%s/get_json",
+                               port
+                              );
 
+    IO<HttpResponse<String>> val =
+        httpClient.ofString()
+                  .apply(HttpRequest.newBuilder()
+                                    .GET()
+                                    .uri(URI.create(uri))
+                        );
 
-    @Test
-    public void test_get_json() {
-
-        String uri = String.format("http://localhost:%s/get_json",
-                                   port
-                                  );
-
-        IO<HttpResponse<String>> val =
-                httpClient.ofString()
-                          .apply(HttpRequest.newBuilder()
-                                            .GET()
-                                            .uri(URI.create(uri))
-                                );
-
-        HttpResponse<String> resp = val.get()
-                                       .join();
-        Assertions.assertEquals(JsObj.of("a",
-                                         JsStr.of("b")
-                                        ),
-                                JsObj.parse(resp.body())
-                               );
-        Assertions.assertEquals(200,
-                                resp.statusCode()
-                               );
-    }
+    HttpResponse<String> resp = val.get()
+                                   .join();
+    Assertions.assertEquals(JsObj.of("a",
+                                     JsStr.of("b")
+                                    ),
+                            JsObj.parse(resp.body())
+                           );
+    Assertions.assertEquals(200,
+                            resp.statusCode()
+                           );
+  }
 
 
 }

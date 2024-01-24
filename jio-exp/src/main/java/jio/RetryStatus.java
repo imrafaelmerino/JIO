@@ -18,8 +18,10 @@ public record RetryStatus(int counter,
                           Duration cumulativeDelay,
                           Duration previousDelay) {
 
-    /**
-     * The initial retry status representing no retries.
-     */
-    public static final RetryStatus ZERO = new RetryStatus(0, Duration.ZERO, Duration.ZERO);
+  /**
+   * The initial retry status representing no retries.
+   */
+  public static final RetryStatus ZERO = new RetryStatus(0,
+                                                         Duration.ZERO,
+                                                         Duration.ZERO);
 }

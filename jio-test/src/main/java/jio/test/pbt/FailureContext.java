@@ -14,24 +14,26 @@ public record FailureContext(Context context,
                              TestFailure failure
 ) {
 
-    /**
-     * Serializes this record into a JSON object. The JSON schema is as follows:
-     *
-     * <pre>
-     *     {@code
-     *     {
-     *         "context": JsObj (see Context#toJson()),
-     *         "reason": String (the reason for the failure)
-     *     }
-     *     }
-     * </pre>
-     *
-     * @return A JSON representation of the failure context.
-     * @see Context#toJson()
-     */
-    public JsObj toJson() {
-        return JsObj.of("context", context.toJson(),
-                        "reason", JsStr.of(failure.getMessage())
-                       );
-    }
+  /**
+   * Serializes this record into a JSON object. The JSON schema is as follows:
+   *
+   * <pre>
+   *     {@code
+   *     {
+   *         "context": JsObj (see Context#toJson()),
+   *         "reason": String (the reason for the failure)
+   *     }
+   *     }
+   * </pre>
+   *
+   * @return A JSON representation of the failure context.
+   * @see Context#toJson()
+   */
+  public JsObj toJson() {
+    return JsObj.of("context",
+                    context.toJson(),
+                    "reason",
+                    JsStr.of(failure.getMessage())
+                   );
+  }
 }

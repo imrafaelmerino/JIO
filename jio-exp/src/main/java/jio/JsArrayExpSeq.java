@@ -22,60 +22,63 @@ import static java.util.Objects.requireNonNull;
 
 final class JsArrayExpSeq extends JsArrayExp {
 
+  public JsArrayExpSeq(final List<IO<? extends JsValue>> list,
+                       final Function<EvalExpEvent, BiConsumer<JsArray, Throwable>> debugger
+                      ) {
+    super(list,
+          debugger);
+  }
 
-    public JsArrayExpSeq(final List<IO<? extends JsValue>> list,
-                         final Function<ExpEvent, BiConsumer<JsArray, Throwable>> debugger
-                        ) {
-        super(list, debugger);
+  /**
+   * it triggers the execution of all the completable futures, combining the results into a JsArray
+   *
+   * @return a CompletableFuture of a json array
+   */
+  @Override
+  CompletableFuture<JsArray> reduceExp() {
+    var result = CompletableFuture.completedFuture(JsArray.empty());
+    for (var val : list) {
+      result = result.thenCompose(list -> val.get()
+                                             .thenApply(list::append)
+                                 );
     }
-
-    /**
-     * it triggers the execution of all the completable futures, combining the results into a JsArray
-     *
-     * @return a CompletableFuture of a json array
-     */
-    @Override
-    CompletableFuture<JsArray> reduceExp() {
-        var result = CompletableFuture.completedFuture(JsArray.empty());
-        for (var val : list)
-            result = result.thenCompose(list -> val.get()
-                                                   .thenApply(list::append)
-                                       );
-        return result;
-    }
+    return result;
+  }
 
 
-    @Override
-    public JsArrayExp retryEach(final Predicate<? super Throwable> predicate,
-                                final RetryPolicy policy
-                               ) {
-        requireNonNull(predicate);
-        requireNonNull(policy);
-        return new JsArrayExpSeq(
-                list.stream().map(it -> it.retry(predicate,
-                                                 policy
-                                                ))
-                    .collect(Collectors.toList()),
-                jfrPublisher
-        );
-    }
+  @Override
+  public JsArrayExp retryEach(final Predicate<? super Throwable> predicate,
+                              final RetryPolicy policy
+                             ) {
+    requireNonNull(predicate);
+    requireNonNull(policy);
+    return new JsArrayExpSeq(
+        list.stream()
+            .map(it -> it.retry(predicate,
+                                policy
+                               ))
+            .collect(Collectors.toList()),
+        jfrPublisher
+    );
+  }
 
-    @Override
-    public JsArrayExp debugEach(final EventBuilder<JsArray> eventBuilder) {
-        Objects.requireNonNull(eventBuilder);
-        return new JsArrayExpSeq(debugJsArray(list,
-                                              eventBuilder
-                                             ),
-                                 getJFRPublisher(eventBuilder)
-        );
+  @Override
+  public JsArrayExp debugEach(final EventBuilder<JsArray> eventBuilder) {
+    Objects.requireNonNull(eventBuilder);
+    return new JsArrayExpSeq(debugJsArray(list,
+                                          eventBuilder
+                                         ),
+                             getJFRPublisher(eventBuilder)
+    );
 
-    }
+  }
 
-    @Override
-    public JsArrayExp debugEach(final String context) {
-        return debugEach(EventBuilder.of(this.getClass().getSimpleName(),
-                                            context));
+  @Override
+  public JsArrayExp debugEach(final String context) {
+    return debugEach(EventBuilder.of(this.getClass()
+                                         .getSimpleName(),
+                                     context));
 
 
-    }
+  }
 }

@@ -10,6 +10,6 @@ package jio.test.pbt;
  */
 public final class TestSuccess implements TestResult {
 
-    TestSuccess() {
-    }
+  TestSuccess() {
+  }
 }

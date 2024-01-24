@@ -22,94 +22,100 @@ import static java.util.Objects.requireNonNull;
  */
 final class JsObjExpSeq extends JsObjExp {
 
-    public JsObjExpSeq(final Map<String, IO<? extends JsValue>> bindings,
-                       final Function<ExpEvent, BiConsumer<JsObj, Throwable>> debugger
-                      ) {
-        super(bindings, debugger);
+  public JsObjExpSeq(final Map<String, IO<? extends JsValue>> bindings,
+                     final Function<EvalExpEvent, BiConsumer<JsObj, Throwable>> debugger
+                    ) {
+    super(bindings,
+          debugger);
+  }
+
+  JsObjExpSeq() {
+    super(new LinkedHashMap<>(),
+          null);
+  }
+
+
+  /**
+   * returns a new object future inserting the given future at the given key
+   *
+   * @param key the given key
+   * @param exp the given effect
+   * @return a new JsObjFuture
+   */
+  @Override
+  public JsObjExpSeq set(final String key,
+                         final IO<? extends JsValue> exp
+                        ) {
+    var xs = new HashMap<>(bindings);
+    xs.put(requireNonNull(key),
+           requireNonNull(exp)
+          );
+    return new JsObjExpSeq(xs,
+                           jfrPublisher);
+  }
+
+
+  /**
+   * it triggers the execution of all the completable futures, combining the results into a JsObj
+   *
+   * @return a CompletableFuture of a json object
+   */
+  @Override
+  CompletableFuture<JsObj> reduceExp() {
+
+    CompletableFuture<JsObj> result = CompletableFuture.completedFuture(JsObj.empty());
+
+    for (final Map.Entry<String, IO<? extends JsValue>> tuple : bindings.entrySet()) {
+      result = result.thenCombine(tuple.getValue()
+                                       .get(),
+                                  (obj, value) -> obj.set(tuple.getKey(),
+                                                          value
+                                                         )
+                                 );
     }
 
-    JsObjExpSeq() {
-        super(new LinkedHashMap<>(), null);
-    }
+    return result;
+  }
 
 
-    /**
-     * returns a new object future inserting the given future at the given key
-     *
-     * @param key the given key
-     * @param exp the given effect
-     * @return a new JsObjFuture
-     */
-    @Override
-    public JsObjExpSeq set(final String key,
-                           final IO<? extends JsValue> exp
-                          ) {
-        var xs = new HashMap<>(bindings);
-        xs.put(requireNonNull(key),
-               requireNonNull(exp)
-              );
-        return new JsObjExpSeq(xs, jfrPublisher);
-    }
+  @Override
+  public JsObjExp retryEach(final Predicate<? super Throwable> predicate,
+                            final RetryPolicy policy
+                           ) {
+    Objects.requireNonNull(policy);
+    Objects.requireNonNull(predicate);
+
+    return new JsObjExpSeq(bindings.entrySet()
+                                   .stream()
+                                   .collect(Collectors.toMap(Map.Entry::getKey,
+                                                             e -> e.getValue()
+                                                                   .retry(predicate,
+                                                                          policy
+                                                                         )
+                                                            )
+                                           ),
+                           jfrPublisher
+    );
+  }
 
 
-    /**
-     * it triggers the execution of all the completable futures, combining the results into a JsObj
-     *
-     * @return a CompletableFuture of a json object
-     */
-    @Override
-    CompletableFuture<JsObj> reduceExp() {
-
-        CompletableFuture<JsObj> result = CompletableFuture.completedFuture(JsObj.empty());
-
-        for (final Map.Entry<String, IO<? extends JsValue>> tuple : bindings.entrySet()) {
-            result = result.thenCombine(tuple.getValue().get(),
-                                        (obj, value) -> obj.set(tuple.getKey(),
-                                                                value
-                                                               )
-                                       );
-        }
+  @Override
+  public JsObjExp debugEach(final EventBuilder<JsObj> eventBuilder
+                           ) {
+    Objects.requireNonNull(eventBuilder);
+    return new JsObjExpSeq(debugJsObj(bindings,
+                                      eventBuilder
+                                     ),
+                           getJFRPublisher(eventBuilder)
+    );
+  }
 
 
-        return result;
-    }
+  @Override
+  public JsObjExp debugEach(final String context) {
+    return this.debugEach(EventBuilder.of(this.getClass()
+                                              .getSimpleName(),
+                                          context));
 
-
-    @Override
-    public JsObjExp retryEach(final Predicate<? super Throwable> predicate,
-                              final RetryPolicy policy
-                             ) {
-        Objects.requireNonNull(policy);
-        Objects.requireNonNull(predicate);
-
-        return new JsObjExpSeq(bindings.entrySet()
-                                       .stream()
-                                       .collect(Collectors.toMap(Map.Entry::getKey,
-                                                                 e -> e.getValue().retry(predicate,
-                                                                                         policy
-                                                                                        )
-                                                                )
-                                               ),
-                               jfrPublisher
-        );
-    }
-
-
-    @Override
-    public JsObjExp debugEach(final EventBuilder<JsObj> eventBuilder
-                             ) {
-        Objects.requireNonNull(eventBuilder);
-        return new JsObjExpSeq(debugJsObj(bindings,
-                                          eventBuilder
-                                         ),
-                               getJFRPublisher(eventBuilder)
-        );
-    }
-
-
-    @Override
-    public JsObjExp debugEach(final String context) {
-        return this.debugEach(EventBuilder.of(this.getClass().getSimpleName(), context));
-
-    }
+  }
 }

@@ -23,115 +23,124 @@ import static java.util.Objects.requireNonNull;
 /**
  * Represents a property of a piece of code or program that should always be held and never fails.
  *
- * @param <O> the type of the data generated to feed the property tests
+ * @param <GenValue> the type of the data generated to feed the property tests
  */
-public non-sealed class Property<O> extends Testable {
-    private static final RandomGenerator seedGen = new SplittableRandom();
-    final String name;
-    final int times;
-    final Gen<O> gen;
-    final BiLambda<JsObj, O, TestResult> property;
+public non-sealed class Property<GenValue> extends Testable {
 
-    final String description;
+  private static final RandomGenerator seedGen = new SplittableRandom();
+  final String name;
+  final int times;
+  final Gen<GenValue> gen;
+  final BiLambda<JsObj, GenValue, TestResult> property;
 
-    private final boolean collect;
-    private final Path path;
-    private final Map<String, Predicate<O>> classifiers;
+  final String description;
 
-    Property(String name, Gen<O> gen, BiLambda<JsObj, O, TestResult> property, String description, int times, Path path, boolean collect, Map<String, Predicate<O>> classifiers) {
-        this.name = name;
-        this.gen = gen;
-        this.property = property;
-        this.collect = collect;
-        this.path = path;
-        this.classifiers = classifiers;
-        this.description = description;
-        this.times = times;
+  private final boolean collect;
+  private final Path path;
+  private final Map<String, Predicate<GenValue>> classifiers;
+
+  Property(String name, Gen<GenValue> gen, BiLambda<JsObj, GenValue, TestResult> property, String description,
+           int times, Path path, boolean collect, Map<String, Predicate<GenValue>> classifiers) {
+    this.name = name;
+    this.gen = gen;
+    this.property = property;
+    this.collect = collect;
+    this.path = path;
+    this.classifiers = classifiers;
+    this.description = description;
+    this.times = times;
+  }
+
+
+  private String getTags(GenValue value) {
+      if (classifiers == null) {
+          return "";
+      }
+    return classifiers.keySet()
+        .stream()
+        .filter(key -> classifiers.get(key).test(value))
+        .collect(Collectors.joining(","));
+  }
+
+
+  void dump(Report report) {
+    synchronized (Report.class) {
+      try {
+        Files.writeString(path, report + "\n");
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
     }
+  }
 
 
-    private String getTags(O value) {
-        if (classifiers == null) return "";
-        return classifiers.keySet()
-                          .stream()
-                          .filter(key -> classifiers.get(key).test(value))
-                          .collect(Collectors.joining(","));
-    }
+  /**
+   * Returns a new testable instance that represents the property and will be executed in parallel
+   * for the specified number of times, using multiple threads from the common ForkJoinPool.
+   *
+   * @param n the number of parallel executions for the property
+   * @return a new testable instance with parallel execution
+   */
+  public Testable repeatPar(final int n) {
+    return new ParProperty<>(n, this);
+  }
 
+  /**
+   * Returns a new testable instance that represents the property and will be executed sequentially
+   * for the specified number of times.
+   *
+   * @param n the number of sequential executions for the property
+   * @return a new testable instance with sequential execution
+   */
+  public Testable repeatSeq(final int n) {
+    return new SeqProperty<>(n, this);
+  }
 
-    void dump(Report report) {
-        synchronized (Report.class) {
-            try {
-                Files.writeString(path, report + "\n");
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-    }
+  @Override
+  IO<Report> createTask(final JsObj conf) {
+    Supplier<Report> task = () -> {
+      Report report = new Report(name, description);
+      long seed = seedGen.nextLong();
+      Supplier<GenValue> rg = gen.apply(new Random(seed));
+      report.setStartTime(Instant.now());
+      for (int i = 1; i <= times; i++) {
+        report.incTest();
+        var tic = Instant.now();
+        var generated = rg.get();
+        String tags = getTags(generated);
+          if (classifiers != null) {
+              report.classify(tags);
+          }
+          if (collect) {
+              report.collect(generated == null ? "null" : generated.toString());
+          }
+        var context = new Context(tic, seed, i, generated, tags);
+        property.apply(conf, generated)
+            .onResult(tr -> {
+                  report.tac(tic);
+                    if (tr instanceof TestFailure tf) {
+                        report.addFailure(new FailureContext(context, tf));
+                    }
+                },
+                exc -> {
+                  report.tac(tic);
+                  if (requireNonNull(exc) instanceof TestFailure tf) {
+                    report.addFailure(new FailureContext(context, tf));
+                  } else {
+                    report.addException(new ExceptionContext(context, exc));
+                  }
+                });
+      }
+      report.setEndTime(Instant.now());
+      return report;
+    };
 
+    IO<Report> io = IO.managedLazy(task)
+        .peekSuccess(Report::summarize);
 
-    /**
-     * Returns a new testable instance that represents the property and will be executed in parallel for the specified
-     * number of times, using multiple threads from the common ForkJoinPool.
-     *
-     * @param n the number of parallel executions for the property
-     * @return a new testable instance with parallel execution
-     */
-    public Testable repeatPar(final int n) {
-        return new ParProperty<>(n, this);
-    }
+    return path == null ? io : io.peekSuccess(this::dump);
 
-    /**
-     * Returns a new testable instance that represents the property and will be executed sequentially for the specified
-     * number of times.
-     *
-     * @param n the number of sequential executions for the property
-     * @return a new testable instance with sequential execution
-     */
-    public Testable repeatSeq(final int n) {
-        return new SeqProperty<>(n, this);
-    }
-
-    @Override
-    IO<Report> createTask(final JsObj conf) {
-        Supplier<Report> task = () -> {
-            Report report = new Report(name, description);
-            long seed = seedGen.nextLong();
-            Supplier<O> rg = gen.apply(new Random(seed));
-            report.setStartTime(Instant.now());
-            for (int i = 1; i <= times; i++) {
-                report.incTest();
-                var tic = Instant.now();
-                var generated = rg.get();
-                String tags = getTags(generated);
-                if (classifiers != null) report.classify(tags);
-                if (collect) report.collect(generated == null ? "null" : generated.toString());
-                var context = new Context(tic, seed, i, generated, tags);
-                property.apply(conf, generated)
-                        .onResult(tr -> {
-                                      report.tac(tic);
-                                      if (tr instanceof TestFailure tf)
-                                          report.addFailure(new FailureContext(context, tf));
-                                  },
-                                  exc -> {
-                                      report.tac(tic);
-                                      if (requireNonNull(exc) instanceof TestFailure tf) {
-                                          report.addFailure(new FailureContext(context, tf));
-                                      } else {
-                                          report.addException(new ExceptionContext(context, exc));
-                                      }
-                                  });
-            }
-            report.setEndTime(Instant.now());
-            return report;
-        };
-
-        IO<Report> io = IO.managedLazy(task)
-                          .peekSuccess(Report::summarize);
-
-        return path == null ? io : io.peekSuccess(this::dump);
-
-    }
+  }
 
 
 }
