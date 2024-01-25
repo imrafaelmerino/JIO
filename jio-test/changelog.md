@@ -16,3 +16,13 @@ New:
 ** Version 1.1.0 **
 
 - upgrade java-fun to version 2.0.0
+
+** Version 2.0.0 **
+
+Breaking:
+- Upgrade to Java 21
+
+** Version 2.0.1 **
+
+Fixed Bugs:
+- `JdbcQueryDebugger`classCastExc with field `fetchSize`

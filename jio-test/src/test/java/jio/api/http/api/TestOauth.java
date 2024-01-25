@@ -51,11 +51,11 @@ public class TestOauth {
     ClientCredentialsBuilder builder =
         ClientCredentialsBuilder.of(JioHttpClientBuilder.of(HttpClient.newBuilder()),
                                     AccessTokenRequest.of("client_id",
-                                                    "client_secret",
-                                                    URI.create("http://localhost:7777/token")
-                                                   ),
+                                                          "client_secret",
+                                                          URI.create("http://localhost:7777/token")
+                                                         ),
                                     GetAccessToken.DEFAULT,
-                              resp -> resp.statusCode() == 401
+                                    resp -> resp.statusCode() == 401
 
                                    );
 

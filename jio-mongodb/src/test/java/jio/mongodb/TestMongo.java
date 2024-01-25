@@ -1,29 +1,6 @@
 package jio.mongodb;
 
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.result.InsertOneResult;
-import jio.IO;
-import jio.ListExp;
-import jio.mongodb.*;
-import jio.test.junit.Debugger;
-import jsonvalues.JsObj;
-import jsonvalues.JsStr;
-import jsonvalues.gen.JsIntGen;
-import jsonvalues.gen.JsObjGen;
-import jsonvalues.gen.JsStrGen;
-import org.bson.types.ObjectId;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.Random;
-import java.util.function.Supplier;
-import java.util.stream.IntStream;
-
 //@Disabled
 public class TestMongo {
 

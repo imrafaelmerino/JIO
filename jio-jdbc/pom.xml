@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.imrafaelmerino</groupId>
   <artifactId>jio-jdbc</artifactId>
-  <version>0.6.0</version>
+  <version>0.7.0</version>
   <name>jio-jdbc</name>
   <description>Functional and reactive JDBC client in Java</description>
   <url>https://github.com/imrafaelmerino/jio</url>
@@ -43,6 +43,7 @@
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.3.2</MAVEN-JAVADOC-PLUGIN.VERSION>
     <JIO-EXP-VERSION>2.0.0</JIO-EXP-VERSION>
     <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
+    <POSTGRESQL.VERSION>42.7.1</POSTGRESQL.VERSION>
   </properties>
 
 
@@ -108,10 +109,12 @@
   </build>
 
   <dependencies>
+
+
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.7.1</version>
+      <version>${POSTGRESQL.VERSION}</version>
       <scope>provided</scope>
     </dependency>
 

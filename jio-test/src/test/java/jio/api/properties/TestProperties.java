@@ -25,32 +25,32 @@ public class TestProperties {
   static Property<Pair<Integer, Integer>> mediumProperty =
       PropertyBuilder.of("medium",
                          PairGen.of(IntGen.biased(0),
-                                IntGen.biased(0)
-                               )
-                            .suchThat(pair -> pair.first() <= pair.second()),
-                     pair -> {
-                       var a = pair.first();
-                       var b = pair.second();
-                       var mean = medium.apply(a,
-                                               b);
-                       if (mean < a) {
-                         return TestFailure.reason("mean lower than a");
-                       }
-                       if (mean > b) {
-                         return TestFailure.reason("mean greater than b");
-                       }
-                       return TestResult.SUCCESS;
-                     }
+                                    IntGen.biased(0)
+                                   )
+                                .suchThat(pair -> pair.first() <= pair.second()),
+                         pair -> {
+                           var a = pair.first();
+                           var b = pair.second();
+                           var mean = medium.apply(a,
+                                                   b);
+                           if (mean < a) {
+                             return TestFailure.reason("mean lower than a");
+                           }
+                           if (mean > b) {
+                             return TestFailure.reason("mean greater than b");
+                           }
+                           return TestResult.SUCCESS;
+                         }
                         )
                      .withClassifiers(Map.of("both",
-                                         p -> p.first() > Integer.MAX_VALUE / 2
-                                             && p.second() > Integer.MAX_VALUE / 2,
-                                         "none",
-                                         p -> p.first() < Integer.MAX_VALUE / 2
-                                             && p.second() < Integer.MAX_VALUE / 2
-                                        ),
-                                  "one"
-                                 )
+                                             p -> p.first() > Integer.MAX_VALUE / 2
+                                                 && p.second() > Integer.MAX_VALUE / 2,
+                                             "none",
+                                             p -> p.first() < Integer.MAX_VALUE / 2
+                                                 && p.second() < Integer.MAX_VALUE / 2
+                                            ),
+                                      "one"
+                                     )
 
                      .get();
 

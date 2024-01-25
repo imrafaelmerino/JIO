@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-http</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <name>jio-http</name>
     <description>Functional and reactive http client in Java</description>
     <url>https://github.com/imrafaelmerino/jio</url>
@@ -33,7 +33,7 @@
         <MAVEN-GPG-PLUGIN.VERSION>1.6</MAVEN-GPG-PLUGIN.VERSION>
         <MAVEN-SOURCE-PLUGIN.VERSION>3.0.1</MAVEN-SOURCE-PLUGIN.VERSION>
         <JACOCO-MAVEN-PLUGIN.VERSION>0.8.8</JACOCO-MAVEN-PLUGIN.VERSION>
-        <project.build.sourceencoding>UTF8</project.build.sourceencoding>
+        <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
         <MAVEN-COMPILER-PLUGIN.VERSION>3.10.1</MAVEN-COMPILER-PLUGIN.VERSION>
         <MAVEN-COMPILER-PLUGIN.SOURCE>21</MAVEN-COMPILER-PLUGIN.SOURCE>
         <MAVEN-COMPILER-PLUGIN.TARGET>21</MAVEN-COMPILER-PLUGIN.TARGET>

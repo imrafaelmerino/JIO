@@ -18,7 +18,8 @@ public non-sealed interface StatusCodeStub extends HttpRespStub<Integer> {
    * @throws NullPointerException if the provided generator is null.
    */
   static StatusCodeStub gen(final Gen<Integer> gen) {
-    Supplier<Integer> supplier = Objects.requireNonNull(gen).sample();
+    Supplier<Integer> supplier = Objects.requireNonNull(gen)
+                                        .sample();
     return n -> bodyReq -> uri -> headers -> supplier.get();
   }
 

@@ -1,17 +1,6 @@
 package jio.mongodb;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import jio.IO;
-import jio.mongodb.*;
-import jsonvalues.JsInt;
-import jsonvalues.JsObj;
-import jsonvalues.JsStr;
-import mongovalues.JsValuesRegistry;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+
 
 public class TestErrors {
 

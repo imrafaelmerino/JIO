@@ -41,8 +41,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static jio.http.client.HttpExceptions.CONNECTION_TIMEOUT;
-import static jio.http.client.HttpExceptions.NETWORK_UNREACHABLE;
+import static jio.http.client.HttpExceptions.IS_CONNECTION_TIMEOUT;
+import static jio.http.client.HttpExceptions.IS_NETWORK_UNREACHABLE;
 
 @Disabled
 public class Properties {
@@ -55,7 +55,7 @@ public class Properties {
                                         .connectTimeout(Duration.ofMillis(300)))
                           .withRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
                                                         .append(RetryPolicies.limitRetries(5)))
-                          .withRetryPredicate(CONNECTION_TIMEOUT.or(NETWORK_UNREACHABLE));
+                          .withRetryPredicate(IS_CONNECTION_TIMEOUT.or(IS_NETWORK_UNREACHABLE));
 
   static HttpServer server =
       HttpServerBuilder.of(Map.of(
@@ -85,10 +85,10 @@ public class Properties {
   static OauthHttpClient oauthClient =
       ClientCredentialsBuilder.of(myHttpClientBuilder,
                                   AccessTokenRequest.of("client_id",
-                                                  "client_secret",
-                                                  URI.create("http://localhost:%d/token".formatted(port))),
+                                                        "client_secret",
+                                                        URI.create("http://localhost:%d/token".formatted(port))),
                                   GetAccessToken.DEFAULT,
-                            resp -> resp.statusCode() == 401)
+                                  resp -> resp.statusCode() == 401)
                               .get();
   static Predicate<HttpResponse<String>> is2XX =
       resp -> resp.statusCode() < 300
@@ -187,11 +187,11 @@ public class Properties {
     Property<JsObj> unused =
         PropertyBuilder.ofLambda("post_pet_missing_req_key",
                                  Combinators.oneOf(Fields.REQ_PET_FIELDS)
-                                        .then(reqKey -> Generators.petGen.map(json -> json.delete(reqKey))),
+                                            .then(reqKey -> Generators.petGen.map(json -> json.delete(reqKey))),
                                  (conf, body) -> post("pet").apply(conf,
-                                                               body)
-                                                        .map(resp -> assertResp(is400,
-                                                                                "4XX status code was expected").apply(resp))
+                                                                   body)
+                                                            .map(resp -> assertResp(is400,
+                                                                                    "4XX status code was expected").apply(resp))
 
                                 )
                        .withTimes(100)
@@ -203,12 +203,12 @@ public class Properties {
     Property<JsObj> unused =
         PropertyBuilder.ofLambda("post_pet_with_null_value_in_req_key",
                                  Combinators.oneOf(Fields.REQ_PET_FIELDS)
-                                        .then(reqKey -> Generators.petGen.map(json -> json.set(reqKey,
-                                                                                               JsNull.NULL))),
+                                            .then(reqKey -> Generators.petGen.map(json -> json.set(reqKey,
+                                                                                                   JsNull.NULL))),
                                  (conf, body) -> post("pet").apply(conf,
-                                                               body)
-                                                        .map(resp -> assertResp(is400,
-                                                                                "4XX status code was expected").apply(resp))
+                                                                   body)
+                                                            .map(resp -> assertResp(is400,
+                                                                                    "4XX status code was expected").apply(resp))
                                 )
                        .withTimes(100)
                        .get();

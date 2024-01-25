@@ -64,7 +64,7 @@ public non-sealed class Property<GenValue> extends Testable {
 
 
   void dump(Report report) {
-    synchronized (Report.class) {
+    synchronized (Property.class) {
       try {
         Files.writeString(path, report + "\n");
       } catch (IOException e) {

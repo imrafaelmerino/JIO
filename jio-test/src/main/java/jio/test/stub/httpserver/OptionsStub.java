@@ -10,19 +10,18 @@ import static java.util.Objects.requireNonNull;
 public final class OptionsStub extends ReqHandlerStub {
 
   private OptionsStub(final BodyStub body,
-      final StatusCodeStub statusCode,
-      final HeadersStub headers
-  ) {
+                      final StatusCodeStub statusCode,
+                      final HeadersStub headers
+                     ) {
     super(requireNonNull(body),
-        requireNonNull(statusCode),
-        requireNonNull(headers),
-        "options"
-    );
+          requireNonNull(statusCode),
+          requireNonNull(headers),
+          "options"
+         );
   }
 
   /**
-   * Creates a GET handler stub that builds the HTTP response from the given body, status code, and
-   * headers stubs.
+   * Creates a GET handler stub that builds the HTTP response from the given body, status code, and headers stubs.
    *
    * @param body       The body response stub.
    * @param statusCode The status code response stub.
@@ -30,23 +29,26 @@ public final class OptionsStub extends ReqHandlerStub {
    * @return A GET stub.
    */
   public static OptionsStub of(final BodyStub body,
-      final StatusCodeStub statusCode,
-      final HeadersStub headers
-  ) {
-    return new OptionsStub(body, statusCode, headers);
+                               final StatusCodeStub statusCode,
+                               final HeadersStub headers
+                              ) {
+    return new OptionsStub(body,
+                           statusCode,
+                           headers);
   }
 
   /**
-   * Creates a GET handler stub that builds the HTTP response from the given body and status code
-   * stubs.
+   * Creates a GET handler stub that builds the HTTP response from the given body and status code stubs.
    *
    * @param body       The body response stub.
    * @param statusCode The status code response stub.
    * @return A GET stub.
    */
   public static OptionsStub of(final BodyStub body,
-      final StatusCodeStub statusCode
-  ) {
-    return new OptionsStub(body, statusCode, HeadersStub.EMPTY);
+                               final StatusCodeStub statusCode
+                              ) {
+    return new OptionsStub(body,
+                           statusCode,
+                           HeadersStub.EMPTY);
   }
 }

@@ -1,8 +1,7 @@
 /**
- * This package provides a set of classes and interfaces to create stubs for HTTP server request
- * handlers. These stubs allow you to simulate HTTP server responses for testing and mocking
- * purposes. These stubs are particularly useful when testing client applications that make HTTP
- * requests to external services.
+ * This package provides a set of classes and interfaces to create stubs for HTTP server request handlers. These stubs
+ * allow you to simulate HTTP server responses for testing and mocking purposes. These stubs are particularly useful
+ * when testing client applications that make HTTP requests to external services.
  *
  * <p>The main classes and interfaces in this package include:
  *

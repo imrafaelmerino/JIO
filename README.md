@@ -618,7 +618,7 @@ What can you expect from JIO:
 
 ## <a name="jio-exp"><a/> jio-exp
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-exp/1.0.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-exp/1.0.1/jar "jio-ex")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-exp/2.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-exp/2.0.0/jar "jio-ex")
 
 Let's model a funcional effect in Java!
 
@@ -1808,14 +1808,14 @@ an `IfElseExp`, you can see events associated with it: `SwitchExp-eval-predicate
 
 ## <a name="exp-installation"><a/> Installation
 
-It requires Java 17 or greater
+It requires Java 21 or greater
 
 ```code  
   
 <dependency>  
     <groupId>com.github.imrafaelmerino</groupId>  
     <artifactId>jio-exp</artifactId>  
-    <version>1.0.1</version>  
+    <version>2.0.0</version>  
 </dependency>  
   
 ```  
@@ -1824,7 +1824,7 @@ It requires Java 17 or greater
 
 ## <a name="jio-http"><a/> jio-http
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-http/1.1.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-http/1.1.2/jar "jio-http")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-http/2.0.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-http/2.0.1/jar "jio-http")
 
 ### <a name="httpserver"><a/> HTTP server
 
@@ -2257,25 +2257,23 @@ the `ClientCredsBuilder`.
 
 ### <a name="http-installation"><a/> Installation
 
-It requires Java 17 or greater
+It requires Java 21 or greater
 
 ```code  
   
 <dependency>  
     <groupId>com.github.imrafaelmerino</groupId>  
     <artifactId>jio-http</artifactId>  
-    <version>1.1.2</version>  
+    <version>2.0.1</version>  
 </dependency>  
   
 ```  
-
-[jio-exp](#jio-exp) is the only dependency
 
 ---
 
 ## <a name="jio-test"><a/> jio-test
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-test/1.1.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-test/1.1.0/jar "jio-test")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-test/2.0.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-test/2.0.1/jar "jio-test")
 
 ### <a name="junit"><a/> Junit integration
 
@@ -2937,29 +2935,21 @@ needs of your codebase or project.
 
 ## <a name="test-installation"><a/> Installation
 
-It requires Java 17 or greater
+It requires Java 21 or greater
 
 ```code  
   
 <dependency>  
     <groupId>com.github.imrafaelmerino</groupId>  
     <artifactId>jio-test</artifactId>  
-    <version>1.1.0</version>  
+    <version>2.0.1</version>  
 </dependency>  
   
 ```  
 
-Dependencies:
-
-- [jio-exp](#jio-exp)
-- [jio-http](#jio-http)
-- [jio-console](#jio-console)
-- [java-fun](https://github.com/imrafaelmerino/java-fun)
-- Junit 5
-
 ## <a name="jio-mongodb"><a/> jio-mongodb
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-mongodb/1.1.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-mongodb/1.1.1/jar "jio-mongodb")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-mongodb/2.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-mongodb/2.0.0/jar "jio-mongodb")
 
 `jio-mongodb` leverages the persistent JSON from [json-values](https://github.com/imrafaelmerino/json-values) and the
 set of codecs defined in [mongo-values](https://github.com/imrafaelmerino/mongo-values), making it an efficient solution
@@ -3445,22 +3435,24 @@ thread: ForkJoinPool.commonPool-worker-18, event-start-time: 2023-10-17T19:10:30
 
 ## <a name="mongo-installation"><a/> Installation
 
-It requires Java 17 or greater
+It requires Java 21 or greater
 
 ```code  
   
 <dependency>  
     <groupId>com.github.imrafaelmerino</groupId>  
     <artifactId>jio-mongodb</artifactId>  
-    <version>1.1.1</version>  
+    <version>2.0.0</version>  
 </dependency>  
   
 ```  
 
 ## <a name="jio-console"><a/> jio-console
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-console/1.0.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-console/1.0.1/jar "jio-console")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-console/2.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-console/2.0.0/jar "jio-console")
 
 ## <a name="jio-jdbc"><a/> jio-jdbc
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-jdbc/0.0.6)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-jdbc/0.0.6/jar "jio-jdbc")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-jdbc/0.7.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-jdbc/0.7.0/jar "jio-jdbc")
+
+documentation is on progress

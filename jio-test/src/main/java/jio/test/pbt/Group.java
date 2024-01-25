@@ -185,7 +185,7 @@ public final class Group {
   }
 
   void dump(GroupReport report) {
-    synchronized (GroupReport.class) {
+    synchronized (Group.class) {
       try {
         Files.writeString(path,
                           report + "\n");
