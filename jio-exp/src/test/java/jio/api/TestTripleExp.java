@@ -24,7 +24,7 @@ public class TestTripleExp {
                   "b",
                   "c"
                  ),
-        triple.result());
+        triple.join());
   }
 
 
@@ -42,7 +42,7 @@ public class TestTripleExp {
                   "b",
                   "c"
                  ),
-        triple.result()
+        triple.join()
                            );
   }
 

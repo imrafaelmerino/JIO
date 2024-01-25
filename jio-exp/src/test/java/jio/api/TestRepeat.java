@@ -53,7 +53,7 @@ public class TestRepeat {
         exp = exp.append(pair);
       }
 
-      System.out.println(exp.result());
+      System.out.println(exp.join());
     } finally {
       System.out.println(maxActiveThreadCount);
     }

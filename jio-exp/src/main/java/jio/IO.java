@@ -138,7 +138,7 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * {@link Supplier supplier} if exception handling is needed.
    *
    * @param supplier the supplier representing the lazy computation.
-   * @param <Output>      the type parameter representing the result type of the effect.
+   * @param <Output> the type parameter representing the result type of the effect.
    * @return an IO effect encapsulating the lazy computation.
    */
   public static <Output> IO<Output> lazy(final Supplier<? extends Output> supplier) {
@@ -158,7 +158,7 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * the provided task is executed.
    *
    * @param callable the callable task to be executed.
-   * @param <Output>      the type parameter representing the result type of the effect.
+   * @param <Output> the type parameter representing the result type of the effect.
    * @return an IO effect encapsulating the callable task.
    */
   public static <Output> IO<Output> task(final Callable<? extends Output> callable) {
@@ -180,7 +180,7 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    *
    * @param callable the callable task to be executed.
    * @param executor the executor responsible for running the task.
-   * @param <Output>      the type parameter representing the result type of the effect.
+   * @param <Output> the type parameter representing the result type of the effect.
    * @return an IO effect encapsulating the callable task.
    */
   public static <Output> IO<Output> task(final Callable<? extends Output> callable,
@@ -208,9 +208,9 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
   /**
    * Creates an effect that always returns a failed result with the specified exception.
    *
-   * @param exc the exception to be returned by the effect.
-   * @param <Output> the type parameter representing the result type of the effect (in this case, typically representing an
-   *            exception).
+   * @param exc      the exception to be returned by the effect.
+   * @param <Output> the type parameter representing the result type of the effect (in this case, typically representing
+   *                 an exception).
    * @return an IO effect that returns the specified exception as its result.
    */
   public static <Output> IO<Output> fail(final Throwable exc) {
@@ -226,7 +226,7 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    *
    * @param supplier the supplier representing the lazy computation to be executed.
    * @param executor the executor responsible for running the computation.
-   * @param <Output>      the type parameter representing the result type of the effect.
+   * @param <Output> the type parameter representing the result type of the effect.
    * @return an IO effect encapsulating the lazy computation executed with the specified executor.
    */
   public static <Output> IO<Output> lazy(final Supplier<Output> supplier,
@@ -376,30 +376,6 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
                  );
   }
 
-  /**
-   * Creates a new effect by applying the specified {@link Lambda} to the result of this effect (if it succeeds). The
-   * lambda is evaluated by a thread from the pool of the specified executor. If this effect fails, the new effect also
-   * ends with the same failure, and the lambda is not applied. This method is commonly referred to as "flatMap,"
-   * "thenCompose," or "bind" in different programming languages and libraries. For brevity, it's named "then" here.
-   *
-   * @param fn       the lambda that takes the result of this effect to create another one.
-   * @param <Q>      the result type of the new effect.
-   * @param executor the executor responsible for evaluating the lambda.
-   * @return a new effect representing the result of applying the lambda.
-   */
-  public <Q> IO<Q> thenOn(final Lambda<? super Output, Q> fn,
-                          final Executor executor
-                         ) {
-    requireNonNull(fn);
-    requireNonNull(executor);
-    return effect(() -> requireNonNull(get()).thenComposeAsync(it -> fn.apply(it)
-                                                                       .get(),
-                                                               executor
-                                                              )
-                 );
-
-
-  }
 
   /**
    * Creates a new effect after evaluating this one. If this succeeds, the result is applied to the specified
@@ -427,38 +403,6 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
                  );
   }
 
-  /**
-   * Creates a new effect after evaluating this one. If this succeeds, the result is applied to the specified
-   * successLambda. If this fails, instead of ending with a failure, the exception is applied to the specified
-   * failureLambda to create a new result. In both cases, the lambdas are evaluated by a thread from the pool of the
-   * specified executor.
-   *
-   * @param successLambda the lambda that takes the result to create another one in case of success.
-   * @param failureLambda the lambda that takes the exception to create another result in case of failure.
-   * @param executor      the executor responsible for evaluating the successLambda and failureLambda.
-   * @param <Q>           the result type of the new effect.
-   * @return a new effect representing the result of applying either the successLambda or the failureLambda.
-   */
-
-  public <Q> IO<Q> thenOn(final Lambda<? super Output, Q> successLambda,
-                          final Lambda<? super Throwable, Q> failureLambda,
-                          final Executor executor
-                         ) {
-    requireNonNull(successLambda);
-    requireNonNull(failureLambda);
-    requireNonNull(executor);
-
-    return effect(() -> requireNonNull(get()).thenComposeAsync(it -> successLambda.apply(it)
-                                                                                  .get(),
-                                                               executor
-                                                              )
-                                             .exceptionallyComposeAsync(exc -> failureLambda.apply(exc.getCause())
-                                                                                            .get(),
-                                                                        executor
-                                                                       )
-                 );
-
-  }
 
   /**
    * Creates a new effect that will handle any failure that this effect might contain and will be recovered with the
@@ -491,29 +435,6 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
                );
   }
 
-  /**
-   * Creates a new effect that will handle any failure that this effect might contain and will be recovered with the
-   * effect evaluated by the specified lambda. The lambda computes the new effect in a thread from the given executor.
-   * If this effect succeeds, the new effect will also succeed with the same value. If this effect fails, the specified
-   * lambda is applied to the exception to produce a new effect for the new effect.
-   *
-   * @param fn       the lambda to apply if this effect fails, taking the exception as input and producing a new
-   *                 effect.
-   * @param executor the executor responsible for evaluating the lambda.
-   * @return a new effect representing the original value or the result of applying the lambda in case of failure.
-   */
-
-  public IO<Output> recoverWithOn(final Lambda<? super Throwable, Output> fn,
-                                  final Executor executor
-                                 ) {
-    requireNonNull(fn);
-    requireNonNull(executor);
-    return thenOn(IO::succeed,
-                  fn,
-                  executor
-                 );
-
-  }
 
   /**
    * Creates a new effect that will handle any failure that this effect might contain and will be recovered with a new
@@ -537,32 +458,6 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
 
   }
 
-  /**
-   * Creates a new effect that will handle any failure that this effect might contain and will be recovered with a new
-   * effect evaluated by the specified lambda in a thread from the given executor pool. If the new effect fails again,
-   * the new failure is ignored, and the original failure is returned (this is different from
-   * {@link #recoverWithOn(Lambda, Executor)} which would return the new failure).
-   *
-   * @param lambda   the lambda to apply if this effect fails, producing a new effect.
-   * @param executor the executor responsible for evaluating the lambda.
-   * @return a new effect representing either the original value or the result of applying the lambda in case of
-   * failure.
-   */
-  public IO<Output> fallbackToOn(final Lambda<? super Throwable, Output> lambda,
-                                 final Executor executor
-                                ) {
-    requireNonNull(lambda);
-    requireNonNull(executor);
-
-    return thenOn(IO::succeed,
-                  exc -> lambda.apply(exc)
-                               .thenOn(IO::succeed,
-                                       exc1 -> fail(exc),
-                                       executor
-                                      ),
-                  executor
-                 );
-  }
 
   /**
    * Creates a new effect that passes the exception to the specified failConsumer in case of failure. The given consumer
@@ -632,48 +527,6 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
                 });
   }
 
-  /**
-   * Creates a new effect that passes the computed value to the specified successConsumer and any possible failure to
-   * the specified failureConsumer. The given consumers are responsible for handling the value and failure,
-   * respectively, and they can't fail themselves. If they fail, the exception would be just printed out on the
-   * console.
-   * <strong>The consumer tasks are performed by threads from the specified executor pool.</strong>
-   *
-   * @param successConsumer the consumer that takes the successful result.
-   * @param failureConsumer the consumer that takes the failure.
-   * @param executor        the executor responsible for performing the consumer tasks.
-   * @return a new effect representing the original value or the result of applying the consumers in case of success or
-   * failure.
-   */
-  public IO<Output> peekOn(final Consumer<? super Output> successConsumer,
-                           final Consumer<? super Throwable> failureConsumer,
-                           final Executor executor
-                          ) {
-    requireNonNull(successConsumer);
-    requireNonNull(failureConsumer);
-    requireNonNull(executor);
-    return thenOn(it -> {
-                    try {
-                      successConsumer.accept(it);
-                    } catch (Exception exception) {
-                      Fun.publishException("peekOn",
-                                           "Exception thrown by the consumer provided by the API client",
-                                           exception);
-                    }
-                    return succeed(it);
-                  },
-                  exc -> {
-                    try {
-                      failureConsumer.accept(exc);
-                    } catch (Exception exception) {
-                      Fun.publishException("peekOn",
-                                           "Exception thrown by the consumer provided by the API client",
-                                           exception);
-                    }
-                    return fail(exc);
-                  },
-                  executor);
-  }
 
   /**
    * Creates a new effect that fails with a {@link TimeoutException} if this effect doesn't compute any value within the
@@ -723,18 +576,6 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
 
   }
 
-  /**
-   * Fires the evaluation of this effect and BLOCKS the caller thread, waiting for the computed value to be returned.
-   * Any failure during the computation will be thrown as an exception.
-   * <strong>Since this is a blocking call, it is typically used for testing purposes or
-   * in situations where blocking is acceptable.</strong>
-   *
-   * @return the computed value.
-   * @throws CompletionException if a failure occurs during the computation.
-   */
-  public Output result() {
-    return requireNonNull(get()).join();
-  }
 
   /**
    * Creates a new effect that will retry the computation according to the specified {@link RetryPolicy policy} if this
@@ -922,67 +763,27 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
   /**
    * Sleeps for the specified duration before evaluating this effect.
    * <p>This method introduces a pause in the execution flow for the specified duration using the
-   * {@link Thread#sleep(long)} method. It can be useful for testing purposes, or when working with virtual threads.
-   * However, it should be used with caution, as introducing delays in a program's execution blocking threads can impact
-   * performance and behavior.
+   * {@link Delay#of(Duration)} effect.It can be useful for testing purposes. However, it should be used with caution,
+   * as introducing delays in a program can impact performance and behavior.
    *
    * @param duration The duration to sleep for.
    * @return An {@code IO<Output>} representing the delayed operation.
    */
   public IO<Output> sleep(final Duration duration) {
     Objects.requireNonNull(duration);
-    return IO.lazy(() -> {
-               try {
-                 Thread.sleep(duration.toMillis());
-                 return null;
-               } catch (InterruptedException e) {
-                 throw new RuntimeException(e);
-               }
-
-             })
-             .then(nill -> this);
+    return Delay.of(duration)
+                .then(it -> this);
 
   }
 
-  /**
-   * Sleeps for the specified duration before evaluating this effect.
-   * <p>
-   * This method introduces a pause in the execution flow for the specified duration using the
-   * {@link Thread#sleep(long)} method. It can be useful for testing purposes, or when working with virtual threads.
-   * However, it should be used with caution, as introducing delays in a program's execution blocking threads can impact
-   * performance and behavior.
-   * </p>
-   * <p>
-   * Threads from the provided executor will sleep for the specified duration before evaluating the effect. This can be
-   * beneficial for controlling the thread on which the sleep occurs.
-   * </p>
-   *
-   * @param duration The duration to sleep for.
-   * @param executor The executor responsible for executing the sleep operation.
-   * @return An {@code IO<Output>} representing the delayed operation.
-   */
-  public IO<Output> sleep(final Duration duration,
-                          final Executor executor) {
-    Objects.requireNonNull(duration);
-    return IO.lazy(() -> {
-                     try {
-                       Thread.sleep(duration.toMillis());
-                       return null;
-                     } catch (InterruptedException e) {
-                       throw new RuntimeException(e);
-                     }
-
-                   },
-                   executor)
-             .then($ -> this);
-
-  }
 
   /**
-   * Computes this effect and pass the result to one of the specified consumers
+   * Computes this effect and passes the result to the specified consumer or handles the exception using the provided
+   * exception handler. Internally, it creates a new CompletionStage with the same result or exception as this stage,
+   * that executes the given consumer or exception handler when this IO effect completes.
    *
    * @param successConsumer The consumer to be called with the result value if the operation succeeds.
-   * @param failureConsumer The consumer to be called with the exception if the operation fails.
+   * @param failureConsumer The handler to be called with the exception if the operation fails.
    */
   public void onResult(final Consumer<Output> successConsumer,
                        final Consumer<Throwable> failureConsumer
@@ -996,7 +797,42 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
         failureConsumer.accept(exc);
       }
     });
+    assert unused != null;
   }
 
+  /**
+   * Blocks the caller thread to wait for the result of this effect. Any failure during the computation will be thrown
+   * as an exception.
+   * <p>
+   * This method is a blocking call and is commonly used for testing purposes or in situations where blocking is
+   * acceptable. When using virtual threads, it is completely normal to call this method.
+   * </p>
+   *
+   * @return the computed value.
+   * @throws Exception if a failure occurs during the computation.
+   * @see #join()
+   */
+  public Output result() throws Exception {
+    try {
+      return get().join();
+    } catch (CompletionException e) {
+      Throwable cause = e.getCause();
+      if (cause != null) {
+        throw ((Exception) cause);
+      }
+      throw e;
+    }
+  }
+
+
+  /**
+   * Returns the result value when this effect completes or throws an (unchecked) exception if completed exceptionally.
+   * Concretely, this method throws an (unchecked) CompletionException with the underlying exception as its cause.
+   *
+   * @return the computed value.
+   */
+  public Output join() {
+    return get().join();
+  }
 
 }

@@ -2,7 +2,7 @@ package jio.mongodb;
 
 import com.mongodb.TransactionOptions;
 import com.mongodb.client.ClientSession;
-import jio.Fun;
+import jio.ExceptionFun;
 import jio.IO;
 import jio.Lambda;
 
@@ -44,7 +44,7 @@ public final class Tx<Input, Output> implements Lambda<Input, Output> {
   private static void fillError(MongoOpEvent event,
                                 Throwable exc) {
     event.result = MongoOpEvent.RESULT.FAILURE.name();
-    event.exception = Fun.findUltimateCause(exc).toString();
+    event.exception = ExceptionFun.findUltimateCause(exc).toString();
   }
 
   private static void abort(ClientSession session,

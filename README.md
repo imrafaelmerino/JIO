@@ -3,10 +3,10 @@
 - [Code wins arguments](#cwa)
 - [Introduction](#Introduction)
 - [jio-exp](#jio-exp)
-    - [Creating effects](#Creating-effects)
-    - [Lambdas](#Lambdas)
-    - [Operations with effects](#Operations-with-effects)
-    - [Expressions](#Expressions)
+    - [Creating effects](#creating-effects)
+    - [Lambdas](#lambdas)
+    - [Operations with effects](#operations-with-effects)
+    - [Expressions](#expressions)
     - [Clocks](#Clocks)
     - [Debugging and JFR integration](#Debugging-and-JFR-integration)
     - [Installation](#exp-installation)
@@ -85,7 +85,7 @@ The response from the signup service follows this structure:
 ### Signup Service implementation
 
 The `SignupService` orchestrates all the operations with elegance and efficiency. This service is constructed with a set
-of [lambdas](#Lambdas), where a lambda is essentially a function that takes an input and produces an output. Unlike
+of [lambdas](#lambdas), where a lambda is essentially a function that takes an input and produces an output. Unlike
 traditional functions, lambdas don't throw exceptions; instead, they gracefully return exceptions as regular values.
 
 ```java
@@ -618,7 +618,7 @@ What can you expect from JIO:
 
 ## <a name="jio-exp"><a/> jio-exp
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-exp/2.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-exp/2.0.0/jar "jio-ex")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-exp/2.0.3)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-exp/2.0.3/jar "jio-ex")
 
 Let's model a funcional effect in Java!
 
@@ -665,7 +665,7 @@ developers.
 
 ---  
 
-### <a name="Creating-effects"><a/> Creating effects
+### <a name="creating-effects"><a/> Creating effects
 
 Now that we got the ball rolling, let's learn how to create IO effects.
 
@@ -838,7 +838,7 @@ succeed with `true` and `false`, respectively.
   
 ---  
 
-### <a name="Lambdas"><a/> Lambdas
+### <a name="lambdas"><a/> Lambdas
 
 In the world of JIO, working with effectful functions is a common practice. The following functions return `IO` effects,
 and you'll often encounter them in your code:
@@ -897,7 +897,7 @@ Lambda<A,C> third = first.then(second);
 
 ---
 
-### <a name="Operations-with-effects"><a/> Operations with effects
+### <a name="operations-with-effects"><a/> Operations with effects
 
 #### Making our code more resilient being persistent!
 
@@ -1158,14 +1158,13 @@ control over concurrency and resource allocation. Here are the key methods with 
 
 public abstract class IO<O> extends Supplier<CompletableFuture<O>> {  
   
-    IO<O> recoverWithOn(Lambda<Throwable, O> fn,  
-                        Executor executor  
-                        );  
+    IO<O> task(Callabel<O> task,  
+               Executor executor  
+              );  
       
-    IO<O> retryOn(Predicate<Throwable> predicate,  
-                  RetryPolicy policy,  
-                  Executor executor  
-                  );  
+    IO<O> lazy(Supplier<O> supplier,  
+               Executor executor  
+              );  
       
     <Q> IO<Q> thenOn(Lambda<O, Q> fn,  
                      Executor executor  
@@ -1183,9 +1182,12 @@ Given an `IO<O>` effect, how do you trigger the execution to compute the final v
 There are three ways:
 
 - Getting a future of the evaluation with the method `get()`
-- Block and wait till the evaluation is done with the method `result()`. It can throw a runtime exception.
+- Block and wait till the evaluation is done with the method `join()`.It can throw a `CompletionException`.
   It's syntactic sugar for `get().join()`. If you are using virtual threads, blocking is not a problem.
-- Callback style with the method `onResult(ouput -> {}, failure -> {})`
+- Block and wait till the evaluation is done with the method `result()`.It can throw a checked exception.
+  Not like `join` it throws the real cause of the failure and not `CompletionException`. You can map
+  the possible exception passing in a function with `result(Function<Throwable,Throwable>)`
+- Callback style, Call Call Callback style :)  with the method `onResult(ouput -> {}, failure -> {})`
 
 ```code
 
@@ -1204,7 +1206,7 @@ effect.onResult(output -> System.out.println(" :) "),
   
 ---  
 
-## Expressions
+### <a name="expressions"><a/> Expressions
 
 **Using expressions and function composition is how we deal with complexity in Functional Programming**.  
 With the following expressions, you will have a comprehensive toolkit to model effects, combine them in powerful ways,
@@ -1824,7 +1826,7 @@ It requires Java 21 or greater
 
 ## <a name="jio-http"><a/> jio-http
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-http/2.0.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-http/2.0.1/jar "jio-http")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-http/2.0.3)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-http/2.0.3/jar "jio-http")
 
 ### <a name="httpserver"><a/> HTTP server
 
@@ -1854,13 +1856,7 @@ HttpServerBuilder serverBuilder = HttpServerBuilder.of("/your-path", handler,
 **Specifying an Executor**
 
 When creating an `HttpServer` is possible to specify an `Executor`. All HTTP requests received by the server will
-be handled in tasks provided to this executor.
-
-```code
-Executor executor = Executors.newVirtualThreadPerTaskExecutor(); 
-
-serverBuilder.withExecutor(executor);
-```
+be handled in tasks provided to this executor. By default virtual threads are used: `Executors.newVirtualThreadPerTaskExecutor()`
 
 **Setting the Socket Backlog**
 
@@ -2088,7 +2084,8 @@ thread: ForkJoinPool.commonPool-worker-1, event-start-time: 2023-10-11T20:30:12.
 
 Some errors occurred due to the connection timeout being too short for this particular scenario. Thankfully, the
 retry mechanism came to the rescue! Additionally, the `HttpExceptions` class provides numerous predicates to help
-identify the most common errors that can occur during request execution.
+identify the most common errors that can occur during request execution. As you can see in
+the thread field, jio-http client uses virtual threads.
 
 ---
 
@@ -2273,7 +2270,7 @@ It requires Java 21 or greater
 
 ## <a name="jio-test"><a/> jio-test
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-test/2.0.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-test/2.0.1/jar "jio-test")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-test/2.0.3)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-test/2.0.3/jar "jio-test")
 
 ### <a name="junit"><a/> Junit integration
 
@@ -2949,15 +2946,16 @@ It requires Java 21 or greater
 
 ## <a name="jio-mongodb"><a/> jio-mongodb
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-mongodb/2.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-mongodb/2.0.0/jar "jio-mongodb")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-mongodb/2.0.3)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-mongodb/2.0.3/jar "jio-mongodb")
 
 `jio-mongodb` leverages the persistent JSON from [json-values](https://github.com/imrafaelmerino/json-values) and the
 set of codecs defined in [mongo-values](https://github.com/imrafaelmerino/mongo-values), making it an efficient solution
 for MongoDB operations.
 
+It uses Virtual threads from Java 21.
+
 jio-mongodb is composed of a set of MongoLambdas to perform operations against the database. With Lambdas, you can
-benefit
-from all the powerful features of `jio-exp` and `jio-test`. `jio-mongodb` is an example of how you can make any API
+benefit from all the powerful features of `jio-exp` and `jio-test`. `jio-mongodb` is an example of how you can make any API
 under the sun jio-friendly, unleashing the full potential of your code.
 
 ### <a name="monglambda"><a/> MongoLambda
@@ -3241,33 +3239,6 @@ Consumer<ChangeStreamIterable<JsObj>> consumer = iter -> { ??? };
 Watcher.of(consumer).accept(builder);
 ```
 
-#### Specifying an Executor<a name="mongo-executors"></a>
-
-Every operation (FindOne, InsertOne, DeleteOne, etc.) type has a method `on(Executor executor)` to specify the executor
-from which thread will be used to evaluate the Lambdas. You can use virtual threads if you are running `jio-mongodb` in
-Java 21:
-
-```code
-
-Lambda<FindBuilder, JsObj> find =  FindOne.of(collection)
-                                          .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
-                                          .standalone();
-
-```
-
-If no executor is specified, one from the Fork Join Pool will be used since `jio-mongodb` uses
-the `IO.managedLazy(supplier)` method from `jio-exp`.
-
----
-
-This revised README provides a comprehensive guide to using the `jio-mongodb` package, offering detailed examples and
-explanations for each operation. Developers can now use this documentation as a reference when working with MongoDB in
-their Java applications.
-
-Certainly! When working with the `jio-mongodb` package, you have the flexibility to pass your custom converters and
-configure various options to customize the behavior of MongoDB operations. Here's a brief explanation of how to pass
-other converters and options:
-
 #### Configuring options <a name="mongo-options"></a>
 
 You can also configure various options for MongoDB operations using the `withOptions` method available for some
@@ -3449,10 +3420,10 @@ It requires Java 21 or greater
 
 ## <a name="jio-console"><a/> jio-console
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-console/2.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-console/2.0.0/jar "jio-console")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-console/2.0.3)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-console/2.0.3/jar "jio-console")
 
 ## <a name="jio-jdbc"><a/> jio-jdbc
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-jdbc/0.7.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-jdbc/0.7.0/jar "jio-jdbc")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-jdbc/0.9.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-jdbc/0.9.1/jar "jio-jdbc")
 
 documentation is on progress

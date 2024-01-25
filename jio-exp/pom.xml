@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.imrafaelmerino</groupId>
   <artifactId>jio-exp</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.3</version>
   <name>jio-exp</name>
   <description>Java Input-Output Monad</description>
   <url>https://github.com/imrafaelmerino/jio</url>

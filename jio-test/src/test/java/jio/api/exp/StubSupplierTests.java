@@ -30,7 +30,7 @@ public class StubSupplierTests {
                      .consequence(A_AFTER_1_SEC)
                      .alternative(B_AFTER_1_SEC)
                      .debugEach("context")
-                     .result();
+                     .join();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -54,7 +54,7 @@ public class StubSupplierTests {
                       B_AFTER_1_SEC.get(),
                       C_AFTER_1_SEC.get()
                      )
-                 .result();
+                 .join();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -80,7 +80,7 @@ public class StubSupplierTests {
                       C_AFTER_1_SEC.get()
                      )
                  .debugEach("context")
-                 .result();
+                 .join();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -117,7 +117,7 @@ public class StubSupplierTests {
                                          )
                           )
                       .debugEach("context")
-                      .result();
+                      .join();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -149,7 +149,7 @@ public class StubSupplierTests {
     Pair<String, String> pair =
         PairExp.seq(A_AFTER_1_SEC.get(),
                     B_AFTER_1_SEC.get())
-               .result();
+               .join();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -174,7 +174,7 @@ public class StubSupplierTests {
         PairExp.par(A_AFTER_1_SEC.get(),
                     B_AFTER_1_SEC.get())
                .debugEach("context")
-               .result();
+               .join();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -201,7 +201,7 @@ public class StubSupplierTests {
                                           .map(JsStr::of)
                             )
                         .debugEach("context")
-                        .result();
+                        .join();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -227,7 +227,7 @@ public class StubSupplierTests {
                     C_AFTER_1_SEC.get()
                    )
                .debugEach("context")
-               .result();
+               .join();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS

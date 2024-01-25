@@ -28,7 +28,10 @@ public class TestRetries {
   //throws stackoverflowexception
   public void testRetryLimits() {
 
-    Gen<IO<Integer>> gen = Gen.seq(n -> n < 3500 ? IO.fail(new RuntimeException()) : IO.succeed(1));
+    Gen<IO<Integer>> gen = Gen.seq(n ->
+                                       n < 3500 ? IO.fail(new RuntimeException()) :
+                                       IO.succeed(1)
+                                  );
     StubBuilder<Integer> stub = StubBuilder.ofGen(gen);
 
     CompletableFuture<Integer> future = stub.get()
@@ -56,7 +59,7 @@ public class TestRetries {
     Assertions.assertEquals("a",
                             val.get()
                                .retry(RetryPolicies.limitRetries(3))
-                               .result()
+                               .join()
                            );
 
     Assertions.assertEquals("a",
@@ -64,7 +67,7 @@ public class TestRetries {
                                .retry(e -> e instanceof RuntimeException,
                                       RetryPolicies.limitRetries(3)
                                      )
-                               .result()
+                               .join()
                            );
   }
 
@@ -76,7 +79,7 @@ public class TestRetries {
 
     StubBuilder<String> val = StubBuilder.ofGen(gen);
 
-    Assertions.assertThrows(CompletionException.class,
+    Assertions.assertThrows(RuntimeException.class,
                             () -> val.get()
                                      .retry(RetryPolicies.limitRetries(2))
                                      .result()
@@ -97,7 +100,7 @@ public class TestRetries {
                                            .append(incrementalDelay(Duration.ofSeconds(1)));
 
     String result = val.retry(retryPolicy)
-                       .result();
+                       .join();
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
                                )
@@ -121,7 +124,7 @@ public class TestRetries {
     RetryPolicy retryPolicy = RetryPolicies.limitRetries(2)
                                            .append(incrementalDelay(Duration.ofSeconds(1)));
 
-    Assertions.assertThrows(CompletionException.class,
+    Assertions.assertThrows(RuntimeException.class,
                             () -> val.retry(retryPolicy)
                                      .result()
                            );

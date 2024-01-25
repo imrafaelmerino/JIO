@@ -26,7 +26,7 @@ public abstract sealed class Testable permits ParProperty, Property, SeqProperty
    * @return The result of the test is encapsulated in a Report object.
    */
   public Report check() {
-    return createTask().result();
+    return createTask().join();
   }
 
   /**
@@ -37,6 +37,6 @@ public abstract sealed class Testable permits ParProperty, Property, SeqProperty
    * @return The result of the test is  encapsulated in a Report object.
    */
   public Report check(final JsObj conf) {
-    return createTask(conf).result();
+    return createTask(conf).join();
   }
 }

@@ -2,7 +2,7 @@ package jio.http.client;
 
 import java.io.IOException;
 import java.util.concurrent.Executors;
-import jio.Fun;
+import jio.ExceptionFun;
 import jio.IO;
 import jio.RetryPolicy;
 
@@ -66,8 +66,8 @@ final class JioHttpClientImpl implements JioHttpClient {
         event.result = SUCCESS.name();
         return resp;
       } catch (Exception e) {
-        event.exception = Fun.findUltimateCause(e)
-                             .toString();
+        event.exception = ExceptionFun.findUltimateCause(e)
+                                      .toString();
         event.result = FAILURE.name();
         throw e;
       } finally {

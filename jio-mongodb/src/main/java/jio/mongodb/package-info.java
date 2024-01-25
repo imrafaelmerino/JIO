@@ -57,7 +57,7 @@
  *     <li>{@link jio.mongodb.MongoClientBuilder}: A builder class for creating customized MongoDB client instances.</li>
  *     <li>{@link jio.mongodb.ClientSessionBuilder}: A builder class for creating MongoDB client sessions, used in
  *     transaction operations.</li>
- *     <li>{@link jio.mongodb.MongoExceptions}: A utility class containing predicates for MongoDB-specific exception handling.</li>
+ *     <li>{@link jio.mongodb.MongoFun}: A utility class containing predicates for MongoDB-specific exception handling.</li>
  * </ul>
  * <p>
  * The classes in this package follow the {@link jio.mongodb.MongoLambda} interface, which allows for asynchronous execution

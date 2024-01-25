@@ -66,7 +66,7 @@ public class TestOauth {
                                                           .GET()
                                                           .uri(URI.create("http://localhost:7777/service"))
                                               )
-                                        .result();
+                                        .join();
 
 
   }

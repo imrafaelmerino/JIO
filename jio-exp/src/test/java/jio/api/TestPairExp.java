@@ -19,7 +19,7 @@ public class TestPairExp {
     Assertions.assertEquals(Pair.of("a",
                                     "b"
                                    ),
-                            pair.result()
+                            pair.join()
                            );
   }
 

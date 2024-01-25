@@ -31,10 +31,28 @@ Others:
 
 Breaking:
 
-- This version only support Java 21 or greater
-- Since `Delay` is implemented with virtual threads, methods `retryOn` and `repeatOn` has been deleted
+- This version only supports Java 21 or greater
+- Since `Delay` is implemented with virtual threads, methods `retryOn` and `repeatOn` has been
+  deleted
 
 New:
 
 - `Delay` implemented with virtual threads instead of `DelayedExecutor`
-    
+
+** Version 2.0.1**
+Breaking:
+
+- Since we have virtual threads, IO methods with suffix on have been deleted
+- `result` method now throws an exception in the signature.
+  Honesty first!
+  If the api client prefers to be unsafe use the alternative `join` which is Java idiomatic, but it
+  throws
+  `CompletionException` instead of it cause like `result` methods do.
+
+** Version 2.0.3**
+Breaking:
+
+- Creation of `ExceptionFun` and move public methods from `Fun` into this class
+
+New:
+Creation of new methods in `ExceptionFun` to handle Exceptions

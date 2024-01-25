@@ -41,14 +41,14 @@ class PropertyCommand extends Command {
    */
   private PropertyCommand(final Property<?> prop) {
     super(String.format("%s %s",
-            PREFIX_COMMAND,
-            requireNonNull(prop).name
-        ),
-        prop.description,
-        tokens ->
-            tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
-                && tokens[1].equalsIgnoreCase(prop.name)
-    );
+                        PREFIX_COMMAND,
+                        requireNonNull(prop).name
+                       ),
+          prop.description,
+          tokens ->
+              tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
+                  && tokens[1].equalsIgnoreCase(prop.name)
+         );
     this.prop = requireNonNull(prop);
   }
 
@@ -63,19 +63,30 @@ class PropertyCommand extends Command {
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
-      final State state
-  ) {
+                                              final State state
+                                             ) {
     return tokens -> {
-      String command = String.join(" ", Arrays.stream(tokens).toList());
-      if (parPattern.matcher(command).matches()) {
+      String command = String.join(" ",
+                                   Arrays.stream(tokens)
+                                         .toList());
+      if (parPattern.matcher(command)
+                    .matches()) {
         int n = Integer.parseInt(tokens[3]);
-        return IO.succeed(prop.repeatPar(n).createTask(conf).result().toString());
+        return IO.succeed(prop.repeatPar(n)
+                              .createTask(conf)
+                              .join()
+                              .toString());
       }
-      if (seqPattern.matcher(command).matches()) {
+      if (seqPattern.matcher(command)
+                    .matches()) {
         int n = Integer.parseInt(tokens[3]);
-        return IO.succeed(prop.repeatPar(n).createTask(conf).result().toString());
+        return IO.succeed(prop.repeatPar(n)
+                              .createTask(conf)
+                              .join()
+                              .toString());
       }
-      return prop.createTask(conf).map(Report::toString);
+      return prop.createTask(conf)
+                 .map(Report::toString);
 
 
     };

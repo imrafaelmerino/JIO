@@ -1,6 +1,5 @@
 package jio;
 
-import jio.IO;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -10,7 +9,7 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a delay that is modeled with an IO effect that is reduced to null after the specified time. It's
- * implemented using {@link CompletableFuture#delayedExecutor}.
+ * implemented using virtual threads.
  *
  * <p>It's widely used by the {@link RetryPolicy} function to implement different policies.
  * For example, to delay an effect for 1 second:
@@ -18,8 +17,7 @@ import static java.util.Objects.requireNonNull;
  * <pre>
  * {@code
  * IO<O> effect = ...
- * IO<O> delayedEffect = Delay.of(Duration.ofSeconds(1),
- *                                ForkJoinPool.commonPool())
+ * IO<O> delayedEffect = Delay.of(Duration.ofSeconds(1))
  *                            .then(nill -> effect);
  * }
  * </pre>
@@ -30,8 +28,7 @@ public final class Delay extends IO<Void> {
 
   private final Duration duration;
 
-  private Delay(final Duration duration
-               ) {
+  private Delay(final Duration duration) {
     this.duration = duration;
   }
 

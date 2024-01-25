@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.imrafaelmerino</groupId>
   <artifactId>jio-jdbc</artifactId>
-  <version>0.7.0</version>
+  <version>0.9.1</version>
   <name>jio-jdbc</name>
   <description>Functional and reactive JDBC client in Java</description>
   <url>https://github.com/imrafaelmerino/jio</url>
@@ -41,7 +41,7 @@
     <MAVEN-SUREFIRE-PLUGIN.VERSION>3.0.0-M6</MAVEN-SUREFIRE-PLUGIN.VERSION>
     <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.3.2</MAVEN-JAVADOC-PLUGIN.VERSION>
-    <JIO-EXP-VERSION>2.0.0</JIO-EXP-VERSION>
+    <JIO-EXP-VERSION>2.0.3</JIO-EXP-VERSION>
     <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
     <POSTGRESQL.VERSION>42.7.1</POSTGRESQL.VERSION>
   </properties>

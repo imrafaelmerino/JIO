@@ -1,7 +1,7 @@
 package jio.jdbc;
 
 import java.util.List;
-import jio.Fun;
+import jio.ExceptionFun;
 
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
@@ -47,8 +47,8 @@ class JfrEventDecorator {
       if (enableJFR) {
         event.sql = sql;
         event.result = QueryStmEvent.RESULT.FAILURE.name();
-        event.exception = Fun.findUltimateCause(e)
-                             .toString();
+        event.exception = ExceptionFun.findUltimateCause(e)
+                                      .toString();
 
       }
       throw e;
@@ -92,8 +92,8 @@ class JfrEventDecorator {
       if (enableJFR) {
         event.sql = sql;
         event.result = QueryStmEvent.RESULT.FAILURE.name();
-        event.exception = Fun.findUltimateCause(e)
-                             .toString();
+        event.exception = ExceptionFun.findUltimateCause(e)
+                                      .toString();
 
       }
       throw e;
@@ -141,8 +141,8 @@ class JfrEventDecorator {
       if (enableJFR) {
         event.sql = sql;
         event.result = QueryStmEvent.RESULT.FAILURE.name();
-        event.exception = Fun.findUltimateCause(e)
-                             .toString();
+        event.exception = ExceptionFun.findUltimateCause(e)
+                                      .toString();
 
       }
       throw e;
@@ -187,8 +187,8 @@ class JfrEventDecorator {
       if (enableJFR) {
         event.sql = sql;
         event.result = QueryStmEvent.RESULT.FAILURE.name();
-        event.exception = Fun.findUltimateCause(e)
-                             .toString();
+        event.exception = ExceptionFun.findUltimateCause(e)
+                                      .toString();
 
       }
       throw e;
@@ -236,7 +236,7 @@ class JfrEventDecorator {
           event.result = BatchEvent.RESULT.FAILURE.name();
           event.exception = errors
               .stream()
-              .map(Fun::findUltimateCause)
+              .map(ExceptionFun::findUltimateCause)
               .map(Throwable::toString)
               .collect(Collectors.joining());
         }
@@ -247,8 +247,8 @@ class JfrEventDecorator {
       if (enableJFR) {
         event.sql = sql;
         event.result = BatchEvent.RESULT.FAILURE.name();
-        event.exception = Fun.findUltimateCause(e)
-                             .toString();
+        event.exception = ExceptionFun.findUltimateCause(e)
+                                      .toString();
 
       }
       throw e;

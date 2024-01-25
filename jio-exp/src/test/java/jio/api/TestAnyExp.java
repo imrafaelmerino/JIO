@@ -14,13 +14,13 @@ public class TestAnyExp {
                                   IO.FALSE),
                        IO.TRUE);
 
-    Assertions.assertTrue(a.result());
+    Assertions.assertTrue(a.join());
 
     var b = AnyExp.seq(AnyExp.seq(IO.FALSE,
                                   IO.FALSE),
                        IO.FALSE);
 
-    Assertions.assertFalse(b.result());
+    Assertions.assertFalse(b.join());
 
   }
 
@@ -31,13 +31,13 @@ public class TestAnyExp {
                                   IO.FALSE),
                        IO.FALSE);
 
-    Assertions.assertTrue(a.result());
+    Assertions.assertTrue(a.join());
 
     var b = AnyExp.seq(AnyExp.par(IO.FALSE,
                                   IO.FALSE),
                        IO.FALSE);
 
-    Assertions.assertFalse(b.result());
+    Assertions.assertFalse(b.join());
   }
 
   @Test
@@ -46,7 +46,7 @@ public class TestAnyExp {
                          IO.TRUE
                         )
                     .debugEach("context")
-                    .result();
+                    .join();
 
     Assertions.assertEquals(true,
                             exp

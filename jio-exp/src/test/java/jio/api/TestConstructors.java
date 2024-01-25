@@ -28,12 +28,12 @@ public class TestConstructors {
     IO<String> foo = IO.succeed("foo");
 
     Assertions.assertEquals("foo",
-                            foo.result());
+                            foo.join());
 
     Instant before = Instant.now();
     IO<Instant> now = IO.lazy(Instant::now);
 
-    Assertions.assertTrue(before.isBefore(now.result()));
+    Assertions.assertTrue(before.isBefore(now.join()));
 
   }
 
@@ -46,7 +46,7 @@ public class TestConstructors {
                                                       .getName(),
                                           ForkJoinPool.commonPool()
                                            )
-                                      .result();
+                                      .join();
 
     Assertions.assertTrue(forkJoinPoolThreadName.startsWith("ForkJoinPool.commonPool-worker-"));
 
@@ -56,7 +56,7 @@ public class TestConstructors {
                           .getName(),
               Executors.newSingleThreadExecutor()
                )
-          .result();
+          .join();
 
     System.out.println("----------" + executorThreadName);
 
@@ -90,14 +90,14 @@ public class TestConstructors {
                                  IO.FALSE)
                             .debugEach("my-op");
 
-    Assertions.assertFalse(par.result());
+    Assertions.assertFalse(par.join());
 
     IO<Boolean> seq = AllExp.seq(IO.FALSE,
                                  IO.TRUE,
                                  IO.FALSE)
                             .debugEach("my-op");
 
-    Assertions.assertFalse(seq.result());
+    Assertions.assertFalse(seq.join());
 
 
   }
@@ -109,7 +109,7 @@ public class TestConstructors {
                                      .consequence(() -> IO.succeed("consequence"))
                                      .alternative(() -> IO.succeed("alternative"))
                                      .debugEach("my-op")
-                                     .result()
+                                     .join()
                            );
   }
 
@@ -154,7 +154,7 @@ public class TestConstructors {
                                                      )
                                         )
                                     .debugEach("my-op")
-                                    .result()
+                                    .join()
 
                            );
   }
@@ -174,7 +174,7 @@ public class TestConstructors {
                            },
                            it -> IO.succeed(it.lines()
                                               .collect(Collectors.joining())))
-                 .result();
+                 .join();
 
     Assertions.assertEquals("hola",
                             a);
@@ -188,7 +188,7 @@ public class TestConstructors {
           throw new IllegalArgumentException("hola");
         })
         .debug()
-        .result();
+        .join();
     } catch (Exception e) {
       Assertions.assertEquals("hola",
                               e.getCause()
@@ -202,7 +202,7 @@ public class TestConstructors {
               Executors.newCachedThreadPool()
              )
         .debug()
-        .result();
+        .join();
     } catch (Exception e) {
       Assertions.assertEquals("hola",
                               e.getCause()

@@ -19,11 +19,11 @@ public class TestIfElseExp {
 
     Assertions.assertEquals(1,
                             a.debugEach("ifelse")
-                             .result()
+                             .join()
                            );
 
     Assertions.assertEquals(1,
-                            a.result());
+                            a.join());
 
 
   }

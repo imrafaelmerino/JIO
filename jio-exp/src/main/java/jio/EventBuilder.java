@@ -26,8 +26,8 @@ public final class EventBuilder<Output> {
   final String context;
   Function<Output, String> successValue = val -> val == null ? "null" : val.toString();
   Function<Throwable, String> failureMessage =
-      e -> Fun.findUltimateCause(e)
-              .toString();
+      e -> ExceptionFun.findUltimateCause(e)
+                       .toString();
 
   private EventBuilder(final String exp,
                        final String context
@@ -103,7 +103,7 @@ public final class EventBuilder<Output> {
 
   EvalExpEvent updateEvent(final Throwable exc,
                            final EvalExpEvent event) {
-    var cause = Fun.findUltimateCause(exc);
+    var cause = ExceptionFun.findUltimateCause(exc);
     event.result = EvalExpEvent.RESULT.FAILURE.name();
     event.context = context;
     event.expression = exp;

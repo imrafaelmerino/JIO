@@ -5,7 +5,7 @@ import jdk.jfr.*;
 
 @Label("jio-httpserver-req")
 @Name("jio.http.server.Req")
-@Category({"JIO","HTTP"})
+@Category({"JIO", "HTTP"})
 @Description("Http request received by the JIO http server and it's response.")
 @StackTrace(value = false)
 final class ServerReqEvent extends Event {

@@ -136,7 +136,7 @@ public final class HttpServerBuilder {
                             start,
                             end
                            )
-        .result();
+        .join();
   }
 
   /**
@@ -164,7 +164,7 @@ public final class HttpServerBuilder {
                             start,
                             end
                            )
-        .result();
+        .join();
   }
 
   private IO<HttpServer> buildAtRandomRec(final String host,
@@ -294,7 +294,7 @@ public final class HttpServerBuilder {
   public HttpServer start(final int port) {
     return build("localhost",
                  port
-                ).result();
+                ).join();
   }
 
   /**
@@ -311,7 +311,7 @@ public final class HttpServerBuilder {
     return build(host,
                  port
                 )
-        .result();
+        .join();
   }
 
 

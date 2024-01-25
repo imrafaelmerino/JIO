@@ -1,8 +1,9 @@
 package jio.api.http.api;
 
 import com.sun.net.httpserver.HttpServer;
+import jio.ExceptionFun;
 import jio.IO;
-import jio.http.client.HttpExceptions;
+import jio.http.client.HttpExceptionFun;
 import jio.http.client.JioHttpClient;
 import jio.http.client.JioHttpClientBuilder;
 import jio.http.server.HttpServerBuilder;
@@ -49,8 +50,8 @@ public class TestErrors {
                                                        .GET()
                                                        .uri(URI.create("https://www.google.com")))
                                      .then(response -> IO.FALSE,
-                                           failure -> IO.succeed(HttpExceptions.IS_CONNECTION_TIMEOUT.test(failure)))
-                                     .result();
+                                           failure -> IO.succeed(HttpExceptionFun.HAS_CONNECTION_TIMEOUT.test(failure)))
+                                     .join();
     Assertions.assertTrue(isConnectTimeout);
   }
 
@@ -68,8 +69,8 @@ public class TestErrors {
                                                    .GET()
                                                    .uri(URI.create("https://www.google.foo")))
                                  .then(response -> IO.FALSE,
-                                       failure -> IO.succeed(HttpExceptions.IS_UNRESOLVED_ADDRESS.test(failure)))
-                                 .result();
+                                       failure -> IO.succeed(ExceptionFun.HAS_CONNECT_EXCEPTION.test(failure)))
+                                 .join();
 
     Assertions.assertTrue(isUnresolved);
 
@@ -84,14 +85,15 @@ public class TestErrors {
                                                                                          ChronoUnit.NANOS)))
                                                .get();
 
-    URI uri = URI.create("http://localhost:%s/foo".formatted(server.getAddress().getPort()));
+    URI uri = URI.create("http://localhost:%s/foo".formatted(server.getAddress()
+                                                                   .getPort()));
     boolean isTimeout = client.ofString()
                               .apply(HttpRequest.newBuilder()
                                                 .GET()
                                                 .uri(uri))
                               .then(response -> IO.FALSE,
-                                    failure -> IO.succeed(HttpExceptions.IS_CONNECTION_TIMEOUT.test(failure)))
-                              .result();
+                                    failure -> IO.succeed(HttpExceptionFun.HAS_CONNECTION_TIMEOUT.test(failure)))
+                              .join();
 
     Assertions.assertTrue(isTimeout);
 
@@ -122,8 +124,8 @@ public class TestErrors {
                                                        .uri(uri)
                                                        .timeout(Duration.ofMillis(500)))
                                      .then(response -> IO.FALSE,
-                                           failure -> IO.succeed(HttpExceptions.IS_REQUEST_TIMEOUT.test(failure)))
-                                     .result();
+                                           failure -> IO.succeed(HttpExceptionFun.HAS_REQUEST_TIMEOUT.test(failure)))
+                                     .join();
 
     Assertions.assertTrue(isRequestTimeout);
 

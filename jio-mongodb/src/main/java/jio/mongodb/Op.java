@@ -1,7 +1,7 @@
 package jio.mongodb;
 
 import java.util.function.Supplier;
-import jio.Fun;
+import jio.ExceptionFun;
 
 abstract class Op {
 
@@ -28,7 +28,7 @@ abstract class Op {
           event.result = MongoOpEvent.RESULT.SUCCESS.name();
           return result;
         } catch (Throwable exc) {
-          var cause = Fun.findUltimateCause(exc);
+          var cause = ExceptionFun.findUltimateCause(exc);
           event.result = MongoOpEvent.RESULT.FAILURE.name();
           event.exception = cause.getClass()
                                  .getName();

@@ -1,5 +1,7 @@
 package jio.api.petstore;
 
+import static jio.http.client.HttpExceptionFun.HAS_CONNECTION_TIMEOUT;
+
 import com.sun.net.httpserver.HttpServer;
 import fun.gen.Combinators;
 import fun.gen.Gen;
@@ -41,11 +43,9 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static jio.http.client.HttpExceptions.IS_CONNECTION_TIMEOUT;
-import static jio.http.client.HttpExceptions.IS_NETWORK_UNREACHABLE;
 
 @Disabled
-public class Properties {
+public class PetStoreProperties {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
@@ -55,7 +55,7 @@ public class Properties {
                                         .connectTimeout(Duration.ofMillis(300)))
                           .withRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
                                                         .append(RetryPolicies.limitRetries(5)))
-                          .withRetryPredicate(IS_CONNECTION_TIMEOUT.or(IS_NETWORK_UNREACHABLE));
+                          .withRetryPredicate(HAS_CONNECTION_TIMEOUT);
 
   static HttpServer server =
       HttpServerBuilder.of(Map.of(
@@ -177,7 +177,7 @@ public class Properties {
                                                              .map(HttpResponse::statusCode)
                                                              .toList()
                                       )
-                                  .result();
+                                  .join();
 
 
   }
@@ -241,7 +241,7 @@ public class Properties {
                                   userPetFlow)
                          )
                       .par()
-                      .result();
+                      .join();
 
     report.assertAllSuccess();
   }
@@ -270,7 +270,7 @@ public class Properties {
                                                              .map(HttpResponse::statusCode)
                                                              .toList()
                                       )
-                                  .result();
+                                  .join();
 
     System.out.println(status);
   }
@@ -283,7 +283,7 @@ public class Properties {
                                  .uri(URI.create("http://localhost:%s/thanks".formatted(port))))
                .repeat(resp -> true,
                        RetryPolicies.limitRetries(10))
-               .result();
+               .join();
   }
 
 }

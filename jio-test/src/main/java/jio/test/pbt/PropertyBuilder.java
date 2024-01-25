@@ -139,8 +139,8 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
   /**
    * Creates a new Property instance that represents a property to be tested, modeled with a function. This method is
    * used to define a property with a specific name, data generator, and a function that tests the property. If you need
-   * to pass configuration (JsObj) to the testing function, you can use the {@link #ofLambda(String, Gen, BiLambda)} method
-   * instead.
+   * to pass configuration (JsObj) to the testing function, you can use the {@link #ofLambda(String, Gen, BiLambda)}
+   * method instead.
    *
    * @param name     The name of the property, which provides a descriptive label for the property being tested.
    * @param gen      The data generator, represented by a Gen object, that produces pseudorandom data to feed the

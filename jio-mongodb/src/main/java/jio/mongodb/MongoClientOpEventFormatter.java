@@ -14,6 +14,7 @@ import static jio.mongodb.MongoOpEvent.RESULT_FIELD;
  * Formats recorded events from a jio-mongodb operation into a human-readable string. Since it's just a function you can
  * define your own formatters
  */
+@SuppressWarnings("InlineFormatString")
 public final class MongoClientOpEventFormatter implements Function<RecordedEvent, String> {
 
   /**

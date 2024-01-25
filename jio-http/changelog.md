@@ -51,3 +51,6 @@ New:
 - All the requests are made by virtual-threads using the `client.sync(...)`
   method from the java http-client
 
+** Version 2.0.2 **
+
+Upgrade `jio-exp`
