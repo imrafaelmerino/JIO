@@ -27,16 +27,15 @@ final class JioHttpClientImpl implements JioHttpClient {
   private final HttpLambda<byte[]> ofBytesLambda;
   private final HttpLambda<Void> discardingLambda;
   private final HttpLambda<String> ofStringLambda;
-
   private final boolean recordEvents;
 
 
-  JioHttpClientImpl(final HttpClient.Builder javaClient,
+  JioHttpClientImpl(final HttpClient.Builder javaClientBuilder,
                     final RetryPolicy reqRetryPolicy,
                     final Predicate<Throwable> reqRetryPredicate,
                     final boolean recordEvents
                    ) {
-    this.javaClient = requireNonNull(javaClient).build();
+    this.javaClient = requireNonNull(javaClientBuilder).build();
     this.reqRetryPolicy = reqRetryPolicy;
     this.reqRetryPredicate = reqRetryPredicate;
     this.recordEvents = recordEvents;
@@ -52,26 +51,35 @@ final class JioHttpClientImpl implements JioHttpClient {
 
     if (recordEvents) {
       var event = new HttpReqEvent();
-      event.begin();
-      event.uri = request.uri()
-                         .toString();
-      event.method = request.method();
       event.reqCounter = myClient.counter.incrementAndGet();
-
+      event.begin();
       try {
         var resp = myClient.javaClient.send(request,
                                             handler
                                            );
-        event.statusCode = resp.statusCode();
-        event.result = SUCCESS.name();
+        event.end();
+        if (event.shouldCommit()) {
+          var uri = request.uri();
+          event.host = uri.getHost();
+          event.path = uri.getPath();
+          event.method = request.method();
+          event.statusCode = resp.statusCode();
+          event.result = SUCCESS.name();
+          event.commit();
+        }
         return resp;
       } catch (Exception e) {
-        event.exception = ExceptionFun.findUltimateCause(e)
-                                      .toString();
-        event.result = FAILURE.name();
+        if (event.shouldCommit()) {
+          event.exception = ExceptionFun.findUltimateCause(e)
+                                        .toString();
+          var uri = request.uri();
+          event.host = uri.getHost();
+          event.path = uri.getPath();
+          event.method = request.method();
+          event.result = FAILURE.name();
+          event.commit();
+        }
         throw e;
-      } finally {
-        event.commit();
       }
 
     } else {
@@ -121,6 +129,21 @@ final class JioHttpClientImpl implements JioHttpClient {
                      Executors.newVirtualThreadPerTaskExecutor()
                     );
     };
+  }
+
+  @Override
+  public void shutdown() {
+    javaClient.shutdown();
+  }
+
+  @Override
+  public void shutdownNow() {
+    javaClient.shutdownNow();
+  }
+
+  @Override
+  public void close() {
+    javaClient.close();
   }
 
   @Override

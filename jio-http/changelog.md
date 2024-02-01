@@ -51,6 +51,9 @@ New:
 - All the requests are made by virtual-threads using the `client.sync(...)`
   method from the java http-client
 
-** Version 2.0.2 **
+** Version 2.0.8 **
 
-Upgrade `jio-exp`
+- JFR event are committed if `shouldCommit` is true
+- JioHttpClient implements `Autocloseable`
+- Added `shutdonw`, `shutdownNow` to JioHttpClient
+- Added event start time into `HttpClientReqEventFormatter`

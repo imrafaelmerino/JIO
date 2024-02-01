@@ -25,16 +25,22 @@ abstract class Op {
         try {
           event.begin();
           Output result = task.get();
-          event.result = MongoOpEvent.RESULT.SUCCESS.name();
+          event.end();
+          if (event.shouldCommit()) {
+            event.result = MongoOpEvent.RESULT.SUCCESS.name();
+            event.commit();
+          }
+
           return result;
         } catch (Throwable exc) {
-          var cause = ExceptionFun.findUltimateCause(exc);
-          event.result = MongoOpEvent.RESULT.FAILURE.name();
-          event.exception = cause.getClass()
-                                 .getName();
+          if (event.shouldCommit()) {
+            var cause = ExceptionFun.findUltimateCause(exc);
+            event.result = MongoOpEvent.RESULT.FAILURE.name();
+            event.exception = cause.toString();
+            event.commit();
+          }
+
           throw exc;
-        } finally {
-          event.commit();
         }
       };
     } else {

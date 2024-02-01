@@ -111,15 +111,30 @@ final class ClientCredentialsClient implements OauthHttpClient {
     return httpClient.bodyHandler(handler);
   }
 
+  @Override
+  public void shutdown() {
+    httpClient.shutdown();
+  }
+
+  @Override
+  public void shutdownNow() {
+    httpClient.shutdownNow();
+  }
+
+  @Override
+  public void close() {
+    httpClient.close();
+  }
+
 
   private <I> IO<HttpResponse<I>> oauthRequest(final HttpLambda<I> httpLambda,
                                                final HttpRequest.Builder builder,
                                                final boolean refreshToken,
                                                final int deep
                                               ) {
-      if (deep == MAX_REFRESH_TOKEN_LOOP_SIZE) {
-          return IO.fail(new RefreshTokenLoop(deep));
-      }
+    if (deep == MAX_REFRESH_TOKEN_LOOP_SIZE) {
+      return IO.fail(new RefreshTokenLoop(deep));
+    }
 
     IO<String> getToken = (refreshToken || this.accessToken == null) ?
                           accessTokenReq.apply(this)

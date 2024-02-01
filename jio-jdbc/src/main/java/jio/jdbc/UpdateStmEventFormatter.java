@@ -36,13 +36,13 @@ public final class UpdateStmEventFormatter implements Function<RecordedEvent, St
   private static final String EVENT_LABEL = "jio.jdbc.UpdateStm";
   private static final String SUCCESS_FORMAT = """
       event: db stm; label: %s; result: %s; rows_affected: %s,
-      duration: %s; op-counter: %s""".replace("\n",
-                                              " ");
+      duration: %s; op-counter: %s; start_time: %s""".replace("\n",
+                                                              " ");
   private static final String FAILURE_FORMAT = """
       event: db stm; label: %s; result: %s;
       exception: %s; duration: %s; sql: %s;
-      op-counter: %s""".replace("\n",
-                                " ");
+      op-counter: %s; start_time: %s""".replace("\n",
+                                                " ");
 
   /**
    * Constructs a JdbcEventFormatter with the default identity function for SQL statements.
@@ -54,32 +54,34 @@ public final class UpdateStmEventFormatter implements Function<RecordedEvent, St
   /**
    * Converts a RecordedEvent to a formatted string.
    *
-   * @param e The RecordedEvent to be converted.
+   * @param event The RecordedEvent to be converted.
    * @return A formatted string representing the information from the RecordedEvent.
    */
   @Override
-  public String apply(RecordedEvent e) {
-    assert EVENT_LABEL.equals(e.getEventType()
+  public String apply(RecordedEvent event) {
+    assert EVENT_LABEL.equals(event.getEventType()
                                .getName());
-    var result = e.getValue(StmEvent.RESULT_FIELD);
-    var label = e.getValue(StmEvent.LABEL_FIELD);
+    var result = event.getValue(StmEvent.RESULT_FIELD);
+    var label = event.getValue(StmEvent.LABEL_FIELD);
     boolean isSuccess = StmEvent.RESULT.SUCCESS.name()
                                                .equals(result);
     return isSuccess ?
            String.format(SUCCESS_FORMAT,
                          label,
                          result,
-                         e.getValue(UpdateStmEvent.ROWS_AFFECTED_FIELD),
-                         Fun.formatTime(e.getDuration()),
-                         e.getValue(UpdateStmEvent.OP_COUNTER_FIELD)
+                         event.getValue(UpdateStmEvent.ROWS_AFFECTED_FIELD),
+                         Fun.formatTime(event.getDuration()),
+                         event.getValue(UpdateStmEvent.OP_COUNTER_FIELD),
+                         event.getStartTime()
                         ) :
            String.format(FAILURE_FORMAT,
                          label,
                          result,
-                         e.getValue(StmEvent.EXCEPTION_FIELD),
-                         Fun.formatTime(e.getDuration()),
-                         e.getValue(UpdateStmEvent.SQL_FIELD),
-                         e.getValue(UpdateStmEvent.OP_COUNTER_FIELD)
+                         event.getValue(StmEvent.EXCEPTION_FIELD),
+                         Fun.formatTime(event.getDuration()),
+                         event.getValue(UpdateStmEvent.SQL_FIELD),
+                         event.getValue(UpdateStmEvent.OP_COUNTER_FIELD),
+                         event.getStartTime()
                         );
   }
 }

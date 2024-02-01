@@ -1,6 +1,4 @@
-** Version 1.0.1 **
+** Version 2.0.8 **
 
-New:
-
-- Upgrade jio-exp dependency to 1.0.1
+- Upgrade jio dependencies
 

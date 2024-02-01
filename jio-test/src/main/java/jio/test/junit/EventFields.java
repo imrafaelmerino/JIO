@@ -20,7 +20,9 @@ class EventFields {
 
   static final String STATUS_CODE = "statusCode";
   static final String METHOD = "method";
+  static final String URI_HOST = "host";
   static final String URI = "uri";
+  static final String URI_PATH = "path";
   static final String REQ_COUNTER = "reqCounter";
 
   static final String OPERATION = "operation";

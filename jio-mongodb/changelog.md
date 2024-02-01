@@ -28,3 +28,7 @@ Breaking:
 
 - This version only support Java 21 or greater
 - All the operations use virtual-threads and no executor can be specified
+
+** Version 2.0.8 **
+
+- JFR event are committed if `shouldCommit` is true

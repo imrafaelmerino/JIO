@@ -24,6 +24,7 @@ sealed abstract class Exp<Output> extends IO<Output>
 
   Function<EvalExpEvent, BiConsumer<Output, Throwable>> getJFRPublisher(final EventBuilder<Output> builder) {
     return event -> (val, exc) -> {
+      event.end();
       if (exc == null) {
         builder.updateAndCommit(val,
                                 event);

@@ -3,6 +3,7 @@ package jio.jdbc;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.util.concurrent.Executors;
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -23,6 +24,7 @@ public final class DatasourceBuilder implements Supplier<DataSource> {
   private int connectionTimeout;
   private int maxPoolSize = DEFAULT_MAX_POOL_SIZE;
   private Consumer<HikariConfig> addProps;
+  private int socketTimeout;
 
   /**
    * Constructs a {@code DatasourceBuilder} with the specified user, password, and JDBC URL.

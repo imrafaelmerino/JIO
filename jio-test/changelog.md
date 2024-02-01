@@ -26,3 +26,7 @@ Breaking:
 
 Fixed Bugs:
 - `JdbcQueryDebugger`classCastExc with field `fetchSize`
+
+** Version 2.0.8 **
+
+- Upgrade jio dependencies

@@ -1,5 +1,6 @@
 package jio.test.junit;
 
+import java.time.ZoneOffset;
 import jdk.jfr.consumer.RecordedEvent;
 import jio.test.Utils;
 import jio.time.Fun;
@@ -47,7 +48,7 @@ final class MongoDBOpDebugger implements Consumer<RecordedEvent> {
                             Fun.formatTime(event.getDuration()),
                             Utils.getThreadName(event.getThread()),
                             event.getStartTime()
-                                 .atZone(ZoneId.systemDefault())
+                                 .atZone(ZoneOffset.UTC)
                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                            ) :
               String.format(FORMAT_ERR,
@@ -57,7 +58,7 @@ final class MongoDBOpDebugger implements Consumer<RecordedEvent> {
                             event.getValue(EventFields.EXCEPTION),
                             Utils.getThreadName(event.getThread()),
                             event.getStartTime()
-                                 .atZone(ZoneId.systemDefault())
+                                 .atZone(ZoneOffset.UTC)
                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                            );
     synchronized (System.out) {

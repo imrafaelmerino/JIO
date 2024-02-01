@@ -18,7 +18,7 @@ final class MongoOpEvent extends Event {
   public String exception;
 
 
-  public MongoOpEvent(OP operation) {
+   MongoOpEvent(OP operation) {
     this.operation = operation.name();
   }
 

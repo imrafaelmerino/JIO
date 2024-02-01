@@ -25,6 +25,7 @@ public class TestRetries {
 
   @Test
   @Disabled
+  @SuppressWarnings("CatchAndPrintStackTrace")
   //throws stackoverflowexception
   public void testRetryLimits() {
 

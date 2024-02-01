@@ -36,14 +36,15 @@ public final class BatchEventFormatter implements Function<RecordedEvent, String
   private static final String EVENT_LABEL = "jio.jdbc.BatchStm";
   private static final String SUCCESS_FORMAT = """
       event: db batch; label: %s; result: %s; duration: %s;
-      rows_affected: %s; op-counter: %s""".replace("\n",
-                                                   " ");
+      rows_affected: %s; op-counter: %s;
+      start_time: %s""".replace("\n",
+                                " ");
   private static final String FAILURE_FORMAT = """
       event: db batch; label: %s; result: %s; duration: %s;
       rows_affected: %s; executed_batches:%s; batch_size: %s;
       stms_size: %s; sql: %s; exception: %s;
-      op-counter: %s""".replace("\n",
-                                " ");
+      op-counter: %s; start_time: %s""".replace("\n",
+                                                " ");
 
 
   /**
@@ -56,37 +57,39 @@ public final class BatchEventFormatter implements Function<RecordedEvent, String
   /**
    * Converts a RecordedEvent to a formatted string.
    *
-   * @param e The RecordedEvent to be converted.
+   * @param event The RecordedEvent to be converted.
    * @return A formatted string representing the information from the RecordedEvent.
    */
   @Override
-  public String apply(RecordedEvent e) {
-    assert e.getEventType()
-            .getName()
-            .equals(EVENT_LABEL);
-    var label = e.getValue(StmEvent.LABEL_FIELD);
-    var result = e.getValue(StmEvent.RESULT_FIELD);
+  public String apply(RecordedEvent event) {
+    assert event.getEventType()
+                .getName()
+                .equals(EVENT_LABEL);
+    var label = event.getValue(StmEvent.LABEL_FIELD);
+    var result = event.getValue(StmEvent.RESULT_FIELD);
     boolean isSuccess = StmEvent.RESULT.SUCCESS.name()
                                                .equals(result);
     return isSuccess ?
            String.format(SUCCESS_FORMAT,
                          label,
                          result,
-                         Fun.formatTime(e.getDuration()),
-                         e.getValue(BatchEvent.ROWS_AFFECTED_FIELD),
-                         e.getValue(QueryStmEvent.OP_COUNTER_FIELD)
+                         Fun.formatTime(event.getDuration()),
+                         event.getValue(BatchEvent.ROWS_AFFECTED_FIELD),
+                         event.getValue(QueryStmEvent.OP_COUNTER_FIELD),
+                         event.getStartTime()
                         ) :
            String.format(FAILURE_FORMAT,
                          label,
                          result,
-                         Fun.formatTime(e.getDuration()),
-                         e.getValue(BatchEvent.ROWS_AFFECTED_FIELD),
-                         e.getValue(BatchEvent.EXECUTED_BATCHES_FIELD),
-                         e.getValue(BatchEvent.BATCH_SIZE_FIELD),
-                         e.getValue(BatchEvent.STM_SIZE_FIELD),
-                         e.getValue(BatchEvent.SQL_FIELD),
-                         e.getValue(StmEvent.EXCEPTION_FIELD),
-                         e.getValue(QueryStmEvent.OP_COUNTER_FIELD)
+                         Fun.formatTime(event.getDuration()),
+                         event.getValue(BatchEvent.ROWS_AFFECTED_FIELD),
+                         event.getValue(BatchEvent.EXECUTED_BATCHES_FIELD),
+                         event.getValue(BatchEvent.BATCH_SIZE_FIELD),
+                         event.getValue(BatchEvent.STM_SIZE_FIELD),
+                         event.getValue(BatchEvent.SQL_FIELD),
+                         event.getValue(StmEvent.EXCEPTION_FIELD),
+                         event.getValue(QueryStmEvent.OP_COUNTER_FIELD),
+                         event.getStartTime()
                         );
   }
 }

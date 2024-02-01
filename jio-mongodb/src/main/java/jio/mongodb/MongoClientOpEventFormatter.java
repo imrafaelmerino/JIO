@@ -23,8 +23,8 @@ public final class MongoClientOpEventFormatter implements Function<RecordedEvent
   public static final MongoClientOpEventFormatter INSTANCE = new MongoClientOpEventFormatter();
 
   private static final String EVENT_LABEL = "jio.mongodb.Op";
-  private static final String SUCCESS_FORMAT = "event: mongo-client; op: %s; result: %s; duration: %s";
-  private static final String FAILURE_FORMAT = "event: mongo-client; op: %s; result: %s; duration: %s; exception: %s";
+  private static final String SUCCESS_FORMAT = "event: mongo-client; op: %s; result: %s; duration: %s; start_time: %s";
+  private static final String FAILURE_FORMAT = "event: mongo-client; op: %s; result: %s; duration: %s; exception: %s; start_time: %s";
 
   private MongoClientOpEventFormatter() {
   }
@@ -38,8 +38,8 @@ public final class MongoClientOpEventFormatter implements Function<RecordedEvent
   @Override
   public String apply(RecordedEvent event) {
     assert event.getEventType()
-            .getName()
-            .equals(EVENT_LABEL);
+                .getName()
+                .equals(EVENT_LABEL);
     var result = event.getValue(RESULT_FIELD);
     boolean isSuccess = RESULT.SUCCESS.name()
                                       .equals(result);
@@ -47,13 +47,15 @@ public final class MongoClientOpEventFormatter implements Function<RecordedEvent
            String.format(SUCCESS_FORMAT,
                          event.getValue(OPERATION_FIELD),
                          result,
-                         Fun.formatTime(event.getDuration())
+                         Fun.formatTime(event.getDuration()),
+                         event.getStartTime()
                         ) :
            String.format(FAILURE_FORMAT,
                          event.getValue(OPERATION_FIELD),
                          result,
                          Fun.formatTime(event.getDuration()),
-                         event.getValue(EXCEPTION_FIELD)
+                         event.getValue(EXCEPTION_FIELD),
+                         event.getStartTime()
                         );
 
   }

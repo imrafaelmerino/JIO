@@ -69,13 +69,13 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
         }
 
         try (var outputStream = exchange.getResponseBody()) {
+          byte[] bodyBytes = body.apply(exchange)
+                                 .getBytes(StandardCharsets.UTF_8);
           exchange.sendResponseHeaders(code.apply(exchange),
-                                       body.apply(exchange)
-                                           .getBytes(StandardCharsets.UTF_8)
+                                       bodyBytes
                                            .length
                                       );
-          outputStream.write(body.apply(exchange)
-                                 .getBytes(StandardCharsets.UTF_8));
+          outputStream.write(bodyBytes);
           outputStream.flush();
         }
 
@@ -96,10 +96,11 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
                                           ) throws IOException {
     var outputStream = exchange.getResponseBody();
     var response = e.getMessage();
+    byte[] bytesResponse = response.getBytes(StandardCharsets.UTF_8);
     exchange.sendResponseHeaders(500,
-                                 response.getBytes(StandardCharsets.UTF_8).length
+                                 bytesResponse.length
                                 );
-    outputStream.write(response.getBytes(StandardCharsets.UTF_8));
+    outputStream.write(bytesResponse);
     outputStream.flush();
     outputStream.close();
   }
@@ -109,10 +110,11 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
       throws IOException {
     try (var outputStream = exchange.getResponseBody()) {
       var response = method + " method was expected, but " + requestMethod + " was received.";
+      byte[] bytesResponse = response.getBytes(StandardCharsets.UTF_8);
       exchange.sendResponseHeaders(500,
-                                   response.getBytes(StandardCharsets.UTF_8).length
+                                   bytesResponse.length
                                   );
-      outputStream.write(response.getBytes(StandardCharsets.UTF_8));
+      outputStream.write(bytesResponse);
       outputStream.flush();
     }
   }

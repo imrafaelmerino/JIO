@@ -36,13 +36,14 @@ public final class QueryStmEventFormatter implements Function<RecordedEvent, Str
   private static final String EVENT_LABEL = "jio.jdbc.QueryStm";
   private static final String SUCCESS_FORMAT = """
       event: db query; label: %s; result: %s; rows_returned: %s;
-      duration: %s; fetch_size: %s; op-counter: %s""".replace("\n",
-                                              " ");
+      duration: %s; fetch_size: %s; op-counter: %s;
+      start_time: %s""".replace("\n",
+                                " ");
   private static final String FAILURE_FORMAT = """
       event: db query; label: %s; result: %s;
       exception: %s; duration: %s; fetch_size: %s;
-      sql: %s; op-counter: %s""".replace("\n",
-                                         " ");
+      sql: %s; op-counter: %s; start_time: %s""".replace("\n",
+                                                         " ");
 
   /**
    * Constructs a JdbcEventFormatter with the default identity function for SQL statements.
@@ -60,7 +61,7 @@ public final class QueryStmEventFormatter implements Function<RecordedEvent, Str
   @Override
   public String apply(RecordedEvent event) {
     assert EVENT_LABEL.equals(event.getEventType()
-                               .getName());
+                                   .getName());
     var result = event.getValue(StmEvent.RESULT_FIELD);
     var label = event.getValue(StmEvent.LABEL_FIELD);
     var fetchSize = event.getValue(QueryStmEvent.FETCH_SIZE_FIELD);
@@ -73,7 +74,8 @@ public final class QueryStmEventFormatter implements Function<RecordedEvent, Str
                          event.getValue(QueryStmEvent.ROWS_RETURNED_FIELD),
                          Fun.formatTime(event.getDuration()),
                          fetchSize,
-                         event.getValue(QueryStmEvent.OP_COUNTER_FIELD)
+                         event.getValue(QueryStmEvent.OP_COUNTER_FIELD),
+                         event.getStartTime()
                         ) :
            String.format(FAILURE_FORMAT,
                          label,
@@ -82,7 +84,8 @@ public final class QueryStmEventFormatter implements Function<RecordedEvent, Str
                          Fun.formatTime(event.getDuration()),
                          fetchSize,
                          event.getValue(QueryStmEvent.SQL_FIELD),
-                         event.getValue(QueryStmEvent.OP_COUNTER_FIELD)
+                         event.getValue(QueryStmEvent.OP_COUNTER_FIELD),
+                         event.getStartTime()
                         );
   }
 }

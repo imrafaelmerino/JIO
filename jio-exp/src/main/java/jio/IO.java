@@ -349,14 +349,39 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * Creates a new effect that, when this succeeds, maps the computed value into another value using the specified
    * function.
    *
-   * @param fn  the mapping function that transforms the result of this effect.
-   * @param <P> the result type of the new effect.
+   * @param fn             the mapping function that transforms the result of this effect.
+   * @param <OutputMapped> the result type of the new effect.
    * @return a new effect that represents the mapped result.
    */
-  public <P> IO<P> map(final Function<? super Output, ? extends P> fn) {
+  public <OutputMapped> IO<OutputMapped> map(final Function<? super Output, ? extends OutputMapped> fn) {
     requireNonNull(fn);
     return IO.effect(() -> requireNonNull(get()).thenApply(fn));
   }
+
+  /**
+   * Maps failures (exceptions) that may occur during the execution of the IO operation. This method allows you to apply
+   * a function to transform or handle the failure in a custom way. The original exception is replaced with the result
+   * of applying the provided function.
+   *
+   * <p>The mapping function {@code fn} is applied only if the original IO operation results in a failure. If the IO
+   * operation succeeds, the result is unchanged.</p>
+   *
+   * <p>This operation creates a new IO operation with the same behavior as the original one, except for the handling
+   * of failures as modified by the mapping function.</p>
+   *
+   * @param mappingFunction The function to apply to the failure. It takes the original exception and returns the
+   *                        transformed exception.
+   * @return A new IO operation with the same result type, where failures are transformed using the provided function.
+   * @throws NullPointerException If the mapping function {@code fn} is {@code null}.
+   * @see CompletableFuture#exceptionallyCompose(java.util.function.Function)
+   */
+  public IO<Output> mapFailure(final Function<Throwable, Throwable> mappingFunction) {
+    requireNonNull(mappingFunction);
+    return IO.effect(() -> requireNonNull(get())
+                         .exceptionallyCompose(exc -> CompletableFuture.failedFuture(mappingFunction.apply(exc)))
+                    );
+  }
+
 
   /**
    * Creates a new effect by applying the specified {@link Lambda} to the result of this effect (if it succeeds). If
@@ -752,10 +777,16 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
                expEvent.begin();
                return expEvent;
              })
-             .then(event -> this.peek(val -> builder.updateAndCommit(val,
-                                                                     event),
-                                      exc -> builder.updateAndCommit(exc,
-                                                                     event)
+             .then(event -> this.peek(val -> {
+                                        event.end();
+                                        builder.updateAndCommit(val,
+                                                                event);
+                                      },
+                                      exc -> {
+                                        event.end();
+                                        builder.updateAndCommit(exc,
+                                                                event);
+                                      }
                                      )
                   );
   }

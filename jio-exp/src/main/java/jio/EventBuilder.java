@@ -113,13 +113,17 @@ public final class EventBuilder<Output> {
 
   void updateAndCommit(final Output output,
                        final EvalExpEvent event) {
-    updateEvent(output,
-                event).commit();
+    if (event.shouldCommit()) {
+      updateEvent(output,
+                  event).commit();
+    }
   }
 
   void updateAndCommit(final Throwable exc,
                        final EvalExpEvent event) {
-    updateEvent(exc,
-                event).commit();
+    if (event.shouldCommit()) {
+      updateEvent(exc,
+                  event).commit();
+    }
   }
 }

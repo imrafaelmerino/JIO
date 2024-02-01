@@ -38,6 +38,7 @@ class JfrEventDecorator {
     try {
       var n = op.call();
       if (enableJFR) {
+        event.end();
         event.rowsAffected = n;
         event.result = QueryStmEvent.RESULT.SUCCESS.name();
       }
@@ -45,6 +46,7 @@ class JfrEventDecorator {
 
     } catch (Exception e) {
       if (enableJFR) {
+        event.end();
         event.sql = sql;
         event.result = QueryStmEvent.RESULT.FAILURE.name();
         event.exception = ExceptionFun.findUltimateCause(e)
@@ -53,7 +55,7 @@ class JfrEventDecorator {
       }
       throw e;
     } finally {
-      if (enableJFR) {
+      if (enableJFR && event.shouldCommit()) {
         event.commit();
       }
     }
@@ -83,6 +85,7 @@ class JfrEventDecorator {
     try {
       var result = op.call();
       if (enableJFR) {
+        event.end();
         event.rowsAffected = 1;
         event.result = QueryStmEvent.RESULT.SUCCESS.name();
       }
@@ -90,6 +93,7 @@ class JfrEventDecorator {
 
     } catch (Exception e) {
       if (enableJFR) {
+        event.end();
         event.sql = sql;
         event.result = QueryStmEvent.RESULT.FAILURE.name();
         event.exception = ExceptionFun.findUltimateCause(e)
@@ -98,7 +102,7 @@ class JfrEventDecorator {
       }
       throw e;
     } finally {
-      if (enableJFR) {
+      if (enableJFR && event.shouldCommit()) {
         event.commit();
       }
     }
@@ -126,30 +130,36 @@ class JfrEventDecorator {
     if (enableJFR) {
       event = new QueryStmEvent();
       event.begin();
-      event.label = label;
-      event.fetchSize = fetchSize;
     }
     try {
       var result = op.call();
       if (enableJFR) {
-        event.result = QueryStmEvent.RESULT.SUCCESS.name();
-        event.rowsReturned = result.size();
+        event.end();
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.fetchSize = fetchSize;
+          event.result = QueryStmEvent.RESULT.SUCCESS.name();
+          event.rowsReturned = result.size();
+          event.commit();
+        }
       }
       return result;
 
     } catch (Exception e) {
       if (enableJFR) {
-        event.sql = sql;
-        event.result = QueryStmEvent.RESULT.FAILURE.name();
-        event.exception = ExceptionFun.findUltimateCause(e)
-                                      .toString();
+        event.end();
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.fetchSize = fetchSize;
+          event.sql = sql;
+          event.result = QueryStmEvent.RESULT.FAILURE.name();
+          event.exception = ExceptionFun.findUltimateCause(e)
+                                        .toString();
+          event.commit();
+        }
 
       }
       throw e;
-    } finally {
-      if (enableJFR) {
-        event.commit();
-      }
     }
   }
 
@@ -172,30 +182,36 @@ class JfrEventDecorator {
     if (enableJFR) {
       event = new QueryStmEvent();
       event.begin();
-      event.label = label;
-      event.fetchSize = 1;
     }
     try {
       var result = op.call();
       if (enableJFR) {
-        event.result = QueryStmEvent.RESULT.SUCCESS.name();
-        event.rowsReturned = result == null ? 0 : 1;
+        event.end();
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.fetchSize = 1;
+          event.result = QueryStmEvent.RESULT.SUCCESS.name();
+          event.rowsReturned = result == null ? 0 : 1;
+          event.commit();
+        }
       }
       return result;
 
     } catch (Exception e) {
       if (enableJFR) {
-        event.sql = sql;
-        event.result = QueryStmEvent.RESULT.FAILURE.name();
-        event.exception = ExceptionFun.findUltimateCause(e)
-                                      .toString();
+        event.end();
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.fetchSize = 1;
+          event.sql = sql;
+          event.result = QueryStmEvent.RESULT.FAILURE.name();
+          event.exception = ExceptionFun.findUltimateCause(e)
+                                        .toString();
+          event.commit();
+        }
 
       }
       throw e;
-    } finally {
-      if (enableJFR) {
-        event.commit();
-      }
     }
   }
 
@@ -219,43 +235,49 @@ class JfrEventDecorator {
     if (enableJFR) {
       event = new BatchEvent();
       event.begin();
-      event.label = label;
+
     }
     try {
       var result = op.call();
       if (enableJFR) {
-        event.rowsAffected = result.rowsAffected();
-        event.batchSize = result.batchSize();
-        event.totalStms = result.totalStms();
-        event.executedBatches = result.executedBatches();
-        var errors = result.errors();
-        if (errors.isEmpty()) {
-          event.result = BatchEvent.RESULT.SUCCESS.name();
-        } else {
-          event.sql = sql;
-          event.result = BatchEvent.RESULT.FAILURE.name();
-          event.exception = errors
-              .stream()
-              .map(ExceptionFun::findUltimateCause)
-              .map(Throwable::toString)
-              .collect(Collectors.joining());
+        event.end();
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.rowsAffected = result.rowsAffected();
+          event.batchSize = result.batchSize();
+          event.totalStms = result.totalStms();
+          event.executedBatches = result.executedBatches();
+          var errors = result.errors();
+          if (errors.isEmpty()) {
+            event.result = BatchEvent.RESULT.SUCCESS.name();
+          } else {
+            event.sql = sql;
+            event.result = BatchEvent.RESULT.FAILURE.name();
+            event.exception = errors
+                .stream()
+                .map(ExceptionFun::findUltimateCause)
+                .map(Throwable::toString)
+                .collect(Collectors.joining());
+          }
+          event.commit();
         }
       }
       return result;
 
     } catch (Exception e) {
       if (enableJFR) {
-        event.sql = sql;
-        event.result = BatchEvent.RESULT.FAILURE.name();
-        event.exception = ExceptionFun.findUltimateCause(e)
-                                      .toString();
+        event.end();
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.sql = sql;
+          event.result = BatchEvent.RESULT.FAILURE.name();
+          event.exception = ExceptionFun.findUltimateCause(e)
+                                        .toString();
+          event.commit();
+        }
 
       }
       throw e;
-    } finally {
-      if (enableJFR) {
-        event.commit();
-      }
     }
   }
 

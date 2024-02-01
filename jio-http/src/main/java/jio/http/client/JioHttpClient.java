@@ -21,7 +21,7 @@ import java.util.function.Predicate;
  * @see HttpReqEvent
  * @see JioHttpClientBuilder#withoutRecordedEvents To disable event recording.
  */
-public interface JioHttpClient {
+public interface JioHttpClient extends AutoCloseable {
 
   /**
    * Provides an HTTP lambda that takes a request builder and returns a JIO effect with the HTTP response, parsing the
@@ -61,5 +61,12 @@ public interface JioHttpClient {
    * @see HttpResponse.BodyHandlers for more body handler implementations.
    */
   <T> HttpLambda<T> bodyHandler(final HttpResponse.BodyHandler<T> handler);
+
+  void shutdown();
+
+  void shutdownNow();
+
+  @Override
+  void close();
 
 }

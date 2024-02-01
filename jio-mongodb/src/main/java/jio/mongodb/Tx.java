@@ -44,7 +44,8 @@ public final class Tx<Input, Output> implements Lambda<Input, Output> {
   private static void fillError(MongoOpEvent event,
                                 Throwable exc) {
     event.result = MongoOpEvent.RESULT.FAILURE.name();
-    event.exception = ExceptionFun.findUltimateCause(exc).toString();
+    event.exception = ExceptionFun.findUltimateCause(exc)
+                                  .toString();
   }
 
   private static void abort(ClientSession session,
@@ -52,15 +53,21 @@ public final class Tx<Input, Output> implements Lambda<Input, Output> {
                             MongoOpEvent event) {
     try {
       session.abortTransaction();
-      fillError(event,
-                exc);
+      event.end();
+      if (event.shouldCommit()) {
+        fillError(event,
+                  exc);
+        event.commit();
+      }
+
     }
     // if the transaction was already either aborted or committed
     catch (IllegalArgumentException e) {
-      fillError(event,
-                e);
-    } finally {
-      event.commit();
+      if (event.shouldCommit()) {
+        fillError(event,
+                  e);
+        event.commit();
+      }
     }
   }
 
@@ -68,12 +75,15 @@ public final class Tx<Input, Output> implements Lambda<Input, Output> {
                              MongoOpEvent event) {
     try (session) {
       session.commitTransaction();
+      event.end();
       event.result = MongoOpEvent.RESULT.SUCCESS.name();
     } catch (IllegalArgumentException exc) {
       fillError(event,
                 exc);
     } finally {
-      event.commit();
+      if (event.shouldCommit()) {
+        event.commit();
+      }
     }
   }
 

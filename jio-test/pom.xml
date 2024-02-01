@@ -5,9 +5,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.imrafaelmerino</groupId>
   <artifactId>jio-test</artifactId>
-  <version>2.0.3</version>
+  <version>2.0.8</version>
   <name>jio-test</name>
-  <description>Java Input-Output Monad</description>
+  <description>JIO test library based on Property Based Testing and Java Flight Recording
+    Debuggers
+  </description>
   <url>https://github.com/imrafaelmerino/jio</url>
   <licenses>
     <license>
@@ -41,11 +43,11 @@
     <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
     <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
-    <JIO-EXP-VERSION>2.0.3</JIO-EXP-VERSION>
     <POSTGRESQL.VERSION>42.7.1</POSTGRESQL.VERSION>
     <TESTCONTAINERS.VERSION>1.18.3</TESTCONTAINERS.VERSION>
-    <JIO-HTTP.VERSION>2.0.3</JIO-HTTP.VERSION>
-    <JIO-CONSOLE.VERSION>2.0.3</JIO-CONSOLE.VERSION>
+    <JIO-EXP-VERSION>2.0.8</JIO-EXP-VERSION>
+    <JIO-HTTP.VERSION>2.0.8</JIO-HTTP.VERSION>
+    <JIO-CONSOLE.VERSION>2.0.8</JIO-CONSOLE.VERSION>
     <JAVA-FUN.VERSION>2.1.0</JAVA-FUN.VERSION>
   </properties>
 

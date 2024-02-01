@@ -69,7 +69,7 @@ public class TestErrors {
                                                    .GET()
                                                    .uri(URI.create("https://www.google.foo")))
                                  .then(response -> IO.FALSE,
-                                       failure -> IO.succeed(ExceptionFun.HAS_CONNECT_EXCEPTION.test(failure)))
+                                       failure -> IO.succeed(ExceptionFun.findConnectionExcRecursively.apply(failure).isPresent()))
                                  .join();
 
     Assertions.assertTrue(isUnresolved);

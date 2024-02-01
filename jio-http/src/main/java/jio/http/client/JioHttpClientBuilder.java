@@ -1,5 +1,6 @@
 package jio.http.client;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import jio.RetryPolicy;
 
@@ -31,8 +32,15 @@ public final class JioHttpClientBuilder implements Supplier<JioHttpClient> {
     //since we don't use `sendAsync` method we don't need an executor. Turns out that the java API
     //create a useless thread from this executor in any case, what is a wasting of resources
     //that's why a pool of just one thread is created
+    ExecutorService executor = Executors.newSingleThreadExecutor();
     this.client = Objects.requireNonNull(builder)
-                         .executor(Executors.newSingleThreadExecutor());
+                         .executor(executor);
+    Runtime.getRuntime()
+           .addShutdownHook(new Thread(() -> {
+             if (executor != null) {
+               executor.shutdownNow();
+             }
+           }));
   }
 
 
