@@ -19,7 +19,8 @@ import java.util.concurrent.Executors;
  * @param <Params> Type of the input parameters for the SQL query.
  * @param <Output> Type of the objects produced by the result set mapper.
  */
-final class QueryStm<Params, Output> implements JdbcLambda<Params, List<Output>> {
+final class QueryStm<Params, Output> implements
+                                     java.util.function.Function<DatasourceBuilder, Lambda<Params, List<Output>>> {
 
   final Duration timeout;
 
@@ -63,32 +64,59 @@ final class QueryStm<Params, Output> implements JdbcLambda<Params, List<Output>>
    * @param dsb The datasource builder for obtaining database connections.
    * @return A lambda function for executing the SQL query and processing results.
    */
-  @Override
-  public Lambda<Params, List<Output>> apply(DatasourceBuilder dsb) {
-    return params -> IO.task(() -> {
-                               try (var connection = dsb.get()
-                                                        .getConnection()
-                               ) {
-                                 try (var ps = connection.prepareStatement(sql)) {
-                                   return JfrEventDecorator.decorateQueryStm(() -> {
-                                                                               var unused = setter.apply(params)
-                                                                                                  .apply(ps);
-                                                                               ps.setQueryTimeout((int) timeout.toSeconds());
-                                                                               ps.setFetchSize(fetchSize);
-                                                                               var rs = ps.executeQuery();
-                                                                               List<Output> result = new ArrayList<>();
-                                                                               while (rs.next()) {
-                                                                                 result.add(mapper.apply(rs));
-                                                                               }
-                                                                               return result;
-                                                                             },
-                                                                             sql,
-                                                                             enableJFR,
-                                                                             label,
-                                                                             fetchSize);
-                                 }
-                               }
-                             },
-                             Executors.newVirtualThreadPerTaskExecutor());
+  public Lambda<Params, List<Output>> buildAutoClosable(DatasourceBuilder dsb) {
+    return params ->
+        IO.task(() -> {
+                  try (var connection = dsb.get()
+                                           .getConnection()
+                  ) {
+                    try (var ps = connection.prepareStatement(sql)) {
+                      return JfrEventDecorator.decorateQueryStm(
+                          () -> {
+                            var unused = setter.apply(params)
+                                               .apply(ps);
+                            ps.setQueryTimeout((int) timeout.toSeconds());
+                            ps.setFetchSize(fetchSize);
+                            var rs = ps.executeQuery();
+                            List<Output> result = new ArrayList<>();
+                            while (rs.next()) {
+                              result.add(mapper.apply(rs));
+                            }
+                            return result;
+                          },
+                          sql,
+                          enableJFR,
+                          label,
+                          fetchSize);
+                    }
+                  }
+                },
+                Executors.newVirtualThreadPerTaskExecutor());
+  }
+
+  public ClosableStatement<Params, List<Output>> buildClosable() {
+    return params -> connection ->
+        IO.task(() -> {
+                  try (var ps = connection.prepareStatement(sql)) {
+                    return JfrEventDecorator.decorateQueryStm(
+                        () -> {
+                          var unused = setter.apply(params)
+                                             .apply(ps);
+                          ps.setQueryTimeout((int) timeout.toSeconds());
+                          ps.setFetchSize(fetchSize);
+                          var rs = ps.executeQuery();
+                          List<Output> result = new ArrayList<>();
+                          while (rs.next()) {
+                            result.add(mapper.apply(rs));
+                          }
+                          return result;
+                        },
+                        sql,
+                        enableJFR,
+                        label,
+                        fetchSize);
+                  }
+                },
+                Executors.newVirtualThreadPerTaskExecutor());
   }
 }

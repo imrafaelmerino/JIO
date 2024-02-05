@@ -3,15 +3,15 @@ package jio.jdbc;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.Supplier;
+import jio.Lambda;
 
 /**
  * Builder class for creating update and generate key operations in a JDBC context.
  *
- * @param <Params>  The type of input parameters for the insert operation.
+ * @param <Params> The type of input parameters for the insert operation.
  * @param <Output> The type of the output result from the insert operation.
  */
-public final class InsertOneStmBuilder<Params, Output> implements Supplier<JdbcLambda<Params, Output>> {
+public final class InsertOneStmBuilder<Params, Output> {
 
   private final String sql;
 
@@ -38,10 +38,11 @@ public final class InsertOneStmBuilder<Params, Output> implements Supplier<JdbcL
    *
    * @param sql       The SQL statement for the update operation.
    * @param setParams A function to set parameters on a {@link java.sql.PreparedStatement}.
-   * @param mapResult A function to map the result set to the desired output type. Takes the input params and the number of rows affected by the insert op(either one or zero)
+   * @param mapResult A function to map the result set to the desired output type. Takes the input params and the number
+   *                  of rows affected by the insert op(either one or zero)
    * @param timeout   The time the driver will wait for a statement to execute
-   * @param <Params>       The type of input elements for the update operation.
-   * @param <Output>       The type of the output result from the update operation.
+   * @param <Params>  The type of input elements for the update operation.
+   * @param <Output>  The type of the output result from the update operation.
    * @return A new instance of UpdateGenStmBuilder.
    */
   public static <Params, Output> InsertOneStmBuilder<Params, Output> of(String sql,
@@ -81,13 +82,23 @@ public final class InsertOneStmBuilder<Params, Output> implements Supplier<JdbcL
    *
    * @return A JdbcLambda instance for the update and generate key operation.
    */
-  @Override
-  public JdbcLambda<Params, Output> get() {
+  public Lambda<Params, Output> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return new InsertOneStm<>(timeout,
                               sql,
                               setParams,
                               mapResult,
                               enableJFR,
-                              label);
+                              label)
+        .buildAutoClosableStm(datasourceBuilder);
+  }
+
+  public ClosableStatement<Params, Output> buildClosable() {
+    return new InsertOneStm<>(timeout,
+                              sql,
+                              setParams,
+                              mapResult,
+                              enableJFR,
+                              label)
+        .buildClosableStm();
   }
 }

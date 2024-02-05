@@ -2,7 +2,6 @@ package jio.jdbc;
 
 import jio.IO;
 import jio.Lambda;
-
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.Duration;
@@ -21,7 +20,7 @@ import java.util.function.BiFunction;
  * @param <Params> The type of the input object for setting parameters in the update statement.
  * @param <Output> The type of the output object generated from the ResultSet.
  */
-final class InsertOneStm<Params, Output> implements JdbcLambda<Params, Output> {
+final class InsertOneStm<Params, Output> {
 
   final Duration timeout;
 
@@ -54,35 +53,63 @@ final class InsertOneStm<Params, Output> implements JdbcLambda<Params, Output> {
    * @param dsb The {@code DatasourceBuilder} for obtaining the datasource.
    * @return A {@code BiLambda} representing the update operation with a duration, input, and output.
    */
-  @Override
-  public Lambda<Params, Output> apply(DatasourceBuilder dsb) {
+  public Lambda<Params, Output> buildAutoClosableStm(DatasourceBuilder dsb) {
     return params ->
-        IO.task(() -> JfrEventDecorator.decorateInsertOneStm(() -> {
-                                                               try (var connection = dsb.get()
-                                                                                        .getConnection()
-                                                               ) {
-                                                                 try (var ps = connection.prepareStatement(sql,
-                                                                                                           Statement.RETURN_GENERATED_KEYS)
-                                                                 ) {
-                                                                   ps.setQueryTimeout((int) timeout.toSeconds());
-                                                                   int unused = setParams.apply(params)
-                                                                                         .apply(ps);
-                                                                   assert unused > 0;
-                                                                   int numRowsAffected = ps.executeUpdate();
-                                                                   try (ResultSet resultSet = ps.getGeneratedKeys()) {
-                                                                     if (resultSet.next()) {
-                                                                       return mapResult.apply(params,
-                                                                                              numRowsAffected)
-                                                                                       .apply(resultSet);
-                                                                     }
-                                                                     throw new ColumnNotGeneratedException(sql);
-                                                                   }
-                                                                 }
-                                                               }
-                                                             },
-                                                             sql,
-                                                             enableJFR,
-                                                             label),
+        IO.task(() -> JfrEventDecorator.decorateInsertOneStm(
+                    () -> {
+                      try (var connection = dsb.get()
+                                               .getConnection()
+                      ) {
+                        try (var ps = connection.prepareStatement(sql,
+                                                                  Statement.RETURN_GENERATED_KEYS)
+                        ) {
+                          ps.setQueryTimeout((int) timeout.toSeconds());
+                          int unused = setParams.apply(params)
+                                                .apply(ps);
+                          assert unused > 0;
+                          int numRowsAffected = ps.executeUpdate();
+                          try (ResultSet resultSet = ps.getGeneratedKeys()) {
+                            if (resultSet.next()) {
+                              return mapResult.apply(params,
+                                                     numRowsAffected)
+                                              .apply(resultSet);
+                            }
+                            throw new ColumnNotGeneratedException(sql);
+                          }
+                        }
+                      }
+                    },
+                    sql,
+                    enableJFR,
+                    label),
+                Executors.newVirtualThreadPerTaskExecutor());
+  }
+
+  public ClosableStatement<Params, Output> buildClosableStm() {
+    return params -> connection ->
+        IO.task(() -> JfrEventDecorator.decorateInsertOneStm(
+                    () -> {
+                      try (var ps = connection.prepareStatement(sql,
+                                                                Statement.RETURN_GENERATED_KEYS)
+                      ) {
+                        ps.setQueryTimeout((int) timeout.toSeconds());
+                        int unused = setParams.apply(params)
+                                              .apply(ps);
+                        assert unused > 0;
+                        int numRowsAffected = ps.executeUpdate();
+                        try (ResultSet resultSet = ps.getGeneratedKeys()) {
+                          if (resultSet.next()) {
+                            return mapResult.apply(params,
+                                                   numRowsAffected)
+                                            .apply(resultSet);
+                          }
+                          throw new ColumnNotGeneratedException(sql);
+                        }
+                      }
+                    },
+                    sql,
+                    enableJFR,
+                    label),
                 Executors.newVirtualThreadPerTaskExecutor());
   }
 }

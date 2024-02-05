@@ -3,14 +3,14 @@ package jio.jdbc;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Supplier;
+import jio.Lambda;
 
 /**
  * Builder class for creating batch operations on a JDBC database using a lambda-based approach.
  *
  * @param <Params> The type of the input parameters for the batch operation.
  */
-public final class BatchStmBuilder<Params> implements Supplier<JdbcLambda<List<Params>, BatchResult>> {
+public final class BatchStmBuilder<Params> {
 
   private final ParamsSetter<Params> setter;
   private final String sql;
@@ -18,7 +18,6 @@ public final class BatchStmBuilder<Params> implements Supplier<JdbcLambda<List<P
   private boolean enableJFR = true;
   private final Duration timeout;
   private String label;
-
 
   private BatchStmBuilder(ParamsSetter<Params> setter,
                           String sql,
@@ -60,8 +59,8 @@ public final class BatchStmBuilder<Params> implements Supplier<JdbcLambda<List<P
   }
 
   /**
-   * Sets a label for the Java Flight Recorder (JFR) event associated with this database query statement builder.
-   * The label provides a descriptive identifier for the event and can be useful for tracking and analyzing events.
+   * Sets a label for the Java Flight Recorder (JFR) event associated with this database query statement builder. The
+   * label provides a descriptive identifier for the event and can be useful for tracking and analyzing events.
    *
    * @param label The label to be assigned to the JFR event.
    * @return This {@code QueryStmBuilder} instance with the specified event label.
@@ -98,14 +97,23 @@ public final class BatchStmBuilder<Params> implements Supplier<JdbcLambda<List<P
    *
    * @return A JdbcLambda instance for the batch operation.
    */
-  @Override
-  public JdbcLambda<List<Params>, BatchResult> get() {
+  public Lambda<List<Params>, BatchResult> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return new BatchStm<>(timeout,
                           setter,
                           sql,
                           continueOnError,
                           batchSize,
                           enableJFR,
-                          label);
+                          label).buildAutoClosable(datasourceBuilder);
+  }
+
+  public ClosableStatement<List<Params>, BatchResult> buildClosable() {
+    return new BatchStm<>(timeout,
+                          setter,
+                          sql,
+                          continueOnError,
+                          batchSize,
+                          enableJFR,
+                          label).buildClosable();
   }
 }

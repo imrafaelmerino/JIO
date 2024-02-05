@@ -18,7 +18,7 @@ import java.util.function.Function;
  * @param <Params> Type of the input parameters for the SQL query.
  * @param <Output> Type of the objects produced by the result set mapper.
  */
-final class QueryOneStm<Params, Output> implements JdbcLambda<Params, Output> {
+final class QueryOneStm<Params, Output> {
 
   final Duration timeout;
 
@@ -58,27 +58,50 @@ final class QueryOneStm<Params, Output> implements JdbcLambda<Params, Output> {
    * @param dsb The datasource builder for obtaining database connections.
    * @return A lambda function for executing the SQL query and processing results.
    */
-  @Override
-  public Lambda<Params, Output> apply(DatasourceBuilder dsb) {
-    return input -> IO.task(() -> {
-                              try (var connection = dsb.get()
-                                                       .getConnection()
-                              ) {
-                                try (var ps = connection.prepareStatement(sql)) {
-                                  return JfrEventDecorator.decorateQueryOneStm(() -> {
-                                                                                 var unused = setter.apply(input)
-                                                                                                    .apply(ps);
-                                                                                 ps.setQueryTimeout((int) timeout.toSeconds());
-                                                                                 ps.setFetchSize(1);
-                                                                                 var rs = ps.executeQuery();
-                                                                                 return rs.next() ? mapper.apply(rs) : null;
-                                                                               },
-                                                                               sql,
-                                                                               enableJFR,
-                                                                               label);
-                                }
-                              }
-                            },
-                            Executors.newVirtualThreadPerTaskExecutor());
+
+  public Lambda<Params, Output> buildAutoClosableStm(DatasourceBuilder dsb) {
+    return input ->
+        IO.task(() -> {
+                  try (var connection = dsb.get()
+                                           .getConnection()
+                  ) {
+                    try (var ps = connection.prepareStatement(sql)) {
+                      return JfrEventDecorator.decorateQueryOneStm(
+                          () -> {
+                            var unused = setter.apply(input)
+                                               .apply(ps);
+                            ps.setQueryTimeout((int) timeout.toSeconds());
+                            ps.setFetchSize(1);
+                            var rs = ps.executeQuery();
+                            return rs.next() ? mapper.apply(rs) : null;
+                          },
+                          sql,
+                          enableJFR,
+                          label);
+                    }
+                  }
+                },
+                Executors.newVirtualThreadPerTaskExecutor());
+  }
+
+  public ClosableStatement<Params, Output> buildClosableStm() {
+    return params -> connection ->
+        IO.task(() -> {
+                  try (var ps = connection.prepareStatement(sql)) {
+                    return JfrEventDecorator.decorateQueryOneStm(
+                        () -> {
+                          var unused = setter.apply(params)
+                                             .apply(ps);
+                          ps.setQueryTimeout((int) timeout.toSeconds());
+                          ps.setFetchSize(1);
+                          var rs = ps.executeQuery();
+                          return rs.next() ? mapper.apply(rs) : null;
+                        },
+                        sql,
+                        enableJFR,
+                        label);
+                  }
+                },
+                Executors.newVirtualThreadPerTaskExecutor());
   }
 }

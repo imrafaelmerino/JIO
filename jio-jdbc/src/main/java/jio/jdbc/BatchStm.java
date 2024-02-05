@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
  *
  * @param <Params> The type of input elements for the batch operation.
  */
-class BatchStm<Params> implements JdbcLambda<List<Params>, BatchResult> {
+class BatchStm<Params> {
 
   final Duration timeout;
   final ParamsSetter<Params> setter;
@@ -58,27 +58,47 @@ class BatchStm<Params> implements JdbcLambda<List<Params>, BatchResult> {
    * @param builder The DatasourceBuilder for obtaining a connection to the database.
    * @return A BiLambda representing the batch operation.
    */
-  @Override
-  public Lambda<List<Params>, BatchResult> apply(DatasourceBuilder builder) {
+  public Lambda<List<Params>, BatchResult> buildAutoClosable(DatasourceBuilder builder) {
     return inputs -> IO.task(
-        () -> JfrEventDecorator.decorateBatch(() -> {
-                                                try (var connection = builder.get()
-                                                                             .getConnection()
-                                                ) {
-                                                  connection.setAutoCommit(false);
-                                                  try (var ps = connection.prepareStatement(sql)) {
-                                                    ps.setQueryTimeout((int) timeout.toSeconds());
-                                                    return process(inputs,
-                                                                   ps,
-                                                                   connection);
-                                                  }
-                                                }
-                                              },
-                                              sql,
-                                              enableJFR,
-                                              label),
+        () -> JfrEventDecorator.decorateBatch(
+            () -> {
+              try (var connection = builder.get()
+                                           .getConnection()
+              ) {
+                connection.setAutoCommit(false);
+                try (var ps = connection.prepareStatement(sql)) {
+                  ps.setQueryTimeout((int) timeout.toSeconds());
+                  return process(inputs,
+                                 ps,
+                                 connection);
+                }
+              }
+            },
+            sql,
+            enableJFR,
+            label),
         Executors.newVirtualThreadPerTaskExecutor()
                             );
+  }
+
+  public ClosableStatement<List<Params>, BatchResult> buildClosable() {
+    return inputs -> connection ->
+        IO.task(
+            () -> JfrEventDecorator.decorateBatch(
+                () -> {
+                  connection.setAutoCommit(false);
+                  try (var ps = connection.prepareStatement(sql)) {
+                    ps.setQueryTimeout((int) timeout.toSeconds());
+                    return process(inputs,
+                                   ps,
+                                   connection);
+                  }
+                },
+                sql,
+                enableJFR,
+                label),
+            Executors.newVirtualThreadPerTaskExecutor()
+               );
   }
 
   private BatchResult process(List<Params> params,

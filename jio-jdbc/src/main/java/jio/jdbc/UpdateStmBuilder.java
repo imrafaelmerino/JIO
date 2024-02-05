@@ -2,14 +2,14 @@ package jio.jdbc;
 
 import java.time.Duration;
 import java.util.Objects;
-import java.util.function.Supplier;
+import jio.Lambda;
 
 /**
  * Builder class for creating update operations in a JDBC context.
  *
  * @param <Params> The type of input parameters for the update operation.
  */
-public final class UpdateStmBuilder<Params> implements Supplier<JdbcLambda<Params, Integer>> {
+public final class UpdateStmBuilder<Params> {
 
   private final Duration timeout;
 
@@ -70,12 +70,24 @@ public final class UpdateStmBuilder<Params> implements Supplier<JdbcLambda<Param
    *
    * @return A JdbcLambda instance for the update operation.
    */
-  @Override
-  public JdbcLambda<Params, Integer> get() {
+  public Lambda<Params, Integer> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return new UpdateStm<>(timeout,
                            sql,
                            setParams,
                            enableJFR,
-                           label);
+                           label)
+        .buildAutoClosableStm(datasourceBuilder);
   }
+
+
+  public ClosableStatement<Params,Integer> buildClosable() {
+    return new UpdateStm<>(timeout,
+                           sql,
+                           setParams,
+                           enableJFR,
+                           label)
+        .buildClosableStm();
+  }
+
+
 }

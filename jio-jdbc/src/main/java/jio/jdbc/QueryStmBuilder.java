@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
+import jio.Lambda;
 
 /**
  * Builder class for creating JDBC query operations in a JDBC context.
@@ -11,7 +12,7 @@ import java.util.function.Supplier;
  * @param <Params> The type of input elements for the query operation.
  * @param <Output> The type of the output result from the query operation.
  */
-public final class QueryStmBuilder<Params, Output> implements Supplier<JdbcLambda<Params, List<Output>>> {
+public final class QueryStmBuilder<Params, Output> {
 
   private static final int DEFAULT_FETCH_SIZE = 1000;
   private final Duration timeout;
@@ -80,16 +81,17 @@ public final class QueryStmBuilder<Params, Output> implements Supplier<JdbcLambd
   }
 
   /**
-   * Sets a label for the Java Flight Recorder (JFR) event associated with this database query statement builder.
-   * The label provides a descriptive identifier for the event and can be useful for tracking and analyzing events.
+   * Sets a label for the Java Flight Recorder (JFR) event associated with this database query statement builder. The
+   * label provides a descriptive identifier for the event and can be useful for tracking and analyzing events.
    *
    * @param label The label to be assigned to the JFR event.
    * @return This {@code QueryStmBuilder} instance with the specified event label.
    */
-  public QueryStmBuilder<Params, Output> withEventLabel(String label){
+  public QueryStmBuilder<Params, Output> withEventLabel(String label) {
     this.label = Objects.requireNonNull(label);
     return this;
   }
+
   /**
    * Disables the recording of Java Flight Recorder (JFR) events for the JDBC query execution.
    *
@@ -105,14 +107,23 @@ public final class QueryStmBuilder<Params, Output> implements Supplier<JdbcLambd
    *
    * @return A JdbcLambda instance for the JDBC query operation.
    */
-  @Override
-  public JdbcLambda<Params, List<Output>> get() {
+  public Lambda<Params, List<Output>> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return new QueryStm<>(timeout,
                           sqlQuery,
                           setter,
                           mapper,
                           fetchSize,
                           enableJFR,
-                          label);
+                          label).buildAutoClosable(datasourceBuilder);
+  }
+
+  public ClosableStatement<Params, List<Output>> buildClosable() {
+    return new QueryStm<>(timeout,
+                          sqlQuery,
+                          setter,
+                          mapper,
+                          fetchSize,
+                          enableJFR,
+                          label).buildClosable();
   }
 }

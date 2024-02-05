@@ -73,7 +73,7 @@ public final class Tx<Input, Output> implements Lambda<Input, Output> {
 
   private static void commit(ClientSession session,
                              MongoOpEvent event) {
-    try (session) {
+    try  {
       session.commitTransaction();
       event.end();
       event.result = MongoOpEvent.RESULT.SUCCESS.name();

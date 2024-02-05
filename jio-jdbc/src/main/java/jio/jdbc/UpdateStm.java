@@ -3,7 +3,6 @@ package jio.jdbc;
 import jio.IO;
 import jio.Lambda;
 
-import java.sql.Statement;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -15,7 +14,7 @@ import java.util.concurrent.Executors;
  *
  * @param <Params> The type of the input object for setting parameters in the update statement.
  */
-final class UpdateStm<Params> implements JdbcLambda<Params, Integer> {
+final class UpdateStm<Params> {
 
   final Duration timeout;
 
@@ -65,27 +64,46 @@ final class UpdateStm<Params> implements JdbcLambda<Params, Integer> {
    * @param dsb The {@code DatasourceBuilder} for obtaining the datasource.
    * @return A {@code BiLambda} representing the update operation with a duration, input, and output.
    */
-  @Override
-  public Lambda<Params, Integer> apply(DatasourceBuilder dsb) {
+  public Lambda<Params, Integer> buildAutoClosableStm(DatasourceBuilder dsb) {
     return params ->
-        IO.task(() -> JfrEventDecorator.decorateUpdateStm(() -> {
-                                                            try (var connection = dsb.get()
-                                                                                     .getConnection()
-                                                            ) {
-                                                              try (var ps = connection.prepareStatement(sql,
-                                                                                                        Statement.RETURN_GENERATED_KEYS)
-                                                              ) {
-                                                                ps.setQueryTimeout((int) timeout.toSeconds());
-                                                                int unused = setParams.apply(params)
-                                                                                      .apply(ps);
-                                                                assert unused > 0;
-                                                                return ps.executeUpdate();
-                                                              }
-                                                            }
-                                                          },
-                                                          sql,
-                                                          enableJFR,
-                                                          label),
+        IO.task(() -> JfrEventDecorator.decorateUpdateStm(
+                    () -> {
+                      try (var connection = dsb.get()
+                                               .getConnection()
+                      ) {
+                        try (var ps = connection.prepareStatement(sql)
+                        ) {
+                          ps.setQueryTimeout((int) timeout.toSeconds());
+                          int unused = setParams.apply(params)
+                                                .apply(ps);
+                          assert unused > 0;
+                          return ps.executeUpdate();
+                        }
+                      }
+                    },
+                    sql,
+                    enableJFR,
+                    label),
+                Executors.newVirtualThreadPerTaskExecutor());
+  }
+
+  public ClosableStatement<Params, Integer> buildClosableStm() {
+    return params -> connection ->
+        IO.task(() -> JfrEventDecorator.decorateUpdateStm(
+                    () -> {
+                      try (var ps = connection.prepareStatement(sql)
+                      ) {
+                        ps.setQueryTimeout((int) timeout.toSeconds());
+                        int unused = setParams.apply(params)
+                                              .apply(ps);
+                        assert unused > 0;
+                        return ps.executeUpdate();
+                      }
+
+                    },
+                    sql,
+                    enableJFR,
+                    label),
                 Executors.newVirtualThreadPerTaskExecutor());
   }
 }
