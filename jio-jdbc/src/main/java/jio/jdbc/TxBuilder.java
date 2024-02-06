@@ -17,10 +17,10 @@ import jio.ListExp;
  * flexibility for handling transactional results and rollbacks.
  * <p>
  * The transactions created by this builder can operate in parallel or sequentially, and they support the use of
- * savepoints. Savepoints allow you to set points within a transaction, and in case of an error, you can roll back
- * the transaction to a specific savepoint, preserving changes made up to that point. It's important to note that savepoints
- * must be supported by the underlying JDBC driver for them to be effective. If your JDBC driver does not support savepoints,
- * attempting to use them may result in exceptions or unexpected behavior.
+ * savepoints. Savepoints allow you to set points within a transaction, and in case of an error, you can roll back the
+ * transaction to a specific savepoint, preserving changes made up to that point. It's important to note that savepoints
+ * must be supported by the underlying JDBC driver for them to be effective. If your JDBC driver does not support
+ * savepoints, attempting to use them may result in exceptions or unexpected behavior.
  */
 public final class TxBuilder {
 
@@ -32,6 +32,21 @@ public final class TxBuilder {
    */
   final TX_ISOLATION isolation;
 
+  /**
+   * Creates a new instance of {@code TxBuilder} with the specified {@link DatasourceBuilder} and transaction isolation
+   * level.
+   *
+   * <p>
+   * This static factory method is used to conveniently instantiate a {@code TxBuilder} for building transactional
+   * operations.
+   * </p>
+   *
+   * @param datasourceBuilder An instance of {@link DatasourceBuilder} providing configuration for creating a database
+   *                          connection.
+   * @param level             The transaction isolation level represented by the {@link TX_ISOLATION} enum.
+   * @return A new instance of {@code TxBuilder} configured with the provided {@link DatasourceBuilder} and transaction
+   * isolation level.
+   */
   public static TxBuilder of(DatasourceBuilder datasourceBuilder,
                              TX_ISOLATION level) {
     return new TxBuilder(datasourceBuilder,
@@ -63,12 +78,42 @@ public final class TxBuilder {
     return this;
   }
 
-
+  /**
+   * Enumeration representing transaction isolation levels for use with the {@link TxBuilder} class.
+   *
+   * <p>
+   * Transaction isolation levels define the visibility of changes made by one transaction to other concurrent
+   * transactions. Different isolation levels provide different trade-offs between consistency and performance.
+   * </p>
+   *
+   * <p>
+   * This enumeration includes the following isolation levels:
+   * </p>
+   *
+   * <ul>
+   *     <li>{@link #TRANSACTION_READ_UNCOMMITTED}: The lowest isolation level where transactions can read uncommitted changes made by other transactions.</li>
+   *     <li>{@link #TRANSACTION_READ_COMMITTED}: Transactions can only read committed changes made by other transactions.</li>
+   *     <li>{@link #TRANSACTION_REPEATABLE_READ}: Transactions can read committed changes and can repeat the same read operation and get the same results.</li>
+   *     <li>{@link #TRANSACTION_SERIALIZABLE}: The highest isolation level where transactions are completely isolated from each other.</li>
+   * </ul>
+   */
   public enum TX_ISOLATION {
-
+    /**
+     * The lowest isolation level where transactions can read uncommitted changes made by other transactions.
+     */
     TRANSACTION_READ_UNCOMMITTED(Connection.TRANSACTION_READ_UNCOMMITTED),
+    /**
+     * Transactions can only read committed changes made by other transactions.
+     */
     TRANSACTION_READ_COMMITTED(Connection.TRANSACTION_READ_COMMITTED),
+    /**
+     * Transactions can read committed changes and can repeat the same read operation and get the same results.
+     */
     TRANSACTION_REPEATABLE_READ(Connection.TRANSACTION_REPEATABLE_READ),
+
+    /**
+     * The highest isolation level where transactions are completely isolated from each other.
+     */
     TRANSACTION_SERIALIZABLE(Connection.TRANSACTION_SERIALIZABLE);
 
     private final int level;

@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import jio.ExceptionFun;
 
+/**
+ * A utility class providing functions related to JDBC exceptions.
+ */
 public final class JdbcFun {
 
   private JdbcFun() {
@@ -13,6 +16,10 @@ public final class JdbcFun {
 
   /**
    * Function that finds the cause in the exception chain that is an instance of {@link SQLException}.
+   *
+   * <p>
+   * This function is useful for extracting the root {@link SQLException} from a nested exception chain.
+   * </p>
    *
    * @see SQLException
    */
@@ -23,6 +30,11 @@ public final class JdbcFun {
 
   /**
    * Function that finds the cause in the exception chain that is an instance of {@link SQLTransientException}.
+   *
+   * <p>
+   * This function is specifically designed for transient SQL exceptions, which might indicate temporary issues such as
+   * network problems. Transient exceptions are often considered for retrying the operation.
+   * </p>
    *
    * @see SQLTransientException
    */

@@ -16,6 +16,8 @@ public interface ResultSetMapper<Output> {
    *
    * @param resultSet The result set to map to an object.
    * @return An object of type {@code T} resulting from the mapping.
+   *
+   * @throws SQLException if a failure happens while reading the ResultSet
    */
   Output apply(ResultSet resultSet) throws SQLException;
 }
