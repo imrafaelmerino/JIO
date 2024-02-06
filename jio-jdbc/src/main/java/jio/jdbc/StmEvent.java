@@ -8,8 +8,6 @@ import jdk.jfr.StackTrace;
 @StackTrace(value = false)
 abstract class StmEvent extends Event {
 
-  static final AtomicLong counter = new AtomicLong(0);
-  static final String OP_COUNTER_FIELD = "opCounter";
   static final String RESULT_FIELD = "result";
   static final String SQL_FIELD = "sql";
   static final String EXCEPTION_FIELD = "exception";
@@ -34,9 +32,8 @@ abstract class StmEvent extends Event {
    */
   String label;
 
-  long opCounter = counter.incrementAndGet();
 
   enum RESULT {
-    SUCCESS, FAILURE
+    SUCCESS, FAILURE, PARTIAL_SUCCESS
   }
 }

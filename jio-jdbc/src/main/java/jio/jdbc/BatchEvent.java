@@ -1,5 +1,6 @@
 package jio.jdbc;
 
+import java.util.concurrent.atomic.AtomicLong;
 import jdk.jfr.*;
 
 /**
@@ -12,10 +13,16 @@ import jdk.jfr.*;
 @Description("Duration, result, batch size, rows updated and other info related to batch operations performed by jio-jdbc")
 final class BatchEvent extends StmEvent {
 
+  private static final AtomicLong counter = new AtomicLong(0);
+
   static final String BATCH_SIZE_FIELD = "batchSize";
   static final String ROWS_AFFECTED_FIELD = "rowsAffected";
   static final String STM_SIZE_FIELD = "totalStms";
   static final String EXECUTED_BATCHES_FIELD = "executedBatches";
+
+  static final String BATCH_COUNTER_FIELD = "batchCounter";
+
+  long batchCounter = counter.incrementAndGet();
 
   int batchSize;
   int totalStms;

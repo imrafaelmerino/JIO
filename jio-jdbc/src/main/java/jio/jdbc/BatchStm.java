@@ -27,13 +27,15 @@ class BatchStm<Params> {
 
 
   /**
-   * Constructs a BatchStm instance.
+   * Constructs a {@code BatchStm} instance with the specified settings.
    *
+   * @param timeout         The maximum time in seconds that the batch operation should wait.
    * @param setter          A function to set parameters on a {@link java.sql.PreparedStatement}.
    * @param sql             The SQL statement for the batch operation.
    * @param continueOnError If true, the batch operation continues with the next batch even if one fails.
-   * @param label           The label to identify the batch
    * @param batchSize       The size of each batch.
+   * @param enableJFR       Flag indicating whether Java Flight Recorder (JFR) events should be enabled.
+   * @param label           The label to identify the batch operation in Java Flight Recording.
    */
   BatchStm(Duration timeout,
            ParamsSetter<Params> setter,
@@ -52,11 +54,15 @@ class BatchStm<Params> {
   }
 
   /**
-   * Applies this function to the given DatasourceBuilder and returns a new function that represents the batch
-   * operation.
+   * Builds and returns a {@code Lambda} representing the JDBC batch operation configured with the specified settings.
+   * The resulting lambda is suitable for automatic resource management (ARM) and is configured to execute the batch
+   * operation, process the result, and close the associated JDBC resources. The operations are performed on virtual
+   * threads for improved concurrency and resource utilization.
    *
-   * @param builder The DatasourceBuilder for obtaining a connection to the database.
-   * @return A BiLambda representing the batch operation.
+   * @param builder The {@code DatasourceBuilder} used to obtain the datasource and connections.
+   * @return A {@code Lambda} representing the JDBC batch operation with a duration, input, and output. Note: The
+   * operations are performed on virtual threads for improved concurrency and resource utilization.
+   * @see BatchStm#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<List<Params>, BatchResult> buildAutoClosable(DatasourceBuilder builder) {
     return inputs -> IO.task(
@@ -81,15 +87,25 @@ class BatchStm<Params> {
                             );
   }
 
+  /**
+   * Builds and returns a {@code ClosableStatement} representing a JDBC batch operation on a database. This method is
+   * appropriate for use during transactions, where the connection needs to be managed externally. The lambda is
+   * configured to bind parameters to its SQL, execute the batch operation, and map the result. The operations are
+   * performed on virtual threads for improved concurrency and resource utilization.
+   *
+   * @return A {@code ClosableStatement} representing the JDBC batch operation with a duration, input, and output. Note:
+   * The operations are performed on virtual threads for improved concurrency and resource utilization.
+   * @see BatchStm#buildClosable()
+   */
   public ClosableStatement<List<Params>, BatchResult> buildClosable() {
-    return inputs -> connection ->
+    return (params, connection) ->
         IO.task(
             () -> JfrEventDecorator.decorateBatch(
                 () -> {
                   connection.setAutoCommit(false);
                   try (var ps = connection.prepareStatement(sql)) {
                     ps.setQueryTimeout((int) timeout.toSeconds());
-                    return process(inputs,
+                    return process(params,
                                    ps,
                                    connection);
                   }
@@ -101,18 +117,18 @@ class BatchStm<Params> {
                );
   }
 
-  private BatchResult process(List<Params> params,
+  private BatchResult process(List<Params> inputs,
                               PreparedStatement ps,
                               Connection connection) throws SQLException {
     List<SQLException> errors = new ArrayList<>();
     int executedBatches = 0, rowsAffected = 0, batchSizeCounter = 0;
-    for (int i = 0; i < params.size(); i++) {
+    for (int i = 0; i < inputs.size(); i++) {
       try {
-        setter.apply(params.get(i))
+        setter.apply(inputs.get(i))
               .apply(ps);
         ps.addBatch();
         batchSizeCounter++;
-        if (batchSizeCounter == batchSize || i == params.size() - 1) {
+        if (batchSizeCounter == batchSize || i == inputs.size() - 1) {
           executedBatches++;
           int[] xs = ps.executeBatch();
           for (int code : xs) {
@@ -125,23 +141,28 @@ class BatchStm<Params> {
           batchSizeCounter = 0;  // Reset batchSizeCounter after each batch
         }
       } catch (SQLException e) {
-        errors.add(e);
         if (continueOnError) {
+          errors.add(e);
           ps.clearBatch();
           batchSizeCounter = 0;
         } else {
-          return new BatchResult(params.size(),
-                                 batchSize,
-                                 executedBatches,
-                                 rowsAffected,
-                                 errors);
+          return new BatchFailure(inputs.size(),
+                                         batchSize,
+                                         executedBatches,
+                                         rowsAffected,
+                                         e);
         }
       }
     }
-    return new BatchResult(params.size(),
-                           batchSize,
-                           executedBatches,
-                           rowsAffected,
-                           errors);
+    if (errors.isEmpty()) {
+      return new BatchSuccess(rowsAffected);
+    } else {
+      return new BatchPartialSuccess(inputs.size(),
+                                     batchSize,
+                                     executedBatches,
+                                     rowsAffected,
+                                     errors);
+    }
+
   }
 }

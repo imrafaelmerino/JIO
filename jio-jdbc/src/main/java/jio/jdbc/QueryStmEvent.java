@@ -1,5 +1,6 @@
 package jio.jdbc;
 
+import java.util.concurrent.atomic.AtomicLong;
 import jdk.jfr.*;
 
 /**
@@ -12,9 +13,14 @@ import jdk.jfr.*;
 @Description("JDBC query statements performed by jio-jdbc")
 final class QueryStmEvent extends StmEvent {
 
-  static final String ROWS_RETURNED_FIELD = "rowsReturned";
+
+   static final String QUERY_COUNTER_FIELD = "queryCounter";
+  static  final String ROWS_RETURNED_FIELD = "rowsReturned";
   static final String FETCH_SIZE_FIELD = "fetchSize";
   public int fetchSize;
   int rowsReturned;
+  static final AtomicLong counter = new AtomicLong(0);
+
+  long queryCounter = counter.incrementAndGet();
 
 }

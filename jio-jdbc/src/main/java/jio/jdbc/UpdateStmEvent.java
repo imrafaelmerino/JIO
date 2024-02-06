@@ -1,6 +1,7 @@
 
 package jio.jdbc;
 
+import java.util.concurrent.atomic.AtomicLong;
 import jdk.jfr.*;
 
 /**
@@ -13,6 +14,11 @@ import jdk.jfr.*;
 @Description("JDBC update statements performed by jio-jdbc")
 final class UpdateStmEvent extends StmEvent {
 
+   static final String UPDATE_COUNTER_FIELD = "updateCounter";
   static final String ROWS_AFFECTED_FIELD = "rowsAffected";
   int rowsAffected;
+
+  static final AtomicLong counter = new AtomicLong(0);
+
+  long updateCounter = counter.incrementAndGet();
 }

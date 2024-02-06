@@ -2,7 +2,6 @@ package jio.jdbc;
 
 import java.time.Duration;
 import java.util.Objects;
-import java.util.function.Supplier;
 import jio.Lambda;
 
 /**
@@ -18,7 +17,6 @@ public final class QueryOneStmBuilder<Params, Output> {
   private final String sqlQuery;
   private final Duration timeout;
   private final ParamsSetter<Params> setter;
-
 
   private final ResultSetMapper<Output> mapper;
   private boolean enableJFR = true;
@@ -79,9 +77,15 @@ public final class QueryOneStmBuilder<Params, Output> {
   }
 
   /**
-   * Builds and returns a new instance of {@link QueryOneStm} based on the configured parameters.
+   * Builds and returns a {@code Lambda} representing the JDBC query operation configured with the specified settings.
+   * The resulting lambda is suitable for automatic resource management (ARM) and is configured to execute the query,
+   * process the result, and close the associated JDBC resources. The operations are performed on virtual threads for
+   * improved concurrency and resource utilization.
    *
-   * @return A new instance of {@code QueryOneStm}.
+   * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
+   * @return A {@code Lambda} representing the JDBC query operation with a duration, input, and output. Note: The
+   * operations are performed on virtual threads for improved concurrency and resource utilization.
+   * @see QueryOneStm#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<Params, Output> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return new QueryOneStm<>(timeout,
@@ -89,15 +93,25 @@ public final class QueryOneStmBuilder<Params, Output> {
                              setter,
                              mapper,
                              enableJFR,
-                             label).buildAutoClosableStm(datasourceBuilder);
+                             label).buildAutoClosable(datasourceBuilder);
   }
 
+  /**
+   * Builds and returns a {@code ClosableStatement} representing a JDBC query operation on a database. This method is
+   * appropriate for use during transactions, where the connection needs to be managed externally. The lambda is
+   * configured to bind parameters to its SQL, execute the query, and map the result. The operations are performed on
+   * virtual threads for improved concurrency and resource utilization.
+   *
+   * @return A {@code ClosableStatement} representing the JDBC query operation with a duration, input, and output. Note:
+   * The operations are performed on virtual threads for improved concurrency and resource utilization.
+   * @see QueryOneStm#buildClosable()
+   */
   public ClosableStatement<Params, Output> buildClosable() {
     return new QueryOneStm<>(timeout,
                              sqlQuery,
                              setter,
                              mapper,
                              enableJFR,
-                             label).buildClosableStm();
+                             label).buildClosable();
   }
 }

@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
 
 /**
- * A class representing a generic update operation with a generated key in a relational database using JDBC. The class
+ * A class representing a generic insert operation with a generated key in a relational database using JDBC. The class
  * is designed to execute an SQL update statement, set parameters, and retrieve the generated key. The operation is
  * wrapped with Java Flight Recorder (JFR) events.
  *
@@ -18,54 +18,77 @@ import java.util.function.BiFunction;
  * </p>
  *
  * @param <Params> The type of the input object for setting parameters in the update statement.
- * @param <Output> The type of the output object generated from the ResultSet.
+ * @param <Output> The type of the output object generated from the ResultSet and the generated keys.
  */
 final class InsertOneStm<Params, Output> {
 
+  /**
+   * Represents the maximum time in seconds that the SQL execution should wait.
+   */
   final Duration timeout;
-
+  /**
+   * The SQL update statement.
+   */
   final String sql;
+  /**
+   * The parameter setter for binding parameters in the sql.
+   */
+  final ParamsSetter<Params> setter;
 
-  final ParamsSetter<Params> setParams;
-
+  /**
+   * Mapper to produce an output from the rows affected (0 or 1), the input params and result-set containing the
+   * generated keys
+   */
   final BiFunction<Params, Integer, ResultSetMapper<Output>> mapResult;
+
+  /**
+   * Flag indicating whether Java Flight Recorder (JFR) events should be enabled.
+   */
   private final boolean enableJFR;
+
+  /**
+   * The label to identify the update statement in Java Flight Recording. It is used as a field in the JFR event for
+   * distinguishing operations from each other.
+   */
   private final String label;
 
   InsertOneStm(Duration timeout,
                String sql,
-               ParamsSetter<Params> setParams,
+               ParamsSetter<Params> setter,
                BiFunction<Params, Integer, ResultSetMapper<Output>> mapResult,
                boolean enableJFR,
                String label) {
     this.timeout = timeout;
     this.sql = sql;
-    this.setParams = setParams;
+    this.setter = setter;
     this.mapResult = mapResult;
     this.enableJFR = enableJFR;
     this.label = label;
   }
 
   /**
-   * Applies the update operation to a datasource, setting parameters, executing the update statement, and retrieving
-   * the generated key from the ResultSet.
+   * Creates a {@code Lambda} representing an insert statement operation on a database. The lambda is configured to bind
+   * parameters to its sql, execute the insert statement, and map the rows affected (0 or 1) and the generated keys into
+   * an output object. The JDBC connection is automatically obtained from the datasource and closed, which means that
+   * con not be used for transactions where the connection can't be closed before committing o doing rollback.
    *
-   * @param dsb The {@code DatasourceBuilder} for obtaining the datasource.
-   * @return A {@code BiLambda} representing the update operation with a duration, input, and output.
+   * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
+   * @return A {@code Lambda} representing the insert statement. Note: The operations are performed by virtual threads.
+   * @see #buildClosable() for using insert statements during transactions
    */
-  public Lambda<Params, Output> buildAutoClosableStm(DatasourceBuilder dsb) {
+  Lambda<Params, Output> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return params ->
         IO.task(() -> JfrEventDecorator.decorateInsertOneStm(
                     () -> {
-                      try (var connection = dsb.get()
-                                               .getConnection()
+                      try (var connection = datasourceBuilder.get()
+                                                             .getConnection()
                       ) {
                         try (var ps = connection.prepareStatement(sql,
                                                                   Statement.RETURN_GENERATED_KEYS)
                         ) {
                           ps.setQueryTimeout((int) timeout.toSeconds());
-                          int unused = setParams.apply(params)
-                                                .apply(ps);
+                          int unused = setter.apply(params)
+                                             .apply(ps);
                           assert unused > 0;
                           int numRowsAffected = ps.executeUpdate();
                           try (ResultSet resultSet = ps.getGeneratedKeys()) {
@@ -85,16 +108,25 @@ final class InsertOneStm<Params, Output> {
                 Executors.newVirtualThreadPerTaskExecutor());
   }
 
-  public ClosableStatement<Params, Output> buildClosableStm() {
-    return params -> connection ->
+  /**
+   * Builds a closable insert statement, allowing custom handling of the JDBC connection. This method is appropriate for
+   * use during transactions, where the connection needs to be managed externally. The lambda is configured to bind
+   * parameters to its SQL, execute the insert statement, and map the rows affected (0 or 1) and the generated keys into
+   * an output object
+   *
+   * @return A {@code ClosableStatement} representing the insert statement. Note: The operations are performed by
+   * virtual threads.
+   */
+  ClosableStatement<Params, Output> buildClosable() {
+    return (params, connection) ->
         IO.task(() -> JfrEventDecorator.decorateInsertOneStm(
                     () -> {
                       try (var ps = connection.prepareStatement(sql,
                                                                 Statement.RETURN_GENERATED_KEYS)
                       ) {
                         ps.setQueryTimeout((int) timeout.toSeconds());
-                        int unused = setParams.apply(params)
-                                              .apply(ps);
+                        int unused = setter.apply(params)
+                                           .apply(ps);
                         assert unused > 0;
                         int numRowsAffected = ps.executeUpdate();
                         try (ResultSet resultSet = ps.getGeneratedKeys()) {

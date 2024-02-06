@@ -8,14 +8,20 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 
 /**
- * A class representing a generic update operation with a generated key in a relational database using JDBC. The class
- * is designed to execute an SQL update statement, set parameters, and retrieve the generated key. The operation is
- * wrapped with Java Flight Recorder (JFR) events.
+ * A class representing a generic update statement in a relational database using JDBC. The class is designed to execute
+ * an SQL update statement, bind parameters to the SQL and map the result. The operation, by default, creates a Java
+ * Flight Recorder (JFR) event.
  *
- * @param <Params> The type of the input object for setting parameters in the update statement.
+ * @param <Params> The type of the input object for setting parameters in the SQL.
+ *
+ * @see InsertOneStm for using insert operationg that insert at most one row into the database and
+ * may generate some keys like ids or timestamps that can be returned
  */
 final class UpdateStm<Params> {
 
+  /**
+   * Represents the maximum time in seconds that the SQL execution should wait.
+   */
   final Duration timeout;
 
   /**
@@ -24,60 +30,69 @@ final class UpdateStm<Params> {
   final String sql;
 
   /**
-   * The parameter setter for setting parameters in the update statement.
+   * The parameter setter for binding parameters in the sql.
    */
-  final ParamsSetter<Params> setParams;
+  final ParamsSetter<Params> setter;
 
 
   /**
    * Flag indicating whether Java Flight Recorder (JFR) events should be enabled.
    */
   private final boolean enableJFR;
+
+  /**
+   * The label to identify the update statement in Java Flight Recording. It is used as a field in the JFR event for
+   * distinguishing operations from each other.
+   */
   private final String label;
 
 
   /**
-   * Constructs an {@code UpdateGenStm} with the specified SQL statement, parameter setter, result mapper, and the
-   * option to enable or disable JFR events.
+   * Constructs an {@code UpdateStm} with the specified SQL statement, parameter setter, result mapper, and the option
+   * to enable or disable JFR events.
    *
    * @param sql       The SQL update statement.
-   * @param setParams The parameter setter for setting parameters in the update statement.
+   * @param setter    The parameter setter for setting parameters in the update statement.
    * @param enableJFR Flag indicating whether to enable JFR events.
    * @param label     The label to identify the update statement in Java Flight Recording
    */
   UpdateStm(Duration timeout,
             String sql,
-            ParamsSetter<Params> setParams,
+            ParamsSetter<Params> setter,
             boolean enableJFR,
             String label) {
     this.timeout = timeout;
     this.sql = Objects.requireNonNull(sql);
-    this.setParams = Objects.requireNonNull(setParams);
+    this.setter = Objects.requireNonNull(setter);
     this.enableJFR = enableJFR;
     this.label = label;
   }
 
   /**
-   * Applies the update operation to a datasource, setting parameters, executing the update statement, and retrieving
-   * the generated key from the ResultSet.
+   * Creates a {@code Lambda} representing an update statement operation on a database. The lambda is configured to bind
+   * parameters to its sql, execute the update statement, and returns the affected rows as a result. The JDBC connection
+   * is automatically obtained from the datasource and closed, which means that con not be used for transactions where
+   * the connection can't be closed before committing o doing rollback.
    *
-   * @param dsb The {@code DatasourceBuilder} for obtaining the datasource.
-   * @return A {@code BiLambda} representing the update operation with a duration, input, and output.
+   * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
+   * @return A {@code Lambda} representing update statement. Note: The operations are performed by virtual threads.
+   * @see #buildClosable() for using update statements during transactions
    */
-  public Lambda<Params, Integer> buildAutoClosableStm(DatasourceBuilder dsb) {
+
+  Lambda<Params, Integer> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return params ->
         IO.task(() -> JfrEventDecorator.decorateUpdateStm(
                     () -> {
-                      try (var connection = dsb.get()
-                                               .getConnection()
+                      try (var connection = datasourceBuilder.get()
+                                                             .getConnection()
                       ) {
-                        try (var ps = connection.prepareStatement(sql)
+                        try (var statement = connection.prepareStatement(sql)
                         ) {
-                          ps.setQueryTimeout((int) timeout.toSeconds());
-                          int unused = setParams.apply(params)
-                                                .apply(ps);
+                          statement.setQueryTimeout((int) timeout.toSeconds());
+                          int unused = setter.apply(params)
+                                             .apply(statement);
                           assert unused > 0;
-                          return ps.executeUpdate();
+                          return statement.executeUpdate();
                         }
                       }
                     },
@@ -87,17 +102,25 @@ final class UpdateStm<Params> {
                 Executors.newVirtualThreadPerTaskExecutor());
   }
 
-  public ClosableStatement<Params, Integer> buildClosableStm() {
-    return params -> connection ->
+  /**
+   * Builds a closable update statement, allowing custom handling of the JDBC connection. This method is appropriate for
+   * use during transactions, where the connection needs to be managed externally. The lambda is configured to bind
+   * parameters to its SQL, execute the update statement, and return the affected rows as a result.
+   *
+   * @return A {@code ClosableStatement} representing the update statement. Note: The operations are performed by
+   * virtual threads.
+   */
+  ClosableStatement<Params, Integer> buildClosable() {
+    return (params, connection) ->
         IO.task(() -> JfrEventDecorator.decorateUpdateStm(
                     () -> {
-                      try (var ps = connection.prepareStatement(sql)
+                      try (var statement = connection.prepareStatement(sql)
                       ) {
-                        ps.setQueryTimeout((int) timeout.toSeconds());
-                        int unused = setParams.apply(params)
-                                              .apply(ps);
+                        statement.setQueryTimeout((int) timeout.toSeconds());
+                        int unused = setter.apply(params)
+                                           .apply(statement);
                         assert unused > 0;
-                        return ps.executeUpdate();
+                        return statement.executeUpdate();
                       }
 
                     },

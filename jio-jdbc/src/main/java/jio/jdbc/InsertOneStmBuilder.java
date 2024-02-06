@@ -6,7 +6,7 @@ import java.util.function.BiFunction;
 import jio.Lambda;
 
 /**
- * Builder class for creating update and generate key operations in a JDBC context.
+ * Builder class for inserting one row in the database and read the generated keys.
  *
  * @param <Params> The type of input parameters for the insert operation.
  * @param <Output> The type of the output result from the insert operation.
@@ -78,10 +78,17 @@ public final class InsertOneStmBuilder<Params, Output> {
   }
 
   /**
-   * Builds a JdbcLambda representing the update and generate key operation based on the specified settings.
+   * Builds and returns a {@code Lambda} representing the JDBC insert operation configured with the specified settings.
+   * The resulting lambda is suitable for automatic resource management (ARM) and is configured to execute the insert
+   * operation, process the result, and close the associated JDBC resources. The operations are performed on virtual
+   * threads for improved concurrency and resource utilization.
    *
-   * @return A JdbcLambda instance for the update and generate key operation.
+   * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
+   * @return A {@code Lambda} representing the JDBC insert operation with a duration, input, and output. Note: The
+   * operations are performed on virtual threads for improved concurrency and resource utilization.
+   * @see InsertOneStm#buildAutoClosable(DatasourceBuilder)
    */
+
   public Lambda<Params, Output> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return new InsertOneStm<>(timeout,
                               sql,
@@ -89,9 +96,19 @@ public final class InsertOneStmBuilder<Params, Output> {
                               mapResult,
                               enableJFR,
                               label)
-        .buildAutoClosableStm(datasourceBuilder);
+        .buildAutoClosable(datasourceBuilder);
   }
 
+  /**
+   * Builds and returns a {@code ClosableStatement} representing a JDBC insert operation on a database. This method is
+   * appropriate for use during transactions, where the connection needs to be managed externally. The lambda is
+   * configured to bind parameters to its SQL, execute the insert operation, and map the result. The operations are
+   * performed on virtual threads for improved concurrency and resource utilization.
+   *
+   * @return A {@code ClosableStatement} representing the JDBC insert operation with a duration, input, and output.
+   * Note: The operations are performed on virtual threads for improved concurrency and resource utilization.
+   * @see InsertOneStm#buildClosable()
+   */
   public ClosableStatement<Params, Output> buildClosable() {
     return new InsertOneStm<>(timeout,
                               sql,
@@ -99,6 +116,6 @@ public final class InsertOneStmBuilder<Params, Output> {
                               mapResult,
                               enableJFR,
                               label)
-        .buildClosableStm();
+        .buildClosable();
   }
 }

@@ -6,60 +6,57 @@ import java.util.function.Function;
 import jio.time.Fun;
 
 /**
- * A class that converts Java Flight Recorder (JFR) RecordedEvents to formatted strings. This class is intended to be
- * used as a Function for transforming RecordedEvents into human-readable strings.
- *
+ * A formatter for converting Java Flight Recorder (JFR) RecordedEvents related to JDBC batch statements into
+ * human-readable strings. This formatter provides methods for formatting both successful and failed events. It is
+ * designed to work specifically with events of type {@code jio.jdbc.BatchStm}.
  * <p>
- * The formatting includes information such as the result, duration,  and counter.
- * </p>
- *
+ * The formatting includes information such as start time, label, result, duration, rows affected, executed batches,
+ * batch size, statement size, SQL statement, exception (if any), and batch counter. The formatted strings are intended
+ * to be human-readable and can be used for logging or other diagnostic purposes.
  * <p>
- * The formatted output for a successful event is: "result: %s, duration: %s,  counter: %s".
- * </p>
- *
+ * This class is implemented as a singleton, and the singleton instance is available as {@link #INSTANCE}. You can use
+ * this instance to format {@code RecordedEvent} instances by calling the {@link #apply(RecordedEvent)} method.
  * <p>
- * The formatted output for an event with an exception is: "result: %s, duration: %s, exception: %s, sql: %s, counter:
- * %s".
- * </p>
- *
+ * The formatted output for a successful event is:
+ * "{@code %s; db-batch; label: %s; result: %s; duration: %s; rows_affected: %s; batch-counter: %s}".
  * <p>
- * Note: This class is designed to work with the JFR events persisted by jio-jdbc. Since it's just a function you can
- * define your own formatters
- * </p>
+ * The formatted output for an event with an exception or partial success is:
+ * "{@code %s; db-batch; label: %s; result: %s; duration: %s; rows_affected: %s; executed_batches:%s; batch_size: %s;
+ * stms_size: %s; sql: %s; exception: %s; batch-counter: %s}".
  */
 public final class BatchEventFormatter implements Function<RecordedEvent, String> {
 
   /**
-   * The singleton instance of JdbcEventFormatter.
+   * The singleton instance of BatchEventFormatter.
    */
   public static final BatchEventFormatter INSTANCE = new BatchEventFormatter();
   private static final String EVENT_LABEL = "jio.jdbc.BatchStm";
   private static final String SUCCESS_FORMAT = """
-      event: db batch; label: %s; result: %s; duration: %s;
-      rows_affected: %s; op-counter: %s;
-      start_time: %s""".replace("\n",
-                                " ");
-  private static final String FAILURE_FORMAT = """
-      event: db batch; label: %s; result: %s; duration: %s;
+      %s; db-batch; label: %s; result: %s; duration: %s;
+      rows_affected: %s; batch-counter: %s""".replace("\n",
+                                                      " ");
+  private static final String FAILURE_OR_PARTIAL_SUCCESS_FORMAT = """
+      %s; db-batch; label: %s; result: %s; duration: %s;
       rows_affected: %s; executed_batches:%s; batch_size: %s;
       stms_size: %s; sql: %s; exception: %s;
-      op-counter: %s; start_time: %s""".replace("\n",
-                                                " ");
+      batch-counter: %s""".replace("\n",
+                                   " ");
 
 
-  /**
-   * Constructs a JdbcEventFormatter with the default identity function for SQL statements.
-   */
   private BatchEventFormatter() {
 
   }
 
   /**
-   * Converts a RecordedEvent to a formatted string.
+   * Formats a given {@code RecordedEvent} related to JDBC batch statements into a human-readable string. The formatting
+   * includes information such as start time, label, result, duration, rows affected, executed batches, batch size,
+   * statement size, SQL statement, exception (if any), and batch counter. The formatted string is intended to be
+   * human-readable and can be used for logging or other diagnostic purposes.
    *
-   * @param event The RecordedEvent to be converted.
-   * @return A formatted string representing the information from the RecordedEvent.
+   * @param event The {@code RecordedEvent} instance to be formatted.
+   * @return A human-readable string representing the formatted information of the JDBC batch statement event.
    */
+
   @Override
   public String apply(RecordedEvent event) {
     assert event.getEventType()
@@ -71,14 +68,15 @@ public final class BatchEventFormatter implements Function<RecordedEvent, String
                                                .equals(result);
     return isSuccess ?
            String.format(SUCCESS_FORMAT,
+                         event.getStartTime(),
                          label,
                          result,
                          Fun.formatTime(event.getDuration()),
                          event.getValue(BatchEvent.ROWS_AFFECTED_FIELD),
-                         event.getValue(QueryStmEvent.OP_COUNTER_FIELD),
-                         event.getStartTime()
+                         event.getValue(BatchEvent.BATCH_COUNTER_FIELD)
                         ) :
-           String.format(FAILURE_FORMAT,
+           String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
+                         event.getStartTime(),
                          label,
                          result,
                          Fun.formatTime(event.getDuration()),
@@ -88,8 +86,7 @@ public final class BatchEventFormatter implements Function<RecordedEvent, String
                          event.getValue(BatchEvent.STM_SIZE_FIELD),
                          event.getValue(BatchEvent.SQL_FIELD),
                          event.getValue(StmEvent.EXCEPTION_FIELD),
-                         event.getValue(QueryStmEvent.OP_COUNTER_FIELD),
-                         event.getStartTime()
+                         event.getValue(BatchEvent.BATCH_COUNTER_FIELD)
                         );
   }
 }

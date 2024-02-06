@@ -48,10 +48,10 @@ public final class BatchStmBuilder<Params> {
   }
 
   /**
-   * Specifies whether to continue inserting other batches if one fails.
+   * Specifies whether to continue inserting other batches if one fails. Defaults to false
    *
    * @param continueOnError If true, the batch operation continues with the next batch even if one fails.
-   * @return This BatchStmBuilder instance for method chaining.
+   * @return This {@code BatchStmBuilder} instance for method chaining.
    */
   public BatchStmBuilder<Params> continueOnError(boolean continueOnError) {
     this.continueOnError = continueOnError;
@@ -71,7 +71,7 @@ public final class BatchStmBuilder<Params> {
   }
 
   /**
-   * Sets the size of each batch in the batch operation.
+   * Sets the size of each batch in the batch operation. Defaults to 100
    *
    * @param batchSize The size of each batch.
    * @return This BatchStmBuilder instance for method chaining.
@@ -93,9 +93,15 @@ public final class BatchStmBuilder<Params> {
   }
 
   /**
-   * Builds a JdbcLambda representing the batch operation based on the specified settings.
+   * Builds and returns a {@code Lambda} representing the JDBC batch operation configured with the specified settings.
+   * The resulting lambda is suitable for automatic resource management (ARM) and is configured to execute the batch
+   * operation, process the result, and close the associated JDBC resources. The operations are performed on virtual
+   * threads for improved concurrency and resource utilization.
    *
-   * @return A JdbcLambda instance for the batch operation.
+   * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
+   * @return A {@code Lambda} representing the JDBC batch operation with a duration, input, and output. Note: The
+   * operations are performed on virtual threads for improved concurrency and resource utilization.
+   * @see BatchStm#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<List<Params>, BatchResult> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return new BatchStm<>(timeout,
@@ -107,6 +113,16 @@ public final class BatchStmBuilder<Params> {
                           label).buildAutoClosable(datasourceBuilder);
   }
 
+  /**
+   * Builds and returns a {@code ClosableStatement} representing a JDBC batch operation on a database. This method is
+   * appropriate for use during transactions, where the connection needs to be managed externally. The lambda is
+   * configured to bind parameters to its SQL, execute the batch operation, and map the result. The operations are
+   * performed on virtual threads for improved concurrency and resource utilization.
+   *
+   * @return A {@code ClosableStatement} representing the JDBC batch operation with a duration, input, and output. Note:
+   * The operations are performed on virtual threads for improved concurrency and resource utilization.
+   * @see BatchStm#buildClosable()
+   */
   public ClosableStatement<List<Params>, BatchResult> buildClosable() {
     return new BatchStm<>(timeout,
                           setter,

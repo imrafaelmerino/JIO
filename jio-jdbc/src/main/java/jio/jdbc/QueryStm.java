@@ -9,47 +9,64 @@ import java.util.List;
 import java.util.concurrent.Executors;
 
 /**
- * Represents a utility class for executing parameterized SQL queries and processing the results. Optionally integrates
- * with Java Flight Recorder for monitoring.
+ * A class representing a query update statement in a relational database using JDBC. The class is designed to execute
+ * an SQL query, bind parameters to the SQL and map the result-set into an object. The operation, by default, creates a
+ * Java Flight Recorder (JFR) event.
  *
- * <p>
- * Note: The operation is executed on a virtual thread.
- * </p>
- *
- * @param <Params> Type of the input parameters for the SQL query.
- * @param <Output> Type of the objects produced by the result set mapper.
+ * @param <Params>  The type of the input object for setting parameters in the SQL.
+ * @param <Output>> The type of the output object, mapped from the ResultSet.
+ * @see QueryOneStm for using queries that retrieve at most one row from the database
  */
-final class QueryStm<Params, Output> implements
-                                     java.util.function.Function<DatasourceBuilder, Lambda<Params, List<Output>>> {
+final class QueryStm<Params, Output> {
 
+  /**
+   * Represents the maximum time in seconds that the SQL execution should wait.
+   */
   final Duration timeout;
 
   private final ResultSetMapper<Output> mapper;
+  /**
+   * The SQL update statement.
+   */
   private final String sql;
+  /**
+   * The parameter setter for binding parameters in the SQL.
+   */
   private final ParamsSetter<Params> setter;
+  /**
+   * The fetch size for the query results.
+   */
   private final int fetchSize;
+  /**
+   * Flag indicating whether Java Flight Recorder (JFR) events should be enabled.
+   */
   private final boolean enableJFR;
+  /**
+   * The label to identify the update statement in Java Flight Recording. It is used as a field in the JFR event for
+   * distinguishing operations from each other.
+   */
   private final String label;
 
   /**
    * Constructs a {@code QueryStm} with specified parameters.
    *
-   * @param sqlQuery  The SQL query to execute.
+   * @param timeout   The maximum time in seconds that the SQL execution should wait.
+   * @param sql       The SQL query to execute.
    * @param setter    The parameter setter for the SQL query.
-   * @param mapper    The result set mapper for processing query results.
+   * @param mapper    The result-set mapper for processing query results.
    * @param fetchSize The fetch size for the query results.
    * @param enableJFR Indicates whether to enable Java Flight Recorder integration.
-   * @param label     The label to identify the statement
+   * @param label     The label to identify the query statement.
    */
   QueryStm(Duration timeout,
-           String sqlQuery,
+           String sql,
            ParamsSetter<Params> setter,
            ResultSetMapper<Output> mapper,
            int fetchSize,
            boolean enableJFR,
            String label) {
     this.timeout = timeout;
-    this.sql = sqlQuery;
+    this.sql = sql;
     this.mapper = mapper;
     this.setter = setter;
     this.fetchSize = fetchSize;
@@ -59,25 +76,30 @@ final class QueryStm<Params, Output> implements
 
 
   /**
-   * Applies the specified {@code DatasourceBuilder} to create a lambda function for executing the SQL query.
+   * Creates a {@code Lambda} representing a query operation on a database. The lambda is configured to bind parameters
+   * to its sql, execute the query, and map the result. The JDBC connection is automatically obtained from the
+   * datasource and closed, which means that con not be used * for transactions where the connection can't be closed
+   * before committing o doing rollback.
    *
-   * @param dsb The datasource builder for obtaining database connections.
-   * @return A lambda function for executing the SQL query and processing results.
+   * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
+   * @return A {@code Lambda} that, when invoked, performs the query operation. Note: The operations are performed by
+   * virtual threads.
+   * @see #buildClosable() for using query statements during transactions
    */
-  public Lambda<Params, List<Output>> buildAutoClosable(DatasourceBuilder dsb) {
+  Lambda<Params, List<Output>> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return params ->
         IO.task(() -> {
-                  try (var connection = dsb.get()
-                                           .getConnection()
+                  try (var connection = datasourceBuilder.get()
+                                                         .getConnection()
                   ) {
-                    try (var ps = connection.prepareStatement(sql)) {
+                    try (var statement = connection.prepareStatement(sql)) {
                       return JfrEventDecorator.decorateQueryStm(
                           () -> {
                             var unused = setter.apply(params)
-                                               .apply(ps);
-                            ps.setQueryTimeout((int) timeout.toSeconds());
-                            ps.setFetchSize(fetchSize);
-                            var rs = ps.executeQuery();
+                                               .apply(statement);
+                            statement.setQueryTimeout((int) timeout.toSeconds());
+                            statement.setFetchSize(fetchSize);
+                            var rs = statement.executeQuery();
                             List<Output> result = new ArrayList<>();
                             while (rs.next()) {
                               result.add(mapper.apply(rs));
@@ -94,8 +116,16 @@ final class QueryStm<Params, Output> implements
                 Executors.newVirtualThreadPerTaskExecutor());
   }
 
-  public ClosableStatement<Params, List<Output>> buildClosable() {
-    return params -> connection ->
+  /**
+   * Builds a closable query, allowing custom handling of the JDBC connection. This method is appropriate for use during
+   * transactions, where the connection needs to be managed externally. The lambda is configured to bind parameters to
+   * its SQL, execute the query, and map the result.
+   *
+   * @return A {@code ClosableStatement} representing the query operation with a duration, input, and output. Note: The
+   * operations are performed by virtual threads.
+   */
+  ClosableStatement<Params, List<Output>> buildClosable() {
+    return (params, connection) ->
         IO.task(() -> {
                   try (var ps = connection.prepareStatement(sql)) {
                     return JfrEventDecorator.decorateQueryStm(
