@@ -11,7 +11,7 @@ import jdk.jfr.*;
 @Name("jio.jdbc.BatchStm")
 @Category({"JIO", "DATABASE", "JDBC"})
 @Description("Duration, result, batch size, rows updated and other info related to batch operations performed by jio-jdbc")
-final class BatchEvent extends StmEvent {
+final class BatchExecutedEvent extends StmExecutedEvent {
 
   private static final AtomicLong counter = new AtomicLong(0);
 

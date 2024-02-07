@@ -11,7 +11,7 @@ import jdk.jfr.*;
 @Name("jio.jdbc.QueryStm")
 @Category({"JIO", "DATABASE", "JDBC"})
 @Description("JDBC query statements performed by jio-jdbc")
-final class QueryStmEvent extends StmEvent {
+final class EntitiesFoundEvent extends StmExecutedEvent {
 
 
    static final String QUERY_COUNTER_FIELD = "queryCounter";

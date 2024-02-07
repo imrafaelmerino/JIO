@@ -24,12 +24,12 @@ import jio.time.Fun;
  * "{@code %s; db-query; label: %s; result: %s; exception: %s; duration: %s; fetch_size: %s; sql: %s; query-counter:
  * %s}".
  */
-public final class QueryStmEventFormatter implements Function<RecordedEvent, String> {
+public final class EntitiesFoundEventFormatter implements Function<RecordedEvent, String> {
 
   /**
    * The singleton instance of QueryStmEventFormatter.
    */
-  public static final QueryStmEventFormatter INSTANCE = new QueryStmEventFormatter();
+  public static final EntitiesFoundEventFormatter INSTANCE = new EntitiesFoundEventFormatter();
   private static final String EVENT_LABEL = "jio.jdbc.QueryStm";
   private static final String SUCCESS_FORMAT = """
       %s; db-query; label: %s; result: %s; rows_returned: %s;
@@ -42,7 +42,7 @@ public final class QueryStmEventFormatter implements Function<RecordedEvent, Str
                                             " ");
 
 
-  private QueryStmEventFormatter() {
+  private EntitiesFoundEventFormatter() {
 
   }
 
@@ -59,31 +59,31 @@ public final class QueryStmEventFormatter implements Function<RecordedEvent, Str
   public String apply(RecordedEvent event) {
     assert EVENT_LABEL.equals(event.getEventType()
                                    .getName());
-    var result = event.getValue(StmEvent.RESULT_FIELD);
-    var label = event.getValue(StmEvent.LABEL_FIELD);
-    var fetchSize = event.getValue(QueryStmEvent.FETCH_SIZE_FIELD);
-    boolean isSuccess = StmEvent.RESULT.SUCCESS.name()
-                                               .equals(result);
+    var result = event.getValue(StmExecutedEvent.RESULT_FIELD);
+    var label = event.getValue(StmExecutedEvent.LABEL_FIELD);
+    var fetchSize = event.getValue(EntitiesFoundEvent.FETCH_SIZE_FIELD);
+    boolean isSuccess = StmExecutedEvent.RESULT.SUCCESS.name()
+                                                       .equals(result);
     return isSuccess ?
            String.format(SUCCESS_FORMAT,
                          event.getStartTime(),
                          label,
                          result,
-                         event.getValue(QueryStmEvent.ROWS_RETURNED_FIELD),
+                         event.getValue(EntitiesFoundEvent.ROWS_RETURNED_FIELD),
                          Fun.formatTime(event.getDuration()),
                          fetchSize,
-                         event.getValue(QueryStmEvent.QUERY_COUNTER_FIELD)
+                         event.getValue(EntitiesFoundEvent.QUERY_COUNTER_FIELD)
 
                         ) :
            String.format(FAILURE_FORMAT,
                          event.getStartTime(),
                          label,
                          result,
-                         event.getValue(StmEvent.EXCEPTION_FIELD),
+                         event.getValue(StmExecutedEvent.EXCEPTION_FIELD),
                          Fun.formatTime(event.getDuration()),
                          fetchSize,
-                         event.getValue(QueryStmEvent.SQL_FIELD),
-                         event.getValue(QueryStmEvent.QUERY_COUNTER_FIELD)
+                         event.getValue(EntitiesFoundEvent.SQL_FIELD),
+                         event.getValue(EntitiesFoundEvent.QUERY_COUNTER_FIELD)
                         );
   }
 }

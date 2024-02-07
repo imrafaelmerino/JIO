@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.util.function.LongFunction;
 import jio.api.domain.Email;
 import jio.jdbc.ClosableStatement;
-import jio.jdbc.InsertOneStmBuilder;
+import jio.jdbc.InsertOneEntityBuilder;
 
 public final class EmailDatabaseOps {
 
@@ -13,7 +13,7 @@ public final class EmailDatabaseOps {
    */
   public static final LongFunction<ClosableStatement<Email, Long>> insertOne =
       customerID ->
-          InsertOneStmBuilder.<Email, Long>of("INSERT INTO email (email_address, customer_id) VALUES (?, ?) RETURNING id;",
+          InsertOneEntityBuilder.<Email, Long>of("INSERT INTO email (email_address, customer_id) VALUES (?, ?) RETURNING id;",
                                               email -> (paramPosition, preparedStatement) -> {
                                                 preparedStatement.setString(paramPosition++,
                                                                             email.address());
@@ -22,8 +22,8 @@ public final class EmailDatabaseOps {
                                                 return paramPosition;
                                               },
                                               email -> resultSet -> resultSet.getLong("id"),
-                                              Duration.ofSeconds(10000)
-                                             )
-                             .buildClosable();
+                                                 Duration.ofSeconds(10000)
+                                                )
+                                .buildClosable();
 
 }

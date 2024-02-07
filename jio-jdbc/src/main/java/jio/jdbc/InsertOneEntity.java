@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
  * @param <Params> The type of the input object for setting parameters in the update statement.
  * @param <Output> The type of the output object generated from the ResultSet and the generated keys.
  */
-final class InsertOneStm<Params, Output> {
+final class InsertOneEntity<Params, Output> {
 
   /**
    * Represents the maximum time in seconds that the SQL execution should wait.
@@ -52,12 +52,12 @@ final class InsertOneStm<Params, Output> {
    */
   private final String label;
 
-  InsertOneStm(Duration timeout,
-               String sql,
-               ParamsSetter<Params> setter,
-               Function<Params, ResultSetMapper<Output>> mapResult,
-               boolean enableJFR,
-               String label) {
+  InsertOneEntity(Duration timeout,
+                  String sql,
+                  ParamsSetter<Params> setter,
+                  Function<Params, ResultSetMapper<Output>> mapResult,
+                  boolean enableJFR,
+                  String label) {
     this.timeout = timeout;
     this.sql = sql;
     this.setter = setter;

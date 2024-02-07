@@ -14,7 +14,7 @@ import jio.api.entities.CustomerEntity;
 import jio.api.entities.EmailEntity;
 import jio.jdbc.ClosableStatement;
 import jio.jdbc.DatasourceBuilder;
-import jio.jdbc.InsertOneStmBuilder;
+import jio.jdbc.InsertOneEntityBuilder;
 import jio.jdbc.FindOneEntityBuilder;
 
 public final class CustomerDatabaseOps {
@@ -23,16 +23,16 @@ public final class CustomerDatabaseOps {
   final DatasourceBuilder datasourceBuilder;
 
   public static final ClosableStatement<Customer, Long> insertOne =
-      InsertOneStmBuilder.<Customer, Long>of("INSERT INTO customer (name) VALUES (?) RETURNING id;",
+      InsertOneEntityBuilder.<Customer, Long>of("INSERT INTO customer (name) VALUES (?) RETURNING id;",
                                              customer -> (paramPosition, preparedStatement) -> {
                                                preparedStatement.setString(paramPosition++,
                                                                            customer.name());
                                                return paramPosition;
                                              },
                                              customer -> resultSet -> resultSet.getLong("id"),
-                                             Duration.ofSeconds(1000)
-                                            )
-                         .buildClosable();
+                                                Duration.ofSeconds(1000)
+                                               )
+                            .buildClosable();
   public final Lambda<Long, CustomerEntity> findCustomerAndContactPoints;
 
   private CustomerDatabaseOps(DatasourceBuilder datasourceBuilder) {

@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
  *
  * @param <Params> The type of the input object for setting parameters in the SQL.
  *
- * @see InsertOneStm for using insert operationg that insert at most one row into the database and
+ * @see InsertOneEntity for using insert operationg that insert at most one row into the database and
  * may generate some keys like ids or timestamps that can be returned
  */
 final class UpdateStm<Params> {

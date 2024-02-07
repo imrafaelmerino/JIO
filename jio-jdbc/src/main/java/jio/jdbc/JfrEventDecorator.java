@@ -32,18 +32,18 @@ class JfrEventDecorator {
                                String label)
       throws Exception {
     if (enableJFR) {
-      UpdateStmEvent event = new UpdateStmEvent();
+      UpdateStmExecutedEvent event = new UpdateStmExecutedEvent();
       event.begin();
       try {
         var n = op.call();
         event.end();
         event.rowsAffected = n;
-        event.result = QueryStmEvent.RESULT.SUCCESS.name();
+        event.result = EntitiesFoundEvent.RESULT.SUCCESS.name();
         return n;
       } catch (Exception e) {
         event.end();
         event.sql = sql;
-        event.result = QueryStmEvent.RESULT.FAILURE.name();
+        event.result = EntitiesFoundEvent.RESULT.FAILURE.name();
         event.exception = ExceptionFun.findUltimateCause(e)
                                       .toString();
 
@@ -75,18 +75,18 @@ class JfrEventDecorator {
                                     String label)
       throws Exception {
     if (enableJFR) {
-      UpdateStmEvent event = new UpdateStmEvent();
+      UpdateStmExecutedEvent event = new UpdateStmExecutedEvent();
       event.begin();
       try {
         var result = op.call();
         event.end();
         event.rowsAffected = 1;
-        event.result = UpdateStmEvent.RESULT.SUCCESS.name();
+        event.result = UpdateStmExecutedEvent.RESULT.SUCCESS.name();
         return result;
       } catch (Exception e) {
         event.end();
         event.sql = sql;
-        event.result = UpdateStmEvent.RESULT.FAILURE.name();
+        event.result = UpdateStmExecutedEvent.RESULT.FAILURE.name();
         event.exception = ExceptionFun.findUltimateCause(e)
                                       .toString();
         throw e;
@@ -120,7 +120,7 @@ class JfrEventDecorator {
                                       int fetchSize)
       throws Exception {
     if (enableJFR) {
-      QueryStmEvent event = new QueryStmEvent();
+      EntitiesFoundEvent event = new EntitiesFoundEvent();
       event.begin();
       try {
         var result = op.call();
@@ -128,7 +128,7 @@ class JfrEventDecorator {
         if (event.shouldCommit()) {
           event.label = label;
           event.fetchSize = fetchSize;
-          event.result = QueryStmEvent.RESULT.SUCCESS.name();
+          event.result = EntitiesFoundEvent.RESULT.SUCCESS.name();
           event.rowsReturned = result.size();
           event.commit();
         }
@@ -139,7 +139,7 @@ class JfrEventDecorator {
           event.label = label;
           event.fetchSize = fetchSize;
           event.sql = sql;
-          event.result = QueryStmEvent.RESULT.FAILURE.name();
+          event.result = EntitiesFoundEvent.RESULT.FAILURE.name();
           event.exception = ExceptionFun.findUltimateCause(e)
                                         .toString();
           event.commit();
@@ -167,7 +167,7 @@ class JfrEventDecorator {
                                    boolean enableJFR,
                                    String label) throws Exception {
     if (enableJFR) {
-      QueryStmEvent event = new QueryStmEvent();
+      EntitiesFoundEvent event = new EntitiesFoundEvent();
       event.begin();
       try {
         var result = op.call();
@@ -175,7 +175,7 @@ class JfrEventDecorator {
         if (event.shouldCommit()) {
           event.label = label;
           event.fetchSize = 1;
-          event.result = QueryStmEvent.RESULT.SUCCESS.name();
+          event.result = EntitiesFoundEvent.RESULT.SUCCESS.name();
           event.rowsReturned = result == null ? 0 : 1;
           event.commit();
         }
@@ -187,7 +187,7 @@ class JfrEventDecorator {
           event.label = label;
           event.fetchSize = 1;
           event.sql = sql;
-          event.result = QueryStmEvent.RESULT.FAILURE.name();
+          event.result = EntitiesFoundEvent.RESULT.FAILURE.name();
           event.exception = ExceptionFun.findUltimateCause(e)
                                         .toString();
           event.commit();
@@ -216,7 +216,7 @@ class JfrEventDecorator {
                                    String label)
       throws Exception {
     if (enableJFR) {
-      BatchEvent event = new BatchEvent();
+      BatchExecutedEvent event = new BatchExecutedEvent();
       event.begin();
       try {
         var result = op.call();
@@ -226,14 +226,14 @@ class JfrEventDecorator {
           switch (result) {
             case BatchSuccess success -> {
               event.rowsAffected = success.rowsAffected();
-              event.result = BatchEvent.RESULT.SUCCESS.name();
+              event.result = BatchExecutedEvent.RESULT.SUCCESS.name();
             }
             case BatchPartialSuccess partialSuccess -> {
               event.batchSize = partialSuccess.batchSize();
               event.totalStms = partialSuccess.totalStms();
               event.executedBatches = partialSuccess.executedBatches();
               event.sql = sql;
-              event.result = BatchEvent.RESULT.PARTIAL_SUCCESS.name();
+              event.result = BatchExecutedEvent.RESULT.PARTIAL_SUCCESS.name();
               event.exception = partialSuccess.errors()
                                               .stream()
                                               .map(ExceptionFun::findUltimateCause)
@@ -245,7 +245,7 @@ class JfrEventDecorator {
               event.totalStms = failure.totalStms();
               event.executedBatches = failure.executedBatches();
               event.sql = sql;
-              event.result = BatchEvent.RESULT.FAILURE.name();
+              event.result = BatchExecutedEvent.RESULT.FAILURE.name();
               event.exception = ExceptionFun.findUltimateCause(failure.error())
                                             .toString();
             }
@@ -261,7 +261,7 @@ class JfrEventDecorator {
         if (event.shouldCommit()) {
           event.label = label;
           event.sql = sql;
-          event.result = BatchEvent.RESULT.FAILURE.name();
+          event.result = BatchExecutedEvent.RESULT.FAILURE.name();
           event.exception = ExceptionFun.findUltimateCause(e)
                                         .toString();
           event.commit();

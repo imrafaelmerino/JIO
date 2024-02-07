@@ -7,7 +7,7 @@ import jio.api.domain.Address;
 import jio.jdbc.BatchResult;
 import jio.jdbc.BatchStmBuilder;
 import jio.jdbc.ClosableStatement;
-import jio.jdbc.InsertOneStmBuilder;
+import jio.jdbc.InsertOneEntityBuilder;
 
 public class AddressesDatabaseOps {
 
@@ -16,7 +16,7 @@ public class AddressesDatabaseOps {
    */
   public static final LongFunction<ClosableStatement<Address, Long>> insertOne =
       customerID ->
-          InsertOneStmBuilder.<Address, Long>of("INSERT INTO address (street, customer_id) VALUES ( ?, ?) RETURNING id;",
+          InsertOneEntityBuilder.<Address, Long>of("INSERT INTO address (street, customer_id) VALUES ( ?, ?) RETURNING id;",
                                                 address -> (paramPosition, preparedStatement) -> {
                                                   preparedStatement.setString(paramPosition++,
                                                                               address.street());
@@ -25,9 +25,9 @@ public class AddressesDatabaseOps {
                                                   return paramPosition;
                                                 },
                                                 address -> resultSet -> resultSet.getLong("id"),
-                                                Duration.ofSeconds(1000)
-                                               )
-                             .buildClosable();
+                                                   Duration.ofSeconds(1000)
+                                                  )
+                                .buildClosable();
 
   public static final LongFunction<ClosableStatement<List<Address>, BatchResult>> insertMany =
       customerID ->

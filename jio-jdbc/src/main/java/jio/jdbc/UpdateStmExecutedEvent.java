@@ -12,7 +12,7 @@ import jdk.jfr.*;
 @Name("jio.jdbc.UpdateStm")
 @Category({"JIO", "DATABASE", "JDBC"})
 @Description("JDBC update statements performed by jio-jdbc")
-final class UpdateStmEvent extends StmEvent {
+final class UpdateStmExecutedEvent extends StmExecutedEvent {
 
    static final String UPDATE_COUNTER_FIELD = "updateCounter";
   static final String ROWS_AFFECTED_FIELD = "rowsAffected";

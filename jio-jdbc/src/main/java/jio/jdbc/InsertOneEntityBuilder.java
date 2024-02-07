@@ -11,7 +11,7 @@ import jio.Lambda;
  * @param <Params> The type of input parameters for the insert operation.
  * @param <Output> The type of the output result from the insert operation.
  */
-public final class InsertOneStmBuilder<Params, Output> {
+public final class InsertOneEntityBuilder<Params, Output> {
 
   private final String sql;
 
@@ -22,10 +22,10 @@ public final class InsertOneStmBuilder<Params, Output> {
   private boolean enableJFR = true;
   private String label;
 
-  private InsertOneStmBuilder(String sql,
-                              Duration timeout,
-                              ParamsSetter<Params> setParams,
-                              Function<Params, ResultSetMapper<Output>> mapResult) {
+  private InsertOneEntityBuilder(String sql,
+                                 Duration timeout,
+                                 ParamsSetter<Params> setParams,
+                                 Function<Params, ResultSetMapper<Output>> mapResult) {
     this.sql = Objects.requireNonNull(sql);
     this.timeout = timeout;
     this.setParams = Objects.requireNonNull(setParams);
@@ -45,14 +45,14 @@ public final class InsertOneStmBuilder<Params, Output> {
    * @param <Output>  The type of the output result from the update operation.
    * @return A new instance of UpdateGenStmBuilder.
    */
-  public static <Params, Output> InsertOneStmBuilder<Params, Output> of(String sql,
-                                                                        ParamsSetter<Params> setParams,
-                                                                        Function<Params, ResultSetMapper<Output>> mapResult,
-                                                                        Duration timeout) {
-    return new InsertOneStmBuilder<>(sql,
-                                     timeout,
-                                     setParams,
-                                     mapResult);
+  public static <Params, Output> InsertOneEntityBuilder<Params, Output> of(String sql,
+                                                                           ParamsSetter<Params> setParams,
+                                                                           Function<Params, ResultSetMapper<Output>> mapResult,
+                                                                           Duration timeout) {
+    return new InsertOneEntityBuilder<>(sql,
+                                        timeout,
+                                        setParams,
+                                        mapResult);
   }
 
   /**
@@ -62,7 +62,7 @@ public final class InsertOneStmBuilder<Params, Output> {
    * @param label The label to be assigned to the JFR event.
    * @return This {@code QueryStmBuilder} instance with the specified event label.
    */
-  public InsertOneStmBuilder<Params, Output> withEventLabel(String label) {
+  public InsertOneEntityBuilder<Params, Output> withEventLabel(String label) {
     this.label = Objects.requireNonNull(label);
     return this;
   }
@@ -72,7 +72,7 @@ public final class InsertOneStmBuilder<Params, Output> {
    *
    * @return This UpdateGenStmBuilder instance for method chaining.
    */
-  public InsertOneStmBuilder<Params, Output> withoutRecordedEvents() {
+  public InsertOneEntityBuilder<Params, Output> withoutRecordedEvents() {
     this.enableJFR = false;
     return this;
   }
@@ -86,16 +86,16 @@ public final class InsertOneStmBuilder<Params, Output> {
    * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} representing the JDBC insert operation with a duration, input, and output. Note: The
    * operations are performed on virtual threads for improved concurrency and resource utilization.
-   * @see InsertOneStm#buildAutoClosable(DatasourceBuilder)
+   * @see InsertOneEntity#buildAutoClosable(DatasourceBuilder)
    */
 
   public Lambda<Params, Output> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
-    return new InsertOneStm<>(timeout,
-                              sql,
-                              setParams,
-                              mapResult,
-                              enableJFR,
-                              label)
+    return new InsertOneEntity<>(timeout,
+                                 sql,
+                                 setParams,
+                                 mapResult,
+                                 enableJFR,
+                                 label)
         .buildAutoClosable(datasourceBuilder);
   }
 
@@ -107,15 +107,15 @@ public final class InsertOneStmBuilder<Params, Output> {
    *
    * @return A {@code ClosableStatement} representing the JDBC insert operation with a duration, input, and output.
    * Note: The operations are performed on virtual threads for improved concurrency and resource utilization.
-   * @see InsertOneStm#buildClosable()
+   * @see InsertOneEntity#buildClosable()
    */
   public ClosableStatement<Params, Output> buildClosable() {
-    return new InsertOneStm<>(timeout,
-                              sql,
-                              setParams,
-                              mapResult,
-                              enableJFR,
-                              label)
+    return new InsertOneEntity<>(timeout,
+                                 sql,
+                                 setParams,
+                                 mapResult,
+                                 enableJFR,
+                                 label)
         .buildClosable();
   }
 }

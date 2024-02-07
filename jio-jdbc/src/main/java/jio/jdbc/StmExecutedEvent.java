@@ -2,11 +2,10 @@ package jio.jdbc;
 
 import jdk.jfr.Event;
 
-import java.util.concurrent.atomic.AtomicLong;
 import jdk.jfr.StackTrace;
 
 @StackTrace(value = false)
-abstract class StmEvent extends Event {
+abstract class StmExecutedEvent extends Event {
 
   static final String RESULT_FIELD = "result";
   static final String SQL_FIELD = "sql";

@@ -13,18 +13,18 @@ import java.util.concurrent.Executors;
  * an SQL query, bind parameters to the SQL and map the result-set into an object. The operation, by default, creates a
  * Java Flight Recorder (JFR) event.
  *
- * @param <Params>  The type of the input object for setting parameters in the SQL.
- * @param <Output>> The type of the output object, mapped from the ResultSet.
+ * @param <Filters>  The type of the input object for setting parameters in the SQL.
+ * @param <Entity>> The type of the output object, mapped from the ResultSet.
  * @see FindOneEntity for using queries that retrieve at most one row from the database
  */
-final class QueryStm<Params, Output> {
+final class FindEntities<Filters, Entity> {
 
   /**
    * Represents the maximum time in seconds that the SQL execution should wait.
    */
   final Duration timeout;
 
-  private final ResultSetMapper<Output> mapper;
+  private final ResultSetMapper<Entity> mapper;
   /**
    * The SQL update statement.
    */
@@ -32,7 +32,7 @@ final class QueryStm<Params, Output> {
   /**
    * The parameter setter for binding parameters in the SQL.
    */
-  private final ParamsSetter<Params> setter;
+  private final ParamsSetter<Filters> setter;
   /**
    * The fetch size for the query results.
    */
@@ -58,13 +58,13 @@ final class QueryStm<Params, Output> {
    * @param enableJFR Indicates whether to enable Java Flight Recorder integration.
    * @param label     The label to identify the query statement.
    */
-  QueryStm(Duration timeout,
-           String sql,
-           ParamsSetter<Params> setter,
-           ResultSetMapper<Output> mapper,
-           int fetchSize,
-           boolean enableJFR,
-           String label) {
+  FindEntities(Duration timeout,
+               String sql,
+               ParamsSetter<Filters> setter,
+               ResultSetMapper<Entity> mapper,
+               int fetchSize,
+               boolean enableJFR,
+               String label) {
     this.timeout = timeout;
     this.sql = sql;
     this.mapper = mapper;
@@ -86,7 +86,7 @@ final class QueryStm<Params, Output> {
    * virtual threads.
    * @see #buildClosable() for using query statements during transactions
    */
-  Lambda<Params, List<Output>> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
+  Lambda<Filters, List<Entity>> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return params ->
         IO.task(() -> {
                   try (var connection = datasourceBuilder.get()
@@ -100,7 +100,7 @@ final class QueryStm<Params, Output> {
                             statement.setQueryTimeout((int) timeout.toSeconds());
                             statement.setFetchSize(fetchSize);
                             var rs = statement.executeQuery();
-                            List<Output> result = new ArrayList<>();
+                            List<Entity> result = new ArrayList<>();
                             while (rs.next()) {
                               result.add(mapper.apply(rs));
                             }
@@ -124,7 +124,7 @@ final class QueryStm<Params, Output> {
    * @return A {@code ClosableStatement} representing the query operation with a duration, input, and output. Note: The
    * operations are performed by virtual threads.
    */
-  ClosableStatement<Params, List<Output>> buildClosable() {
+  ClosableStatement<Filters, List<Entity>> buildClosable() {
     return (params, connection) ->
         IO.task(() -> {
                   try (var ps = connection.prepareStatement(sql)) {
@@ -135,7 +135,7 @@ final class QueryStm<Params, Output> {
                           ps.setQueryTimeout((int) timeout.toSeconds());
                           ps.setFetchSize(fetchSize);
                           var rs = ps.executeQuery();
-                          List<Output> result = new ArrayList<>();
+                          List<Entity> result = new ArrayList<>();
                           while (rs.next()) {
                             result.add(mapper.apply(rs));
                           }

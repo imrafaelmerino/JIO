@@ -19,7 +19,7 @@ import jio.Lambda;
  * @param <Params> The type of input elements for the query operation.
  * @param <Output> The type of the output results from the query operation.
  */
-public final class QueryStmBuilder<Params, Output> {
+public final class FindEntitiesBuilder<Params, Output> {
 
   private static final int DEFAULT_FETCH_SIZE = 1000;
   private final Duration timeout;
@@ -40,10 +40,10 @@ public final class QueryStmBuilder<Params, Output> {
    * @param setter   A function to set parameters on a {@link java.sql.PreparedStatement}.
    * @param mapper   A function to map the result set to the desired output type.
    */
-  private QueryStmBuilder(Duration timeout,
-                          String sqlQuery,
-                          ParamsSetter<Params> setter,
-                          ResultSetMapper<Output> mapper) {
+  private FindEntitiesBuilder(Duration timeout,
+                              String sqlQuery,
+                              ParamsSetter<Params> setter,
+                              ResultSetMapper<Output> mapper) {
     this.timeout = Objects.requireNonNull(timeout);
     this.sqlQuery = Objects.requireNonNull(sqlQuery);
     this.setter = Objects.requireNonNull(setter);
@@ -62,14 +62,14 @@ public final class QueryStmBuilder<Params, Output> {
    * @param mapper   A function to map the result set to the desired output type.
    * @return A new instance of QueryStmBuilder.
    */
-  public static <I, O> QueryStmBuilder<I, O> of(String sqlQuery,
-                                                ParamsSetter<I> setter,
-                                                ResultSetMapper<O> mapper,
-                                                Duration timeout) {
-    return new QueryStmBuilder<>(timeout,
-                                 sqlQuery,
-                                 setter,
-                                 mapper);
+  public static <I, O> FindEntitiesBuilder<I, O> of(String sqlQuery,
+                                                    ParamsSetter<I> setter,
+                                                    ResultSetMapper<O> mapper,
+                                                    Duration timeout) {
+    return new FindEntitiesBuilder<>(timeout,
+                                     sqlQuery,
+                                     setter,
+                                     mapper);
   }
 
   /**
@@ -79,7 +79,7 @@ public final class QueryStmBuilder<Params, Output> {
    * @return This QueryStmBuilder instance with the specified fetch size.
    * @throws IllegalArgumentException If the fetch size is less than or equal to 0.
    */
-  public QueryStmBuilder<Params, Output> withFetchSize(int fetchSize) {
+  public FindEntitiesBuilder<Params, Output> withFetchSize(int fetchSize) {
     if (fetchSize <= 0) {
       throw new IllegalArgumentException("fetchSize <= 0");
     }
@@ -94,7 +94,7 @@ public final class QueryStmBuilder<Params, Output> {
    * @param label The label to be assigned to the JFR event.
    * @return This {@code QueryStmBuilder} instance with the specified event label.
    */
-  public QueryStmBuilder<Params, Output> withEventLabel(String label) {
+  public FindEntitiesBuilder<Params, Output> withEventLabel(String label) {
     this.label = Objects.requireNonNull(label);
     return this;
   }
@@ -104,7 +104,7 @@ public final class QueryStmBuilder<Params, Output> {
    *
    * @return This QueryStmBuilder instance with JFR event recording disabled.
    */
-  public QueryStmBuilder<Params, Output> withoutRecordedEvents() {
+  public FindEntitiesBuilder<Params, Output> withoutRecordedEvents() {
     this.enableJFR = false;
     return this;
   }
@@ -118,16 +118,16 @@ public final class QueryStmBuilder<Params, Output> {
    * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} representing the JDBC query operation. Note: The operations are performed on virtual
    * threads for improved concurrency and resource utilization.
-   * @see QueryStm#buildAutoClosable(DatasourceBuilder)
+   * @see FindEntities#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<Params, List<Output>> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
-    return new QueryStm<>(timeout,
-                          sqlQuery,
-                          setter,
-                          mapper,
-                          fetchSize,
-                          enableJFR,
-                          label).buildAutoClosable(datasourceBuilder);
+    return new FindEntities<>(timeout,
+                              sqlQuery,
+                              setter,
+                              mapper,
+                              fetchSize,
+                              enableJFR,
+                              label).buildAutoClosable(datasourceBuilder);
   }
   /**
    * Builds and returns a {@code ClosableStatement} representing a JDBC query operation on a database. This method is
@@ -137,15 +137,15 @@ public final class QueryStmBuilder<Params, Output> {
    *
    * @return A {@code ClosableStatement} representing the JDBC query operation with a duration, input, and output. Note:
    * The operations are performed on virtual threads for improved concurrency and resource utilization.
-   * @see QueryStm#buildClosable()
+   * @see FindEntities#buildClosable()
    */
   public ClosableStatement<Params, List<Output>> buildClosable() {
-    return new QueryStm<>(timeout,
-                          sqlQuery,
-                          setter,
-                          mapper,
-                          fetchSize,
-                          enableJFR,
-                          label).buildClosable();
+    return new FindEntities<>(timeout,
+                              sqlQuery,
+                              setter,
+                              mapper,
+                              fetchSize,
+                              enableJFR,
+                              label).buildClosable();
   }
 }
