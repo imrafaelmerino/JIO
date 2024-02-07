@@ -59,11 +59,11 @@ public final class EntitiesFoundEventFormatter implements Function<RecordedEvent
   public String apply(RecordedEvent event) {
     assert EVENT_LABEL.equals(event.getEventType()
                                    .getName());
-    var result = event.getValue(StmExecutedEvent.RESULT_FIELD);
-    var label = event.getValue(StmExecutedEvent.LABEL_FIELD);
+    var result = event.getValue(EntitiesFoundEvent.RESULT_FIELD);
+    var label = event.getValue(EntitiesFoundEvent.LABEL_FIELD);
     var fetchSize = event.getValue(EntitiesFoundEvent.FETCH_SIZE_FIELD);
-    boolean isSuccess = StmExecutedEvent.RESULT.SUCCESS.name()
-                                                       .equals(result);
+    boolean isSuccess = EntitiesFoundEvent.RESULT.SUCCESS.name()
+                                                         .equals(result);
     return isSuccess ?
            String.format(SUCCESS_FORMAT,
                          event.getStartTime(),
@@ -79,7 +79,7 @@ public final class EntitiesFoundEventFormatter implements Function<RecordedEvent
                          event.getStartTime(),
                          label,
                          result,
-                         event.getValue(StmExecutedEvent.EXCEPTION_FIELD),
+                         event.getValue(EntitiesFoundEvent.EXCEPTION_FIELD),
                          Fun.formatTime(event.getDuration()),
                          fetchSize,
                          event.getValue(EntitiesFoundEvent.SQL_FIELD),

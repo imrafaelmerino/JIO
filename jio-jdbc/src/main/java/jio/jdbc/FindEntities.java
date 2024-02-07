@@ -13,11 +13,11 @@ import java.util.concurrent.Executors;
  * an SQL query, bind parameters to the SQL and map the result-set into an object. The operation, by default, creates a
  * Java Flight Recorder (JFR) event.
  *
- * @param <Filters>  The type of the input object for setting parameters in the SQL.
+ * @param <Filter>  The type of the input object for setting parameters in the SQL.
  * @param <Entity>> The type of the output object, mapped from the ResultSet.
  * @see FindOneEntity for using queries that retrieve at most one row from the database
  */
-final class FindEntities<Filters, Entity> {
+final class FindEntities<Filter, Entity> {
 
   /**
    * Represents the maximum time in seconds that the SQL execution should wait.
@@ -32,7 +32,7 @@ final class FindEntities<Filters, Entity> {
   /**
    * The parameter setter for binding parameters in the SQL.
    */
-  private final ParamsSetter<Filters> setter;
+  private final ParamsSetter<Filter> setter;
   /**
    * The fetch size for the query results.
    */
@@ -60,7 +60,7 @@ final class FindEntities<Filters, Entity> {
    */
   FindEntities(Duration timeout,
                String sql,
-               ParamsSetter<Filters> setter,
+               ParamsSetter<Filter> setter,
                ResultSetMapper<Entity> mapper,
                int fetchSize,
                boolean enableJFR,
@@ -86,7 +86,7 @@ final class FindEntities<Filters, Entity> {
    * virtual threads.
    * @see #buildClosable() for using query statements during transactions
    */
-  Lambda<Filters, List<Entity>> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
+  Lambda<Filter, List<Entity>> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return params ->
         IO.task(() -> {
                   try (var connection = datasourceBuilder.get()
@@ -124,7 +124,7 @@ final class FindEntities<Filters, Entity> {
    * @return A {@code ClosableStatement} representing the query operation with a duration, input, and output. Note: The
    * operations are performed by virtual threads.
    */
-  ClosableStatement<Filters, List<Entity>> buildClosable() {
+  ClosableStatement<Filter, List<Entity>> buildClosable() {
     return (params, connection) ->
         IO.task(() -> {
                   try (var ps = connection.prepareStatement(sql)) {

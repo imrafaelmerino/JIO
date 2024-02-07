@@ -1,18 +1,24 @@
-package jio.api;
+package jio.api.jdbc;
 
 
+import java.time.Duration;
 import java.util.List;
-import jio.api.dao.CustomerDatabaseOps;
-import jio.api.domain.Address;
-import jio.api.domain.Customer;
-import jio.api.domain.Email;
-import jio.api.entities.CustomerEntity;
+
+import jio.api.jdbc.dao.CustomerDatabaseOps;
+import jio.api.jdbc.domain.Address;
+import jio.api.jdbc.domain.Customer;
+import jio.api.jdbc.domain.Email;
+import jio.api.jdbc.entities.CustomerEntity;
 import jio.jdbc.TxBuilder.TX_ISOLATION;
+import jio.test.junit.Debugger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class TestTxs extends BaseTest {
 
+  @RegisterExtension
+  static Debugger debugger = Debugger.of(Duration.ofSeconds(10));
 
   @Test
   public void testInsertCustomer() {
@@ -38,6 +44,10 @@ public class TestTxs extends BaseTest {
     CustomerEntity customerEntity =
         customerDatabaseOps.findCustomerAndContactPoints.apply(customerID)
                                                         .join();
+
+    Assertions.assertEquals(2,customerEntity.addresses().size());
+    Assertions.assertNotNull(customerEntity.email()
+                                           .id());
 
     System.out.println(customerEntity);
 

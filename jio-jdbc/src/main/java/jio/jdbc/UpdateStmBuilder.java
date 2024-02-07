@@ -5,7 +5,8 @@ import java.util.Objects;
 import jio.Lambda;
 
 /**
- * Builder class for creating update JDBC statements.
+ * Builder class for creating update JDBC update statement, which must be an SQL Data Manipulation Language (DML)
+ * statement, such as INSERT, UPDATE or DELETE; or an SQL statement that returns nothing, such as a DDL statement.
  *
  * <p>
  * This builder allows for the construction of {@code UpdateStm} instances to perform SQL update statements with

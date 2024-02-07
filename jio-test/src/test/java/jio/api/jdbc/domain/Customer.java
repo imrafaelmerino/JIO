@@ -1,4 +1,4 @@
-package jio.api.domain;
+package jio.api.jdbc.domain;
 
 import java.util.List;
 

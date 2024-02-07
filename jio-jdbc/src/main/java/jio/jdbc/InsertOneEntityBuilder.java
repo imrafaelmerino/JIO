@@ -3,6 +3,7 @@ package jio.jdbc;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import jio.Lambda;
 
 /**
@@ -21,12 +22,19 @@ public final class InsertOneEntityBuilder<Params, Output> {
   private final Function<Params, ResultSetMapper<Output>> mapResult;
   private boolean enableJFR = true;
   private String label;
+  private static final String INSERT_REGEX = "\\s*INSERT\\s+INTO\\s+.*";
+  private static final Pattern pattern = Pattern.compile(INSERT_REGEX,
+                                                         Pattern.CASE_INSENSITIVE);
 
   private InsertOneEntityBuilder(String sql,
                                  Duration timeout,
                                  ParamsSetter<Params> setParams,
                                  Function<Params, ResultSetMapper<Output>> mapResult) {
     this.sql = Objects.requireNonNull(sql);
+    if (!pattern.matcher(sql)
+                .matches()) {
+      throw new IllegalArgumentException("`sql` must match the pattern `%s`".formatted(INSERT_REGEX));
+    }
     this.timeout = timeout;
     this.setParams = Objects.requireNonNull(setParams);
     this.mapResult = Objects.requireNonNull(mapResult);

@@ -9,7 +9,6 @@ class EventFields {
   static final String EXCEPTION = "exception";
   static final String RESULT = "result";
   static final String SQL = "sql";
-  static final String OP_COUNTER = "opCounter";
   static final String ROWS_AFFECTED = "rowsAffected";
 
   static final String ROW_RETURNED = "rowsReturned";

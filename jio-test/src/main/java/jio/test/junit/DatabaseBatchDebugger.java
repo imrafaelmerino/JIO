@@ -5,7 +5,6 @@ import jdk.jfr.consumer.RecordedEvent;
 import jio.test.Utils;
 import jio.time.Fun;
 
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
@@ -21,7 +20,7 @@ final class DatabaseBatchDebugger implements Consumer<RecordedEvent> {
       |  Executed Batches: %s
       |  Batch Size: %s
       |  Statements Size: %s
-      |  Operation Counter: %s
+      |  Batch Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       -------------------------------
@@ -38,7 +37,7 @@ final class DatabaseBatchDebugger implements Consumer<RecordedEvent> {
       |  Statements Size: %s
       |  SQL: %s
       |  Exception: %s
-      |  Operation Counter: %s
+      |  Batch Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       -------------------------------
@@ -63,7 +62,7 @@ final class DatabaseBatchDebugger implements Consumer<RecordedEvent> {
                                 event.getValue(EventFields.EXECUTED_BATCHES),
                                 event.getValue(EventFields.BATCH_SIZE),
                                 event.getValue(EventFields.TOTAL_STMS),
-                                event.getValue(EventFields.OP_COUNTER),
+                                event.getValue("batchCounter"),
                                 Utils.getThreadName(event.getThread()),
                                 event.getStartTime()
                                      .atZone(ZoneOffset.UTC)
@@ -79,7 +78,7 @@ final class DatabaseBatchDebugger implements Consumer<RecordedEvent> {
                                 event.getValue(EventFields.TOTAL_STMS),
                                 event.getValue(EventFields.SQL),
                                 event.getValue(EventFields.EXCEPTION),
-                                event.getValue(EventFields.OP_COUNTER),
+                                event.getValue("batchCounter"),
                                 Utils.getThreadName(event.getThread()),
                                 event.getStartTime()
                                      .atZone(ZoneOffset.UTC)

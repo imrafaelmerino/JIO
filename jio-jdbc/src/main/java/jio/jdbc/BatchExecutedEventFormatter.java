@@ -62,10 +62,10 @@ public final class BatchExecutedEventFormatter implements Function<RecordedEvent
     assert event.getEventType()
                 .getName()
                 .equals(EVENT_LABEL);
-    var label = event.getValue(StmExecutedEvent.LABEL_FIELD);
-    var result = event.getValue(StmExecutedEvent.RESULT_FIELD);
-    boolean isSuccess = StmExecutedEvent.RESULT.SUCCESS.name()
-                                                       .equals(result);
+    var label = event.getValue(BatchExecutedEvent.LABEL_FIELD);
+    var result = event.getValue(BatchExecutedEvent.RESULT_FIELD);
+    boolean isSuccess = BatchExecutedEvent.RESULT.SUCCESS.name()
+                                                         .equals(result);
     return isSuccess ?
            String.format(SUCCESS_FORMAT,
                          event.getStartTime(),
@@ -85,7 +85,7 @@ public final class BatchExecutedEventFormatter implements Function<RecordedEvent
                          event.getValue(BatchExecutedEvent.BATCH_SIZE_FIELD),
                          event.getValue(BatchExecutedEvent.STM_SIZE_FIELD),
                          event.getValue(BatchExecutedEvent.SQL_FIELD),
-                         event.getValue(StmExecutedEvent.EXCEPTION_FIELD),
+                         event.getValue(BatchExecutedEvent.EXCEPTION_FIELD),
                          event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD)
                         );
   }

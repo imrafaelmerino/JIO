@@ -15,6 +15,6 @@ public record BatchFailure(int totalStms,
                            int batchSize,
                            int executedBatches,
                            int rowsAffected,
-                           SQLException error) implements BatchResult  {
+                           SQLException error) implements BatchResult {
 
 }

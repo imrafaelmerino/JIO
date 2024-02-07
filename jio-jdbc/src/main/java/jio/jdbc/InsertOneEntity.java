@@ -91,6 +91,7 @@ final class InsertOneEntity<Params, Output> {
                                              .apply(ps);
                           assert unused > 0;
                           int numRowsAffected = ps.executeUpdate();
+                          assert numRowsAffected >= 0;
                           try (ResultSet resultSet = ps.getGeneratedKeys()) {
                             if (resultSet.next()) {
                               return mapResult.apply(params)

@@ -1,4 +1,4 @@
-package jio.api;
+package jio.api.jdbc;
 
 
 import org.flywaydb.core.Flyway;

@@ -1,4 +1,4 @@
-package jio.api;
+package jio.api.jdbc;
 
 
 import java.util.function.Supplier;
@@ -31,9 +31,6 @@ final class PostgresContainerCreation implements Supplier<PostgreSQLContainer<?>
     Wait.forListeningPort()
         .waitUntilReady(postgres);
 
-    System.out.print(postgres.getUsername());
-    System.out.print(postgres.getPassword());
-    System.out.print(postgres.getJdbcUrl());
     return postgres;
 
   }

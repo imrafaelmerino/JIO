@@ -41,11 +41,8 @@
     <MAVEN-SUREFIRE-PLUGIN.VERSION>3.0.0-M6</MAVEN-SUREFIRE-PLUGIN.VERSION>
     <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.3.2</MAVEN-JAVADOC-PLUGIN.VERSION>
-    <JIO-EXP-VERSION>2.0.8</JIO-EXP-VERSION>
     <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
     <POSTGRESQL.VERSION>42.7.1</POSTGRESQL.VERSION>
-    <TESTCONTAINERS.VERSION>1.18.3</TESTCONTAINERS.VERSION>
-    <FLYWAY-CORE.VERSION>7.7.3</FLYWAY-CORE.VERSION>
   </properties>
 
 
@@ -112,41 +109,10 @@
 
   <dependencies>
 
-
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>${POSTGRESQL.VERSION}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.4.14</version>
-      <scope>test</scope>
-    </dependency>
-
-
-
     <dependency>
       <groupId>com.zaxxer</groupId>
       <artifactId>HikariCP</artifactId>
       <version>${HIKARICP.VERSION}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>${JUNIT-JUPITER-ENGINE.VERSION}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-core</artifactId>
-      <version>${FLYWAY-CORE.VERSION}</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -157,19 +123,10 @@
     </dependency>
 
     <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>testcontainers</artifactId>
-      <version>${TESTCONTAINERS.VERSION}</version>
-      <scope>test</scope>
-    </dependency>
-
-
-    <dependency>
-      <groupId>org.testcontainers</groupId>
+      <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>${TESTCONTAINERS.VERSION}
-      </version>
-      <scope>test</scope>
+      <version>${POSTGRESQL.VERSION}</version>
+      <scope>provided</scope>
     </dependency>
 
   </dependencies>

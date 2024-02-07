@@ -8,7 +8,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-import static jio.test.junit.EventFields.OP_COUNTER;
 
 @SuppressWarnings("InlineFormatString")
 final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
@@ -19,7 +18,7 @@ final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
       |  Result: %s
       |  Duration: %s
       |  Rows Affected: %s
-      |  Operation Counter: %s
+      |  Update Stm Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
@@ -33,7 +32,7 @@ final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
       |  Exception: %s
       |  SQL: %s
       |  Rows Affected: %s
-      |  Operation Counter: %s
+      |  Update Stm Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
@@ -55,7 +54,7 @@ final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
                                 Fun.formatTime(event.getDuration()
                                                     .toNanos()),
                                 event.getValue(EventFields.ROWS_AFFECTED),
-                                event.getValue(OP_COUNTER),
+                                event.getValue("updateCounter"),
                                 Utils.getThreadName(event.getThread()),
                                 event.getStartTime()
                                      .atZone(ZoneId.systemDefault())
@@ -69,7 +68,7 @@ final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
                                 event.getValue(EventFields.EXCEPTION),
                                 event.getValue(EventFields.SQL),
                                 event.getValue(EventFields.ROWS_AFFECTED),
-                                event.getValue(EventFields.OP_COUNTER),
+                                event.getValue("updateCounter"),
                                 Utils.getThreadName(event.getThread()),
                                 event.getStartTime()
                                      .atZone(ZoneId.systemDefault())

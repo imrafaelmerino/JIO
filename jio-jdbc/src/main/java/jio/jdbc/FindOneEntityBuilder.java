@@ -2,34 +2,43 @@ package jio.jdbc;
 
 import java.time.Duration;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import jio.Lambda;
 
 /**
- * Builder class for constructing instances of {@link FindOneEntity}, which represents a JDBC query operation returning a
- * single result. This builder allows customization of the SQL query, parameter setting, result mapping, and the option
- * to disable Java Flight Recorder (JFR) event recording for the query execution.
+ * Builder class for constructing instances of {@link FindOneEntity}, which represents a JDBC query operation returning
+ * a single result. This builder allows customization of the SQL query, parameter setting, result mapping, and the
+ * option to disable Java Flight Recorder (JFR) event recording for the query execution.
  *
- * @param <Filters> The type of input parameters for the JDBC query.
- * @param <Entity> The type of the output result for the JDBC query.
+ * @param <Filter> The type of input parameters for the JDBC query.
+ * @param <Entity>  The type of the output result for the JDBC query.
  */
-public final class FindOneEntityBuilder<Filters, Entity> {
+public final class FindOneEntityBuilder<Filter, Entity> {
 
   private static final int DEFAULT_FETCH_SIZE = 1000;
 
   private final String sqlQuery;
   private int fetchSize = DEFAULT_FETCH_SIZE;
   private final Duration timeout;
-  private final ParamsSetter<Filters> setter;
+  private final ParamsSetter<Filter> setter;
 
   private final ResultSetMapper<Entity> mapper;
   private boolean enableJFR = true;
   private String label;
 
+  private static final String SELECT_REGEX = "\\s*SELECT\\s+.*";
+  private static final Pattern PATTERN = Pattern.compile(SELECT_REGEX,
+                                                         Pattern.CASE_INSENSITIVE);
+
+
   private FindOneEntityBuilder(String sqlQuery,
                                Duration timeout,
-                               ParamsSetter<Filters> setter,
+                               ParamsSetter<Filter> setter,
                                ResultSetMapper<Entity> mapper) {
     this.sqlQuery = Objects.requireNonNull(sqlQuery);
+    if(!PATTERN.matcher(sqlQuery).matches()){
+      throw new IllegalArgumentException("`sql` must match the pattern `%s`".formatted(SELECT_REGEX));
+    }
     this.timeout = Objects.requireNonNull(timeout);
     this.setter = Objects.requireNonNull(setter);
     this.mapper = Objects.requireNonNull(mapper);
@@ -65,7 +74,7 @@ public final class FindOneEntityBuilder<Filters, Entity> {
    * @return This QueryStmBuilder instance with the specified fetch size.
    * @throws IllegalArgumentException If the fetch size is less than or equal to 0.
    */
-  public FindOneEntityBuilder<Filters, Entity> withFetchSize(int fetchSize) {
+  public FindOneEntityBuilder<Filter, Entity> withFetchSize(int fetchSize) {
     if (fetchSize <= 0) {
       throw new IllegalArgumentException("fetchSize <= 0");
     }
@@ -80,7 +89,7 @@ public final class FindOneEntityBuilder<Filters, Entity> {
    * @param label The label to be assigned to the JFR event.
    * @return This {@code QueryStmBuilder} instance with the specified event label.
    */
-  public FindOneEntityBuilder<Filters, Entity> withEventLabel(String label) {
+  public FindOneEntityBuilder<Filter, Entity> withEventLabel(String label) {
     this.label = Objects.requireNonNull(label);
     return this;
   }
@@ -90,7 +99,7 @@ public final class FindOneEntityBuilder<Filters, Entity> {
    *
    * @return This {@code QueryOneStmBuilder} instance with JFR event recording disabled.
    */
-  public FindOneEntityBuilder<Filters, Entity> withoutRecordedEvents() {
+  public FindOneEntityBuilder<Filter, Entity> withoutRecordedEvents() {
     this.enableJFR = false;
     return this;
   }
@@ -106,7 +115,7 @@ public final class FindOneEntityBuilder<Filters, Entity> {
    * operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see FindOneEntity#buildAutoClosable(DatasourceBuilder)
    */
-  public Lambda<Filters, Entity> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
+  public Lambda<Filter, Entity> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return new FindOneEntity<>(timeout,
                                sqlQuery,
                                setter,
@@ -126,7 +135,7 @@ public final class FindOneEntityBuilder<Filters, Entity> {
    * The operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see FindOneEntity#buildClosable()
    */
-  public ClosableStatement<Filters, Entity> buildClosable() {
+  public ClosableStatement<Filter, Entity> buildClosable() {
     return new FindOneEntity<>(timeout,
                                sqlQuery,
                                setter,

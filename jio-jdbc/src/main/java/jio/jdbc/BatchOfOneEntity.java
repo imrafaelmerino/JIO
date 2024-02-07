@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
  *
  * @param <Params> The type of input elements for the batch operation.
  */
-class BatchStm<Params> {
+class BatchOfOneEntity<Params> {
 
   final Duration timeout;
   final ParamsSetter<Params> setter;
@@ -37,13 +37,13 @@ class BatchStm<Params> {
    * @param enableJFR       Flag indicating whether Java Flight Recorder (JFR) events should be enabled.
    * @param label           The label to identify the batch operation in Java Flight Recording.
    */
-  BatchStm(Duration timeout,
-           ParamsSetter<Params> setter,
-           String sql,
-           boolean continueOnError,
-           int batchSize,
-           boolean enableJFR,
-           String label) {
+  BatchOfOneEntity(Duration timeout,
+                   ParamsSetter<Params> setter,
+                   String sql,
+                   boolean continueOnError,
+                   int batchSize,
+                   boolean enableJFR,
+                   String label) {
     this.timeout = timeout;
     this.setter = setter;
     this.sql = sql;
@@ -62,7 +62,7 @@ class BatchStm<Params> {
    * @param builder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} representing the JDBC batch operation with a duration, input, and output. Note: The
    * operations are performed on virtual threads for improved concurrency and resource utilization.
-   * @see BatchStm#buildAutoClosable(DatasourceBuilder)
+   * @see BatchOfOneEntity#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<List<Params>, BatchResult> buildAutoClosable(DatasourceBuilder builder) {
     return inputs -> IO.task(
@@ -71,7 +71,6 @@ class BatchStm<Params> {
               try (var connection = builder.get()
                                            .getConnection()
               ) {
-                connection.setAutoCommit(false);
                 try (var ps = connection.prepareStatement(sql)) {
                   ps.setQueryTimeout((int) timeout.toSeconds());
                   return process(inputs,
@@ -95,7 +94,7 @@ class BatchStm<Params> {
    *
    * @return A {@code ClosableStatement} representing the JDBC batch operation with a duration, input, and output. Note:
    * The operations are performed on virtual threads for improved concurrency and resource utilization.
-   * @see BatchStm#buildClosable()
+   * @see BatchOfOneEntity#buildClosable()
    */
   public ClosableStatement<List<Params>, BatchResult> buildClosable() {
     return (params, connection) ->
@@ -146,10 +145,10 @@ class BatchStm<Params> {
           batchSizeCounter = 0;
         } else {
           return new BatchFailure(inputs.size(),
-                                         batchSize,
-                                         executedBatches,
-                                         rowsAffected,
-                                         e);
+                                  batchSize,
+                                  executedBatches,
+                                  rowsAffected,
+                                  e);
         }
       }
     }

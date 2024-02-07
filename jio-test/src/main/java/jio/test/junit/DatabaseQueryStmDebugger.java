@@ -5,7 +5,6 @@ import jdk.jfr.consumer.RecordedEvent;
 import jio.test.Utils;
 import jio.time.Fun;
 
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
@@ -19,7 +18,7 @@ final class DatabaseQueryStmDebugger implements Consumer<RecordedEvent> {
       |  Duration: %s
       |  Fetch Size: %s
       |  Rows Returned: %s
-      |  Operation Counter: %s
+      |  Query Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
@@ -34,7 +33,7 @@ final class DatabaseQueryStmDebugger implements Consumer<RecordedEvent> {
       |  SQL: %s
       |  Fetch Size: %s
       |  Rows Returned: %s
-      |  Operation Counter: %s
+      |  Query Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
@@ -59,7 +58,7 @@ final class DatabaseQueryStmDebugger implements Consumer<RecordedEvent> {
                                                     .toNanos()),
                                 fetchSize,
                                 event.getValue(EventFields.ROW_RETURNED),
-                                event.getValue(EventFields.OP_COUNTER),
+                                event.getValue("queryCounter"),
                                 Utils.getThreadName(event.getThread()),
                                 event.getStartTime()
                                      .atZone(ZoneOffset.UTC)
@@ -74,7 +73,7 @@ final class DatabaseQueryStmDebugger implements Consumer<RecordedEvent> {
                                 event.getValue(EventFields.SQL),
                                 fetchSize,
                                 event.getValue(EventFields.ROW_RETURNED),
-                                event.getValue(EventFields.OP_COUNTER),
+                                event.getValue("queryCounter"),
                                 Utils.getThreadName(event.getThread()),
                                 event.getStartTime()
                                      .atZone(ZoneOffset.UTC)

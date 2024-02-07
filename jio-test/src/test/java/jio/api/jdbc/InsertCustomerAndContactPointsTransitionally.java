@@ -1,12 +1,12 @@
-package jio.api;
+package jio.api.jdbc;
 
 import jio.IO;
 import jio.Lambda;
 import jio.PairExp;
-import jio.api.dao.AddressesDatabaseOps;
-import jio.api.dao.CustomerDatabaseOps;
-import jio.api.dao.EmailDatabaseOps;
-import jio.api.domain.Customer;
+import jio.api.jdbc.dao.AddressesDatabaseOps;
+import jio.api.jdbc.dao.CustomerDatabaseOps;
+import jio.api.jdbc.dao.EmailDatabaseOps;
+import jio.api.jdbc.domain.Customer;
 import jio.jdbc.ClosableStatement;
 import jio.jdbc.DatasourceBuilder;
 import jio.jdbc.TxBuilder;
@@ -25,6 +25,7 @@ public class InsertCustomerAndContactPointsTransitionally implements Lambda<Cust
                                                               .apply(customer.addresses(),
                                                                      connection)
                                )
+                           .debugEach("customerID:%s".formatted(customerID))
                            .map(it -> customerID)
                )
           .apply(customer,

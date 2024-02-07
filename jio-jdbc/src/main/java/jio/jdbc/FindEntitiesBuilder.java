@@ -3,6 +3,7 @@ package jio.jdbc;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import jio.Lambda;
 
 /**
@@ -16,21 +17,25 @@ import jio.Lambda;
  * improved concurrency and resource utilization.
  * </p>
  *
- * @param <Params> The type of input elements for the query operation.
- * @param <Output> The type of the output results from the query operation.
+ * @param <Filter> The type of input elements for the query operation.
+ * @param <Entity> The type of the output results from the query operation.
  */
-public final class FindEntitiesBuilder<Params, Output> {
+public final class FindEntitiesBuilder<Filter, Entity> {
 
   private static final int DEFAULT_FETCH_SIZE = 1000;
   private final Duration timeout;
 
   private final String sqlQuery;
-  private final ParamsSetter<Params> setter;
-  private final ResultSetMapper<Output> mapper;
+  private final ParamsSetter<Filter> setter;
+  private final ResultSetMapper<Entity> mapper;
   private int fetchSize = DEFAULT_FETCH_SIZE;
 
   private String label;
   private boolean enableJFR = true;
+
+  private static final String SELECT_REGEX = "\\s*SELECT\\s+.*";
+  private static final Pattern PATTERN = Pattern.compile(SELECT_REGEX,
+                                                         Pattern.CASE_INSENSITIVE);
 
   /**
    * Constructs a QueryStmBuilder instance.
@@ -42,10 +47,14 @@ public final class FindEntitiesBuilder<Params, Output> {
    */
   private FindEntitiesBuilder(Duration timeout,
                               String sqlQuery,
-                              ParamsSetter<Params> setter,
-                              ResultSetMapper<Output> mapper) {
+                              ParamsSetter<Filter> setter,
+                              ResultSetMapper<Entity> mapper) {
     this.timeout = Objects.requireNonNull(timeout);
     this.sqlQuery = Objects.requireNonNull(sqlQuery);
+    if (!PATTERN.matcher(sqlQuery)
+                .matches()) {
+      throw new IllegalArgumentException("`sql` must match the pattern `%s`".formatted(SELECT_REGEX));
+    }
     this.setter = Objects.requireNonNull(setter);
     this.mapper = Objects.requireNonNull(mapper);
   }
@@ -79,7 +88,7 @@ public final class FindEntitiesBuilder<Params, Output> {
    * @return This QueryStmBuilder instance with the specified fetch size.
    * @throws IllegalArgumentException If the fetch size is less than or equal to 0.
    */
-  public FindEntitiesBuilder<Params, Output> withFetchSize(int fetchSize) {
+  public FindEntitiesBuilder<Filter, Entity> withFetchSize(int fetchSize) {
     if (fetchSize <= 0) {
       throw new IllegalArgumentException("fetchSize <= 0");
     }
@@ -94,7 +103,7 @@ public final class FindEntitiesBuilder<Params, Output> {
    * @param label The label to be assigned to the JFR event.
    * @return This {@code QueryStmBuilder} instance with the specified event label.
    */
-  public FindEntitiesBuilder<Params, Output> withEventLabel(String label) {
+  public FindEntitiesBuilder<Filter, Entity> withEventLabel(String label) {
     this.label = Objects.requireNonNull(label);
     return this;
   }
@@ -104,7 +113,7 @@ public final class FindEntitiesBuilder<Params, Output> {
    *
    * @return This QueryStmBuilder instance with JFR event recording disabled.
    */
-  public FindEntitiesBuilder<Params, Output> withoutRecordedEvents() {
+  public FindEntitiesBuilder<Filter, Entity> withoutRecordedEvents() {
     this.enableJFR = false;
     return this;
   }
@@ -120,7 +129,7 @@ public final class FindEntitiesBuilder<Params, Output> {
    * threads for improved concurrency and resource utilization.
    * @see FindEntities#buildAutoClosable(DatasourceBuilder)
    */
-  public Lambda<Params, List<Output>> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
+  public Lambda<Filter, List<Entity>> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return new FindEntities<>(timeout,
                               sqlQuery,
                               setter,
@@ -129,17 +138,18 @@ public final class FindEntitiesBuilder<Params, Output> {
                               enableJFR,
                               label).buildAutoClosable(datasourceBuilder);
   }
+
   /**
    * Builds and returns a {@code ClosableStatement} representing a JDBC query operation on a database. This method is
-   * appropriate for use during transactions, where the connection needs to be managed externally. The lambda is configured
-   * to bind parameters to its SQL, execute the query, and map the result. The operations are performed on virtual threads
-   * for improved concurrency and resource utilization.
+   * appropriate for use during transactions, where the connection needs to be managed externally. The lambda is
+   * configured to bind parameters to its SQL, execute the query, and map the result. The operations are performed on
+   * virtual threads for improved concurrency and resource utilization.
    *
    * @return A {@code ClosableStatement} representing the JDBC query operation with a duration, input, and output. Note:
    * The operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see FindEntities#buildClosable()
    */
-  public ClosableStatement<Params, List<Output>> buildClosable() {
+  public ClosableStatement<Filter, List<Entity>> buildClosable() {
     return new FindEntities<>(timeout,
                               sqlQuery,
                               setter,

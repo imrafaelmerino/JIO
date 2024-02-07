@@ -6,11 +6,12 @@ import java.util.Objects;
 import jio.Lambda;
 
 /**
- * Builder class for creating batch operations on a JDBC database using a lambda-based approach.
+ * Builder class for creating batch operations of the same SQL statement (either INSERT, UPDATE or DELETE) with multiple
+ * parameters.
  *
  * @param <Params> The type of the input parameters for the batch operation.
  */
-public final class BatchStmBuilder<Params> {
+public final class BatchOfOneEntityBuilder<Params> {
 
   private final ParamsSetter<Params> setter;
   private final String sql;
@@ -19,9 +20,9 @@ public final class BatchStmBuilder<Params> {
   private final Duration timeout;
   private String label;
 
-  private BatchStmBuilder(ParamsSetter<Params> setter,
-                          String sql,
-                          Duration timeout) {
+  private BatchOfOneEntityBuilder(ParamsSetter<Params> setter,
+                                  String sql,
+                                  Duration timeout) {
     this.setter = Objects.requireNonNull(setter);
     this.sql = Objects.requireNonNull(sql);
     this.timeout = Objects.requireNonNull(timeout);
@@ -39,12 +40,12 @@ public final class BatchStmBuilder<Params> {
    * @param <I>     The type of input elements for the batch operation.
    * @return A new instance of BatchStmBuilder.
    */
-  public static <I> BatchStmBuilder<I> of(String sql,
-                                          ParamsSetter<I> setter,
-                                          Duration timeout) {
-    return new BatchStmBuilder<>(setter,
-                                 sql,
-                                 timeout);
+  public static <I> BatchOfOneEntityBuilder<I> of(String sql,
+                                                  ParamsSetter<I> setter,
+                                                  Duration timeout) {
+    return new BatchOfOneEntityBuilder<>(setter,
+                                         sql,
+                                         timeout);
   }
 
   /**
@@ -53,7 +54,7 @@ public final class BatchStmBuilder<Params> {
    * @param continueOnError If true, the batch operation continues with the next batch even if one fails.
    * @return This {@code BatchStmBuilder} instance for method chaining.
    */
-  public BatchStmBuilder<Params> continueOnError(boolean continueOnError) {
+  public BatchOfOneEntityBuilder<Params> continueOnError(boolean continueOnError) {
     this.continueOnError = continueOnError;
     return this;
   }
@@ -65,7 +66,7 @@ public final class BatchStmBuilder<Params> {
    * @param label The label to be assigned to the JFR event.
    * @return This {@code QueryStmBuilder} instance with the specified event label.
    */
-  public BatchStmBuilder<Params> withEventLabel(String label) {
+  public BatchOfOneEntityBuilder<Params> withEventLabel(String label) {
     this.label = Objects.requireNonNull(label);
     return this;
   }
@@ -76,7 +77,7 @@ public final class BatchStmBuilder<Params> {
    * @param batchSize The size of each batch.
    * @return This BatchStmBuilder instance for method chaining.
    */
-  public BatchStmBuilder<Params> withBatchSize(int batchSize) {
+  public BatchOfOneEntityBuilder<Params> withBatchSize(int batchSize) {
     this.batchSize = batchSize;
     return this;
   }
@@ -87,7 +88,7 @@ public final class BatchStmBuilder<Params> {
    *
    * @return This {@code QueryOneStmBuilder} instance with JFR event recording disabled.
    */
-  public BatchStmBuilder<Params> withoutRecordedEvents() {
+  public BatchOfOneEntityBuilder<Params> withoutRecordedEvents() {
     this.enableJFR = false;
     return this;
   }
@@ -101,16 +102,16 @@ public final class BatchStmBuilder<Params> {
    * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} representing the JDBC batch operation with a duration, input, and output. Note: The
    * operations are performed on virtual threads for improved concurrency and resource utilization.
-   * @see BatchStm#buildAutoClosable(DatasourceBuilder)
+   * @see BatchOfOneEntity#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<List<Params>, BatchResult> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
-    return new BatchStm<>(timeout,
-                          setter,
-                          sql,
-                          continueOnError,
-                          batchSize,
-                          enableJFR,
-                          label).buildAutoClosable(datasourceBuilder);
+    return new BatchOfOneEntity<>(timeout,
+                                  setter,
+                                  sql,
+                                  continueOnError,
+                                  batchSize,
+                                  enableJFR,
+                                  label).buildAutoClosable(datasourceBuilder);
   }
 
   /**
@@ -121,15 +122,15 @@ public final class BatchStmBuilder<Params> {
    *
    * @return A {@code ClosableStatement} representing the JDBC batch operation with a duration, input, and output. Note:
    * The operations are performed on virtual threads for improved concurrency and resource utilization.
-   * @see BatchStm#buildClosable()
+   * @see BatchOfOneEntity#buildClosable()
    */
   public ClosableStatement<List<Params>, BatchResult> buildClosable() {
-    return new BatchStm<>(timeout,
-                          setter,
-                          sql,
-                          continueOnError,
-                          batchSize,
-                          enableJFR,
-                          label).buildClosable();
+    return new BatchOfOneEntity<>(timeout,
+                                  setter,
+                                  sql,
+                                  continueOnError,
+                                  batchSize,
+                                  enableJFR,
+                                  label).buildClosable();
   }
 }

@@ -58,10 +58,10 @@ public final class UpdateStmExecutedEventFormatter implements Function<RecordedE
   public String apply(RecordedEvent event) {
     assert EVENT_LABEL.equals(event.getEventType()
                                    .getName());
-    var result = event.getValue(StmExecutedEvent.RESULT_FIELD);
-    var label = event.getValue(StmExecutedEvent.LABEL_FIELD);
-    boolean isSuccess = StmExecutedEvent.RESULT.SUCCESS.name()
-                                                       .equals(result);
+    var result = event.getValue(UpdateStmExecutedEvent.RESULT_FIELD);
+    var label = event.getValue(UpdateStmExecutedEvent.LABEL_FIELD);
+    boolean isSuccess = UpdateStmExecutedEvent.RESULT.SUCCESS.name()
+                                                             .equals(result);
     return isSuccess ?
            String.format(SUCCESS_FORMAT,
                          event.getStartTime(),
@@ -75,7 +75,7 @@ public final class UpdateStmExecutedEventFormatter implements Function<RecordedE
                          event.getStartTime(),
                          label,
                          result,
-                         event.getValue(StmExecutedEvent.EXCEPTION_FIELD),
+                         event.getValue(UpdateStmExecutedEvent.EXCEPTION_FIELD),
                          Fun.formatTime(event.getDuration()),
                          event.getValue(UpdateStmExecutedEvent.SQL_FIELD),
                          event.getValue(UpdateStmExecutedEvent.UPDATE_COUNTER_FIELD)

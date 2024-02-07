@@ -1,4 +1,4 @@
-package jio.api.dao;
+package jio.api.jdbc.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,14 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import jio.Lambda;
-import jio.api.domain.Customer;
-import jio.api.entities.AddressEntity;
-import jio.api.entities.CustomerEntity;
-import jio.api.entities.EmailEntity;
+import jio.api.jdbc.domain.Customer;
+import jio.api.jdbc.entities.AddressEntity;
+import jio.api.jdbc.entities.CustomerEntity;
+import jio.api.jdbc.entities.EmailEntity;
 import jio.jdbc.ClosableStatement;
 import jio.jdbc.DatasourceBuilder;
-import jio.jdbc.InsertOneEntityBuilder;
 import jio.jdbc.FindOneEntityBuilder;
+import jio.jdbc.InsertOneEntityBuilder;
 
 public final class CustomerDatabaseOps {
 
@@ -24,14 +24,16 @@ public final class CustomerDatabaseOps {
 
   public static final ClosableStatement<Customer, Long> insertOne =
       InsertOneEntityBuilder.<Customer, Long>of("INSERT INTO customer (name) VALUES (?) RETURNING id;",
-                                             customer -> (paramPosition, preparedStatement) -> {
-                                               preparedStatement.setString(paramPosition++,
-                                                                           customer.name());
-                                               return paramPosition;
-                                             },
-                                             customer -> resultSet -> resultSet.getLong("id"),
+                                                customer -> (paramPosition, preparedStatement) -> {
+                                                  preparedStatement.setString(paramPosition++,
+                                                                              customer.name());
+                                                  return paramPosition;
+                                                },
+                                                customer -> resultSet -> resultSet.getLong("id"),
                                                 Duration.ofSeconds(1000)
                                                )
+                            .withEventLabel("insert one customer")
+
                             .buildClosable();
   public final Lambda<Long, CustomerEntity> findCustomerAndContactPoints;
 
@@ -40,22 +42,23 @@ public final class CustomerDatabaseOps {
 
     findCustomerAndContactPoints =
         FindOneEntityBuilder.<Long, CustomerEntity>of("""
-                                                        SELECT c.id AS customer_id, c.name AS customer_name,
-                                                        a.id AS address_id, a.street, e.id AS email_id,
-                                                        e.email_address AS email_address  FROM customer c
-                                                        LEFT JOIN address a ON c.id = a.customer_id
-                                                        LEFT JOIN email e ON c.id = e.customer_id
-                                                        WHERE c.id = ?""",
-                                                    id -> (paramPosition, preparedStatement) -> {
-                                                      preparedStatement.setLong(paramPosition++,
-                                                                                id);
+                                                          SELECT c.id AS customer_id, c.name AS customer_name,
+                                                          a.id AS address_id, a.street, e.id AS email_id,
+                                                          e.email_address AS email_address  FROM customer c
+                                                          LEFT JOIN address a ON c.id = a.customer_id
+                                                          LEFT JOIN email e ON c.id = e.customer_id
+                                                          WHERE c.id = ?""".replace("\n"," "),
+                                                      id -> (paramPosition, preparedStatement) -> {
+                                                        preparedStatement.setLong(paramPosition++,
+                                                                                  id);
 
-                                                      return paramPosition;
-                                                    },
+                                                        return paramPosition;
+                                                      },
                                                       this::mapResultSetToCustomerEntity,
                                                       Duration.ofSeconds(1)
 
                                                      )
+                            .withEventLabel("find one customer and contact points")
                             .buildAutoClosable(datasourceBuilder);
 
   }

@@ -14,8 +14,8 @@ import jio.Lambda;
 
 
 /**
- * Represents a lambda that takes two arguments as inputs (some parameters and a connection)
- * and produces an IO effect that executes a JDBC statement, producing a result of type {@code Output}.
+ * Represents a lambda that takes two arguments as inputs (some parameters and a connection) and produces an IO effect
+ * that executes a JDBC statement, producing a result of type {@code Output}.
  *
  * @param <Params> The type of the input parameters.
  * @param <Output> The type of the result produced by executing the JDBC statement.
@@ -23,11 +23,11 @@ import jio.Lambda;
 public interface ClosableStatement<Params, Output> extends BiLambda<Params, Connection, Output> {
 
   /**
-   * Combines this ClosableStatement with another ClosableStatement, forming a chain of execution.
-   * The resulting ClosableStatement will execute this statement and then execute the other statement
-   * using the output of this statement as input for the other.
+   * Combines this ClosableStatement with another ClosableStatement, forming a chain of execution. The resulting
+   * ClosableStatement will execute this statement and then execute the other statement using the output of this
+   * statement as input for the other.
    *
-   * @param other The other ClosableStatement to be executed after this one.
+   * @param other         The other ClosableStatement to be executed after this one.
    * @param <OtherOutput> The type of the output of the other ClosableStatement.
    * @return A new ClosableStatement representing the combined execution.
    */
@@ -39,11 +39,10 @@ public interface ClosableStatement<Params, Output> extends BiLambda<Params, Conn
   }
 
   /**
-   * Combines this ClosableStatement with a Lambda, forming a chain of execution.
-   * The resulting ClosableStatement will execute this statement and then apply the Lambda
-   * to the output of this statement.
+   * Combines this ClosableStatement with a Lambda, forming a chain of execution. The resulting ClosableStatement will
+   * execute this statement and then apply the Lambda to the output of this statement.
    *
-   * @param other The Lambda to be applied after this ClosableStatement.
+   * @param other         The Lambda to be applied after this ClosableStatement.
    * @param <OtherOutput> The type of the output of the Lambda.
    * @return A new ClosableStatement representing the combined execution.
    */
@@ -56,7 +55,7 @@ public interface ClosableStatement<Params, Output> extends BiLambda<Params, Conn
   /**
    * Maps the success output of this ClosableStatement using the provided Function.
    *
-   * @param successMap The Function to map the success output.
+   * @param successMap    The Function to map the success output.
    * @param <OtherOutput> The type of the mapped output.
    * @return A new ClosableStatement with the mapped success output.
    */
@@ -65,6 +64,7 @@ public interface ClosableStatement<Params, Output> extends BiLambda<Params, Conn
                                               connection)
                                        .map(successMap);
   }
+
   /**
    * Maps the failure of this ClosableStatement using the provided Function.
    *

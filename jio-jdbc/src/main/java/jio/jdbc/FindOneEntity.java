@@ -16,10 +16,10 @@ import java.util.function.Function;
  * Note: The operation is executed on a virtual thread.
  * </p>
  *
- * @param <Filters> Type of the input parameters for the SQL query.
+ * @param <Filter> Type of the input parameters for the SQL query.
  * @param <Entity>  Type of the object produced by the result set mapper.
  */
-final class FindOneEntity<Filters, Entity> {
+final class FindOneEntity<Filter, Entity> {
 
 
   /**
@@ -41,7 +41,7 @@ final class FindOneEntity<Filters, Entity> {
   /**
    * The parameter setter for the SQL query.
    */
-  private final Function<Filters, StatementSetter> setter;
+  private final Function<Filter, StatementSetter> setter;
   /**
    * Flag indicating whether Java Flight Recorder (JFR) events should be enabled.
    */
@@ -69,7 +69,7 @@ final class FindOneEntity<Filters, Entity> {
    */
   FindOneEntity(Duration timeout,
                 String sqlQuery,
-                ParamsSetter<Filters> setter,
+                ParamsSetter<Filter> setter,
                 ResultSetMapper<Entity> mapper,
                 int fetchSize,
                 boolean enableJFR,
@@ -95,7 +95,7 @@ final class FindOneEntity<Filters, Entity> {
    * virtual threads.
    * @see #buildClosable() for using query statements during transactions
    */
-  Lambda<Filters, Entity> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
+  Lambda<Filter, Entity> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return input ->
         IO.task(() -> {
                   try (var connection = datasourceBuilder.get()
@@ -128,7 +128,7 @@ final class FindOneEntity<Filters, Entity> {
    * @return A {@code ClosableStatement} representing the query operation with a duration, input, and output. Note: The
    * operations are performed by virtual threads.
    */
-  ClosableStatement<Filters, Entity> buildClosable() {
+  ClosableStatement<Filter, Entity> buildClosable() {
     return (filters, connection) ->
         IO.task(() -> {
                   try (var ps = connection.prepareStatement(sql)) {

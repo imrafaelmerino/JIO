@@ -1,4 +1,4 @@
-package jio.api.entities;
+package jio.api.jdbc.entities;
 
 import java.util.List;
 

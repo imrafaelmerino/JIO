@@ -11,7 +11,8 @@ import jdk.jfr.*;
 @Name("jio.jdbc.BatchStm")
 @Category({"JIO", "DATABASE", "JDBC"})
 @Description("Duration, result, batch size, rows updated and other info related to batch operations performed by jio-jdbc")
-final class BatchExecutedEvent extends StmExecutedEvent {
+@StackTrace(value = false)
+final class BatchExecutedEvent extends Event {
 
   private static final AtomicLong counter = new AtomicLong(0);
 
@@ -28,5 +29,34 @@ final class BatchExecutedEvent extends StmExecutedEvent {
   int totalStms;
   int rowsAffected;
   int executedBatches;
+
+  enum RESULT {
+    SUCCESS, FAILURE, PARTIAL_SUCCESS
+  }
+
+  static final String RESULT_FIELD = "result";
+  static final String SQL_FIELD = "sql";
+  static final String EXCEPTION_FIELD = "exception";
+  static final String LABEL_FIELD = "label";
+
+  /**
+   * the method of the request
+   */
+  String sql;
+
+  /**
+   * the result of the exchange: a success if a response is received or an exception
+   */
+  String result;
+  /**
+   * the exception in case of one happens during the exchange
+   */
+  String exception;
+
+  /**
+   * Short label to identify the statement
+   */
+  String label;
+
 
 }
