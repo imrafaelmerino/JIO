@@ -12,7 +12,7 @@ import java.util.function.Function;
  * transactions is optional, and you can leave them out by using the {@link #standalone()} method to create a Lambda
  * that produces effects independently of any transaction.
  *
- * @param <Input> the type of the input
+ * @param <Input>  the type of the input
  * @param <Output> the type of the effect
  */
 public interface MongoLambda<Input, Output> extends BiLambda<ClientSession, Input, Output> {
@@ -41,7 +41,7 @@ public interface MongoLambda<Input, Output> extends BiLambda<ClientSession, Inpu
     return (session, input) -> this.apply(session,
                                           input)
                                    .then(n -> other.apply(session,
-                                                      n));
+                                                          n));
   }
 
   /**

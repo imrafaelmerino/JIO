@@ -102,20 +102,35 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * designed to handle resources that implement the {@link AutoCloseable} interface, ensuring proper resource
    * management to avoid memory leaks.
    *
-   * @param resource the resource supplier that provides the closable resource.
+   * @param callable the resource supplier that provides the closable resource.
    * @param map      the map function that transforms the resource into an effect.
    * @param <Output> the type parameter representing the result type of the effect.
    * @param <Input>  the type parameter representing the type of the resource.
-   * @return an IO effect that encapsulates the resource handling and mapping.
+   * @return an IO effect.
    */
-  public static <Output, Input extends AutoCloseable> IO<Output> resource(final Callable<? extends Input> resource,
+  public static <Output, Input extends AutoCloseable> IO<Output> resource(final Callable<? extends Input> callable,
                                                                           final Lambda<? super Input, Output> map
                                                                          ) {
-    try (var r = resource.call()) {
-      return map.apply(r);
-    } catch (Throwable e) {
-      return IO.fail(e);
-    }
+    return IO.task(callable)
+             .then(resource -> map.apply(resource)
+                                  .then(success -> {
+                                          try {
+                                            resource.close();
+                                            return IO.succeed(success);
+                                          } catch (Exception e) {
+                                            return IO.fail(e);
+                                          }
+                                        },
+                                        failure -> {
+                                          try {
+                                            resource.close();
+                                            return IO.fail(failure);
+                                          } catch (Exception e) {
+                                            return IO.fail(e);
+                                          }
+                                        })
+                  );
+
   }
 
 

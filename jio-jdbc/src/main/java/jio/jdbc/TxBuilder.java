@@ -223,10 +223,11 @@ public final class TxBuilder {
                       connection ->
                           closableStatement.apply(params,
                                                   connection)
-                                           .then(result -> IO.task(() -> {
-                                                   connection.commit();
-                                                   return result;
-                                                 }),
+                                           .then(result ->
+                                                     IO.task(() -> {
+                                                       connection.commit();
+                                                       return result;
+                                                     }),
                                                  exc -> {
                                                    try {
                                                      connection.rollback();

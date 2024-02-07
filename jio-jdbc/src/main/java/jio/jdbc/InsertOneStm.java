@@ -1,12 +1,12 @@
 package jio.jdbc;
 
+import java.util.function.Function;
 import jio.IO;
 import jio.Lambda;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.Duration;
 import java.util.concurrent.Executors;
-import java.util.function.BiFunction;
 
 /**
  * A class representing a generic insert operation with a generated key in a relational database using JDBC. The class
@@ -39,7 +39,7 @@ final class InsertOneStm<Params, Output> {
    * Mapper to produce an output from the rows affected (0 or 1), the input params and result-set containing the
    * generated keys
    */
-  final BiFunction<Params, Integer, ResultSetMapper<Output>> mapResult;
+  final Function<Params, ResultSetMapper<Output>> mapResult;
 
   /**
    * Flag indicating whether Java Flight Recorder (JFR) events should be enabled.
@@ -55,7 +55,7 @@ final class InsertOneStm<Params, Output> {
   InsertOneStm(Duration timeout,
                String sql,
                ParamsSetter<Params> setter,
-               BiFunction<Params, Integer, ResultSetMapper<Output>> mapResult,
+               Function<Params, ResultSetMapper<Output>> mapResult,
                boolean enableJFR,
                String label) {
     this.timeout = timeout;
@@ -93,8 +93,7 @@ final class InsertOneStm<Params, Output> {
                           int numRowsAffected = ps.executeUpdate();
                           try (ResultSet resultSet = ps.getGeneratedKeys()) {
                             if (resultSet.next()) {
-                              return mapResult.apply(params,
-                                                     numRowsAffected)
+                              return mapResult.apply(params)
                                               .apply(resultSet);
                             }
                             throw new ColumnNotGeneratedException(sql);
@@ -129,10 +128,10 @@ final class InsertOneStm<Params, Output> {
                                            .apply(ps);
                         assert unused > 0;
                         int numRowsAffected = ps.executeUpdate();
+                        assert numRowsAffected == 1;
                         try (ResultSet resultSet = ps.getGeneratedKeys()) {
                           if (resultSet.next()) {
-                            return mapResult.apply(params,
-                                                   numRowsAffected)
+                            return mapResult.apply(params)
                                             .apply(resultSet);
                           }
                           throw new ColumnNotGeneratedException(sql);

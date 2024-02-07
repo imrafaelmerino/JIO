@@ -44,6 +44,8 @@
     <JIO-EXP-VERSION>2.0.8</JIO-EXP-VERSION>
     <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
     <POSTGRESQL.VERSION>42.7.1</POSTGRESQL.VERSION>
+    <TESTCONTAINERS.VERSION>1.18.3</TESTCONTAINERS.VERSION>
+    <FLYWAY-CORE.VERSION>7.7.3</FLYWAY-CORE.VERSION>
   </properties>
 
 
@@ -118,6 +120,14 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.4.14</version>
+      <scope>test</scope>
+    </dependency>
+
+
 
     <dependency>
       <groupId>com.zaxxer</groupId>
@@ -131,12 +141,37 @@
       <version>${JUNIT-JUPITER-ENGINE.VERSION}</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+      <version>${FLYWAY-CORE.VERSION}</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>com.github.imrafaelmerino</groupId>
       <artifactId>jio-exp</artifactId>
       <version>${JIO-EXP-VERSION}</version>
       <scope>compile</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <version>${TESTCONTAINERS.VERSION}</version>
+      <scope>test</scope>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${TESTCONTAINERS.VERSION}
+      </version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
   <profiles>
     <profile>

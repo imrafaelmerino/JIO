@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
  *
  * @param <Params>  The type of the input object for setting parameters in the SQL.
  * @param <Output>> The type of the output object, mapped from the ResultSet.
- * @see QueryOneStm for using queries that retrieve at most one row from the database
+ * @see FindOneEntity for using queries that retrieve at most one row from the database
  */
 final class QueryStm<Params, Output> {
 

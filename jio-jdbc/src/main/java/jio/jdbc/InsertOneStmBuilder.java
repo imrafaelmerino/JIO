@@ -2,7 +2,7 @@ package jio.jdbc;
 
 import java.time.Duration;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import jio.Lambda;
 
 /**
@@ -18,14 +18,14 @@ public final class InsertOneStmBuilder<Params, Output> {
   private final Duration timeout;
 
   private final ParamsSetter<Params> setParams;
-  private final BiFunction<Params, Integer, ResultSetMapper<Output>> mapResult;
+  private final Function<Params, ResultSetMapper<Output>> mapResult;
   private boolean enableJFR = true;
   private String label;
 
   private InsertOneStmBuilder(String sql,
                               Duration timeout,
                               ParamsSetter<Params> setParams,
-                              BiFunction<Params, Integer, ResultSetMapper<Output>> mapResult) {
+                              Function<Params, ResultSetMapper<Output>> mapResult) {
     this.sql = Objects.requireNonNull(sql);
     this.timeout = timeout;
     this.setParams = Objects.requireNonNull(setParams);
@@ -47,7 +47,7 @@ public final class InsertOneStmBuilder<Params, Output> {
    */
   public static <Params, Output> InsertOneStmBuilder<Params, Output> of(String sql,
                                                                         ParamsSetter<Params> setParams,
-                                                                        BiFunction<Params, Integer, ResultSetMapper<Output>> mapResult,
+                                                                        Function<Params, ResultSetMapper<Output>> mapResult,
                                                                         Duration timeout) {
     return new InsertOneStmBuilder<>(sql,
                                      timeout,

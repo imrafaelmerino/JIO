@@ -8,18 +8,19 @@ import java.util.concurrent.Executors;
 import java.util.function.Function;
 
 /**
- * Represents a utility class for executing parameterized SQL queries and processing the results, specifically designed
- * for queries that retrieve at most one row from the database. Optionally integrates with Java Flight Recorder (JFR)
- * for monitoring.
- *
+ * Represents a query operation that retrieves at most one entity from the database based on specified filters. This
+ * class is designed for scenarios where the result set may contain one, zero, or multiple rows (representing the same
+ * entity). It's important to note that handling this variability in the result set is the responsibility of the result
+ * set mapper associated with the query.
  * <p>
  * Note: The operation is executed on a virtual thread.
  * </p>
  *
- * @param <Params> Type of the input parameters for the SQL query.
- * @param <Output> Type of the object produced by the result set mapper.
+ * @param <Filters> Type of the input parameters for the SQL query.
+ * @param <Entity>  Type of the object produced by the result set mapper.
  */
-final class QueryOneStm<Params, Output> {
+final class FindOneEntity<Filters, Entity> {
+
 
   /**
    * Represents the maximum time in seconds that the SQL execution should wait.
@@ -28,9 +29,9 @@ final class QueryOneStm<Params, Output> {
 
 
   /**
-   * The result set mapper for processing query results.
+   * The result-set mapper for processing query results.
    */
-  private final ResultSetMapper<Output> mapper;
+  private final ResultSetMapper<Entity> mapper;
 
   /**
    * The SQL query to execute.
@@ -40,7 +41,7 @@ final class QueryOneStm<Params, Output> {
   /**
    * The parameter setter for the SQL query.
    */
-  private final Function<Params, StatementSetter> setter;
+  private final Function<Filters, StatementSetter> setter;
   /**
    * Flag indicating whether Java Flight Recorder (JFR) events should be enabled.
    */
@@ -51,27 +52,35 @@ final class QueryOneStm<Params, Output> {
   private final String label;
 
   /**
+   * The fetch size for the query results.
+   */
+  private final int fetchSize;
+
+  /**
    * Constructs a {@code QueryOneStm} with specified parameters.
    *
    * @param timeout   The maximum time in seconds that the SQL execution should wait.
    * @param sqlQuery  The SQL query to execute.
    * @param setter    The parameter setter for the SQL query.
    * @param mapper    The result-set mapper for processing query results.
+   * @param fetchSize The fetch size for the query results.
    * @param enableJFR Indicates whether to enable Java Flight Recorder integration.
    * @param label     The label to identify the query in Java Flight Recording.
    */
-  QueryOneStm(Duration timeout,
-              String sqlQuery,
-              ParamsSetter<Params> setter,
-              ResultSetMapper<Output> mapper,
-              boolean enableJFR,
-              String label) {
+  FindOneEntity(Duration timeout,
+                String sqlQuery,
+                ParamsSetter<Filters> setter,
+                ResultSetMapper<Entity> mapper,
+                int fetchSize,
+                boolean enableJFR,
+                String label) {
     this.timeout = timeout;
     this.sql = sqlQuery;
     this.mapper = mapper;
     this.setter = setter;
     this.enableJFR = enableJFR;
     this.label = label;
+    this.fetchSize = fetchSize;
   }
 
 
@@ -86,7 +95,7 @@ final class QueryOneStm<Params, Output> {
    * virtual threads.
    * @see #buildClosable() for using query statements during transactions
    */
-  Lambda<Params, Output> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
+  Lambda<Filters, Entity> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return input ->
         IO.task(() -> {
                   try (var connection = datasourceBuilder.get()
@@ -98,9 +107,9 @@ final class QueryOneStm<Params, Output> {
                             var unused = setter.apply(input)
                                                .apply(ps);
                             ps.setQueryTimeout((int) timeout.toSeconds());
-                            ps.setFetchSize(1);
+                            ps.setFetchSize(fetchSize);
                             var rs = ps.executeQuery();
-                            return rs.next() ? mapper.apply(rs) : null;
+                            return mapper.apply(rs);
                           },
                           sql,
                           enableJFR,
@@ -119,13 +128,13 @@ final class QueryOneStm<Params, Output> {
    * @return A {@code ClosableStatement} representing the query operation with a duration, input, and output. Note: The
    * operations are performed by virtual threads.
    */
-  ClosableStatement<Params, Output> buildClosable() {
-    return (params, connection) ->
+  ClosableStatement<Filters, Entity> buildClosable() {
+    return (filters, connection) ->
         IO.task(() -> {
                   try (var ps = connection.prepareStatement(sql)) {
                     return JfrEventDecorator.decorateQueryOneStm(
                         () -> {
-                          var unused = setter.apply(params)
+                          var unused = setter.apply(filters)
                                              .apply(ps);
                           ps.setQueryTimeout((int) timeout.toSeconds());
                           ps.setFetchSize(1);

@@ -102,7 +102,6 @@ class BatchStm<Params> {
         IO.task(
             () -> JfrEventDecorator.decorateBatch(
                 () -> {
-                  connection.setAutoCommit(false);
                   try (var ps = connection.prepareStatement(sql)) {
                     ps.setQueryTimeout((int) timeout.toSeconds());
                     return process(params,

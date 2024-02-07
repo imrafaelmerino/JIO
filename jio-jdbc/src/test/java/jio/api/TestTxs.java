@@ -2,58 +2,45 @@ package jio.api;
 
 
 import java.util.List;
-import jio.IO;
-import jio.PairExp;
-import jio.jdbc.ClosableStatement;
-import jio.jdbc.RollBackToSavePoint;
+import jio.api.dao.CustomerDatabaseOps;
+import jio.api.domain.Address;
+import jio.api.domain.Customer;
+import jio.api.domain.Email;
+import jio.api.entities.CustomerEntity;
+import jio.jdbc.TxBuilder.TX_ISOLATION;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class TestTxs {
+public class TestTxs extends BaseTest {
 
 
-  public void testInsertAll() {
+  @Test
+  public void testInsertCustomer() {
 
-    record Email(String email,
-                 Long customerId,
-                 Long id) {
+    var customerID =
+        new InsertCustomerAndContactPointsTransitionally(datasourceBuilder,
+                                                         TX_ISOLATION.TRANSACTION_READ_UNCOMMITTED)
+            .apply(new Customer("Rafael",
+                                new Email("imrafaelmerino@gmail.com"),
+                                List.of(new Address("Elm's Street"),
+                                        new Address("Square Center")
+                                       )
+                   )
+                  )
+            .join();
 
-    }
-    record Address(String street,
-                   Long customerId,
-                   Long id) {
+    Assertions.assertTrue(customerID > 0,
+                          "customerId must be > 0");
 
-    }
+    CustomerDatabaseOps customerDatabaseOps =
+        CustomerDatabaseOps.of(datasourceBuilder);
 
-    record Customer(String name,
-                    Email email,
-                    List<Address> addresses,
-                    Long id) {
+    CustomerEntity customerEntity =
+        customerDatabaseOps.findCustomerAndContactPoints.apply(customerID)
+                                                        .join();
 
-    }
+    System.out.println(customerEntity);
 
-    final ClosableStatement<Customer, Long> insertCustomer = null;
-    final ClosableStatement<Email, Long> insertEmail = null;
-    final ClosableStatement<Address, Long> insertAddress = null;
-    final ClosableStatement<List<Address>, List<Long>> insertAddresses = null;
-
-   /* ClosableStatement<Customer, Customer> insert =
-        (customer, connection) ->
-            insertCustomer.apply(customer,
-                                 connection)
-                          .then(customerId -> {
-                                  IO.task(() -> connection.setSavepoint("customer"))
-                                    .then(savepoint ->
-                                              PairExp.par(insertEmail.apply(customer.email,
-                                                                            connection),
-                                                          insertAddresses.apply(customer.addresses,
-                                                                                connection)
-                                                         )
-                                                     .mapFailure(it -> RollBackToSavePoint.of(savepoint,
-                                                                                              customer)
-                                                                );
-                                         )
-                                }
-                               )
-                          .map(ids -> customer);*/
 
   }
 
