@@ -11,32 +11,34 @@ import jio.jdbc.ClosableStatement;
 import jio.jdbc.DatasourceBuilder;
 import jio.jdbc.TxBuilder;
 
-public class InsertCustomerAndContactPointsTransitionally implements Lambda<Customer, Long> {
+public class InsertCustomerAndContactPointsWithFailure implements Lambda<Customer, Long> {
 
 
   final ClosableStatement<Customer, Long> insertContactPoints = (customer, connection) ->
       CustomerDatabaseOps.insertOne
           .then(customerID ->
-                    PairExp.par(
-                               EmailDatabaseOps.insertOne.apply(customerID)
+                    PairExp.seq(
+                               EmailDatabaseOps.insertOne.apply(Integer.MAX_VALUE)//fk reference error
                                                          .apply(customer.email(),
                                                                 connection),
                                AddressesDatabaseOps.insertMany.apply(customerID)
                                                               .apply(customer.addresses(),
                                                                      connection)
                                )
-                           .debugEach("customerID:%s".formatted(customerID))
                            .map(it -> customerID)
                )
           .apply(customer,
                  connection);
 
+
   private final Lambda<Customer, Long> tx;
 
-  public InsertCustomerAndContactPointsTransitionally(DatasourceBuilder datasourceBuilder,
-                                                      TxBuilder.TX_ISOLATION isolation) {
+  public InsertCustomerAndContactPointsWithFailure(DatasourceBuilder datasourceBuilder,
+                                                   TxBuilder.TX_ISOLATION isolation) {
     this.tx = TxBuilder.of(datasourceBuilder,
-                           isolation)
+                           isolation
+                          )
+                       .withEventLabel("insert customer and contact points")
                        .build(insertContactPoints);
 
 

@@ -8,7 +8,6 @@ import jio.api.jdbc.domain.Address;
 import jio.jdbc.BatchOfOneEntityBuilder;
 import jio.jdbc.BatchResult;
 import jio.jdbc.ClosableStatement;
-import jio.jdbc.InsertOneEntityBuilder;
 
 public class AddressesDatabaseOps {
 

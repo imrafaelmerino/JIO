@@ -14,6 +14,7 @@ import jio.test.junit.Debugger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.postgresql.util.PSQLException;
 
 public class TestTxs extends BaseTest {
 
@@ -24,8 +25,8 @@ public class TestTxs extends BaseTest {
   public void testInsertCustomer() {
 
     var customerID =
-        new InsertCustomerAndContactPointsTransitionally(datasourceBuilder,
-                                                         TX_ISOLATION.TRANSACTION_READ_UNCOMMITTED)
+        new InsertCustomerAndContactPoints(datasourceBuilder,
+                                           TX_ISOLATION.TRANSACTION_READ_UNCOMMITTED)
             .apply(new Customer("Rafael",
                                 new Email("imrafaelmerino@gmail.com"),
                                 List.of(new Address("Elm's Street"),
@@ -45,11 +46,43 @@ public class TestTxs extends BaseTest {
         customerDatabaseOps.findCustomerAndContactPoints.apply(customerID)
                                                         .join();
 
-    Assertions.assertEquals(2,customerEntity.addresses().size());
+    Assertions.assertEquals(2,
+                            customerEntity.addresses()
+                                          .size());
     Assertions.assertNotNull(customerEntity.email()
                                            .id());
 
-    System.out.println(customerEntity);
+
+    Assertions.assertEquals(1,
+                            customerDatabaseOps.countCustomer.join());
+
+
+  }
+
+  @Test
+  public void testInsertCustomerFailure() {
+
+    var insert =
+        new InsertCustomerAndContactPointsWithFailure(datasourceBuilder,
+                                                      TX_ISOLATION.TRANSACTION_READ_UNCOMMITTED)
+            .apply(new Customer("Rafael",
+                                new Email("imrafaelmerino@gmail.com"),
+                                List.of(new Address("Elm's Street"),
+                                        new Address("Square Center")
+                                       )
+                   )
+                  );
+
+    Assertions.assertThrows(PSQLException.class,
+                            insert::result);
+
+
+
+    CustomerDatabaseOps customerDatabaseOps =
+        CustomerDatabaseOps.of(datasourceBuilder);
+
+    Assertions.assertEquals(0,
+                            customerDatabaseOps.countCustomer.join());
 
 
   }

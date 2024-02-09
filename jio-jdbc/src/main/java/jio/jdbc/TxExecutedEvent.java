@@ -13,7 +13,7 @@ import jdk.jfr.StackTrace;
 @Category({"JIO", "DATABASE", "JDBC"})
 @Description("JDBC transaction performed by jio-jdbc")
 @StackTrace(value = false)
-final class TxEvent extends Event {
+final class TxExecutedEvent extends Event {
 
   static final AtomicLong counter = new AtomicLong(0);
 

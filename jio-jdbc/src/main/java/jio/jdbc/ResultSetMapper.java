@@ -36,7 +36,7 @@ public interface ResultSetMapper<Entity> {
    * @param <Entity> the type of the entity.
    * @return a ResultSetMapper for handling one row per entity.
    */
-  static <Entity> ResultSetMapper<List<Entity>> ONE_ROW_PER_ENTITY(Function<ResultSet, Entity> map) {
+  static <Entity> ResultSetMapper<List<Entity>> ONE_ROW_PER_ENTITY(ResultSetMapper<Entity> map) {
     return resultSet -> {
       List<Entity> entities = new ArrayList<>();
       while (resultSet.next()) {

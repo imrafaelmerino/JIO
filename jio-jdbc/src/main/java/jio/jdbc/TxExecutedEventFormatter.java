@@ -2,7 +2,7 @@ package jio.jdbc;
 
 import java.util.function.Function;
 import jdk.jfr.consumer.RecordedEvent;
-import jio.jdbc.TxEvent.RESULT;
+import jio.jdbc.TxExecutedEvent.RESULT;
 import jio.time.Fun;
 
 /**
@@ -17,12 +17,12 @@ import jio.time.Fun;
  * This class is implemented as a singleton, and the singleton instance is available as {@link #INSTANCE}. You can use
  * this instance to format {@code RecordedEvent} instances by calling the {@link #apply(RecordedEvent)} method.
  */
-public final class TxEventFormatter implements Function<RecordedEvent, String> {
+public final class TxExecutedEventFormatter implements Function<RecordedEvent, String> {
 
   /**
    * The singleton instance of TxEventFormatter.
    */
-  public static final TxEventFormatter INSTANCE = new TxEventFormatter();
+  public static final TxExecutedEventFormatter INSTANCE = new TxExecutedEventFormatter();
   private static final String EVENT_LABEL = "jio.jdbc.Tx";
   private static final String SUCCESS_FORMAT = """
       %s; db-tx; label: %s; result: %s; duration: %s;
@@ -40,7 +40,7 @@ public final class TxEventFormatter implements Function<RecordedEvent, String> {
                                                             " ");
 
 
-  private TxEventFormatter() {
+  private TxExecutedEventFormatter() {
 
   }
 
@@ -57,10 +57,10 @@ public final class TxEventFormatter implements Function<RecordedEvent, String> {
   public String apply(RecordedEvent event) {
     assert EVENT_LABEL.equals(event.getEventType()
                                    .getName());
-    var result = event.getValue(TxEvent.RESULT_FIELD);
-    var label = event.getValue(TxEvent.LABEL_FIELD);
-    boolean isSuccess = TxEvent.RESULT.SUCCESS.name()
-                                              .equals(result);
+    var result = event.getValue(TxExecutedEvent.RESULT_FIELD);
+    var label = event.getValue(TxExecutedEvent.LABEL_FIELD);
+    boolean isSuccess = TxExecutedEvent.RESULT.SUCCESS.name()
+                                                      .equals(result);
     boolean isSuccessWithSavePoint = RESULT.PARTIAL_SUCCESS.name()
                                                            .equals(result);
 
@@ -70,7 +70,7 @@ public final class TxEventFormatter implements Function<RecordedEvent, String> {
                            label,
                            result,
                            Fun.formatTime(event.getDuration()),
-                           event.getValue(TxEvent.TX_COUNTER_FIELD)
+                           event.getValue(TxExecutedEvent.TX_COUNTER_FIELD)
                           );
     }
     if (isSuccessWithSavePoint) {
@@ -79,18 +79,18 @@ public final class TxEventFormatter implements Function<RecordedEvent, String> {
                            label,
                            result,
                            Fun.formatTime(event.getDuration()),
-                           event.getValue(TxEvent.SAVEPOINT_FIELD),
-                           event.getValue(TxEvent.EXCEPTION_FIELD),
-                           event.getValue(TxEvent.TX_COUNTER_FIELD)
+                           event.getValue(TxExecutedEvent.SAVEPOINT_FIELD),
+                           event.getValue(TxExecutedEvent.EXCEPTION_FIELD),
+                           event.getValue(TxExecutedEvent.TX_COUNTER_FIELD)
                           );
     }
     return String.format(FAILURE_FORMAT,
                          event.getStartTime(),
                          label,
                          result,
-                         event.getValue(TxEvent.EXCEPTION_FIELD),
+                         event.getValue(TxExecutedEvent.EXCEPTION_FIELD),
                          Fun.formatTime(event.getDuration()),
-                         event.getValue(TxEvent.TX_COUNTER_FIELD)
+                         event.getValue(TxExecutedEvent.TX_COUNTER_FIELD)
                         );
   }
 }

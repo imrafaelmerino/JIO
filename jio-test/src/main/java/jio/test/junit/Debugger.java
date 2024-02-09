@@ -76,6 +76,8 @@ public final class Debugger implements AfterAllCallback, BeforeAllCallback {
                   new HttpServerReqDebugger());
     debuggers.put(MongoDBOpDebugger.EVENT_NAME,
                   new MongoDBOpDebugger());
+    debuggers.put(DatabaseTxDebugger.EVENT_NAME,
+                  new DatabaseTxDebugger());
   }
 
   private Debugger(final String conf,

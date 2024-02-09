@@ -6,7 +6,7 @@ import jio.ExceptionFun;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import jio.IO;
-import jio.jdbc.TxEvent.RESULT;
+import jio.jdbc.TxExecutedEvent.RESULT;
 
 /**
  * Utility class for decorating operations with Java Flight Recorder (JFR) events.
@@ -278,7 +278,7 @@ class JfrEventDecorator {
                               boolean enableJFR) {
     if (enableJFR) {
       return IO.lazy(() -> {
-                 var event = new TxEvent();
+                 var event = new TxExecutedEvent();
                  event.begin();
                  return event;
                })
@@ -313,7 +313,7 @@ class JfrEventDecorator {
                                                boolean enableJFR) {
     if (enableJFR) {
       return IO.lazy(() -> {
-                 var event = new TxEvent();
+                 var event = new TxExecutedEvent();
                  event.begin();
                  return event;
                })

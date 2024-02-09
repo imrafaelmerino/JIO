@@ -26,7 +26,7 @@ final class DatabaseBatchDebugger implements Consumer<RecordedEvent> {
       -------------------------------
       """;
 
-  private static final String FORMAT_ERR = """
+  private static final String FAILURE_OR_PARTIAL_SUCCESS_FORMAT = """
       ------ jdbc-client batch -----
       |  Label: %s
       |  Result: %s
@@ -68,7 +68,7 @@ final class DatabaseBatchDebugger implements Consumer<RecordedEvent> {
                                      .atZone(ZoneOffset.UTC)
                                      .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                                ) :
-                  String.format(FORMAT_ERR,
+                  String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
                                 label,
                                 event.getValue(EventFields.RESULT),
                                 Fun.formatTime(event.getDuration()),
