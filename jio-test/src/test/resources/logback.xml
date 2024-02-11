@@ -10,7 +10,7 @@
   <logger name="org.testcontainers.utility.RyukResourceReaper" level="error"/>
 
   <!-- Root Logger -->
-  <root level="trace">
+  <root level="error">
     <appender-ref ref="CONSOLE" />
   </root>
 

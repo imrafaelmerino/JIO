@@ -45,7 +45,7 @@ import java.util.function.Predicate;
 
 
 @Disabled
-public class PetStoreProperties {
+public class TestPetStoreProperties {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));

@@ -39,8 +39,7 @@ public final class Delay extends IO<Void> {
    * @param duration the duration
    * @return a Delay
    */
-  public static Delay of(final Duration duration
-                        ) {
+  public static Delay of(final Duration duration) {
     return new Delay(requireNonNull(duration));
   }
 

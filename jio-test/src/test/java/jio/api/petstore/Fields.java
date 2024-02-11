@@ -6,14 +6,8 @@ public class Fields {
 
   public static final List<String> REQ_PET_FIELDS = List.of("name",
                                                             "photoUrls");
-
-  public static final String CODE = "code";
-  public static final String TYPE = "type";
-  public static final String MESSAGE = "message";
-
   public static final String ID = "id";
   public static final String NAME = "name";
-
   public static final String PET_ID = "petId";
   public static final String QUANTITY = "quantity";
   public static final String SHIP_DATE = "shipDate";

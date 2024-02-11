@@ -60,3 +60,9 @@ Creation of new methods in `ExceptionFun` to handle Exceptions
 ** Version 2.0.8**
 
 - JFR event are committed if `shouldCommit` is true
+
+** Version 2.1.0**
+
+Bugs:
+
+- `IO.resource`. The resource was closed before invoking the effect returned by the lambda function
