@@ -12,16 +12,14 @@ Breaking:
 
 - JFR event annotations renamed: name from `jio.exp` to `jio.exp.EvalExp`
 - rename `ExpEventFormatter` to `EvalExpEventFormatter`
-- `EvalExpEventFormatter`prints time in a human-readable way and not in milliseconds
-  New:
-- `jio.exp.time.Fun` class. Method `formatTime `is very useful, and it's used
-  from different modules
-- `jio.exp.Fun` is public. . Method `findUltimateCause ` and `findCause`is
-  very useful, and it's used from different modules.
+- `EvalExpEventFormatter`prints time in a human-readable way and not in milliseconds New:
+- `jio.exp.time.Fun` class. Method `formatTime `is very useful, and it's used from different modules
+- `jio.exp.Fun` is public. . Method `findUltimateCause ` and `findCause`is very useful, and it's
+  used from different modules.
 
 Refactor:
 
-- rename `ExpEvent`  to  `EvalExpEvent` (internal class)
+- rename `ExpEvent` to `EvalExpEvent` (internal class)
 
 Others:
 
@@ -39,23 +37,18 @@ New:
 
 - `Delay` implemented with virtual threads instead of `DelayedExecutor`
 
-** Version 2.0.1**
-Breaking:
+** Version 2.0.1** Breaking:
 
 - Since we have virtual threads, IO methods with suffix on have been deleted
-- `result` method now throws an exception in the signature.
-  Honesty first!
-  If the api client prefers to be unsafe use the alternative `join` which is Java idiomatic, but it
-  throws
+- `result` method now throws an exception in the signature. Honesty first! If the api client prefers
+  to be unsafe use the alternative `join` which is Java idiomatic, but it throws
   `CompletionException` instead of it cause like `result` methods do.
 
-** Version 2.0.3**
-Breaking:
+** Version 2.0.3** Breaking:
 
 - Creation of `ExceptionFun` and move public methods from `Fun` into this class
 
-New:
-Creation of new methods in `ExceptionFun` to handle Exceptions
+New: Creation of new methods in `ExceptionFun` to handle Exceptions
 
 ** Version 2.0.8**
 
