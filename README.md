@@ -1295,6 +1295,8 @@ JIO encourages a functional programming style with the following methods:
 public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
 
     IO<A> map(Function<O, A> fn);
+    
+    IO<A> mapFailure(Function<Throwable, Throwable>);
 
     IO<A> then(Lambda<O, A> fn);
 
@@ -1305,7 +1307,9 @@ public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
 
 ```
 
-- `map`: Transforms the result of an effect using a provided function, allowing you to map values
+- `map`: Transforms the successful result of an effect using a provided function, allowing you to map values
+  from one type to another.
+- `mapFailure`: Transforms the failure result of an effect using a provided function, allowing you to map exceptions
   from one type to another.
 - `then` (akin to `flatMap` or `bind` in other languages and a core function in monads): Applies a
   lambda function to  
@@ -1455,36 +1459,6 @@ public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
 `race` method returns the result of the first effect that completes (whether it succeeds or fails),
 allowing you to make quick decisions based on the outcome.
 
-### Specifying executors
-
-Sometimes, it is valuable to have fine-grained control over the execution context responsible for
-computing the values of effects. JIO provides a set of methods with the 'on' suffix to cater to this
-specific need. These methods allow you to specify the execution context or thread pool in which the
-effect's computation should occur, providing you with control over concurrency and resource
-allocation. Here are the key methods with the 'on' suffix:
-
-```code
-
-public abstract class IO<O> extends Supplier<CompletableFuture<O>> {
-
-    IO<O> task(Callabel<O> task,
-               Executor executor
-              );
-
-    IO<O> lazy(Supplier<O> supplier,
-               Executor executor
-              );
-
-    <Q> IO<Q> thenOn(Lambda<O, Q> fn,
-                     Executor executor
-                     );
-
-    IO<O> fallbackToOn(Lambda<Throwable, O> lambda,
-                       Executor executor
-                      );
-}
-```
-
 #### Pulling the trigger!
 
 Given an `IO<O>` effect, how do you trigger the execution to compute the final value of type `O`?
@@ -1496,9 +1470,7 @@ There are three ways:
   blocking is not a problem.
 - Block and wait till the evaluation is done with the method `result()`.It can throw a checked
   exception. Not like `join` it throws the real cause of the failure and not `CompletionException`.
-  You can map the possible exception passing in a function with
-  `result(Function<Throwable,Throwable>)`
-- Callback style, Call Call Callback style :) with the method `onResult(ouput -> {}, failure -> {})`
+- Callback style, Call Call Call Callback style :) with the method `onResult(ouput -> {}, failure -> {})`
 
 ```code
 
@@ -1506,7 +1478,9 @@ IO<O> effect = ???;
 
 CompletableFuture<O> future = effect.get();
 
-O output = effect.result();
+O output = effect.result(); //throws checked exception
+
+O output1 = effect.join(); 
 
 effect.onResult(output -> System.out.println(" :) "),
                 exc -> System.out.println(" :( ")
