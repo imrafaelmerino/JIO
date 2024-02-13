@@ -1,14 +1,14 @@
 package jio.api.exp;
 
 
-import jio.IO;
+import fun.gen.BoolGen;import fun.gen.Gen;import fun.gen.IntGen;import fun.gen.StrGen;import java.util.concurrent.Executors;import java.util.function.Supplier;import jio.IO;
 import jio.Lambda;
 import jio.test.junit.Debugger;
-import jio.time.Clock;
+import jio.test.stub.StubBuilder;import jio.time.Clock;
 import jsonvalues.JsArray;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
-import org.junit.jupiter.api.Assertions;
+import jsonvalues.gen.JsArrayGen;import jsonvalues.gen.JsStrGen;import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -52,20 +52,54 @@ public class SignupTests {
 
 
   @RegisterExtension
-  static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
+  static Debugger debugger = Debugger.of(Duration.ofSeconds(10));
 
 
   @Test
-  public void test() {
+  public void testReadme() {
 
-    final Lambda<JsObj, Void> persistLDAP = a -> IO.NULL();
-    final Lambda<String, JsArray> normalizeAddresses = a -> IO.succeed(
-        JsArray.of("address1",
-                   "address2"));
-    final Lambda<Void, Integer> countUsers = a -> IO.succeed(3);
-    final Lambda<JsObj, String> persistMongo = a -> IO.succeed("id");
-    final Lambda<JsObj, Void> sendEmail = a -> IO.NULL();
-    final Lambda<String, Boolean> existsInLDAP = a -> IO.FALSE;
+    //let's change the delay of every stub to 1 sec, for the sake of clarity
+    Gen<Duration> delayGen = Gen.cons(1).map(Duration::ofSeconds);
+
+    Supplier<IO<Integer>> countUsers =
+        () -> StubBuilder.ofGen(Gen.seq(n -> n <= 4 ?
+                                            IO.fail(new RuntimeException(n + "")) :
+                                            IO.succeed(n)
+                                      )
+                              )
+                        .withDelays(delayGen)
+                        .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                        .get();
+
+    Lambda<JsObj, String> persistMongo =
+        a -> StubBuilder.ofSucGen(StrGen.alphabetic(20, 20))
+                        .withDelays(delayGen)
+                        .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                        .get();
+
+    Lambda<JsObj, Void> sendEmail =
+        a -> StubBuilder.<Void>ofSucGen(Gen.cons(null))
+                        .withDelays(delayGen)
+                        .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                        .get();
+
+    Lambda<String, Boolean> existsInLDAP =
+        a -> StubBuilder.ofSucGen(BoolGen.arbitrary())
+                        .withDelays(delayGen)
+                        .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                        .get();
+
+    Lambda<JsObj, Void> persistLDAP =
+        a -> StubBuilder.<Void>ofSucGen(Gen.cons(null))
+                        .withDelays(delayGen)
+                        .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                        .get();
+
+    Lambda<String, JsArray> normalizeAddresses =
+        a -> StubBuilder.ofSucGen(JsArrayGen.ofN(JsStrGen.alphabetic(), 3))
+                        .withDelays(delayGen)
+                        .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
+                        .get();
 
     JsObj user = JsObj.of("email",
                           JsStr.of("imrafaelmerino@gmail.com"),
@@ -88,7 +122,17 @@ public class SignupTests {
     Assertions.assertTrue(resp.containsKey("addresses"));
     Assertions.assertTrue(resp.containsKey("timestamp"));
 
+
+
   }
+
+
+  @Test
+  public void test(){
+
+
+  }
+
 
 
 }

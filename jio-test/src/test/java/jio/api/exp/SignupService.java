@@ -1,5 +1,6 @@
 package jio.api.exp;
 
+import java.util.function.Supplier;
 import jio.*;
 import jio.time.Clock;
 import jsonvalues.*;
@@ -12,7 +13,7 @@ public class SignupService implements Lambda<JsObj, JsObj> {
 
   final Lambda<JsObj, Void> persistLDAP;
   final Lambda<String, JsArray> normalizeAddresses;
-  final Lambda<Void, Integer> countUsers;
+  final Supplier<IO<Integer>> countUsers;
   final Lambda<JsObj, String> persistMongo;
   final Lambda<JsObj, Void> sendEmail;
   final Lambda<String, Boolean> existsInLDAP;
@@ -21,7 +22,7 @@ public class SignupService implements Lambda<JsObj, JsObj> {
 
   public SignupService(Lambda<JsObj, Void> persistLDAP,
                        Lambda<String, JsArray> normalizeAddresses,
-                       Lambda<Void, Integer> countUsers,
+                       Supplier<IO<Integer>> countUsers,
                        Lambda<JsObj, String> persistMongo,
                        Lambda<JsObj, Void> sendEmail,
                        Lambda<String, Boolean> existsInLDAP,
@@ -55,7 +56,7 @@ public class SignupService implements Lambda<JsObj, JsObj> {
 
     return
         JsObjExp.par("number_users",
-                     countUsers.apply(null)
+                     countUsers.get()
                                .debug(EventBuilder.of("count_number_users",
                                                       context))
                                .retry(RetryPolicies.limitRetries(3))

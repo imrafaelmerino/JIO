@@ -84,14 +84,11 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.0</version>
         <configuration>
-          <source>${MAVEN-COMPILER-PLUGIN.SOURCE}</source>
-          <target>${MAVEN-COMPILER-PLUGIN.TARGET}</target>
+          <source>21</source>
+          <target>21</target>
           <showWarnings>true</showWarnings>
           <encoding>${project.build.sourceEncoding}</encoding>
-          <compilerArgs>
-            <arg>-XDcompilePolicy=simple</arg>
-            <arg>-Xplugin:ErrorProne</arg>
-            <arg>-Xlint:all</arg>
+          <compilerArgs>--enable-preview
           </compilerArgs>
           <annotationProcessorPaths>
             <path>

@@ -193,7 +193,7 @@ making your testing experience smoother and more expressive. Since Lambdas are j
 in your test class, directly. This approach enables you to tailor the behavior of each lambda to your specific test
 scenario, making your tests highly adaptable and expressive:
 
-```code
+```java
 
 
 public class SignupTests {
@@ -231,7 +231,7 @@ public class SignupTests {
                                        )
                                       .apply(user)
                                       .result();
-        //Junit assertions
+        
         Assertions.assertTrue(resp.containsKey("number_users"));
         
     }
@@ -270,41 +270,130 @@ code's behavior without relying on external logging libraries or complex setups.
 
 Find below all the events that are printed out during the execution of the previous JUnit test.
 
-```
-Started JFR stream for 2 sg in SignupTests
+```text
 
-event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: 3
-duration: 1,856 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.540570333+02:00
+Started JFR stream for 2,000 sg in SignupTests
 
-event: eval, expression: JsObjExpPar[addresses], result: SUCCESS, output: ["address1","address2"]
-duration: 3,512 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.542459458+02:00
+------ eval-exp --------
+|  Expression: count_number_users
+|  Result: SUCCESS
+|  Duration: 69,833 µs
+|  Output: 3
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.920563792+01:00
+-------------------------
 
-event: eval, expression: IfElseExp-predicate, result: SUCCESS, output: false
-duration: 37,375 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.54713175+02:00
+------ eval-exp --------
+|  Expression: JsObjExpPar[number_users]
+|  Result: SUCCESS
+|  Duration: 1,418 ms
+|  Output: 3
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.91973025+01:00
+-------------------------
 
-event: eval, expression: PairExpSeq[1], result: SUCCESS, output: null
-duration: 6,917 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548552375+02:00
+------ eval-exp --------
+|  Expression: JsObjExpPar[addresses]
+|  Result: SUCCESS
+|  Duration: 4,583 µs
+|  Output: ["address1","address2"]
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.921166292+01:00
+-------------------------
 
-event: eval, expression: PairExpSeq[2], result: SUCCESS, output: null
-duration: 5,000 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548692083+02:00
+------ eval-exp --------
+|  Expression: IfElseExp-predicate
+|  Result: SUCCESS
+|  Duration: 5,958 µs
+|  Output: false
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.924032792+01:00
+-------------------------
 
-event: eval, expression: PairExpSeq, result: SUCCESS, output: (null, null)
-duration: 368,375 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548550667+02:00
+------ eval-exp --------
+|  Expression: PairExpSeq[1]
+|  Result: SUCCESS
+|  Duration: 4,709 µs
+|  Output: null
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.924848208+01:00
+-------------------------
 
-event: eval, expression: IfElseExp-alternative, result: SUCCESS, output: id
-duration: 391,209 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548540458+02:00
+------ eval-exp --------
+|  Expression: PairExpSeq[2]
+|  Result: SUCCESS
+|  Duration: 4,291 µs
+|  Output: null
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.924969417+01:00
+-------------------------
 
-event: eval, expression: IfElseExp, result: SUCCESS, output: id
-duration: 1,816 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.547128042+02:00
+------ eval-exp --------
+|  Expression: PairExpSeq
+|  Result: SUCCESS
+|  Duration: 284,875 µs
+|  Output: (null, null)
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.924846917+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar[id], result: SUCCESS, output: id
-duration: 2,927 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.546031+02:00
+------ eval-exp --------
+|  Expression: IfElseExp-alternative
+|  Result: SUCCESS
+|  Duration: 2,744 ms
+|  Output: id
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.924842+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-13T11:41:34.548Z
-duration: 531,833 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548970375+02:00
+------ eval-exp --------
+|  Expression: IfElseExp
+|  Result: SUCCESS
+|  Duration: 3,568 ms
+|  Output: id
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.924030958+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar, result: SUCCESS, output: {"addresses":["address1","address2"],"number_users":3,"timestamp":"2023-10-13T11:41:34.548Z","id":"id"}
-duration: 14,280 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.539958042+02:00
+------ eval-exp --------
+|  Expression: JsObjExpPar[id]
+|  Result: SUCCESS
+|  Duration: 4,058 ms
+|  Output: id
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.923546958+01:00
+-------------------------
+
+------ eval-exp --------
+|  Expression: JsObjExpPar[timestamp]
+|  Result: SUCCESS
+|  Duration: 219,208 µs
+|  Output: 2024-02-13T09:08:09.927Z
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.927616125+01:00
+-------------------------
+
+------ eval-exp --------
+|  Expression: JsObjExpPar
+|  Result: SUCCESS
+|  Duration: 8,925 ms
+|  Output: {"addresses":["address1","address2"],"number_users":3,"timestamp":"2024-02-13T09:08:09.927Z","id":"id"}
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.919238167+01:00
+-------------------------
+
 ```
 
 The events printed out are self-explanatory.
@@ -323,7 +412,8 @@ this, more complex stubs are used from the `jio-test` library through the `StubB
 specify generators for their creation, ensuring different values are returned every time. Here's how you can utilize
 them:
 
-```code
+```java
+
 @Test
 public void test(){
 
@@ -343,7 +433,7 @@ public void test(){
                             .get();
 
     Lambda<JsObj, Void> sendEmail =
-            _ -> StubBuilder.ofSucGen(Gen.cons(null))
+            _ -> StubBuilder.<Void>ofSucGen(Gen.cons(null))
                             .withDelays(delayGen)
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                             .get();
@@ -355,7 +445,7 @@ public void test(){
                             .get();
     
     Lambda<JsObj, Void> persistLDAP =
-            _ -> StubBuilder.ofSucGen(Gen.cons(null))
+            _ -> StubBuilder.<Void>ofSucGen(Gen.cons(null))
                             .withDelays(delayGen)  
                             .withExecutor(Executors.newVirtualThreadPerTaskExecutor())
                             .get();
@@ -372,51 +462,107 @@ These `StubBuilder` instances are essentially builders that create IO stubs. The
 variability and randomness into your tests, making them more realistic and ensuring your code can handle different
 scenarios effectively. I recommend you take a look at [jio-test](#jio-test) and [property-based-testing](#pbt).
 
-Using that stubs the following events were printed out:
+Using these stubs, the following events were printed out:
 
-```code
-Started JFR stream for 2 sg in SignupTests
+```text
+Started JFR stream for 2,000 sg in SignupTests
 
-event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-10T09:41:27.520Z
-duration: 861,417 µs, context: signup, thread: main, event-start-time: 2023-10-10T11:41:27.5204015+02:00
+------ eval-exp --------
+|  Expression: JsObjExpPar[timestamp]
+|  Result: SUCCESS
+|  Duration: 293,209 µs
+|  Output: 2024-02-13T09:18:21.071Z
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:18:21.071499125+01:00
+-------------------------
 
-event: eval, expression: IfElseExp-predicate, result: SUCCESS, output: false
-duration: 31,238 ms, context: signup, thread: virtual-40, event-start-time: 2023-10-10T11:41:27.549069042+02:00
+------ eval-exp --------
+|  Expression: count_number_users
+|  Result: SUCCESS
+|  Duration: 65,372 ms
+|  Output: 32634
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:18:21.066073417+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar[addresses], result: SUCCESS, output: ["u","d","f"]
-duration: 77,856 ms, context: signup, thread: virtual-34, event-start-time: 2023-10-10T11:41:27.520052167+02:00
+------ eval-exp --------
+|  Expression: JsObjExpPar[number_users]
+|  Result: SUCCESS
+|  Duration: 66,663 ms
+|  Output: 32634
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:18:21.065248375+01:00
+-------------------------
 
-event: eval, expression: PairExpSeq[1], result: SUCCESS, output: null
-duration: 111,441 ms, context: signup, thread: virtual-42, event-start-time: 2023-10-10T11:41:27.582186792+02:00
+------ eval-exp --------
+|  Expression: JsObjExpPar[addresses]
+|  Result: SUCCESS
+|  Duration: 116,944 ms
+|  Output: ["m","n","g"]
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:18:21.071124667+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: 32914
-duration: 180,810 ms, context: signup, thread: virtual-32, event-start-time: 2023-10-10T11:41:27.513371334+02:00
+------ eval-exp --------
+|  Expression: IfElseExp-predicate
+|  Result: SUCCESS
+|  Duration: 37,233 ms
+|  Output: true
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:18:21.218791959+01:00
+-------------------------
 
-event: eval, expression: PairExpSeq[2], result: SUCCESS, output: null
-duration: 141,523 ms, context: signup, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.693663125+02:00
+------ eval-exp --------
+|  Expression: IfElseExp-consequence
+|  Result: SUCCESS
+|  Duration: 9,667 µs
+|  Output: QREuMrvmtunCvhbZxykT
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:18:21.256122125+01:00
+-------------------------
 
-event: eval, expression: PairExpSeq, result: SUCCESS, output: (null, null)
-duration: 253,256 ms, context: signup, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.582184959+02:00
+------ eval-exp --------
+|  Expression: IfElseExp
+|  Result: SUCCESS
+|  Duration: 37,386 ms
+|  Output: QREuMrvmtunCvhbZxykT
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:18:21.218788042+01:00
+-------------------------
 
-event: eval, expression: IfElseExp-alternative, result: SUCCESS, output: JOYfTGftYQXYNFGROgNp
-duration: 253,302 ms, context: signup, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.582176584+02:00
+------ eval-exp --------
+|  Expression: JsObjExpPar[id]
+|  Result: SUCCESS
+|  Duration: 184,728 ms
+|  Output: QREuMrvmtunCvhbZxykT
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:18:21.071473417+01:00
+-------------------------
 
-event: eval, expression: IfElseExp, result: SUCCESS, output: JOYfTGftYQXYNFGROgNp
-duration: 286,460 ms, context: signup, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.549066834+02:00
-
-event: eval, expression: JsObjExpPar[id], result: SUCCESS, output: JOYfTGftYQXYNFGROgNp
-duration: 315,203 ms, context: signup, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.520363459+02:00
-
-event: eval, expression: JsObjExpPar, result: SUCCESS, output: {"addresses":["u","d","f"],"number_users":32914,"timestamp":"2023-10-10T09:41:27.520Z","id":"JOYfTGftYQXYNFGROgNp"}
-duration: 331,995 ms, context: signup, thread: virtual-44, event-start-time: 2023-10-10T11:41:27.512854042+02:00
-
+------ eval-exp --------
+|  Expression: JsObjExpPar
+|  Result: SUCCESS
+|  Duration: 191,692 ms
+|  Output: {"addresses":["m","n","g"],"number_users":32634,"timestamp":"2024-02-13T09:18:21.071Z","id":"QREuMrvmtunCvhbZxykT"}
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:18:21.064957792+01:00
+-------------------------
 
 ```
 
 To enhance the resilience of our code, let's introduce some retry logic for the `countUsers` supplier. We want to allow
 up to three retries:
 
-``` code                                
+```code                                
         // let's add up to three retries 
         countUsers.get()
                   .debug(EventBuilder.of("count_users", context)) 
@@ -437,7 +583,7 @@ In this code:
 
 And to test it, let's change the stub for the `countUser` supplier:
 
-```code
+```java
 
 //let's change the delay of every stub to 1 sec, for the sake of clarity
 Gen<Duration> delayGen = Gen.cons(1).map(Duration::ofSeconds);
@@ -464,45 +610,158 @@ In this code:
 
 This setup allows you to test and observe the retry logic in action:
 
-```code
+```text
+Started JFR stream for 10,000 sg in SignupTests
 
-Started JFR stream for 5 sg in SignupTests
+------ eval-exp --------
+|  Expression: JsObjExpPar[timestamp]
+|  Result: SUCCESS
+|  Duration: 281,583 µs
+|  Output: 2024-02-13T09:30:42.681Z
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:30:42.681326792+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-10T11:32:31.361Z
-duration: 1183,875 µs, context: signup, thread: main, event-start-time: 2023-10-10T13:32:31.361439584+02:00
+------ eval-exp --------
+|  Expression: count_number_users
+|  Result: FAILURE
+|  Duration: 1,010 sg
+|  Output: java.lang.RuntimeException: 1
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:30:42.678849959+01:00
+-------------------------
 
-event: eval, expression: count_users, result: FAILURE, output: java.lang.RuntimeException:1
-duration: 1,008 sg, context: signup, thread: virtual-32, event-start-time: 2023-10-10T13:32:31.358466292+02:00
+------ eval-exp --------
+|  Expression: JsObjExpPar[addresses]
+|  Result: SUCCESS
+|  Duration: 1,007 sg
+|  Output: ["l","e","B"]
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:30:42.681127792+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar[addresses], result: SUCCESS, output: ["H","E","N"]
-duration: 1,009 sg, context: signup, thread: virtual-34, event-start-time: 2023-10-10T13:32:31.361287042+02:00
+------ eval-exp --------
+|  Expression: IfElseExp-predicate
+|  Result: SUCCESS
+|  Duration: 1,006 sg
+|  Output: false
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:30:43.6904075+01:00
+-------------------------
 
-event: eval, expression: IfElseExp-predicate, result: SUCCESS, output: true
-duration: 1,005 sg, context: signup, thread: virtual-45, event-start-time: 2023-10-10T13:32:32.36795925+02:00
+------ eval-exp --------
+|  Expression: count_number_users
+|  Result: FAILURE
+|  Duration: 1,006 sg
+|  Output: java.lang.RuntimeException: 2
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:30:43.690528334+01:00
+-------------------------
 
-event: eval, expression: count_users, result: FAILURE, output: java.lang.RuntimeException:2
-duration: 1,006 sg, context: signup, thread: virtual-32, event-start-time: 2023-10-10T13:32:32.366728167+02:00
+------ eval-exp --------
+|  Expression: count_number_users
+|  Result: FAILURE
+|  Duration: 1,004 sg
+|  Output: java.lang.RuntimeException: 3
+|  Context: signup
+|  Thread: not recorded
+|  Event Start Time: 2024-02-13T10:30:44.696579667+01:00
+-------------------------
 
-event: eval, expression: IfElseExp-consequence, result: SUCCESS, output: fNUAsXflwFYPNaRnMCfN
-duration: 16,083 µs, context: signup, thread: virtual-45, event-start-time: 2023-10-10T13:32:33.372809459+02:00
+------ eval-exp --------
+|  Expression: PairExpSeq[1]
+|  Result: SUCCESS
+|  Duration: 1,001 sg
+|  Output: null
+|  Context: signup
+|  Thread: not recorded
+|  Event Start Time: 2024-02-13T10:30:44.702844292+01:00
+-------------------------
 
-event: eval, expression: IfElseExp, result: SUCCESS, output: fNUAsXflwFYPNaRnMCfN
-duration: 1,005 sg, context: signup, thread: virtual-45, event-start-time: 2023-10-10T13:32:32.36795675+02:00
+------ eval-exp --------
+|  Expression: PairExpSeq[2]
+|  Result: SUCCESS
+|  Duration: 1,003 sg
+|  Output: null
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:30:45.704042667+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar[id], result: SUCCESS, output: fNUAsXflwFYPNaRnMCfN
-duration: 2,012 sg, context: signup, thread: virtual-45, event-start-time: 2023-10-10T13:32:31.361416292+02:00
+------ eval-exp --------
+|  Expression: count_number_users
+|  Result: FAILURE
+|  Duration: 1,006 sg
+|  Output: java.lang.RuntimeException: 4
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:30:45.700588667+01:00
+-------------------------
 
-event: eval, expression: count_users, result: FAILURE, output: java.lang.RuntimeException:3
-duration: 1,001 sg, context: signup, thread: not recorded, event-start-time: 2023-10-10T13:32:33.372799375+02:00
+------ eval-exp --------
+|  Expression: PairExpSeq
+|  Result: SUCCESS
+|  Duration: 2,004 sg
+|  Output: (null, null)
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:30:44.702836584+01:00
+-------------------------
 
-event: eval, expression: count_users, result: FAILURE, output: java.lang.RuntimeException:4
-duration: 1,006 sg, context: signup, thread: virtual-47, event-start-time: 2023-10-10T13:32:34.374127542+02:00
+------ eval-exp --------
+|  Expression: JsObjExpPar[number_users]
+|  Result: SUCCESS
+|  Duration: 4,030 sg
+|  Output: -1
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:30:42.67800425+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: -1
-duration: 4,025 sg, context: signup, thread: virtual-47, event-start-time: 2023-10-10T13:32:31.356712292+02:00
+------ eval-exp --------
+|  Expression: IfElseExp-alternative
+|  Result: SUCCESS
+|  Duration: 2,015 sg
+|  Output: adnhvqDPCgmEINgqiteV
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:30:44.702804125+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar, result: SUCCESS, output: {"addresses":["H","E","N"],"number_users":-1,"timestamp":"2023-10-10T11:32:31.361Z","id":"fNUAsXflwFYPNaRnMCfN"}
-duration: 4,036 sg, context: signup, thread: virtual-47, event-start-time: 2023-10-10T13:32:31.355501792+02:00
+------ eval-exp --------
+|  Expression: IfElseExp
+|  Result: SUCCESS
+|  Duration: 3,028 sg
+|  Output: adnhvqDPCgmEINgqiteV
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:30:43.690404584+01:00
+-------------------------
+
+------ eval-exp --------
+|  Expression: JsObjExpPar[id]
+|  Result: SUCCESS
+|  Duration: 4,037 sg
+|  Output: adnhvqDPCgmEINgqiteV
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:30:42.681302584+01:00
+-------------------------
+
+------ eval-exp --------
+|  Expression: JsObjExpPar
+|  Result: SUCCESS
+|  Duration: 4,042 sg
+|  Output: {"addresses":["l","e","B"],"number_users":-1,"timestamp":"2024-02-13T09:30:42.681Z","id":"adnhvqDPCgmEINgqiteV"}
+|  Context: signup
+|  Thread: virtual--1
+|  Event Start Time: 2024-02-13T10:30:42.676874584+01:00
+-------------------------
 
 ```
 
@@ -535,7 +794,7 @@ Key points:
 Functional Programming is all about working with pure functions and values. That's all. **However, where FP especially
 shines is dealing with effects**.
 
-But, what is an effect?
+But what is an effect?
 
 First take a look at the following piece of code:
 
@@ -605,14 +864,14 @@ create and compose expressions.
 What can you expect from JIO:
 
 - Simple and powerful API
-- Errors are first class citizens
+- Errors are first-class citizens
 - Simple and powerful testing tools ([jio-test](#jio-test))
-- Easy to extend and get benefit from all the above. Examples are [jio-http](#jio-http) and [jio-mongodb](#jio-mongodb).
-  And you can create your owns integrations!
+- Easy to extend and get benefit from all the above. Examples are [jio-http](#jio-http), [jio-mongodb](#jio-mongodb) and [jio-jdbc](#jio-jdbc).
+  And you can create your own integrations!
 - I don't fall into the logging-library war. This is something that sucks in Java. I just use Java Flight Recording!
 - Almost zero dependencies (just plain Java!)
 - JIO doesn't transliterate any functional API from other languages. This way, any standard Java programmer will find
-  JIO quite easy and familiar.
+  JIO quite easy and familiar. 
 
 ---  
 
@@ -620,7 +879,7 @@ What can you expect from JIO:
 
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-exp/2.1.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-exp/2.1.0/jar "jio-ex")
 
-Let's model a funcional effect in Java!
+Let's model a functional effect in Java!
 
 ```code  
   
@@ -655,7 +914,7 @@ Key Concepts:
 
 - According to Erik Meyer, as mentioned in [this video](https://www.youtube.com/watch?v=z0N1aZ6SnBk), honesty is at
   the core of functional programming. I find this perspective to be quite insightful. Latency and failures hold such
-  significance that they should be explicitly denoted in a function or method's signature with the `IO` type. Without
+  a significance that they should be explicitly denoted in a function or method's signature with the `IO` type. Without
   this distinction, it becomes impossible to differentiate functions that are free from failure and latency from
   those that aren't, making our code difficult to reason about.
 
@@ -783,7 +1042,7 @@ IO<JsObj> effect = IO.lazy(blockingTask,
 
 The `resource` method is used to create an IO effect that manages a resource implementing the `AutoCloseable`
 interface. It takes a `Callable` that supplies the closable resource and a mapping function to transform the resource
-into a value. This method ensures proper resource management, including automatic closing of the resource, to prevent
+into a value. This method ensures proper resource management, including automatic closing of the resource after the map function is executed, to prevent
 memory leaks. It returns an IO effect encapsulating both the resource handling and mapping.
 
 ```code   
