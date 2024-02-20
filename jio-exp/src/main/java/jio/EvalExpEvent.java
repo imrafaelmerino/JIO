@@ -1,11 +1,15 @@
 package jio;
 
-import jdk.jfr.*;
-
+import jdk.jfr.Category;
+import jdk.jfr.Description;
+import jdk.jfr.Event;
+import jdk.jfr.Label;
+import jdk.jfr.Name;
+import jdk.jfr.StackTrace;
 
 @Label("Expression Evaluation Info")
 @Name("jio.exp.EvalExp")
-@Category({"JIO"})
+@Category({"JIO", "EXP"})
 @Description("Duration, output, context and other info related to an expression from jio-exp")
 @StackTrace(value = false)
 class EvalExpEvent extends Event {
@@ -15,16 +19,12 @@ class EvalExpEvent extends Event {
   public String value;
 
   public String context;
-  /**
-   * Either SUCCESS OR FAILURE
-   */
+
   public String result;
-  /**
-   * The exception in case of failure
-   */
   public String exception;
 
-  public enum RESULT {SUCCESS, FAILURE}
-
+  public enum RESULT {
+    SUCCESS, FAILURE
+  }
 
 }

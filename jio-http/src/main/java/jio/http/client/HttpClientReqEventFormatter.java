@@ -17,11 +17,11 @@ import jio.time.Fun;
  * </p>
  *
  * <p>
- * The formatted output for a successful event is: "{@link  #SUCCESS_FORMAT}".
+ * The formatted output for a successful event is: "{@link #SUCCESS_FORMAT}".
  * </p>
  *
  * <p>
- * The formatted output for an event with an exception is: "{@link  #FAILURE_FORMAT}".
+ * The formatted output for an event with an exception is: "{@link #FAILURE_FORMAT}".
  * </p>
  *
  * <p>
@@ -38,17 +38,16 @@ public final class HttpClientReqEventFormatter implements Function<RecordedEvent
    * The singleton instance of HttpClientEventFormatter.
    */
   public static final HttpClientReqEventFormatter INSTANCE = new HttpClientReqEventFormatter();
-  private static final String SUCCESS_FORMAT =
-      """
-          event: http-req; method: %s; uri: %s;
-          result: %s; status-code: %s; duration: %s;
-          req-counter: %s
-          """.replace("\n",
-                      " ");
+  private static final String SUCCESS_FORMAT = """
+      event: http-req; method: %s; host: %s; path: %s;
+      result: %s; status-code: %s; duration: %s;
+      req-counter: %s; start_time: %s
+      """.replace("\n",
+                  " ");
   private static final String FAILURE_FORMAT = """
-      event: http-req; method: %s; uri: %s;
+      event: http-req; method: %s; host: %s; path: %s;
       result: %s; exception: %s; duration: %s;
-      req-counter: %s
+      req-counter: %s; start_time: %s
       """.replace("\n",
                   " ");
   private static final String EVENT_NAME = "jio.http.client.Req";
@@ -58,7 +57,8 @@ public final class HttpClientReqEventFormatter implements Function<RecordedEvent
 
   private static final String METHOD_FIELD = "method";
 
-  private static final String URI_FIELD = "uri";
+  private static final String URI_HOST_FIELD = "host";
+  private static final String URI_PATH = "path";
 
   private static final String STATUS_CODE_FIELD = "statusCode";
 
@@ -69,32 +69,36 @@ public final class HttpClientReqEventFormatter implements Function<RecordedEvent
   private static final String EXCEPTION_FIELD = "exception";
 
   @Override
-  public String apply(RecordedEvent e) {
-    assert e.getEventType()
-            .getName()
-            .equals(EVENT_NAME);
+  public String apply(RecordedEvent event) {
+    assert event.getEventType()
+                .getName()
+                .equals(EVENT_NAME);
 
-    var result = e.getValue(RESULT_FIELD);
+    var result = event.getValue(RESULT_FIELD);
     boolean isSuccess = RESULT.SUCCESS.name()
                                       .equals(result);
     if (isSuccess) {
       return String.format(SUCCESS_FORMAT,
-                           e.getValue(METHOD_FIELD),
-                           e.getValue(URI_FIELD),
+                           event.getValue(METHOD_FIELD),
+                           event.getValue(URI_HOST_FIELD),
+                           event.getValue(URI_PATH),
                            result,
-                           e.getValue(STATUS_CODE_FIELD),
-                           Fun.formatTime(e.getDuration()),
-                           e.getValue(REQ_COUNTER_FIELD)
-                          );
+                           event.getValue(STATUS_CODE_FIELD),
+                           Fun.formatTime(event.getDuration()),
+                           event.getValue(REQ_COUNTER_FIELD),
+                           event.getStartTime()
+      );
     }
     return String.format(FAILURE_FORMAT,
-                         e.getValue(METHOD_FIELD),
-                         e.getValue(URI_FIELD),
+                         event.getValue(METHOD_FIELD),
+                         event.getValue(URI_HOST_FIELD),
+                         event.getValue(URI_PATH),
                          result,
-                         e.getValue(EXCEPTION_FIELD),
-                         Fun.formatTime(e.getDuration()),
-                         e.getValue(REQ_COUNTER_FIELD)
-                        );
+                         event.getValue(EXCEPTION_FIELD),
+                         Fun.formatTime(event.getDuration()),
+                         event.getValue(REQ_COUNTER_FIELD),
+                         event.getStartTime()
+    );
 
   }
 }

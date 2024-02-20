@@ -23,7 +23,7 @@ public final class IfElseExp<Output> extends Exp<Output> {
 
   private IfElseExp(final IO<Boolean> predicate,
                     final Function<EvalExpEvent, BiConsumer<Output, Throwable>> debugger
-                   ) {
+  ) {
     super(debugger);
     this.predicate = predicate;
   }
@@ -68,69 +68,63 @@ public final class IfElseExp<Output> extends Exp<Output> {
     return exp;
   }
 
-
   @Override
   public IfElseExp<Output> retryEach(final Predicate<? super Throwable> predicate,
                                      final RetryPolicy policy
-                                    ) {
+  ) {
     return new IfElseExp<>(this.predicate.retry(requireNonNull(predicate),
                                                 requireNonNull(policy)
-                                               ),
+    ),
                            jfrPublisher
     )
-        .consequence(() -> consequence.get()
-                                      .retry(predicate,
-                                             policy)
-                    )
-        .alternative(() -> alternative.get()
-                                      .retry(predicate,
-                                             policy)
-                    );
+     .consequence(() -> consequence.get()
+                                   .retry(predicate,
+                                          policy)
+     )
+     .alternative(() -> alternative.get()
+                                   .retry(predicate,
+                                          policy)
+     );
   }
-
 
   @Override
   CompletableFuture<Output> reduceExp() {
 
     return predicate.get()
-                    .thenCompose(bool -> bool ?
-                                         consequence.get()
-                                                    .get() :
-                                         alternative.get()
-                                                    .get()
-                                );
+                    .thenCompose(bool -> bool ? consequence.get()
+                                                           .get() : alternative.get()
+                                                                               .get()
+                    );
   }
-
 
   @Override
   public IfElseExp<Output> debugEach(final EventBuilder<Output> eventBuilder) {
     return new IfElseExp<>(DebuggerHelper.debugIO(predicate,
                                                   String.format("%s-predicate",
                                                                 eventBuilder.exp
-                                                               ),
+                                                  ),
 
                                                   eventBuilder.context
-                                                 ),
+    ),
                            getJFRPublisher(eventBuilder)
     )
-        .consequence(() -> DebuggerHelper.debugIO(consequence.get(),
-                                                  String.format("%s-consequence",
-                                                                eventBuilder.exp
-                                                               ),
-                                                  eventBuilder.context
-                                                 )
+     .consequence(() -> DebuggerHelper.debugIO(consequence.get(),
+                                               String.format("%s-consequence",
+                                                             eventBuilder.exp
+                                               ),
+                                               eventBuilder.context
+     )
 
-                    )
-        .alternative(() -> DebuggerHelper.debugIO(alternative.get(),
-                                                  String.format("%s-alternative",
-                                                                eventBuilder.exp
-                                                               ),
-                                                  eventBuilder.context
-                                                 )
+     )
+     .alternative(() -> DebuggerHelper.debugIO(alternative.get(),
+                                               String.format("%s-alternative",
+                                                             eventBuilder.exp
+                                               ),
+                                               eventBuilder.context
+     )
 
-                    );
+     );
   }
-
 
   @Override
   public IfElseExp<Output> retryEach(final RetryPolicy policy) {
@@ -143,8 +137,7 @@ public final class IfElseExp<Output> extends Exp<Output> {
     return debugEach(EventBuilder.of(this.getClass()
                                          .getSimpleName(),
                                      context)
-                    );
+    );
   }
-
 
 }

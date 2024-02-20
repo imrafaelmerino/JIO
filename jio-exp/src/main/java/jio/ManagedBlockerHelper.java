@@ -1,6 +1,5 @@
 package jio;
 
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ForkJoinPool;
@@ -13,7 +12,6 @@ import java.util.function.Supplier;
  * -with-using-i-o-managedblocker-in-java8-parallelstream.
  */
 final class ManagedBlockerHelper {
-
 
   /**
    * This method enables blocking Suppliers to be used efficiently with the common Java fork/join thread pool.
@@ -47,13 +45,12 @@ final class ManagedBlockerHelper {
 
   }
 
-
   /**
    * This class is an adapter that enables a blocking Supplier to be used efficient with the common fork/join thread
    * pool.
    */
   private static class ManagedBlockerSupplier<Output>
-      implements ForkJoinPool.ManagedBlocker {
+                                             implements ForkJoinPool.ManagedBlocker {
 
     /**
      * The blocking task.
@@ -108,7 +105,7 @@ final class ManagedBlockerHelper {
    * pool.
    */
   private static class TaskManagedBlockerTask<Output>
-      implements ForkJoinPool.ManagedBlocker {
+                                             implements ForkJoinPool.ManagedBlocker {
 
     /**
      * The blocking task.

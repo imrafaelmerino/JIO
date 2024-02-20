@@ -3,7 +3,6 @@ package jio.mongodb;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
-import java.util.concurrent.Executors;
 import jio.IO;
 
 import java.util.Objects;
@@ -64,7 +63,6 @@ public final class UpdateOne extends Op implements MongoLambda<QueryUpdate, Upda
     return this;
   }
 
-
   /**
    * Applies the updateCommands one operation to the specified MongoDB collection with a query and an updateCommands.
    *
@@ -77,21 +75,18 @@ public final class UpdateOne extends Op implements MongoLambda<QueryUpdate, Upda
                                 final QueryUpdate queryUpdate) {
     Objects.requireNonNull(queryUpdate);
     Supplier<UpdateResult> supplier = decorateWithEvent(() -> {
-                                                     var collection = requireNonNull(this.collection.get());
-                                                     return session == null ?
-                                                            collection.updateOne(toBson(queryUpdate.query()),
-                                                                                 toBson(queryUpdate.updateCommands()),
-                                                                                 options
-                                                                                ) :
-                                                            collection.updateOne(session,
-                                                                                 toBson(queryUpdate.query()),
-                                                                                 toBson(queryUpdate.updateCommands()),
-                                                                                 options
-                                                                                );
-                                                   },
+      var collection = requireNonNull(this.collection.get());
+      return session == null ? collection.updateOne(toBson(queryUpdate.query()),
+                                                    toBson(queryUpdate.updateCommands()),
+                                                    options
+      ) : collection.updateOne(session,
+                               toBson(queryUpdate.query()),
+                               toBson(queryUpdate.updateCommands()),
+                               options
+      );
+    },
                                                         UPDATE_ONE);
-    return IO.lazy(supplier,
-                   Executors.newVirtualThreadPerTaskExecutor());
+    return IO.managedLazy(supplier);
   }
 
   /**

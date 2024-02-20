@@ -5,7 +5,6 @@ import jio.IfElseExp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-
 public class TestIfElseExp {
 
   @Test
@@ -19,14 +18,12 @@ public class TestIfElseExp {
 
     Assertions.assertEquals(1,
                             a.debugEach("ifelse")
-                             .result()
-                           );
+                             .join()
+    );
 
     Assertions.assertEquals(1,
-                            a.result());
-
+                            a.join());
 
   }
-
 
 }

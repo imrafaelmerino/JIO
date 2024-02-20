@@ -9,21 +9,19 @@ import org.junit.jupiter.api.Test;
 
 public class TestJsArrayExp {
 
-
   @Test
   public void test_parallel_constructors() {
     Assertions.assertEquals(JsArray.of(JsStr.of("a"),
                                        JsStr.of("b")
-                                      ),
+    ),
                             JsArrayExp.par(IO.succeed("a")
                                              .map(JsStr::of),
                                            IO.succeed("b")
                                              .map(JsStr::of)
-                                          )
+                            )
                                       .debugEach("array")
-                                      .result()
-                           );
+                                      .join()
+    );
   }
-
 
 }

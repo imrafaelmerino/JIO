@@ -14,25 +14,22 @@ import static java.util.Objects.requireNonNull;
 /**
  * Command to execute {@link Property properties} with the command:
  * <pre>
- *     prop name
+ * prop name
  * </pre>
  * <p>
  * Properties can also be executed an arbitrary number of time either in parallel or sequentially:
  *
  * <pre>
- *     prop name par 3
- *     prop name seq 5
+ * prop name par 3
+ * prop name seq 5
  * </pre>
  */
 class PropertyCommand extends Command {
 
-  static final Pattern parPattern =
-      Pattern.compile("prop \\w+ par \\d+");
-  static final Pattern seqPattern =
-      Pattern.compile("prop \\w+ seq \\d+");
+  static final Pattern parPattern = Pattern.compile("prop \\w+ par \\d+");
+  static final Pattern seqPattern = Pattern.compile("prop \\w+ seq \\d+");
   private static final String PREFIX_COMMAND = "prop";
   private final Property<?> prop;
-
 
   /**
    * Creates a PropertyCommand from a property.
@@ -41,13 +38,12 @@ class PropertyCommand extends Command {
    */
   private PropertyCommand(final Property<?> prop) {
     super(String.format("%s %s",
-            PREFIX_COMMAND,
-            requireNonNull(prop).name
-        ),
-        prop.description,
-        tokens ->
-            tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
-                && tokens[1].equalsIgnoreCase(prop.name)
+                        PREFIX_COMMAND,
+                        requireNonNull(prop).name
+    ),
+          prop.description,
+          tokens -> tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
+                    && tokens[1].equalsIgnoreCase(prop.name)
     );
     this.prop = requireNonNull(prop);
   }
@@ -63,23 +59,32 @@ class PropertyCommand extends Command {
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
-      final State state
+                                              final State state
   ) {
     return tokens -> {
-      String command = String.join(" ", Arrays.stream(tokens).toList());
-      if (parPattern.matcher(command).matches()) {
+      String command = String.join(" ",
+                                   Arrays.stream(tokens)
+                                         .toList());
+      if (parPattern.matcher(command)
+                    .matches()) {
         int n = Integer.parseInt(tokens[3]);
-        return IO.succeed(prop.repeatPar(n).createTask(conf).result().toString());
+        return IO.succeed(prop.repeatPar(n)
+                              .createTask(conf)
+                              .join()
+                              .toString());
       }
-      if (seqPattern.matcher(command).matches()) {
+      if (seqPattern.matcher(command)
+                    .matches()) {
         int n = Integer.parseInt(tokens[3]);
-        return IO.succeed(prop.repeatPar(n).createTask(conf).result().toString());
+        return IO.succeed(prop.repeatPar(n)
+                              .createTask(conf)
+                              .join()
+                              .toString());
       }
-      return prop.createTask(conf).map(Report::toString);
-
+      return prop.createTask(conf)
+                 .map(Report::toString);
 
     };
   }
-
 
 }

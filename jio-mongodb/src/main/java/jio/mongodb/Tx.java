@@ -2,7 +2,7 @@ package jio.mongodb;
 
 import com.mongodb.TransactionOptions;
 import com.mongodb.client.ClientSession;
-import jio.Fun;
+import jio.ExceptionFun;
 import jio.IO;
 import jio.Lambda;
 
@@ -35,7 +35,7 @@ public final class Tx<Input, Output> implements Lambda<Input, Output> {
   Tx(final ClientSessionBuilder sessionBuilder,
      final MongoLambda<Input, Output> mongoLambda,
      final TransactionOptions transactionOptions
-    ) {
+  ) {
     this.sessionBuilder = requireNonNull(sessionBuilder);
     this.mongoLambda = requireNonNull(mongoLambda);
     this.transactionOptions = requireNonNull(transactionOptions);
@@ -44,7 +44,8 @@ public final class Tx<Input, Output> implements Lambda<Input, Output> {
   private static void fillError(MongoOpEvent event,
                                 Throwable exc) {
     event.result = MongoOpEvent.RESULT.FAILURE.name();
-    event.exception = Fun.findUltimateCause(exc).toString();
+    event.exception = ExceptionFun.findUltimateCause(exc)
+                                  .toString();
   }
 
   private static void abort(ClientSession session,
@@ -52,28 +53,37 @@ public final class Tx<Input, Output> implements Lambda<Input, Output> {
                             MongoOpEvent event) {
     try {
       session.abortTransaction();
-      fillError(event,
-                exc);
+      event.end();
+      if (event.shouldCommit()) {
+        fillError(event,
+                  exc);
+        event.commit();
+      }
+
     }
     // if the transaction was already either aborted or committed
     catch (IllegalArgumentException e) {
-      fillError(event,
-                e);
-    } finally {
-      event.commit();
+      if (event.shouldCommit()) {
+        fillError(event,
+                  e);
+        event.commit();
+      }
     }
   }
 
   private static void commit(ClientSession session,
                              MongoOpEvent event) {
-    try (session) {
+    try {
       session.commitTransaction();
+      event.end();
       event.result = MongoOpEvent.RESULT.SUCCESS.name();
     } catch (IllegalArgumentException exc) {
       fillError(event,
                 exc);
     } finally {
-      event.commit();
+      if (event.shouldCommit()) {
+        event.commit();
+      }
     }
   }
 
@@ -85,10 +95,9 @@ public final class Tx<Input, Output> implements Lambda<Input, Output> {
    */
   @Override
   public IO<Output> apply(final Input input) {
-    return
-        IO.resource(sessionBuilder::get,
-                    session -> doTx(input,
-                                    session));
+    return IO.resource(sessionBuilder::get,
+                       session -> doTx(input,
+                                       session));
   }
 
   //TODO tests!
@@ -96,11 +105,11 @@ public final class Tx<Input, Output> implements Lambda<Input, Output> {
                           ClientSession session) {
 
     return IO.lazy(() -> {
-               var event = new MongoOpEvent(MongoOpEvent.OP.TX);
-               event.begin();
-               session.startTransaction(transactionOptions);
-               return event;
-             })
+      var event = new MongoOpEvent(MongoOpEvent.OP.TX);
+      event.begin();
+      session.startTransaction(transactionOptions);
+      return event;
+    })
              .then(event -> mongoLambda.apply(session,
                                               input)
                                        .peekSuccess(it -> commit(session,

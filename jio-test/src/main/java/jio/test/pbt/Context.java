@@ -24,15 +24,15 @@ record Context(Instant start,
    * JSON schema is as follows:
    *
    * <pre>
-   *     {@code
+   * {@code
    *     {
    *         "start": instant,
    *         "seed": long,
    *         "seq_number": int,
    *         "input": string,
    *         "tags": string
-   *     }
-   *     }
+   * }
+   * }
    * </pre>
    *
    * @return A JSON representation of the test context.
@@ -48,6 +48,6 @@ record Context(Instant start,
                     JsStr.of(input.toString()),
                     "tags",
                     JsStr.of(tags)
-                   );
+    );
   }
 }

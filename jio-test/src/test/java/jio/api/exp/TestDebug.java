@@ -2,6 +2,7 @@ package jio.api.exp;
 
 import fun.gen.BoolGen;
 import fun.gen.Combinators;
+import java.util.Locale;
 import jio.IO;
 import jio.IfElseExp;
 import jio.SwitchExp;
@@ -36,30 +37,29 @@ public class TestDebug {
                                                    "U")
                                             .sample();
 
-    SwitchExp<String, String> match =
-        SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
-                                                .consequence(() -> IO.lazy(loserCase))
-                                                .alternative(() -> IO.lazy(upperCase))
-                                      )
-                 .match(List.of("a",
-                                "e",
-                                "i",
-                                "o",
-                                "u"),
-                        s -> IO.succeed("%s %s".formatted(s,
-                                                          s.toUpperCase())),
-                        List.of("A",
-                                "E",
-                                "I",
-                                "O",
-                                "U"),
-                        s -> IO.succeed("%s %s".formatted(s,
-                                                          s.toLowerCase())),
-                        s -> IO.NULL()
-                       )
-                 .debugEach("context");
+    SwitchExp<String, String> match = SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
+                                                                              .consequence(() -> IO.lazy(loserCase))
+                                                                              .alternative(() -> IO.lazy(upperCase))
+    )
+                                               .match(List.of("a",
+                                                              "e",
+                                                              "i",
+                                                              "o",
+                                                              "u"),
+                                                      s -> IO.succeed("%s %s".formatted(s,
+                                                                                        s.toUpperCase(Locale.ENGLISH))),
+                                                      List.of("A",
+                                                              "E",
+                                                              "I",
+                                                              "O",
+                                                              "U"),
+                                                      s -> IO.succeed("%s %s".formatted(s,
+                                                                                        s.toLowerCase(Locale.ENGLISH))),
+                                                      s -> IO.NULL()
+                                               )
+                                               .debugEach("context");
 
-    System.out.println(match.result());
+    System.out.println(match.join());
 
   }
 }

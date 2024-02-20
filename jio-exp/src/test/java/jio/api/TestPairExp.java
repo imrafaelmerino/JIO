@@ -8,20 +8,18 @@ import org.junit.jupiter.api.Test;
 
 public class TestPairExp {
 
-
   @Test
   public void sequential_constructor() {
 
     PairExp<String, String> pair = PairExp.seq(IO.succeed("a"),
                                                IO.succeed("b")
-                                              );
+    );
 
     Assertions.assertEquals(Pair.of("a",
                                     "b"
-                                   ),
-                            pair.result()
-                           );
+    ),
+                            pair.join()
+    );
   }
-
 
 }

@@ -39,7 +39,7 @@ final class ClientCredentialsClient implements OauthHttpClient {
                           final Function<String, String> authorizationHeaderValue,
                           final Lambda<HttpResponse<String>, String> getAccessToken,
                           final Predicate<HttpResponse<?>> refreshTokenPredicate
-                         ) {
+  ) {
     this.httpClient = client.get();
     this.accessTokenReq = accessTokenReq;
     this.authorizationHeaderName = authorizationHeaderName;
@@ -53,19 +53,18 @@ final class ClientCredentialsClient implements OauthHttpClient {
                                                          builder,
                                                          false,
                                                          0
-                                                        );
+    );
     this.oauthStringLambda = builder -> oauthRequest(ofStringLambda,
                                                      builder,
                                                      false,
                                                      0
-                                                    );
+    );
     this.oauthBytesLambda = builder -> oauthRequest(ofBytesLambda,
                                                     builder,
                                                     false,
                                                     0
-                                                   );
+    );
   }
-
 
   @Override
   public HttpLambda<String> oauthOfString() {
@@ -88,7 +87,7 @@ final class ClientCredentialsClient implements OauthHttpClient {
                                    builder,
                                    false,
                                    0
-                                  );
+    );
   }
 
   @Override
@@ -111,37 +110,31 @@ final class ClientCredentialsClient implements OauthHttpClient {
     return httpClient.bodyHandler(handler);
   }
 
-
   private <I> IO<HttpResponse<I>> oauthRequest(final HttpLambda<I> httpLambda,
                                                final HttpRequest.Builder builder,
                                                final boolean refreshToken,
                                                final int deep
-                                              ) {
-      if (deep == MAX_REFRESH_TOKEN_LOOP_SIZE) {
-          return IO.fail(new RefreshTokenLoop(deep));
-      }
+  ) {
+    if (deep == MAX_REFRESH_TOKEN_LOOP_SIZE) {
+      return IO.fail(new RefreshTokenLoop(deep));
+    }
 
-    IO<String> getToken = (refreshToken || this.accessToken == null) ?
-                          accessTokenReq.apply(this)
-                                        .then(getAccessToken)
-                                        .peekSuccess(newToken -> this.accessToken = newToken) :
-                          IO.succeed(this.accessToken);
+    IO<String> getToken = (refreshToken || this.accessToken == null) ? accessTokenReq.apply(this)
+                                                                                     .then(getAccessToken)
+                                                                                     .peekSuccess(newToken -> this.accessToken = newToken)
+        : IO.succeed(this.accessToken);
 
-    return getToken.then(token ->
-                             httpLambda.apply(builder.setHeader(authorizationHeaderName,
-                                                                authorizationHeaderValue.apply(token)
-                                                               )
-                                             )
-                                       .then(resp ->
-                                                 refreshTokenPredicate.test(resp) ?
-                                                 oauthRequest(httpLambda,
-                                                              builder,
-                                                              true,
-                                                              deep + 1
-                                                             ) :
-                                                 IO.succeed(resp)
+    return getToken.then(token -> httpLambda.apply(builder.setHeader(authorizationHeaderName,
+                                                                     authorizationHeaderValue.apply(token)
+    )
+    )
+                                            .then(resp -> refreshTokenPredicate.test(resp) ? oauthRequest(httpLambda,
+                                                                                                          builder,
+                                                                                                          true,
+                                                                                                          deep + 1
+                                            ) : IO.succeed(resp)
                                             )
-                        );
+    );
   }
 
 }

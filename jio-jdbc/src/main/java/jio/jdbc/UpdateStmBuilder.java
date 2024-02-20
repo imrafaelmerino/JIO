@@ -2,14 +2,22 @@ package jio.jdbc;
 
 import java.time.Duration;
 import java.util.Objects;
-import java.util.function.Supplier;
+import jio.Lambda;
 
 /**
- * Builder class for creating update operations in a JDBC context.
+ * Builder class for creating update JDBC update statement, which must be an SQL Data Manipulation Language (DML)
+ * statement, such as INSERT, UPDATE or DELETE; or an SQL statement that returns nothing, such as a DDL statement.
+ *
+ * <p>
+ * This builder allows for the construction of {@code UpdateStm} instances to perform SQL update statements with
+ * customizable parameters. It provides methods to configure various aspects of the update operation, such as SQL
+ * statement, parameter setter, timeout, and Java Flight Recorder (JFR) event recording. The update operation is *
+ * designed to be executed on virtual threads for improved concurrency and resource utilization.
+ * </p>
  *
  * @param <Params> The type of input parameters for the update operation.
  */
-public final class UpdateStmBuilder<Params> implements Supplier<JdbcLambda<Params, Integer>> {
+public final class UpdateStmBuilder<Params> {
 
   private final Duration timeout;
 
@@ -32,7 +40,7 @@ public final class UpdateStmBuilder<Params> implements Supplier<JdbcLambda<Param
    * @param sql       The SQL statement for the update operation.
    * @param setParams A function to set parameters on a {@link java.sql.PreparedStatement}.
    * @param timeout   The time the driver will wait for a statement to execute
-   * @param <Params>  The type of input elements for the update operation.
+   * @param <Params>  The type of the parameters for the update operation.
    * @return A new instance of UpdateStmBuilder.
    */
   public static <Params> UpdateStmBuilder<Params> of(String sql,
@@ -66,16 +74,40 @@ public final class UpdateStmBuilder<Params> implements Supplier<JdbcLambda<Param
   }
 
   /**
-   * Builds a JdbcLambda representing the update operation based on the specified settings.
+   * Builds and returns a {@code Lambda} representing an update statement operation on a database. The lambda is
+   * configured to bind parameters to its SQL, execute the update statement, and returns the affected rows as a result.
+   * The JDBC connection is automatically obtained from the datasource and closed, which means that it cannot be used
+   * for transactions where the connection can't be closed before committing or doing rollback.
    *
-   * @return A JdbcLambda instance for the update operation.
+   * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
+   * @return A {@code Lambda} representing the update statement. Note: The operations are performed by virtual threads.
+   * @see UpdateStm#buildAutoClosable(DatasourceBuilder)
    */
-  @Override
-  public JdbcLambda<Params, Integer> get() {
+  public Lambda<Params, Integer> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
     return new UpdateStm<>(timeout,
                            sql,
                            setParams,
                            enableJFR,
-                           label);
+                           label)
+                                 .buildAutoClosable(datasourceBuilder);
   }
+
+  /**
+   * Builds and returns a closable update statement, allowing custom handling of the JDBC connection. This method is
+   * appropriate for use during transactions, where the connection needs to be managed externally. The lambda is
+   * configured to bind parameters to its SQL, execute the update statement, and return the affected rows as a result.
+   *
+   * @return A {@code ClosableStatement} representing the update statement. Note: The operations are performed by
+   *         virtual threads.
+   * @see UpdateStm#buildClosable()
+   */
+  public ClosableStatement<Params, Integer> buildClosable() {
+    return new UpdateStm<>(timeout,
+                           sql,
+                           setParams,
+                           enableJFR,
+                           label)
+                                 .buildClosable();
+  }
+
 }

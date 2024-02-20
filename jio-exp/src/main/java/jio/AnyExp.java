@@ -1,13 +1,17 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a boolean expression that will be reduced to true <strong>if and only if at least one of the
@@ -22,7 +26,7 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
 
   AnyExp(Function<EvalExpEvent, BiConsumer<Boolean, Throwable>> debugger,
          List<IO<Boolean>> exps
-        ) {
+  ) {
     super(debugger);
     this.exps = exps;
   }
@@ -50,7 +54,8 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
 
       @Override
       public BinaryOperator<List<IO<Boolean>>> combiner() {
-        return (a, b) -> {
+        return (a,
+                b) -> {
           a.addAll(b);
           return b;
         };
@@ -91,7 +96,8 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
 
       @Override
       public BinaryOperator<List<IO<Boolean>>> combiner() {
-        return (a, b) -> {
+        return (a,
+                b) -> {
           a.addAll(b);
           return b;
         };
@@ -125,10 +131,10 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
    *                  return AnyExp.par(isDivisibleByTwo,
    *                                    isDivisibleByThree
    *                                    );
-   *              };
+   * };
    *
    *
-   *     boolean result = isDivisibleByTwoAndThree.apply(8).join()
+   * boolean result = isDivisibleByTwoAndThree.apply(8).join()
    *
    * }
    * </pre>
@@ -149,10 +155,10 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
    *                  return AnyExp.par(isDivisibleByTwo,
    *                                    isDivisibleByThree
    *                                    );
-   *              };
+   * };
    *
    *
-   *     boolean result = isDivisibleByTwoAndThree.apply(8).join()
+   * boolean result = isDivisibleByTwoAndThree.apply(8).join()
    *
    * }
    * </pre>
@@ -169,7 +175,7 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
   @SafeVarargs
   public static AnyExp par(final IO<Boolean> bool,
                            final IO<Boolean>... others
-                          ) {
+  ) {
     var exps = new ArrayList<IO<Boolean>>();
     exps.add(requireNonNull(bool));
     for (IO<Boolean> other : requireNonNull(others)) {
@@ -193,7 +199,7 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
   @SafeVarargs
   public static AnyExp seq(final IO<Boolean> bool,
                            final IO<Boolean>... others
-                          ) {
+  ) {
     var exps = new ArrayList<IO<Boolean>>();
     exps.add(requireNonNull(bool));
     for (IO<Boolean> other : requireNonNull(others)) {
@@ -220,10 +226,10 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
    *                                            isDivisibleByThree
    *                                           )
    *                                    );
-   *              };
+   * };
    *
    *
-   *     boolean result = isDivisibleByTwoAndThree.apply(8).join()
+   * boolean result = isDivisibleByTwoAndThree.apply(8).join()
    *
    * }
    * </pre>
@@ -244,10 +250,10 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
    *                  return AnyExp.par(isDivisibleByTwo,
    *                                    isDivisibleByThree
    *                                    );
-   *              };
+   * };
    *
    *
-   *     boolean result = isDivisibleByTwoAndThree.apply(8).join()
+   * boolean result = isDivisibleByTwoAndThree.apply(8).join()
    *
    * }
    * </pre>
@@ -265,7 +271,6 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
                          null);
   }
 
-
   /**
    * Creates an AnyExp expression where all the subexpression are <strong>always</strong> evaluated sequentially. If one
    * subexpression terminates with an exception, the whole expression ends immediately.
@@ -281,19 +286,16 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
                          null);
   }
 
-
   @Override
   public abstract AnyExp retryEach(final Predicate<? super Throwable> predicate,
                                    final RetryPolicy policy
-                                  );
-
+  );
 
   @Override
   public abstract AnyExp debugEach(final EventBuilder<Boolean> messageBuilder);
 
   @Override
   public abstract AnyExp debugEach(final String context);
-
 
   @Override
   public AnyExp retryEach(final RetryPolicy policy) {

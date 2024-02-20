@@ -1,9 +1,8 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
 
 import java.util.function.Function;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a builder to create JFR {@link jdk.jfr.consumer.RecordedEvent} from computations performed by the JIO API.
@@ -25,13 +24,12 @@ public final class EventBuilder<Output> {
   final String exp;
   final String context;
   Function<Output, String> successValue = val -> val == null ? "null" : val.toString();
-  Function<Throwable, String> failureMessage =
-      e -> Fun.findUltimateCause(e)
-              .toString();
+  Function<Throwable, String> failureMessage = e -> ExceptionFun.findUltimateCause(e)
+                                                                .toString();
 
   private EventBuilder(final String exp,
                        final String context
-                      ) {
+  ) {
     this.exp = requireNonNull(exp);
     if (exp.isBlank() || exp.isEmpty()) {
       throw new IllegalArgumentException("exp must be a legible string");
@@ -49,7 +47,7 @@ public final class EventBuilder<Output> {
    */
   public static <Output> EventBuilder<Output> of(final String exp,
                                                  final String context
-                                                ) {
+  ) {
     return new EventBuilder<>(exp,
                               context);
   }
@@ -62,7 +60,7 @@ public final class EventBuilder<Output> {
    * @return a new {@code EventBuilder} instance
    */
   public static <O> EventBuilder<O> of(final String exp
-                                      ) {
+  ) {
     return EventBuilder.of(exp,
                            "");
   }
@@ -103,7 +101,7 @@ public final class EventBuilder<Output> {
 
   EvalExpEvent updateEvent(final Throwable exc,
                            final EvalExpEvent event) {
-    var cause = Fun.findUltimateCause(exc);
+    var cause = ExceptionFun.findUltimateCause(exc);
     event.result = EvalExpEvent.RESULT.FAILURE.name();
     event.context = context;
     event.expression = exp;
@@ -113,13 +111,17 @@ public final class EventBuilder<Output> {
 
   void updateAndCommit(final Output output,
                        final EvalExpEvent event) {
-    updateEvent(output,
-                event).commit();
+    if (event.shouldCommit()) {
+      updateEvent(output,
+                  event).commit();
+    }
   }
 
   void updateAndCommit(final Throwable exc,
                        final EvalExpEvent event) {
-    updateEvent(exc,
-                event).commit();
+    if (event.shouldCommit()) {
+      updateEvent(exc,
+                  event).commit();
+    }
   }
 }

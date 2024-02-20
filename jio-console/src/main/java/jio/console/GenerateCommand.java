@@ -16,13 +16,13 @@ import java.util.function.Supplier;
  * users can use the following syntax:
  *
  * <pre>
- *     gen command_name
+ * gen command_name
  * </pre>
  * <p>
  * To get help about the program and view its description, users can type:
  *
  * <pre>
- *     help gen command_name
+ * help gen command_name
  * </pre>
  * <p>
  * The generated data is obtained from the provided generator when the command is executed.
@@ -31,7 +31,6 @@ public class GenerateCommand extends Command {
 
   private static final String PREFIX_COMMAND = "gen";
   private final Supplier<String> gen;
-
 
   /**
    * Constructs a new {@code GenerateCommand} with the specified name, description, and generator.
@@ -43,17 +42,16 @@ public class GenerateCommand extends Command {
   public GenerateCommand(final String name,
                          final String description,
                          final Gen<String> gen
-                        ) {
+  ) {
     super(String.format("%s %s",
                         PREFIX_COMMAND,
                         name
-                       ),
+    ),
           description,
-          tokens ->
-              tokens.length == 2
-                  && tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
-                  && tokens[1].equalsIgnoreCase(name)
-         );
+          tokens -> tokens.length == 2
+                    && tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
+                    && tokens[1].equalsIgnoreCase(name)
+    );
     this.gen = gen.apply(new Random());
   }
 
@@ -68,7 +66,7 @@ public class GenerateCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
+  ) {
     return tokens -> IO.lazy(gen);
 
   }

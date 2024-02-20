@@ -1,6 +1,5 @@
 package jio.http.client.oauth;
 
-
 import jio.IO;
 import jio.Lambda;
 import jio.http.client.JioHttpClientBuilder;
@@ -17,12 +16,12 @@ import static java.util.Objects.requireNonNull;
  * Builder to create a http client with OAuth Client Credentials Grant support. The following options can be
  * customized:
  * <ul>
- *     <li>The request sent to the server to get the access token</li>
- *     <li>A function to read the access token from the server response</li>
- *     <li>A predicate that takes the server response and returns true if the access token needs to be refreshed</li>
- *     <li>The authorization header name</li>
- *     <li>A function to create the authorization header value from the access token</li>
- *     <li>A retry policy to make the access token request more resilient</li>
+ * <li>The request sent to the server to get the access token</li>
+ * <li>A function to read the access token from the server response</li>
+ * <li>A predicate that takes the server response and returns true if the access token needs to be refreshed</li>
+ * <li>The authorization header name</li>
+ * <li>A function to create the authorization header value from the access token</li>
+ * <li>A retry policy to make the access token request more resilient</li>
  * </ul>
  *
  * @see AccessTokenRequest
@@ -37,17 +36,15 @@ public final class ClientCredentialsBuilder implements Supplier<OauthHttpClient>
   private final Predicate<HttpResponse<?>> refreshTokenPredicate;
   private final JioHttpClientBuilder client;
   String authorizationHeaderName = "Authorization";
-  Function<String, String> authorizationHeaderValue =
-      token -> String.format("Bearer %s",
-                             token
-                            );
-
+  Function<String, String> authorizationHeaderValue = token -> String.format("Bearer %s",
+                                                                             token
+  );
 
   private ClientCredentialsBuilder(final JioHttpClientBuilder builder,
                                    final Lambda<OauthHttpClient, HttpResponse<String>> accessTokenReq,
                                    final Lambda<HttpResponse<String>, String> getAccessToken,
                                    final Predicate<HttpResponse<?>> refreshTokenPredicate
-                                  ) {
+  ) {
     this.client = builder;
     this.accessTokenReq = requireNonNull(accessTokenReq);
     this.getAccessToken = requireNonNull(getAccessToken);
@@ -87,7 +84,7 @@ public final class ClientCredentialsBuilder implements Supplier<OauthHttpClient>
                                             final Lambda<OauthHttpClient, HttpResponse<String>> accessTokenReq,
                                             final Lambda<HttpResponse<String>, String> getAccessToken,
                                             final Predicate<HttpResponse<?>> refreshTokenPredicate
-                                           ) {
+  ) {
     return new ClientCredentialsBuilder(builder,
                                         accessTokenReq,
                                         getAccessToken,
@@ -109,7 +106,6 @@ public final class ClientCredentialsBuilder implements Supplier<OauthHttpClient>
                                        refreshTokenPredicate
     );
   }
-
 
   /**
    * Option to define the name of the authorization header, which by default is Authorization
@@ -133,6 +129,5 @@ public final class ClientCredentialsBuilder implements Supplier<OauthHttpClient>
     this.authorizationHeaderValue = requireNonNull(fn);
     return this;
   }
-
 
 }

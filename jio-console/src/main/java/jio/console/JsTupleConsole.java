@@ -11,13 +11,12 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.util.Objects.requireNonNull;
 
-
 /**
  * Represents a {@link JsConsole console} program to compose a json array from the user inputs. It has the same
  * recursive structure as a json array, which makes very easy to create interactive programs to compose JsArray:
  *
  * <pre>
- *     {@code
+ * {@code
  *
  *        JsTupleConsole.of(JsConsole.of(JsSpecs.integer()),
  *                          JsConsole.of(JsSpecs.str())
@@ -42,13 +41,12 @@ public class JsTupleConsole implements JsConsole<JsArray> {
    */
   public static JsTupleConsole of(final JsConsole<?> head,
                                   final JsConsole<?>... tail
-                                 ) {
+  ) {
     var array = new JsTupleConsole();
     array.seq.add(requireNonNull(head));
     array.seq.addAll(Arrays.asList(requireNonNull(tail)));
     return array;
   }
-
 
   /**
    * @param path the parent path of the array
@@ -57,20 +55,19 @@ public class JsTupleConsole implements JsConsole<JsArray> {
   @Override
   public IO<JsArray> apply(final JsPath path) {
     requireNonNull(path);
-    return IO.effect(() ->
-                     {
-                       var result = CompletableFuture.completedFuture(JsArray.empty());
-                       for (int i = 0; i < seq.size(); i++) {
-                         var p = path.index(i);
-                         var io = seq.get(i);
-                         result = result.thenCombine(io.apply(p)
-                                                       .get(),
-                                                     JsArray::append
-                                                    );
-                       }
+    return IO.effect(() -> {
+      var result = CompletableFuture.completedFuture(JsArray.empty());
+      for (int i = 0; i < seq.size(); i++) {
+        var p = path.index(i);
+        var io = seq.get(i);
+        result = result.thenCombine(io.apply(p)
+                                      .get(),
+                                    JsArray::append
+        );
+      }
 
-                       return result;
-                     });
+      return result;
+    });
   }
 
 }

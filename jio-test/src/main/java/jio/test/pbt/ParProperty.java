@@ -4,7 +4,6 @@ import jio.IO;
 import jio.ListExp;
 import jsonvalues.JsObj;
 
-
 non-sealed class ParProperty<GenValue> extends Testable {
 
   final int executionTimes;

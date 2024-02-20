@@ -11,9 +11,9 @@ import java.util.function.Function;
 import static java.util.Objects.requireNonNull;
 
 /**
- * An abstract base class for implementing request handler stubs for HTTP server testing. This class
- * allows you to define custom behaviors for handling HTTP requests based on various parameters such
- * as HTTP method, response headers, response status code, and response body.
+ * An abstract base class for implementing request handler stubs for HTTP server testing. This class allows you to
+ * define custom behaviors for handling HTTP requests based on various parameters such as HTTP method, response headers,
+ * response status code, and response body.
  */
 abstract class AbstractReqHandlerStub implements HttpHandler {
 
@@ -33,9 +33,9 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
    * @param method  The expected HTTP method for handling requests.
    */
   public AbstractReqHandlerStub(final Function<HttpExchange, Headers> headers,
-      final Function<HttpExchange, Integer> code,
-      final Function<HttpExchange, String> body,
-      final String method
+                                final Function<HttpExchange, Integer> code,
+                                final Function<HttpExchange, String> body,
+                                final String method
   ) {
     this.headers = requireNonNull(headers);
     this.code = requireNonNull(code);
@@ -53,64 +53,66 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
   public void handle(final HttpExchange exchange) throws IOException {
     counter += 1;
     String requestMethod = requireNonNull(exchange).getRequestMethod();
-      if (requestMethod.equalsIgnoreCase(method)) {
-          try {
-              var headers = exchange.getResponseHeaders();
-              var keySet = this.headers.apply(exchange)
-                  .keySet();
-              for (final String key : keySet) {
-                  var values = this.headers.apply(exchange)
-                      .get(key);
-                  for (final String value : values) {
-                      headers.add(key,
-                          value
-                      );
-                  }
-              }
-
-              try (var outputStream = exchange.getResponseBody()) {
-                  exchange.sendResponseHeaders(code.apply(exchange),
-                      body.apply(exchange)
-                          .getBytes(StandardCharsets.UTF_8)
-                          .length
-                  );
-                  outputStream.write(body.apply(exchange)
-                      .getBytes(StandardCharsets.UTF_8));
-                  outputStream.flush();
-              }
-
-          } catch (Exception e) {
-              returnExceptionMessageError(exchange,
-                  e
-              );
+    if (requestMethod.equalsIgnoreCase(method)) {
+      try {
+        var headers = exchange.getResponseHeaders();
+        var keySet = this.headers.apply(exchange)
+                                 .keySet();
+        for (final String key : keySet) {
+          var values = this.headers.apply(exchange)
+                                   .get(key);
+          for (final String value : values) {
+            headers.add(key,
+                        value
+            );
           }
-      } else {
-          returnUnexpectedHttpMethodError(exchange, requestMethod);
+        }
+
+        try (var outputStream = exchange.getResponseBody()) {
+          byte[] bodyBytes = body.apply(exchange)
+                                 .getBytes(StandardCharsets.UTF_8);
+          exchange.sendResponseHeaders(code.apply(exchange),
+                                       bodyBytes.length
+          );
+          outputStream.write(bodyBytes);
+          outputStream.flush();
+        }
+
+      } catch (Exception e) {
+        returnExceptionMessageError(exchange,
+                                    e
+        );
       }
+    } else {
+      returnUnexpectedHttpMethodError(exchange,
+                                      requestMethod);
+    }
 
   }
 
   private void returnExceptionMessageError(HttpExchange exchange,
-      Exception e
+                                           Exception e
   ) throws IOException {
     var outputStream = exchange.getResponseBody();
     var response = e.getMessage();
+    byte[] bytesResponse = response.getBytes(StandardCharsets.UTF_8);
     exchange.sendResponseHeaders(500,
-        response.getBytes(StandardCharsets.UTF_8).length
+                                 bytesResponse.length
     );
-    outputStream.write(response.getBytes(StandardCharsets.UTF_8));
+    outputStream.write(bytesResponse);
     outputStream.flush();
     outputStream.close();
   }
 
-  private void returnUnexpectedHttpMethodError(HttpExchange exchange, String requestMethod)
-      throws IOException {
+  private void returnUnexpectedHttpMethodError(HttpExchange exchange,
+                                               String requestMethod) throws IOException {
     try (var outputStream = exchange.getResponseBody()) {
       var response = method + " method was expected, but " + requestMethod + " was received.";
+      byte[] bytesResponse = response.getBytes(StandardCharsets.UTF_8);
       exchange.sendResponseHeaders(500,
-          response.getBytes(StandardCharsets.UTF_8).length
+                                   bytesResponse.length
       );
-      outputStream.write(response.getBytes(StandardCharsets.UTF_8));
+      outputStream.write(bytesResponse);
       outputStream.flush();
     }
   }

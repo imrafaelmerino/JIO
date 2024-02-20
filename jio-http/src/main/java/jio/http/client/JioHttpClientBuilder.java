@@ -25,16 +25,9 @@ public final class JioHttpClientBuilder implements Supplier<JioHttpClient> {
   private RetryPolicy reqRetryPolicy;
   private boolean recordEvents = true;
 
-
   private JioHttpClientBuilder(HttpClient.Builder builder) {
-
-    //since we don't use `sendAsync` method we don't need an executor. Turns out that the java API
-    //create a useless thread from this executor in any case, what is a wasting of resources
-    //that's why a pool of just one thread is created
-    this.client = Objects.requireNonNull(builder)
-                         .executor(Executors.newSingleThreadExecutor());
+    this.client = Objects.requireNonNull(builder);
   }
-
 
   /**
    * Constructs a JioHttpClientBuilder with the specified HTTP client.
@@ -84,7 +77,6 @@ public final class JioHttpClientBuilder implements Supplier<JioHttpClient> {
     return this;
   }
 
-
   /**
    * Creates a new instance of JioHttpClient with the configured options.
    *
@@ -100,6 +92,5 @@ public final class JioHttpClientBuilder implements Supplier<JioHttpClient> {
                                  recordEvents
     );
   }
-
 
 }

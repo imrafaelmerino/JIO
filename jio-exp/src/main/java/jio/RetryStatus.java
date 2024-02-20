@@ -7,9 +7,9 @@ import java.time.Duration;
  * status.
  *
  * @param counter         The retry counter, where 0 is the first try
- * @param cumulativeDelay The cumulative delay incurred from retries in milliseconds. The accumulativeDelay *   in a
+ * @param cumulativeDelay The cumulative delay incurred from retries in milliseconds. The accumulativeDelay * in a
  *                        retry policy does not include the time spent computing values or performing the actual
- *                        operations *   that are being retried. It primarily represents the time spent waiting due to
+ *                        operations * that are being retried. It primarily represents the time spent waiting due to
  *                        retry delays between retry attempts
  * @param previousDelay   The delay of the latest retry attempt. It will always be -1 on the first run
  * @see RetryPolicy

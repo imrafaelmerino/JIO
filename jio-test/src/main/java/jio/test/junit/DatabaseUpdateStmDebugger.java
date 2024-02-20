@@ -8,8 +8,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-import static jio.test.junit.EventFields.OP_COUNTER;
-
 @SuppressWarnings("InlineFormatString")
 final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
 
@@ -19,7 +17,7 @@ final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
       |  Result: %s
       |  Duration: %s
       |  Rows Affected: %s
-      |  Operation Counter: %s
+      |  Update Stm Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
@@ -33,13 +31,12 @@ final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
       |  Exception: %s
       |  SQL: %s
       |  Rows Affected: %s
-      |  Operation Counter: %s
+      |  Update Stm Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
       """;
   static final String EVENT_NAME = "jio.jdbc.UpdateStm";
-
 
   @Override
   public void accept(RecordedEvent event) {
@@ -48,33 +45,31 @@ final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
     var result = event.getValue(EventFields.RESULT);
     var label = event.getValue(EventFields.LABEL);
     boolean isSuccess = "SUCCESS".equals(result);
-    var message = isSuccess ?
-                  String.format(FORMAT_SUC,
-                                label,
-                                event.getValue(EventFields.RESULT),
-                                Fun.formatTime(event.getDuration()
-                                                    .toNanos()),
-                                event.getValue(EventFields.ROWS_AFFECTED),
-                                event.getValue(OP_COUNTER),
-                                Utils.getThreadName(event.getThread()),
-                                event.getStartTime()
-                                     .atZone(ZoneId.systemDefault())
-                                     .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                               ) :
-                  String.format(FORMAT_ERR,
-                                label,
-                                event.getValue(EventFields.RESULT),
-                                Fun.formatTime(event.getDuration()
-                                                    .toNanos()),
-                                event.getValue(EventFields.EXCEPTION),
-                                event.getValue(EventFields.SQL),
-                                event.getValue(EventFields.ROWS_AFFECTED),
-                                event.getValue(EventFields.OP_COUNTER),
-                                Utils.getThreadName(event.getThread()),
-                                event.getStartTime()
-                                     .atZone(ZoneId.systemDefault())
-                                     .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                               );
+    var message = isSuccess ? String.format(FORMAT_SUC,
+                                            label,
+                                            event.getValue(EventFields.RESULT),
+                                            Fun.formatTime(event.getDuration()
+                                                                .toNanos()),
+                                            event.getValue(EventFields.ROWS_AFFECTED),
+                                            event.getValue("updateCounter"),
+                                            Utils.getThreadName(event.getThread()),
+                                            event.getStartTime()
+                                                 .atZone(ZoneId.systemDefault())
+                                                 .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+    ) : String.format(FORMAT_ERR,
+                      label,
+                      event.getValue(EventFields.RESULT),
+                      Fun.formatTime(event.getDuration()
+                                          .toNanos()),
+                      event.getValue(EventFields.EXCEPTION),
+                      event.getValue(EventFields.SQL),
+                      event.getValue(EventFields.ROWS_AFFECTED),
+                      event.getValue("updateCounter"),
+                      Utils.getThreadName(event.getThread()),
+                      event.getStartTime()
+                           .atZone(ZoneId.systemDefault())
+                           .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+    );
     synchronized (System.out) {
       System.out.println(message);
       System.out.flush();

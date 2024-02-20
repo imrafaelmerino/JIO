@@ -39,9 +39,9 @@ public final class GetAccessToken implements Lambda<HttpResponse<String>, String
         return IO.fail(new AccessTokenNotFound(String.format("Response: %s. Expected a string located at the path: %s.",
                                                              body,
                                                              ACCESS_TOKEN_PATH
-                                                            )
-                       )
-                      );
+        )
+        )
+        );
       }
       return IO.succeed(token);
     } catch (JsParserException malformedJson) {

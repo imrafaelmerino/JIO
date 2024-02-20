@@ -26,7 +26,6 @@ import static jio.console.Functions.indent;
  */
 public interface JsConsole<Output extends JsValue> extends Lambda<JsPath, Output> {
 
-
   /**
    * Factory method to create console programs that ask for the user to type in a json value that conforms to the given
    * spec
@@ -39,21 +38,20 @@ public interface JsConsole<Output extends JsValue> extends Lambda<JsPath, Output
     return path -> Programs.PRINT_LINE(String.format("%s%s -> ",
                                                      indent(path),
                                                      path
-                                                    )
-                                      )
+    )
+    )
                            .then(__ -> Programs.READ_LINE)
-                           .then(s ->
-                                 {
-                                   try {
-                                     if (s.isEmpty()) {
-                                       return IO.succeed(JsNothing.NOTHING);
-                                     }
-                                     return IO.succeed(spec.parse(s));
-                                   } catch (JsParserException e) {
-                                     return IO.fail(e);
-                                   }
-                                 }
-                                )
+                           .then(s -> {
+                             try {
+                               if (s.isEmpty()) {
+                                 return IO.succeed(JsNothing.NOTHING);
+                               }
+                               return IO.succeed(spec.parse(s));
+                             } catch (JsParserException e) {
+                               return IO.fail(e);
+                             }
+                           }
+                           )
                            .peekFailure(exc -> System.out.println(indent(path) + "Error: " + exc.getMessage()))
                            .retry(RetryPolicies.limitRetries(3));
   }

@@ -1,6 +1,5 @@
 package jio;
 
-
 import jsonvalues.JsArray;
 import jsonvalues.JsValue;
 
@@ -21,12 +20,11 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpPar, JsArrayExpSeq {
 
-
   final List<IO<? extends JsValue>> list;
 
   JsArrayExp(List<IO<? extends JsValue>> list,
              Function<EvalExpEvent, BiConsumer<JsArray, Throwable>> debugger
-            ) {
+  ) {
     super(debugger);
     this.list = list;
   }
@@ -48,7 +46,6 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
                              null);
   }
 
-
   /**
    * Creates a JsArray expression that evaluates all the effects in parallel. If any effect fails, the entire expression
    * fails.
@@ -68,30 +65,29 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
 
   List<IO<? extends JsValue>> debugJsArray(List<IO<? extends JsValue>> exps,
                                            EventBuilder<JsArray> eventBuilder
-                                          ) {
+  ) {
     return IntStream.range(0,
                            exps.size())
                     .mapToObj(i -> DebuggerHelper.debugIO(exps.get(i),
                                                           String.format("%s[%s]",
                                                                         eventBuilder.exp,
                                                                         i
-                                                                       ),
+                                                          ),
                                                           eventBuilder.context
 
-                                                         )
-                             )
+                    )
+                    )
                     .collect(Collectors.toList());
   }
 
   @Override
   public abstract JsArrayExp retryEach(final Predicate<? super Throwable> predicate,
                                        final RetryPolicy policy
-                                      );
-
+  );
 
   @Override
   public abstract JsArrayExp debugEach(final EventBuilder<JsArray> messageBuilder
-                                      );
+  );
 
   @Override
   public abstract JsArrayExp debugEach(final String context);
@@ -101,6 +97,5 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
     return retryEach(e -> true,
                      policy);
   }
-
 
 }

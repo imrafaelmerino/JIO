@@ -1,6 +1,5 @@
 package jio.time;
 
-
 final class Monotonic implements Clock {
 
   @Override

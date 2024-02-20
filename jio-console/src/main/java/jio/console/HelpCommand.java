@@ -14,7 +14,7 @@ import java.util.function.Function;
  * command:
  *
  * <pre>
- *     help command_name
+ * help command_name
  * </pre>
  * <p>
  * If no command name is provided, it will display a message prompting users to type the name of a command or "list" to
@@ -27,7 +27,7 @@ class HelpCommand extends Command {
 
   public HelpCommand(List<Command> commands) {
     super(COMMAND_NAME,
-          """     
+          """
                Welcome to jio-console:
                  . To know the list of available commands, type `list`
                  . To know more about a specific command, type `help $command`
@@ -43,12 +43,12 @@ class HelpCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
+  ) {
     return tokens -> {
       int nArgs = tokens.length - 1;
-        if (nArgs == 0) {
-            return IO.succeed("Type the name of a command or list to see al the possible commands");
-        }
+      if (nArgs == 0) {
+        return IO.succeed("Type the name of a command or list to see al the possible commands");
+      }
       String commandName = Functions.joinTail(tokens);
       return commands.stream()
                      .filter(it -> it.name.equalsIgnoreCase(commandName))

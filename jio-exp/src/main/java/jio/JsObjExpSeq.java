@@ -24,7 +24,7 @@ final class JsObjExpSeq extends JsObjExp {
 
   public JsObjExpSeq(final Map<String, IO<? extends JsValue>> bindings,
                      final Function<EvalExpEvent, BiConsumer<JsObj, Throwable>> debugger
-                    ) {
+  ) {
     super(bindings,
           debugger);
   }
@@ -33,7 +33,6 @@ final class JsObjExpSeq extends JsObjExp {
     super(new LinkedHashMap<>(),
           null);
   }
-
 
   /**
    * returns a new object future inserting the given future at the given key
@@ -45,15 +44,14 @@ final class JsObjExpSeq extends JsObjExp {
   @Override
   public JsObjExpSeq set(final String key,
                          final IO<? extends JsValue> exp
-                        ) {
+  ) {
     var xs = new HashMap<>(bindings);
     xs.put(requireNonNull(key),
            requireNonNull(exp)
-          );
+    );
     return new JsObjExpSeq(xs,
                            jfrPublisher);
   }
-
 
   /**
    * it triggers the execution of all the completable futures, combining the results into a JsObj
@@ -68,20 +66,20 @@ final class JsObjExpSeq extends JsObjExp {
     for (final Map.Entry<String, IO<? extends JsValue>> tuple : bindings.entrySet()) {
       result = result.thenCombine(tuple.getValue()
                                        .get(),
-                                  (obj, value) -> obj.set(tuple.getKey(),
-                                                          value
-                                                         )
-                                 );
+                                  (obj,
+                                   value) -> obj.set(tuple.getKey(),
+                                                     value
+                                   )
+      );
     }
 
     return result;
   }
 
-
   @Override
   public JsObjExp retryEach(final Predicate<? super Throwable> predicate,
                             final RetryPolicy policy
-                           ) {
+  ) {
     Objects.requireNonNull(policy);
     Objects.requireNonNull(predicate);
 
@@ -91,25 +89,23 @@ final class JsObjExpSeq extends JsObjExp {
                                                              e -> e.getValue()
                                                                    .retry(predicate,
                                                                           policy
-                                                                         )
-                                                            )
-                                           ),
+                                                                   )
+                                   )
+                                   ),
                            jfrPublisher
     );
   }
 
-
   @Override
   public JsObjExp debugEach(final EventBuilder<JsObj> eventBuilder
-                           ) {
+  ) {
     Objects.requireNonNull(eventBuilder);
     return new JsObjExpSeq(debugJsObj(bindings,
                                       eventBuilder
-                                     ),
+    ),
                            getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public JsObjExp debugEach(final String context) {

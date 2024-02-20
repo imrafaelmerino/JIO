@@ -224,7 +224,7 @@ public final class Converters {
                     TYPE_FIELD,
                     JsStr.of(result.getClass()
                                    .getSimpleName())
-                   );
+    );
   }
 
   /**
@@ -240,7 +240,7 @@ public final class Converters {
                     JsLong.of(result.getDeletedCount()),
                     WAS_ACKNOWLEDGED_FIELD,
                     JsBool.of(result.wasAcknowledged())
-                   );
+    );
   }
 
   /**
@@ -263,7 +263,6 @@ public final class Converters {
                     TYPE_FIELD,
                     JsStr.of(result.getClass()
                                    .getSimpleName())
-                   );
+    );
   }
 }
-

@@ -1,7 +1,6 @@
 package jio.http.server;
 
 import com.sun.net.httpserver.*;
-import java.util.concurrent.Executors;
 import jio.IO;
 
 import java.io.IOException;
@@ -33,10 +32,9 @@ import static java.util.Objects.requireNonNull;
  */
 public final class HttpServerBuilder {
 
-
   private final AtomicLong counter = new AtomicLong(0);
   private final Map<String, HttpHandler> handlers;
-  private Executor executor = Executors.newVirtualThreadPerTaskExecutor();
+  private Executor executor;
   private int backlog = 0;
   private boolean recordEvents = true;
   private HttpsConfigurator httpsConfigurator;
@@ -46,17 +44,16 @@ public final class HttpServerBuilder {
   }
 
   private static String headersToString(Map<String, List<String>> headers) {
-    return
-        headers.entrySet()
-               .stream()
-               .map(e -> String.format("%s:%s",
-                                       e.getKey(),
-                                       e.getValue()
-                                        .size() == 1 ? e.getValue()
-                                                        .getFirst() : e.getValue()
-                                      )
-                   )
-               .collect(Collectors.joining(", "));
+    return headers.entrySet()
+                  .stream()
+                  .map(e -> String.format("%s:%s",
+                                          e.getKey(),
+                                          e.getValue()
+                                           .size() == 1 ? e.getValue()
+                                                           .get(0) : e.getValue()
+                  )
+                  )
+                  .collect(Collectors.joining(", "));
   }
 
   /**
@@ -81,7 +78,6 @@ public final class HttpServerBuilder {
     return this;
   }
 
-
   /**
    * Sets an HttpsConfigurator for configuring SSL settings for the HTTP server. The HttpsConfigurator allows you to
    * specify SSL-related settings such as SSLContext, SSLParameters, and more for secure connections. This is useful for
@@ -95,7 +91,6 @@ public final class HttpServerBuilder {
     this.httpsConfigurator = requireNonNull(configurator);
     return this;
   }
-
 
   /**
    * Sets the socket backlog, specifying the number of incoming connections that can be queued for acceptance.
@@ -131,12 +126,12 @@ public final class HttpServerBuilder {
    */
   public HttpServer startAtRandom(final int start,
                                   final int end
-                                 ) {
+  ) {
     return buildAtRandomRec("localhost",
                             start,
                             end
-                           )
-        .result();
+    )
+     .join();
   }
 
   /**
@@ -153,7 +148,7 @@ public final class HttpServerBuilder {
   public HttpServer startAtRandom(final String host,
                                   final int start,
                                   final int end
-                                 ) {
+  ) {
     if (start <= 0) {
       throw new IllegalArgumentException("start <= 0");
     }
@@ -163,22 +158,22 @@ public final class HttpServerBuilder {
     return buildAtRandomRec(host,
                             start,
                             end
-                           )
-        .result();
+    )
+     .join();
   }
 
   private IO<HttpServer> buildAtRandomRec(final String host,
                                           final int start,
                                           final int end
-                                         ) {
+  ) {
     if (start == end) {
       throw new IllegalArgumentException("range of ports exhausted");
     }
     return build(requireNonNull(host),
                  start
-                ).recoverWith(error -> buildAtRandomRec(host,
-                                                        start + 1,
-                                                        end));
+    ).recoverWith(error -> buildAtRandomRec(host,
+                                            start + 1,
+                                            end));
   }
 
   /**
@@ -193,7 +188,7 @@ public final class HttpServerBuilder {
    */
   private IO<HttpServer> build(final String host,
                                final int port
-                              ) {
+  ) {
     if (port <= 0) {
       throw new IllegalArgumentException("port <= 0");
     }
@@ -228,7 +223,7 @@ public final class HttpServerBuilder {
                                            .handle(exchange);
                                  }
                                }
-                              );
+          );
         }
         server.start();
         return CompletableFuture.completedFuture(server);
@@ -240,7 +235,7 @@ public final class HttpServerBuilder {
 
   private void jfrHandle(String key,
                          HttpExchange exchange
-                        ) {
+  ) {
     ServerReqEvent event = new ServerReqEvent();
     event.reqCounter = counter.incrementAndGet();
     event.remoteHostAddress = exchange.getRemoteAddress()
@@ -264,7 +259,7 @@ public final class HttpServerBuilder {
                                       cause.getClass()
                                            .getName(),
                                       cause.getMessage()
-                                     );
+      );
       event.result = ServerReqEvent.RESULT.FAILURE.name();
     } finally {
       event.commit();
@@ -294,7 +289,7 @@ public final class HttpServerBuilder {
   public HttpServer start(final int port) {
     return build("localhost",
                  port
-                ).result();
+    ).join();
   }
 
   /**
@@ -310,9 +305,8 @@ public final class HttpServerBuilder {
                           final int port) {
     return build(host,
                  port
-                )
-        .result();
+    )
+     .join();
   }
-
 
 }

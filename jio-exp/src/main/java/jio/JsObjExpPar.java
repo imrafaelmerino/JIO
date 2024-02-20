@@ -1,6 +1,5 @@
 package jio;
 
-
 import jsonvalues.JsObj;
 import jsonvalues.JsValue;
 
@@ -22,7 +21,7 @@ final class JsObjExpPar extends JsObjExp {
 
   public JsObjExpPar(Map<String, IO<? extends JsValue>> bindings,
                      Function<EvalExpEvent, BiConsumer<JsObj, Throwable>> debugger
-                    ) {
+  ) {
     super(bindings,
           debugger);
   }
@@ -31,7 +30,6 @@ final class JsObjExpPar extends JsObjExp {
     super(new LinkedHashMap<>(),
           null);
   }
-
 
   /**
    * returns a new object future inserting the given future at the given key
@@ -43,15 +41,14 @@ final class JsObjExpPar extends JsObjExp {
   @Override
   public JsObjExpPar set(final String key,
                          final IO<? extends JsValue> exp
-                        ) {
+  ) {
     var xs = new HashMap<>(bindings);
     xs.put(requireNonNull(key),
            requireNonNull(exp)
-          );
+    );
     return new JsObjExpPar(xs,
                            jfrPublisher);
   }
-
 
   /**
    * it triggers the execution of all the completable futures, combining the results into a JsObj
@@ -66,16 +63,14 @@ final class JsObjExpPar extends JsObjExp {
                                 .stream()
                                 .toList();
 
-    Map<String, CompletableFuture<? extends JsValue>> futures =
-        keys.stream()
-            .collect(Collectors.toMap(it -> it,
-                                      it -> bindings.get(it)
-                                                    .get()
-                                     ));
+    Map<String, CompletableFuture<? extends JsValue>> futures = keys.stream()
+                                                                    .collect(Collectors.toMap(it -> it,
+                                                                                              it -> bindings.get(it)
+                                                                                                            .get()
+                                                                    ));
 
-    CompletableFuture<? extends JsValue>[] cfs =
-        futures.values()
-               .toArray(CompletableFuture[]::new);
+    CompletableFuture<? extends JsValue>[] cfs = futures.values()
+                                                        .toArray(CompletableFuture[]::new);
     return CompletableFuture.allOf(cfs)
                             .thenApply(r -> {
                               JsObj result = JsObj.empty();
@@ -88,11 +83,10 @@ final class JsObjExpPar extends JsObjExp {
                             });
   }
 
-
   @Override
   public JsObjExp retryEach(final Predicate<? super Throwable> predicate,
                             final RetryPolicy policy
-                           ) {
+  ) {
     Objects.requireNonNull(predicate);
     Objects.requireNonNull(policy);
 
@@ -102,31 +96,29 @@ final class JsObjExpPar extends JsObjExp {
                                                              e -> e.getValue()
                                                                    .retry(predicate,
                                                                           policy
-                                                                         )
-                                                            )
-                                           ),
+                                                                   )
+                                   )
+                                   ),
                            jfrPublisher
     );
   }
 
   @Override
   public JsObjExp debugEach(EventBuilder<JsObj> eventBuilder
-                           ) {
+  ) {
     Objects.requireNonNull(eventBuilder);
     return new JsObjExpPar(debugJsObj(bindings,
                                       eventBuilder
-                                     ),
+    ),
                            getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public JsObjExp debugEach(String context) {
     return debugEach(EventBuilder.of(this.getClass()
                                          .getSimpleName(),
                                      context));
-
 
   }
 }

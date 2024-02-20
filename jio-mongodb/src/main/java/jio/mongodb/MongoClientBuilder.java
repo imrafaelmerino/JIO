@@ -29,24 +29,21 @@ public final class MongoClientBuilder {
   /**
    * Default builder with the default configuration and the codecs to work with JSON from json-values.
    */
-  public static final MongoClientBuilder DEFAULT =
-      new MongoClientBuilder(
-          con -> MongoClientSettings.builder()
-                                    .applyConnectionString(con)
-                                    .codecRegistry(JsValuesRegistry.INSTANCE)
-                                    .build()
-      );
+  public static final MongoClientBuilder DEFAULT = new MongoClientBuilder(
+                                                                          con -> MongoClientSettings.builder()
+                                                                                                    .applyConnectionString(con)
+                                                                                                    .codecRegistry(JsValuesRegistry.INSTANCE)
+                                                                                                    .build()
+  );
 
   final Function<String, ConnectionString> buildConnection;
   final Function<ConnectionString, MongoClientSettings> buildSettings;
-
 
   private MongoClientBuilder(Function<String, ConnectionString> buildConnection,
                              Function<ConnectionString, MongoClientSettings> buildSettings) {
     this.buildConnection = requireNonNull(buildConnection);
     this.buildSettings = requireNonNull(buildSettings);
   }
-
 
   private MongoClientBuilder(Function<ConnectionString, MongoClientSettings> buildSettings) {
     this(ConnectionString::new,
@@ -65,7 +62,7 @@ public final class MongoClientBuilder {
    */
   public static MongoClientBuilder of(final Function<String, ConnectionString> buildConnection,
                                       final Function<ConnectionString, MongoClientSettings> buildSettings
-                                     ) {
+  ) {
     return new MongoClientBuilder(requireNonNull(buildConnection),
                                   requireNonNull(buildSettings));
   }
@@ -85,7 +82,6 @@ public final class MongoClientBuilder {
     return new MongoClientBuilder(requireNonNull(buildSettings));
   }
 
-
   /**
    * builds the Mongo client from the specified connection
    *
@@ -95,6 +91,6 @@ public final class MongoClientBuilder {
   public MongoClient build(final String connection) {
     return MongoClients.create(buildConnection.andThen(buildSettings)
                                               .apply(requireNonNull(connection))
-                              );
+    );
   }
 }

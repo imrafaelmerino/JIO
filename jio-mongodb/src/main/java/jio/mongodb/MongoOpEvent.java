@@ -17,29 +17,16 @@ final class MongoOpEvent extends Event {
   public String result;
   public String exception;
 
-
-  public MongoOpEvent(OP operation) {
+  MongoOpEvent(OP operation) {
     this.operation = operation.name();
   }
 
   enum OP {
-    AGGREGATE,
-    COUNT,
-    DELETE_MANY,
-    DELETE_ONE,
-    FIND,
-    FIND_ONE_AND_DELETE,
-    FIND_ONE_AND_REPLACE,
-    FIND_ONE_AND_UPDATE,
-    INSERT_MANY,
-    INSERT_ONE,
-    REPLACE_ONE,
-    UPDATE_MANY,
-    UPDATE_ONE,
-    TX
+    AGGREGATE, COUNT, DELETE_MANY, DELETE_ONE, FIND, FIND_ONE_AND_DELETE, FIND_ONE_AND_REPLACE, FIND_ONE_AND_UPDATE, INSERT_MANY, INSERT_ONE, REPLACE_ONE, UPDATE_MANY, UPDATE_ONE, TX
   }
 
-  enum RESULT {SUCCESS, FAILURE}
-
+  enum RESULT {
+    SUCCESS, FAILURE
+  }
 
 }

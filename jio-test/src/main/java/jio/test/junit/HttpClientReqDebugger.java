@@ -1,10 +1,10 @@
 package jio.test.junit;
 
+import java.time.ZoneOffset;
 import jdk.jfr.consumer.RecordedEvent;
 import jio.test.Utils;
 import jio.time.Fun;
 
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
@@ -17,7 +17,8 @@ final class HttpClientReqDebugger implements Consumer<RecordedEvent> {
       |  Status Code: %s
       |  Duration: %s
       |  Method: %s
-      |  URI: %s
+      |  URI Host: %s
+      |  URI Path: %s
       |  Request Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
@@ -30,14 +31,14 @@ final class HttpClientReqDebugger implements Consumer<RecordedEvent> {
       |  Exception: %s
       |  Duration: %s
       |  Method: %s
-      |  URI: %s
+      |  URI Host: %s
+      |  URI Path: %s
       |  Request Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
       """;
   static final String EVENT_NAME = "jio.http.client.Req";
-
 
   @Override
   public void accept(RecordedEvent event) {
@@ -46,22 +47,20 @@ final class HttpClientReqDebugger implements Consumer<RecordedEvent> {
     var result = event.getValue(EventFields.RESULT);
     boolean isSuccess = "SUCCESS".equals(result);
     var str = String.format(isSuccess ? FORMAT_SUC : FORMAT_ERR,
-                            isSuccess ?
-                            Utils.categorizeHttpStatusCode(event.getValue(EventFields.STATUS_CODE)) :
-                            result,
-                            isSuccess ?
-                            event.getValue(EventFields.STATUS_CODE) :
-                            event.getValue(EventFields.EXCEPTION),
+                            isSuccess ? Utils.categorizeHttpStatusCode(event.getValue(EventFields.STATUS_CODE))
+                                : result,
+                            isSuccess ? event.getValue(EventFields.STATUS_CODE) : event.getValue(EventFields.EXCEPTION),
                             Fun.formatTime(event.getDuration()
                                                 .toNanos()),
                             event.getValue(EventFields.METHOD),
-                            event.getValue(EventFields.URI),
+                            event.getValue(EventFields.URI_HOST),
+                            event.getValue(EventFields.URI_PATH),
                             event.getValue(EventFields.REQ_COUNTER),
                             Utils.getThreadName(event.getThread()),
                             event.getStartTime()
-                                 .atZone(ZoneId.systemDefault())
+                                 .atZone(ZoneOffset.UTC)
                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                           );
+    );
     synchronized (System.out) {
       System.out.println(str);
       System.out.flush();

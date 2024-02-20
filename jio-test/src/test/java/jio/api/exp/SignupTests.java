@@ -1,11 +1,8 @@
 package jio.api.exp;
 
-import fun.gen.Gen;
-import fun.gen.IntGen;
 import jio.IO;
 import jio.Lambda;
 import jio.test.junit.Debugger;
-import jio.test.stub.StubBuilder;
 import jio.time.Clock;
 import jsonvalues.JsArray;
 import jsonvalues.JsObj;
@@ -14,11 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.concurrent.Callable;
 
 /**
  * The signup service processes a JSON input that has at the least (not interested in the rest) the fields email and
@@ -56,18 +49,16 @@ import java.util.concurrent.Callable;
 //only for java 21
 public class SignupTests {
 
-
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
-
 
   @Test
   public void test() {
 
     final Lambda<JsObj, Void> persistLDAP = a -> IO.NULL();
     final Lambda<String, JsArray> normalizeAddresses = a -> IO.succeed(
-        JsArray.of("address1",
-                   "address2"));
+                                                                       JsArray.of("address1",
+                                                                                  "address2"));
     final Lambda<Void, Integer> countUsers = a -> IO.succeed(3);
     final Lambda<JsObj, String> persistMongo = a -> IO.succeed("id");
     final Lambda<JsObj, Void> sendEmail = a -> IO.NULL();
@@ -77,7 +68,7 @@ public class SignupTests {
                           JsStr.of("imrafaelmerino@gmail.com"),
                           "address",
                           JsStr.of("Elm's Street")
-                         );
+    );
 
     var resp = new SignupService(persistLDAP,
                                  normalizeAddresses,
@@ -86,8 +77,8 @@ public class SignupTests {
                                  sendEmail,
                                  existsInLDAP,
                                  Clock.realTime)
-        .apply(user)
-        .result();
+                                                .apply(user)
+                                                .join();
 
     Assertions.assertTrue(resp.containsKey("number_users"));
     Assertions.assertTrue(resp.containsKey("id"));
@@ -95,6 +86,5 @@ public class SignupTests {
     Assertions.assertTrue(resp.containsKey("timestamp"));
 
   }
-
 
 }

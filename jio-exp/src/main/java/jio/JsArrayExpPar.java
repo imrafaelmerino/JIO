@@ -17,7 +17,7 @@ final class JsArrayExpPar extends JsArrayExp {
 
   public JsArrayExpPar(List<IO<? extends JsValue>> list,
                        Function<EvalExpEvent, BiConsumer<JsArray, Throwable>> debugger
-                      ) {
+  ) {
     super(list,
           debugger);
   }
@@ -34,41 +34,38 @@ final class JsArrayExpPar extends JsArrayExp {
     for (final IO<? extends JsValue> future : list) {
       result = result.thenCombine(future.get(),
                                   JsArray::append
-                                 );
+      );
     }
     return result;
   }
 
-
   @Override
   public JsArrayExp retryEach(final Predicate<? super Throwable> predicate,
                               final RetryPolicy policy
-                             ) {
+  ) {
     requireNonNull(predicate);
     requireNonNull(policy);
 
     return new JsArrayExpPar(list.stream()
                                  .map(it -> it.retry(predicate,
                                                      policy
-                                                    )
-                                     )
+                                 )
+                                 )
                                  .collect(Collectors.toList()),
                              jfrPublisher
     );
   }
 
-
   @Override
   public JsArrayExp debugEach(final EventBuilder<JsArray> eventBuilder
-                             ) {
+  ) {
     Objects.requireNonNull(eventBuilder);
     return new JsArrayExpPar(debugJsArray(list,
                                           eventBuilder
-                                         ),
+    ),
                              getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public JsArrayExp debugEach(final String context) {

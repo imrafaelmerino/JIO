@@ -1,10 +1,13 @@
 package jio.jdbc;
 
 import java.util.List;
-import jio.Fun;
+import java.util.Objects;
+import jio.ExceptionFun;
 
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import jio.IO;
+import jio.jdbc.TxExecutedEvent.RESULT;
 
 /**
  * Utility class for decorating operations with Java Flight Recorder (JFR) events.
@@ -27,35 +30,32 @@ class JfrEventDecorator {
   static int decorateUpdateStm(Callable<Integer> op,
                                String sql,
                                boolean enableJFR,
-                               String label)
-      throws Exception {
-    UpdateStmEvent event = null;
+                               String label) throws Exception {
     if (enableJFR) {
-      event = new UpdateStmEvent();
+      UpdateStmExecutedEvent event = new UpdateStmExecutedEvent();
       event.begin();
-      event.label = label;
-    }
-    try {
-      var n = op.call();
-      if (enableJFR) {
+      try {
+        var n = op.call();
+        event.end();
         event.rowsAffected = n;
-        event.result = QueryStmEvent.RESULT.SUCCESS.name();
-      }
-      return n;
-
-    } catch (Exception e) {
-      if (enableJFR) {
+        event.result = EntitiesFoundEvent.RESULT.SUCCESS.name();
+        return n;
+      } catch (Exception e) {
+        event.end();
         event.sql = sql;
-        event.result = QueryStmEvent.RESULT.FAILURE.name();
-        event.exception = Fun.findUltimateCause(e)
-                             .toString();
+        event.result = EntitiesFoundEvent.RESULT.FAILURE.name();
+        event.exception = ExceptionFun.findUltimateCause(e)
+                                      .toString();
 
+        throw e;
+      } finally {
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.commit();
+        }
       }
-      throw e;
-    } finally {
-      if (enableJFR) {
-        event.commit();
-      }
+    } else {
+      return op.call();
     }
   }
 
@@ -72,35 +72,31 @@ class JfrEventDecorator {
   static <O> O decorateInsertOneStm(Callable<O> op,
                                     String sql,
                                     boolean enableJFR,
-                                    String label)
-      throws Exception {
-    UpdateStmEvent event = null;
+                                    String label) throws Exception {
     if (enableJFR) {
-      event = new UpdateStmEvent();
+      UpdateStmExecutedEvent event = new UpdateStmExecutedEvent();
       event.begin();
-      event.label = label;
-    }
-    try {
-      var result = op.call();
-      if (enableJFR) {
+      try {
+        var result = op.call();
+        event.end();
         event.rowsAffected = 1;
-        event.result = QueryStmEvent.RESULT.SUCCESS.name();
-      }
-      return result;
-
-    } catch (Exception e) {
-      if (enableJFR) {
+        event.result = UpdateStmExecutedEvent.RESULT.SUCCESS.name();
+        return result;
+      } catch (Exception e) {
+        event.end();
         event.sql = sql;
-        event.result = QueryStmEvent.RESULT.FAILURE.name();
-        event.exception = Fun.findUltimateCause(e)
-                             .toString();
-
+        event.result = UpdateStmExecutedEvent.RESULT.FAILURE.name();
+        event.exception = ExceptionFun.findUltimateCause(e)
+                                      .toString();
+        throw e;
+      } finally {
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.commit();
+        }
       }
-      throw e;
-    } finally {
-      if (enableJFR) {
-        event.commit();
-      }
+    } else {
+      return op.call();
     }
   }
 
@@ -120,36 +116,36 @@ class JfrEventDecorator {
                                       String sql,
                                       boolean enableJFR,
                                       String label,
-                                      int fetchSize)
-      throws Exception {
-    QueryStmEvent event = null;
+                                      int fetchSize) throws Exception {
     if (enableJFR) {
-      event = new QueryStmEvent();
+      EntitiesFoundEvent event = new EntitiesFoundEvent();
       event.begin();
-      event.label = label;
-      event.fetchSize = fetchSize;
-    }
-    try {
-      var result = op.call();
-      if (enableJFR) {
-        event.result = QueryStmEvent.RESULT.SUCCESS.name();
-        event.rowsReturned = result.size();
+      try {
+        var result = op.call();
+        event.end();
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.fetchSize = fetchSize;
+          event.result = EntitiesFoundEvent.RESULT.SUCCESS.name();
+          event.rowsReturned = result.size();
+          event.commit();
+        }
+        return result;
+      } catch (Exception e) {
+        event.end();
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.fetchSize = fetchSize;
+          event.sql = sql;
+          event.result = EntitiesFoundEvent.RESULT.FAILURE.name();
+          event.exception = ExceptionFun.findUltimateCause(e)
+                                        .toString();
+          event.commit();
+        }
+        throw e;
       }
-      return result;
-
-    } catch (Exception e) {
-      if (enableJFR) {
-        event.sql = sql;
-        event.result = QueryStmEvent.RESULT.FAILURE.name();
-        event.exception = Fun.findUltimateCause(e)
-                             .toString();
-
-      }
-      throw e;
-    } finally {
-      if (enableJFR) {
-        event.commit();
-      }
+    } else {
+      return op.call();
     }
   }
 
@@ -168,37 +164,38 @@ class JfrEventDecorator {
                                    String sql,
                                    boolean enableJFR,
                                    String label) throws Exception {
-    QueryStmEvent event = null;
     if (enableJFR) {
-      event = new QueryStmEvent();
+      EntitiesFoundEvent event = new EntitiesFoundEvent();
       event.begin();
-      event.label = label;
-      event.fetchSize = 1;
-    }
-    try {
-      var result = op.call();
-      if (enableJFR) {
-        event.result = QueryStmEvent.RESULT.SUCCESS.name();
-        event.rowsReturned = result == null ? 0 : 1;
-      }
-      return result;
+      try {
+        var result = op.call();
+        event.end();
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.fetchSize = 1;
+          event.result = EntitiesFoundEvent.RESULT.SUCCESS.name();
+          event.rowsReturned = result == null ? 0 : 1;
+          event.commit();
+        }
 
-    } catch (Exception e) {
-      if (enableJFR) {
-        event.sql = sql;
-        event.result = QueryStmEvent.RESULT.FAILURE.name();
-        event.exception = Fun.findUltimateCause(e)
-                             .toString();
-
+        return result;
+      } catch (Exception e) {
+        event.end();
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.fetchSize = 1;
+          event.sql = sql;
+          event.result = EntitiesFoundEvent.RESULT.FAILURE.name();
+          event.exception = ExceptionFun.findUltimateCause(e)
+                                        .toString();
+          event.commit();
+        }
+        throw e;
       }
-      throw e;
-    } finally {
-      if (enableJFR) {
-        event.commit();
-      }
+    } else {
+      return op.call();
     }
   }
-
 
   /**
    * Wraps the provided batch operation with JFR events if enabled.
@@ -213,51 +210,137 @@ class JfrEventDecorator {
   static BatchResult decorateBatch(Callable<BatchResult> op,
                                    String sql,
                                    boolean enableJFR,
-                                   String label)
-      throws Exception {
-    BatchEvent event = null;
+                                   String label) throws Exception {
     if (enableJFR) {
-      event = new BatchEvent();
+      BatchExecutedEvent event = new BatchExecutedEvent();
       event.begin();
-      event.label = label;
-    }
-    try {
-      var result = op.call();
-      if (enableJFR) {
-        event.rowsAffected = result.rowsAffected();
-        event.batchSize = result.batchSize();
-        event.totalStms = result.totalStms();
-        event.executedBatches = result.executedBatches();
-        var errors = result.errors();
-        if (errors.isEmpty()) {
-          event.result = BatchEvent.RESULT.SUCCESS.name();
-        } else {
-          event.sql = sql;
-          event.result = BatchEvent.RESULT.FAILURE.name();
-          event.exception = errors
-              .stream()
-              .map(Fun::findUltimateCause)
-              .map(Throwable::toString)
-              .collect(Collectors.joining());
+      try {
+        var result = op.call();
+        event.end();
+        if (event.shouldCommit()) {
+          event.label = label;
+          if (Objects.requireNonNull(result) instanceof BatchSuccess success) {
+            event.rowsAffected = success.rowsAffected();
+            event.result = BatchExecutedEvent.RESULT.SUCCESS.name();
+          } else if (result instanceof BatchPartialSuccess partialSuccess) {
+            event.batchSize = partialSuccess.batchSize();
+            event.totalStms = partialSuccess.totalStms();
+            event.executedBatches = partialSuccess.executedBatches();
+            event.sql = sql;
+            event.result = BatchExecutedEvent.RESULT.PARTIAL_SUCCESS.name();
+            event.exception = partialSuccess.errors()
+                                            .stream()
+                                            .map(ExceptionFun::findUltimateCause)
+                                            .map(Throwable::toString)
+                                            .collect(Collectors.joining());
+          } else if (result instanceof BatchFailure failure) {
+            event.batchSize = failure.batchSize();
+            event.totalStms = failure.totalStms();
+            event.executedBatches = failure.executedBatches();
+            event.sql = sql;
+            event.result = BatchExecutedEvent.RESULT.FAILURE.name();
+            event.exception = ExceptionFun.findUltimateCause(failure.error())
+                                          .toString();
+          }
+
+          event.commit();
+
         }
-      }
-      return result;
+        return result;
 
-    } catch (Exception e) {
-      if (enableJFR) {
-        event.sql = sql;
-        event.result = BatchEvent.RESULT.FAILURE.name();
-        event.exception = Fun.findUltimateCause(e)
-                             .toString();
-
+      } catch (Exception e) {
+        event.end();
+        if (event.shouldCommit()) {
+          event.label = label;
+          event.sql = sql;
+          event.result = BatchExecutedEvent.RESULT.FAILURE.name();
+          event.exception = ExceptionFun.findUltimateCause(e)
+                                        .toString();
+          event.commit();
+        }
+        throw e;
       }
-      throw e;
-    } finally {
-      if (enableJFR) {
-        event.commit();
-      }
+    } else {
+      return op.call();
     }
   }
 
+  static <O> IO<O> decorateTx(IO<O> tx,
+                              String label,
+                              boolean enableJFR) {
+    if (enableJFR) {
+      return IO.lazy(() -> {
+        var event = new TxExecutedEvent();
+        event.begin();
+        return event;
+      })
+               .then(event -> tx.then(txResult -> {
+                 event.end();
+                 if (event.shouldCommit()) {
+                   event.label = label;
+                   event.result = RESULT.SUCCESS.name();
+                   event.commit();
+                 }
+                 return IO.succeed(txResult);
+               },
+                                      exc -> {
+                                        event.end();
+                                        if (event.shouldCommit()) {
+                                          event.label = label;
+                                          event.result = RESULT.FAILURE.name();
+                                          event.exception = ExceptionFun.findUltimateCause(exc)
+                                                                        .toString();
+                                          event.commit();
+                                        }
+                                        return IO.fail(exc);
+                                      }));
+    } else {
+      return tx;
+    }
+  }
+
+  static IO<TxResult> decorateTxWithSavePoints(IO<TxResult> tx,
+                                               String label,
+                                               boolean enableJFR) {
+    if (enableJFR) {
+      return IO.lazy(() -> {
+        var event = new TxExecutedEvent();
+        event.begin();
+        return event;
+      })
+               .then(event -> tx.then(txResult -> {
+                 event.end();
+                 if (event.shouldCommit()) {
+                   event.label = label;
+                   if (txResult instanceof TxPartialSuccess partialSuccess) {
+                     event.savePoint = partialSuccess.savePointName();
+                     event.exception = ExceptionFun.findUltimateCause(partialSuccess.cause())
+                                                   .toString();
+                     event.result = RESULT.PARTIAL_SUCCESS.name();
+
+                   } else {
+                     event.result = RESULT.SUCCESS.name();
+                   }
+
+                   event.commit();
+                 }
+                 return IO.succeed(txResult);
+               },
+                                      exc -> {
+                                        event.end();
+                                        if (event.shouldCommit()) {
+                                          event.label = label;
+                                          event.result = RESULT.SUCCESS.name();
+                                          event.exception = ExceptionFun.findUltimateCause(exc)
+                                                                        .toString();
+                                          event.commit();
+                                          ;
+                                        }
+                                        return IO.fail(exc);
+                                      }));
+    } else {
+      return tx;
+    }
+  }
 
 }

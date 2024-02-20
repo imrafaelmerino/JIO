@@ -52,7 +52,6 @@ public final class StubBuilder<GenValue> implements Supplier<IO<GenValue>> {
     return new StubBuilder<>(requireNonNull(gen));
   }
 
-
   /**
    * Creates a new stub using the provided generator of values.
    *
@@ -76,7 +75,6 @@ public final class StubBuilder<GenValue> implements Supplier<IO<GenValue>> {
     return this;
   }
 
-
   /**
    * Sets the generator of delays
    *
@@ -88,7 +86,6 @@ public final class StubBuilder<GenValue> implements Supplier<IO<GenValue>> {
     return this;
   }
 
-
   /**
    * Generates an `IO` stub using the specified generator and settings.
    *
@@ -99,11 +96,9 @@ public final class StubBuilder<GenValue> implements Supplier<IO<GenValue>> {
   public IO<GenValue> get() {
     Lambda<IO<GenValue>, GenValue> delay = it -> delayGen == null ? it : IO.lazy(delayGen.sample())
                                                                            .then(it::sleep);
-    return executor == null ?
-           IO.lazy(gen.sample())
-             .then(delay) :
-           IO.lazy(gen.sample(),
-                   executor)
-             .then(delay);
+    return executor == null ? IO.lazy(gen.sample())
+                                .then(delay) : IO.lazy(gen.sample(),
+                                                       executor)
+                                                 .then(delay);
   }
 }

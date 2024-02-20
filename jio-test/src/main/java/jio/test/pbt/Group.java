@@ -23,7 +23,6 @@ public final class Group {
 
   private Path path;
 
-
   private Group(String name,
                 List<Testable> props) {
     this.name = Objects.requireNonNull(name);
@@ -185,7 +184,7 @@ public final class Group {
   }
 
   void dump(GroupReport report) {
-    synchronized (GroupReport.class) {
+    synchronized (Group.class) {
       try {
         Files.writeString(path,
                           report + "\n");

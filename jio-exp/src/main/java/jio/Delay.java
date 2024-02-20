@@ -1,12 +1,11 @@
 package jio;
 
-import jio.IO;
+import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-
-import static java.util.Objects.requireNonNull;
-
+import java.util.concurrent.Executor;
 
 /**
  * Represents a delay that is modeled with an IO effect that is reduced to null after the specified time. It's
@@ -29,10 +28,13 @@ import static java.util.Objects.requireNonNull;
 public final class Delay extends IO<Void> {
 
   private final Duration duration;
+  private final Executor executor;
 
-  private Delay(final Duration duration
-               ) {
+  private Delay(final Duration duration,
+                final Executor executor
+  ) {
     this.duration = duration;
+    this.executor = executor;
   }
 
   /**
@@ -40,11 +42,14 @@ public final class Delay extends IO<Void> {
    * completed with null asynchronously by a thread from the executor.
    *
    * @param duration the duration
+   * @param executor the executor
    * @return a Delay
    */
-  public static Delay of(final Duration duration
-                        ) {
-    return new Delay(requireNonNull(duration));
+  public static Delay of(final Duration duration,
+                         final Executor executor
+  ) {
+    return new Delay(requireNonNull(duration),
+                     executor);
   }
 
   /**
@@ -55,17 +60,9 @@ public final class Delay extends IO<Void> {
    */
   @Override
   public CompletableFuture<Void> get() {
-    return duration.isZero() ?
-           CompletableFuture.completedFuture(null) :
-           CompletableFuture.supplyAsync(() -> {
-                                           try {
-                                             Thread.sleep(duration);
-                                           } catch (InterruptedException e) {
-                                             Thread.currentThread()
-                                                   .interrupt();
-                                           }
-                                           return null;
-                                         },
-                                         Executors.newVirtualThreadPerTaskExecutor());
+    return duration.isZero() ? CompletableFuture.completedFuture(null) : CompletableFuture.supplyAsync(() -> null,
+                                                                                                       CompletableFuture.delayedExecutor(duration.toMillis(),
+                                                                                                                                         MILLISECONDS,
+                                                                                                                                         executor));
   }
 }

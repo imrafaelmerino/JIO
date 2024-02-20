@@ -10,14 +10,13 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.util.Objects.requireNonNull;
 
-
 /**
  * Represents a {@link JsConsole console} program to compose a JSON object from the user inputs. It has the same
  * recursive structure as a JSON object, which makes it very easy to create interactive programs to compose a
  * {@link jsonvalues.JsObj JsObj}:
  *
  * <pre>
- *     {@code
+ * {@code
  *           JsObjConsole.of("a", JsConsole.of(JsSpecs.integer()),
  *                           "b", JsConsole.of(JsSpecs.str()),
  *                           "c", JsConsole.of(JsSpecs.bool()),
@@ -73,7 +72,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program15,
                                 final String key16,
                                 final JsConsole<?> program16
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -105,11 +104,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program14,
                                   key15,
                                   program15
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key16),
                          requireNonNull(program16)
-                        );
+    );
 
     return console;
 
@@ -148,7 +147,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program14,
                                 final String key15,
                                 final JsConsole<?> program15
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -178,11 +177,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program13,
                                   key14,
                                   program14
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key15),
                          requireNonNull(program15)
-                        );
+    );
 
     return console;
 
@@ -219,7 +218,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program13,
                                 final String key14,
                                 final JsConsole<?> program14
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -247,11 +246,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program12,
                                   key13,
                                   program13
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key14),
                          requireNonNull(program14)
-                        );
+    );
 
     return console;
 
@@ -286,7 +285,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program12,
                                 final String key13,
                                 final JsConsole<?> program13
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -312,11 +311,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program11,
                                   key12,
                                   program12
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key13),
                          requireNonNull(program13)
-                        );
+    );
 
     return console;
 
@@ -349,7 +348,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program11,
                                 final String key12,
                                 final JsConsole<?> program12
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -373,11 +372,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program10,
                                   key11,
                                   program11
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key12),
                          requireNonNull(program12)
-                        );
+    );
 
     return console;
 
@@ -408,7 +407,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program10,
                                 final String key11,
                                 final JsConsole<?> program11
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -430,11 +429,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program9,
                                   key10,
                                   program10
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key11),
                          requireNonNull(program11)
-                        );
+    );
 
     return console;
 
@@ -463,7 +462,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program9,
                                 final String key10,
                                 final JsConsole<?> program10
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -483,11 +482,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program8,
                                   key9,
                                   program9
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key10),
                          requireNonNull(program10)
-                        );
+    );
 
     return console;
 
@@ -514,7 +513,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program8,
                                 final String key9,
                                 final JsConsole<?> program9
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -532,11 +531,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program7,
                                   key8,
                                   program8
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key9),
                          requireNonNull(program9)
-                        );
+    );
 
     return console;
 
@@ -561,7 +560,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program7,
                                 final String key8,
                                 final JsConsole<?> program8
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -577,11 +576,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program6,
                                   key7,
                                   program7
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key8),
                          requireNonNull(program8)
-                        );
+    );
 
     return console;
 
@@ -604,7 +603,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program6,
                                 final String key7,
                                 final JsConsole<?> program7
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -618,11 +617,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program5,
                                   key6,
                                   program6
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key7),
                          requireNonNull(program7)
-                        );
+    );
 
     return console;
 
@@ -644,7 +643,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program5,
                                 final String key6,
                                 final JsConsole<?> program6
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -656,11 +655,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program4,
                                   key5,
                                   program5
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key6),
                          requireNonNull(program6)
-                        );
+    );
 
     return console;
 
@@ -680,7 +679,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program4,
                                 final String key5,
                                 final JsConsole<?> program5
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -690,11 +689,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program3,
                                   key4,
                                   program4
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key5),
                          requireNonNull(program5)
-                        );
+    );
 
     return console;
 
@@ -711,7 +710,7 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program3,
                                 final String key4,
                                 final JsConsole<?> program4
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
@@ -719,11 +718,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                   program2,
                                   key3,
                                   program3
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key4),
                          requireNonNull(program4)
-                        );
+    );
 
     return console;
 
@@ -738,17 +737,17 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program2,
                                 final String key3,
                                 final JsConsole<?> program3
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(key1,
                                   program1,
                                   key2,
                                   program2
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key3),
                          requireNonNull(program3)
-                        );
+    );
 
     return console;
 
@@ -761,15 +760,15 @@ public class JsObjConsole implements JsConsole<JsObj> {
                                 final JsConsole<?> program1,
                                 final String key2,
                                 final JsConsole<?> program2
-                               ) {
+  ) {
 
     var console = JsObjConsole.of(ke1,
                                   program1
-                                 );
+    );
 
     console.bindings.put(requireNonNull(key2),
                          requireNonNull(program2)
-                        );
+    );
 
     return console;
 
@@ -780,11 +779,11 @@ public class JsObjConsole implements JsConsole<JsObj> {
    */
   public static JsObjConsole of(final String key,
                                 final JsConsole<?> program
-                               ) {
+  ) {
     var console = new JsObjConsole(new LinkedHashMap<>());
     console.bindings.put(requireNonNull(key),
                          requireNonNull(program)
-                        );
+    );
     return console;
 
   }
@@ -813,21 +812,21 @@ public class JsObjConsole implements JsConsole<JsObj> {
   @Override
   public IO<JsObj> apply(final JsPath path) {
     requireNonNull(path);
-    return IO.effect(() ->
-                     {
-                       var result = CompletableFuture.completedFuture(JsObj.empty());
-                       for (var entry : bindings.entrySet()) {
-                         var currentPath = path.append(JsPath.fromKey(entry.getKey()));
-                         var nextValue = entry.getValue();
-                         result = result
-                             .thenCombine(nextValue.apply(currentPath)
-                                                   .get(),
-                                          (obj, value) -> obj.set(entry.getKey(),
-                                                                  value
-                                                                 )
-                                         );
-                       }
-                       return result;
-                     });
+    return IO.effect(() -> {
+      var result = CompletableFuture.completedFuture(JsObj.empty());
+      for (var entry : bindings.entrySet()) {
+        var currentPath = path.append(JsPath.fromKey(entry.getKey()));
+        var nextValue = entry.getValue();
+        result = result
+                       .thenCombine(nextValue.apply(currentPath)
+                                             .get(),
+                                    (obj,
+                                     value) -> obj.set(entry.getKey(),
+                                                       value
+                                     )
+                       );
+      }
+      return result;
+    });
   }
 }

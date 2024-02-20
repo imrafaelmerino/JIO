@@ -14,7 +14,6 @@ import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.Map;
 
-
 public class TestRetryWhile {
 
   @RegisterExtension
@@ -26,26 +25,19 @@ public class TestRetryWhile {
   @BeforeAll
   public static void prepare() {
 
-    GetStub getStrReqHandler = GetStub.of(n -> bodyReq -> uri -> headers ->
-                                              n <= 3 ?
-                                              "not found" :
-                                              "success",
-                                          n -> bodyReq -> uri -> headers ->
-                                              n <= 3 ?
-                                              404 :
-                                              200,
+    GetStub getStrReqHandler = GetStub.of(n -> bodyReq -> uri -> headers -> n <= 3 ? "not found" : "success",
+                                          n -> bodyReq -> uri -> headers -> n <= 3 ? 404 : 200,
                                           HeadersStub.EMPTY
-                                         );
+    );
 
-    HttpServerBuilder builder =
-        HttpServerBuilder.of(Map.of("/get_str",
-                                    getStrReqHandler
-                                   ));
+    HttpServerBuilder builder = HttpServerBuilder.of(Map.of("/get_str",
+                                                            getStrReqHandler
+    ));
 
     HttpServer server = builder.startAtRandom("localhost",
                                               8000,
                                               9000
-                                             );
+    );
 
     port = server.getAddress()
                  .getPort();

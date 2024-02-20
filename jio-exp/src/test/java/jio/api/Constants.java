@@ -2,7 +2,6 @@ package jio.api;
 
 import jio.IO;
 
-
 public class Constants {
 
   public static final IO<String> A = IO.succeed("a");
@@ -14,6 +13,5 @@ public class Constants {
   public static final IO<Integer> ONE = IO.succeed(1);
   public static final IO<Integer> TWO = IO.succeed(2);
   public static final IO<Integer> THREE = IO.succeed(3);
-
 
 }

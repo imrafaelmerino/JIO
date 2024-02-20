@@ -24,13 +24,10 @@ import static java.time.Duration.ofMillis;
  */
 class LastCommand extends Command {
 
-  static final Pattern pattern1 =
-      Pattern.compile("last \\d+");
-  static final Pattern pattern2 =
-      Pattern.compile("last every (?<every>\\d+)$");
+  static final Pattern pattern1 = Pattern.compile("last \\d+");
+  static final Pattern pattern2 = Pattern.compile("last every (?<every>\\d+)$");
 
-  static final Pattern pattern3 =
-      Pattern.compile("last every (?<every>\\d+) for (?<for>\\d+)$");
+  static final Pattern pattern3 = Pattern.compile("last every (?<every>\\d+) for (?<for>\\d+)$");
 
   private static final String COMMAND_NAME = "last";
 
@@ -45,13 +42,13 @@ class LastCommand extends Command {
                   $command every 100
                   $command every 100 for 1000""".replace("$command",
                                                          COMMAND_NAME)
-         );
+    );
   }
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
+  ) {
     return tokens -> {
       if (state.historyCommands.isEmpty()) {
         return IO.succeed("The history stack is empty!");
@@ -80,24 +77,23 @@ class LastCommand extends Command {
                                              .map(it -> s))
                           .repeat(s -> true,
                                   RetryPolicies.constantDelay(ofMillis(parseInt(tokens[2])))
-                                 );
+                          );
       }
 
       if (pattern3.matcher(command)
                   .matches()) {
         return lastCommand.then(s -> Programs.PRINT_NEW_LINE(s)
                                              .map(it -> s)
-                               )
+        )
                           .repeat(s -> true,
                                   RetryPolicies.constantDelay(ofMillis(parseInt(tokens[2])))
                                                .limitRetriesByCumulativeDelay(ofMillis(parseInt(tokens[4])))
-                                 );
+                          );
       }
       return IO.fail(new InvalidCommand(this,
                                         "Not a expected pattern"));
 
     };
   }
-
 
 }

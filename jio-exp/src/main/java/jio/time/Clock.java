@@ -34,5 +34,4 @@ public sealed interface Clock extends Supplier<Long> permits Monotonic, CustomCl
    */
   Function<Supplier<Long>, Clock> custom = CustomClock::new;
 
-
 }

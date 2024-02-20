@@ -193,7 +193,7 @@ making your testing experience smoother and more expressive. Since Lambdas are j
 in your test class, directly. This approach enables you to tailor the behavior of each lambda to your specific test
 scenario, making your tests highly adaptable and expressive:
 
-```code
+```java
 
 
 public class SignupTests {
@@ -202,7 +202,7 @@ public class SignupTests {
     static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
     @Test
-    public void test() {
+    public void test() throws Exception {
 
         Lambda<JsObj, Void> persistLDAP = _ -> IO.NULL();
         
@@ -264,47 +264,137 @@ Here's a breakdown of how it works:
 5. **Pinpointing Bugs and Issues**: With the event stream and detailed logs in hand, you can easily pinpoint any bugs,
    unexpected behavior, or performance bottlenecks.
 
-In summary, the Debugger extension in JIO transforms the testing and debugging process into a streamlined and
-informative experience with minimal effort from developers. It empowers developers to gain deep insights into their
-code's behavior without relying on external logging libraries or complex setups.
+In summary, the Debugger extension in JIO transforms the testing and debugging process into a
+streamlined and informative experience with minimal effort from developers. It empowers developers
+to gain deep insights into their code's behavior without relying on external logging libraries or
+complex setups.
 
 Find below all the events that are printed out during the execution of the previous JUnit test.
 
-```
-Started JFR stream for 2 sg in SignupTests
+```text
 
-event: eval, expression: JsObjExpPar[number_users], result: SUCCESS, output: 3
-duration: 1,856 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.540570333+02:00
+Started JFR stream for 2,000 sg in SignupTests
 
-event: eval, expression: JsObjExpPar[addresses], result: SUCCESS, output: ["address1","address2"]
-duration: 3,512 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.542459458+02:00
+------ eval-exp --------
+|  Expression: count_number_users
+|  Result: SUCCESS
+|  Duration: 69,833 µs
+|  Output: 3
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.920563792+01:00
+-------------------------
 
-event: eval, expression: IfElseExp-predicate, result: SUCCESS, output: false
-duration: 37,375 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.54713175+02:00
+------ eval-exp --------
+|  Expression: JsObjExpPar[number_users]
+|  Result: SUCCESS
+|  Duration: 1,418 ms
+|  Output: 3
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.91973025+01:00
+-------------------------
 
-event: eval, expression: PairExpSeq[1], result: SUCCESS, output: null
-duration: 6,917 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548552375+02:00
+------ eval-exp --------
+|  Expression: JsObjExpPar[addresses]
+|  Result: SUCCESS
+|  Duration: 4,583 µs
+|  Output: ["address1","address2"]
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.921166292+01:00
+-------------------------
 
-event: eval, expression: PairExpSeq[2], result: SUCCESS, output: null
-duration: 5,000 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548692083+02:00
+------ eval-exp --------
+|  Expression: IfElseExp-predicate
+|  Result: SUCCESS
+|  Duration: 5,958 µs
+|  Output: false
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.924032792+01:00
+-------------------------
 
-event: eval, expression: PairExpSeq, result: SUCCESS, output: (null, null)
-duration: 368,375 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548550667+02:00
+------ eval-exp --------
+|  Expression: PairExpSeq[1]
+|  Result: SUCCESS
+|  Duration: 4,709 µs
+|  Output: null
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.924848208+01:00
+-------------------------
 
-event: eval, expression: IfElseExp-alternative, result: SUCCESS, output: id
-duration: 391,209 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548540458+02:00
+------ eval-exp --------
+|  Expression: PairExpSeq[2]
+|  Result: SUCCESS
+|  Duration: 4,291 µs
+|  Output: null
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.924969417+01:00
+-------------------------
 
-event: eval, expression: IfElseExp, result: SUCCESS, output: id
-duration: 1,816 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.547128042+02:00
+------ eval-exp --------
+|  Expression: PairExpSeq
+|  Result: SUCCESS
+|  Duration: 284,875 µs
+|  Output: (null, null)
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.924846917+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar[id], result: SUCCESS, output: id
-duration: 2,927 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.546031+02:00
+------ eval-exp --------
+|  Expression: IfElseExp-alternative
+|  Result: SUCCESS
+|  Duration: 2,744 ms
+|  Output: id
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.924842+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar[timestamp], result: SUCCESS, output: 2023-10-13T11:41:34.548Z
-duration: 531,833 µs, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.548970375+02:00
+------ eval-exp --------
+|  Expression: IfElseExp
+|  Result: SUCCESS
+|  Duration: 3,568 ms
+|  Output: id
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.924030958+01:00
+-------------------------
 
-event: eval, expression: JsObjExpPar, result: SUCCESS, output: {"addresses":["address1","address2"],"number_users":3,"timestamp":"2023-10-13T11:41:34.548Z","id":"id"}
-duration: 14,280 ms, context: signup, thread: main, event-start-time: 2023-10-13T13:41:34.539958042+02:00
+------ eval-exp --------
+|  Expression: JsObjExpPar[id]
+|  Result: SUCCESS
+|  Duration: 4,058 ms
+|  Output: id
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.923546958+01:00
+-------------------------
+
+------ eval-exp --------
+|  Expression: JsObjExpPar[timestamp]
+|  Result: SUCCESS
+|  Duration: 219,208 µs
+|  Output: 2024-02-13T09:08:09.927Z
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.927616125+01:00
+-------------------------
+
+------ eval-exp --------
+|  Expression: JsObjExpPar
+|  Result: SUCCESS
+|  Duration: 8,925 ms
+|  Output: {"addresses":["address1","address2"],"number_users":3,"timestamp":"2024-02-13T09:08:09.927Z","id":"id"}
+|  Context: signup
+|  Thread: main
+|  Event Start Time: 2024-02-13T10:08:09.919238167+01:00
+-------------------------
+
 ```
 
 The events printed out are self-explanatory.

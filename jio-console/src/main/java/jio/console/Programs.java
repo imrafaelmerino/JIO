@@ -84,17 +84,17 @@ public final class Programs {
    */
   public static IO<Void> PRINT_LINE(final String line,
                                     final ControlChars color
-                                   ) {
+  ) {
     requireNonNull(color);
     return IO.effect(() -> {
-                       try {
-                         System.out.print(color.code + line + ControlChars.RESET);
-                         return CompletableFuture.completedFuture(null);
-                       } catch (Exception exception) {
-                         return CompletableFuture.failedFuture(exception);
-                       }
-                     }
-                    );
+      try {
+        System.out.print(color.code + line + ControlChars.RESET);
+        return CompletableFuture.completedFuture(null);
+      } catch (Exception exception) {
+        return CompletableFuture.failedFuture(exception);
+      }
+    }
+    );
   }
 
   /**
@@ -123,7 +123,7 @@ public final class Programs {
    */
   public static IO<Void> PRINT_NEW_LINE(final String line,
                                         final ControlChars color
-                                       ) {
+  ) {
     requireNonNull(color);
     return IO.effect(() -> {
       try {
@@ -144,11 +144,11 @@ public final class Programs {
   public static IO<String> ASK_FOR_INPUT(AskForInputParams params) {
 
     return PRINT_NEW_LINE(params.promptMessage)
-        .then($ -> READ_LINE.then(input -> params.inputValidator.test(input) ?
-                                           IO.succeed(input) :
-                                           IO.fail(new IllegalArgumentException(params.errorMessage)))
-             )
-        .retry(params.policy);
+                                               .then($ -> READ_LINE.then(input -> params.inputValidator.test(input) ? IO
+                                                                                                                        .succeed(input)
+                                                   : IO.fail(new IllegalArgumentException(params.errorMessage)))
+                                               )
+                                               .retry(params.policy);
   }
 
   /**
@@ -160,13 +160,13 @@ public final class Programs {
    */
   public static IO<List<String>> ASK_FOR_INPUTS(AskForInputParams params,
                                                 AskForInputParams... others
-                                               ) {
+  ) {
 
     var seq = ListExp.seq(ASK_FOR_INPUT(params));
 
-      for (AskForInputParams other : others) {
-          seq = seq.append(ASK_FOR_INPUT(other));
-      }
+    for (AskForInputParams other : others) {
+      seq = seq.append(ASK_FOR_INPUT(other));
+    }
 
     return seq;
   }
@@ -180,11 +180,11 @@ public final class Programs {
    */
   public static IO<Pair<String, String>> ASK_FOR_PAIR(AskForInputParams params1,
                                                       AskForInputParams params2
-                                                     ) {
+  ) {
 
     return PairExp.seq(ASK_FOR_INPUT(params1),
                        ASK_FOR_INPUT(params2)
-                      );
+    );
   }
 
   /**
@@ -198,17 +198,14 @@ public final class Programs {
   public static IO<Triple<String, String, String>> ASK_FOR_TRIPLE(AskForInputParams params1,
                                                                   AskForInputParams params2,
                                                                   AskForInputParams params3
-                                                                 ) {
+  ) {
 
-    return
-        TripleExp.seq(ASK_FOR_INPUT(params1),
-                      ASK_FOR_INPUT(params2),
-                      ASK_FOR_INPUT(params3)
-                     );
-
+    return TripleExp.seq(ASK_FOR_INPUT(params1),
+                         ASK_FOR_INPUT(params2),
+                         ASK_FOR_INPUT(params3)
+    );
 
   }
-
 
   /**
    * List of parameters to be considered when asking the user for typing in some text
@@ -234,7 +231,7 @@ public final class Programs {
            e -> true,
            "",
            RetryPolicies.limitRetries(2)
-          );
+      );
     }
 
   }

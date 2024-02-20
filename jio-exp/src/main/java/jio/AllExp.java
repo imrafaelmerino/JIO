@@ -1,13 +1,17 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a boolean expression that will be reduced to true <strong>if and only if all the subexpressions succeed
@@ -24,8 +28,7 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
   protected final List<IO<Boolean>> exps;
 
   AllExp(Function<EvalExpEvent, BiConsumer<Boolean, Throwable>> debugger,
-         List<IO<Boolean>> exps
-        ) {
+         List<IO<Boolean>> exps) {
     super(debugger);
     this.exps = exps;
   }
@@ -53,7 +56,8 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
 
       @Override
       public BinaryOperator<List<IO<Boolean>>> combiner() {
-        return (a, b) -> {
+        return (a,
+                b) -> {
           a.addAll(b);
           return b;
         };
@@ -94,7 +98,8 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
 
       @Override
       public BinaryOperator<List<IO<Boolean>>> combiner() {
-        return (a, b) -> {
+        return (a,
+                b) -> {
           a.addAll(b);
           return b;
         };
@@ -126,7 +131,7 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
    *              return AllExp.par(isDivisibleByTwo,
    *                                isDivisibleByThree
    *                                );
-   *          };
+   * };
    *
    *
    * boolean result = isDivisibleByTwoAndThree.apply(6).join()
@@ -148,7 +153,7 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
    *              return AllExp.par(isDivisibleByTwo,
    *                                isDivisibleByThree
    *                                );
-   *          };
+   * };
    *
    *
    * boolean result = isDivisibleByTwoAndThree.apply(6).join()
@@ -164,19 +169,15 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
    * @return an AllExp
    */
   @SafeVarargs
-  public static AllExp par(
-      final IO<Boolean> bool,
-      final IO<Boolean>... others
-                          ) {
+  public static AllExp par(final IO<Boolean> bool,
+                           final IO<Boolean>... others) {
     var exps = new ArrayList<IO<Boolean>>();
     exps.add(requireNonNull(bool));
     for (var other : requireNonNull(others)) {
       exps.add(requireNonNull(other));
     }
-    return new AllExpPar(
-        exps,
-        null
-    );
+    return new AllExpPar(exps,
+                         null);
   }
 
   /**
@@ -194,7 +195,7 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
    *                                        isDivisibleByThree
    *                                        )
    *                                );
-   *          };
+   * };
    *
    *
    * boolean result = isDivisibleByTwoAndThree.apply(6).join()
@@ -216,7 +217,7 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
    *              return AllExp.par(isDivisibleByTwo,
    *                                isDivisibleByThree
    *                                );
-   *          };
+   * };
    *
    *
    * boolean result = isDivisibleByTwoAndThree.apply(6).join()
@@ -231,10 +232,8 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
    * @return an AllExp
    */
   public static AllExp par(final List<IO<Boolean>> ios) {
-    return new AllExpPar(
-        ios,
-        null
-    );
+    return new AllExpPar(ios,
+                         null);
   }
 
   /**
@@ -246,10 +245,8 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
    * @return an AllExp
    */
   public static AllExp seq(final List<IO<Boolean>> ios) {
-    return new AllExpSeq(
-        ios,
-        null
-    );
+    return new AllExpSeq(ios,
+                         null);
   }
 
   /**
@@ -262,19 +259,15 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
    * @return an AllExp
    */
   @SafeVarargs
-  public static AllExp seq(
-      final IO<Boolean> bool,
-      final IO<Boolean>... others
-                          ) {
+  public static AllExp seq(final IO<Boolean> bool,
+                           final IO<Boolean>... others) {
     var exps = new ArrayList<IO<Boolean>>();
     exps.add(requireNonNull(bool));
     for (var other : requireNonNull(others)) {
       exps.add(requireNonNull(other));
     }
-    return new AllExpSeq(
-        exps,
-        null
-    );
+    return new AllExpSeq(exps,
+                         null);
   }
 
   /**
@@ -285,10 +278,8 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
    * @return a new AllExp
    */
   @Override
-  public abstract AllExp retryEach(
-      final Predicate<? super Throwable> predicate,
-      final RetryPolicy policy
-                                  );
+  public abstract AllExp retryEach(final Predicate<? super Throwable> predicate,
+                                   final RetryPolicy policy);
 
   @Override
   public abstract AllExp debugEach(final EventBuilder<Boolean> builder);
@@ -304,9 +295,7 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
    */
   @Override
   public AllExp retryEach(RetryPolicy policy) {
-    return retryEach(
-        e -> true,
-        policy
-                    );
+    return retryEach(e -> true,
+                     policy);
   }
 }

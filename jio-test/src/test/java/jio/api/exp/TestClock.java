@@ -9,7 +9,6 @@ import java.time.Instant;
 
 public class TestClock {
 
-
   @Test
   public void testMock() throws InterruptedException {
 
@@ -18,7 +17,7 @@ public class TestClock {
 
     Assertions.assertEquals(clock.get(),
                             base.toEpochMilli()
-                           );
+    );
 
     System.out.println(base);
 
@@ -28,7 +27,6 @@ public class TestClock {
 
     System.out.println(Instant.ofEpochMilli(clock.get())
                               .toString());
-
 
   }
 

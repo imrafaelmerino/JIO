@@ -32,9 +32,10 @@ public interface StatementSetter {
    * @return A new {@code PrStmSetter} representing the combined operation.
    */
   default StatementSetter then(StatementSetter stmSetter) {
-    return (int paramPosition, PreparedStatement ps) -> stmSetter.apply(this.apply(paramPosition,
-                                                                                   ps),
-                                                                        ps);
+    return (int paramPosition,
+            PreparedStatement ps) -> stmSetter.apply(this.apply(paramPosition,
+                                                                ps),
+                                                     ps);
   }
 
   /**

@@ -15,23 +15,22 @@ import static java.util.Objects.requireNonNull;
  * You can create TripleExp expressions using the 'seq' method to evaluate effects sequentially, or using the 'par'
  * method to evaluate effects in parallel. If one effect fails, the entire expression fails.
  *
- * @param <First> the type of the first computation
+ * @param <First>  the type of the first computation
  * @param <Second> the type of the second computation
- * @param <Third> the type of the third computation
+ * @param <Third>  the type of the third computation
  */
-public abstract sealed class TripleExp<First, Second, Third> extends Exp<Triple<First, Second, Third>> permits TripleExpPar,
-                                                                                                               TripleExpSeq {
+public abstract sealed class TripleExp<First, Second, Third> extends
+                                      Exp<Triple<First, Second, Third>> permits TripleExpPar, TripleExpSeq {
 
   final IO<First> _1;
   final IO<Second> _2;
   final IO<Third> _3;
 
-
   TripleExp(final IO<First> _1,
             final IO<Second> _2,
             final IO<Third> _3,
             final Function<EvalExpEvent, BiConsumer<Triple<First, Second, Third>, Throwable>> debugger
-           ) {
+  ) {
     super(debugger);
     this._1 = _1;
     this._2 = _2;
@@ -53,7 +52,7 @@ public abstract sealed class TripleExp<First, Second, Third> extends Exp<Triple<
   public static <A, B, C> TripleExp<A, B, C> seq(final IO<A> first,
                                                  final IO<B> second,
                                                  final IO<C> third
-                                                ) {
+  ) {
     return new TripleExpSeq<>(requireNonNull(first),
                               requireNonNull(second),
                               requireNonNull(third),
@@ -76,7 +75,7 @@ public abstract sealed class TripleExp<First, Second, Third> extends Exp<Triple<
   public static <A, B, C> TripleExp<A, B, C> par(final IO<A> first,
                                                  final IO<B> second,
                                                  final IO<C> third
-                                                ) {
+  ) {
     return new TripleExpPar<>(requireNonNull(first),
                               requireNonNull(second),
                               requireNonNull(third),
@@ -114,19 +113,18 @@ public abstract sealed class TripleExp<First, Second, Third> extends Exp<Triple<
   @Override
   public abstract TripleExp<First, Second, Third> retryEach(final Predicate<? super Throwable> predicate,
                                                             final RetryPolicy policy
-                                                           );
+  );
 
   @Override
   public TripleExp<First, Second, Third> retryEach(final RetryPolicy policy) {
     return retryEach(e -> true,
                      policy
-                    );
+    );
   }
-
 
   @Override
   public abstract TripleExp<First, Second, Third> debugEach(final EventBuilder<Triple<First, Second, Third>> messageBuilder
-                                                           );
+  );
 
   @Override
   public abstract TripleExp<First, Second, Third> debugEach(final String context);

@@ -14,7 +14,7 @@ import java.util.function.Function;
 /**
  * Command to read the content from a file with the command:
  * <pre>
- *     file-read /path/to/file
+ * file-read /path/to/file
  * </pre>
  * <p>
  * Users can specify the absolute path to the file they want to read, and the command will return the file's contents as
@@ -22,8 +22,8 @@ import java.util.function.Function;
  * <p>
  * Examples:
  * <pre>
- *     file-read /Users/username/json.txt
- *     file-read $var
+ * file-read /Users/username/json.txt
+ * file-read $var
  * </pre>
  *
  * @see Command
@@ -40,14 +40,14 @@ class ReadFileCommand extends Command {
                   $command /Users/username/json.txt
                   $command $var""".replace("$command",
                                            COMMAND_NAME)
-         );
+    );
   }
 
   @Override
 
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
+  ) {
     return tokens -> {
       int nArgs = tokens.length - 1;
       if (nArgs == 0) {
@@ -57,8 +57,8 @@ class ReadFileCommand extends Command {
                                                                                   .isFile(),
                                                                      "File not found",
                                                                      RetryPolicies.limitRetries(3)
-                                      )
-                                     )
+        )
+        )
                        .then(this::readFile);
       }
       return readFile(Functions.joinTail(tokens));
@@ -80,8 +80,8 @@ class ReadFileCommand extends Command {
     } catch (IOException e) {
       return IO.fail(new InvalidCommand(this,
                                         e.getMessage()
-                     )
-                    );
+      )
+      );
     }
 
   }
