@@ -255,56 +255,9 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
 
   }
 
-  /**
-   * Creates an effect from a supplier using the Java interface {@link ForkJoinPool.ManagedBlocker ManagedBlocker} to
-   * efficiently utilize the common Java fork/join thread pool.
-   * <p>
-   * Please note that every time the `get` or `result` methods are called on the returned effect, the `get` method of
-   * the provided supplier is invoked, and a new computation is executed.
-   * <p>
-   * Also, be aware that the maximum default level of parallelism that can be achieved with the ForkJoin pool is
-   * typically governed by the {@link ForkJoinPool#DEFAULT_COMMON_MAX_SPARES} constant, which can be overridden using
-   * the "java.util.concurrent.ForkJoinPool.common.maximumSpares" system property. Exceeding this limit may result in a
-   * {@link RejectedExecutionException} exception with the message "Thread limit exceeded replacing blocked worker."
-   *
-   * @param supplier the supplier representing the computation.
-   * @param <Output> the type parameter representing the result type of the effect.
-   * @return an IO effect encapsulating the computation, utilizing the ForkJoin pool if available.
-   */
-  public static <Output> IO<Output> managedLazy(final Supplier<? extends Output> supplier) {
-    requireNonNull(supplier);
-    return new Val<>(() ->
-                         Thread.currentThread() instanceof ForkJoinWorkerThread ?
-                         CompletableFuture.completedFuture(ManagedBlockerHelper.computeSupplier(supplier)) :
-                         CompletableFuture.supplyAsync(() -> ManagedBlockerHelper.computeSupplier(supplier),
-                                                       ForkJoinPool.commonPool()
-                                                      ));
-  }
 
-  /**
-   * Creates an effect from a task modeled with a {@link Callable} and executes it using the Java interface
-   * {@link ForkJoinPool.ManagedBlocker ManagedBlocker} to efficiently utilize the common Java fork/join thread pool.
-   * <p>
-   * Please note that every time the `get` or `result` methods are called on the returned effect, the provided task is
-   * executed, and a new computation is performed.
-   * <p>
-   * Also, be aware that the maximum default level of parallelism that can be achieved with the ForkJoin pool is
-   * typically governed by the {@link ForkJoinPool#DEFAULT_COMMON_MAX_SPARES} constant, which can be overridden using
-   * the "java.util.concurrent.ForkJoinPool.common.maximumSpares" system property. Exceeding this limit may result in a
-   * {@link RejectedExecutionException} exception with the message "Thread limit exceeded replacing blocked worker."
-   *
-   * @param task     the callable task to be executed.
-   * @param <Output> the type parameter representing the result type of the effect.
-   * @return an IO effect encapsulating the callable task, utilizing the ForkJoin pool if available.
-   */
-  public static <Output> IO<Output> managedTask(final Callable<? extends Output> task) {
-    requireNonNull(task);
-    return new Val<>(() ->
-                         Thread.currentThread() instanceof ForkJoinWorkerThread ?
-                         CompletableFuture.completedFuture(ManagedBlockerHelper.computeTask(task)) :
-                         CompletableFuture.supplyAsync(() -> ManagedBlockerHelper.computeTask(task))
-    );
-  }
+
+
 
   /**
    * Returns the first computation that completes, regardless of whether it fails or succeeds. This method is
@@ -820,30 +773,6 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
     return Delay.of(duration)
                 .then(it -> this);
 
-  }
-
-
-  /**
-   * Computes this effect and passes the result to the specified consumer or handles the exception using the provided
-   * exception handler. Internally, it creates a new CompletionStage with the same result or exception as this stage,
-   * that executes the given consumer or exception handler when this IO effect completes.
-   *
-   * @param successConsumer The consumer to be called with the result value if the operation succeeds.
-   * @param failureConsumer The handler to be called with the exception if the operation fails.
-   */
-  public void onResult(final Consumer<Output> successConsumer,
-                       final Consumer<Throwable> failureConsumer
-                      ) {
-    requireNonNull(successConsumer);
-    requireNonNull(failureConsumer);
-    var unused = get().whenComplete((value, exc) -> {
-      if (exc == null) {
-        successConsumer.accept(value);
-      } else {
-        failureConsumer.accept(exc);
-      }
-    });
-    assert unused != null;
   }
 
   /**

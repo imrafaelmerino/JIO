@@ -215,7 +215,7 @@ public class SignupTests {
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
   @Test
-  public void test() {
+  public void test() throws Exception {
 
     Lambda<JsObj, Void> persistLDAP = _ -> IO.NULL();
 
@@ -240,10 +240,9 @@ public class SignupTests {
                                    persistMongo,
                                    sendEmail,
                                    existsInLDAP,
-                                   Clock.realTime
-    )
-        .apply(user)
-        .result();
+                                   Clock.realTime)
+                      .apply(user)
+                      .result();
 
     Assertions.assertTrue(resp.containsKey("number_users"));
 
@@ -914,7 +913,7 @@ public abstract class IO<O> implements Supplier<CompletableFuture<O>> {
 
     CompletableFuture<O> get();
 
-    O result();
+    O result() throws Exception;
 }
 
 ```
@@ -1470,7 +1469,6 @@ There are three ways:
   blocking is not a problem.
 - Block and wait till the evaluation is done with the method `result()`.It can throw a checked
   exception. Not like `join` it throws the real cause of the failure and not `CompletionException`.
-- Callback style, Call Call Call Callback style :) with the method `onResult(ouput -> {}, failure -> {})`
 
 ```code
 
@@ -1481,10 +1479,6 @@ CompletableFuture<O> future = effect.get();
 O output = effect.result(); //throws checked exception
 
 O output1 = effect.join(); 
-
-effect.onResult(output -> System.out.println(" :) "),
-                exc -> System.out.println(" :( ")
-               );
 
 ```
 
