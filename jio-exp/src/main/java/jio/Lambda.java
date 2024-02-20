@@ -1,10 +1,10 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a function that takes an input and produces an IO effect.
@@ -13,7 +13,6 @@ import static java.util.Objects.requireNonNull;
  * @param <Output> the type of the effect
  */
 public interface Lambda<Input, Output> extends Function<Input, IO<Output>> {
-
 
   /**
    * Composes this Lambda with another Lambda, producing a new Lambda. The resulting Lambda, when applied to an input,
@@ -81,7 +80,6 @@ public interface Lambda<Input, Output> extends Function<Input, IO<Output>> {
     return input -> map.apply(this.apply(input));
   }
 
-
   /**
    * Composes this Lambda with a mapping function that transforms the successful output of the inner IO operation.
    *
@@ -97,7 +95,6 @@ public interface Lambda<Input, Output> extends Function<Input, IO<Output>> {
     return input -> this.apply(input)
                         .map(mapSuccess);
   }
-
 
   /**
    * Composes this Lambda with a mapping function that transforms the failure of the inner IO operation.

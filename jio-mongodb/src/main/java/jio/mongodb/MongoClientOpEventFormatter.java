@@ -43,20 +43,18 @@ public final class MongoClientOpEventFormatter implements Function<RecordedEvent
     var result = event.getValue(RESULT_FIELD);
     boolean isSuccess = RESULT.SUCCESS.name()
                                       .equals(result);
-    return isSuccess ?
-           String.format(SUCCESS_FORMAT,
-                         event.getValue(OPERATION_FIELD),
-                         result,
-                         Fun.formatTime(event.getDuration()),
-                         event.getStartTime()
-                        ) :
-           String.format(FAILURE_FORMAT,
-                         event.getValue(OPERATION_FIELD),
-                         result,
-                         Fun.formatTime(event.getDuration()),
-                         event.getValue(EXCEPTION_FIELD),
-                         event.getStartTime()
-                        );
+    return isSuccess ? String.format(SUCCESS_FORMAT,
+                                     event.getValue(OPERATION_FIELD),
+                                     result,
+                                     Fun.formatTime(event.getDuration()),
+                                     event.getStartTime()
+    ) : String.format(FAILURE_FORMAT,
+                      event.getValue(OPERATION_FIELD),
+                      result,
+                      Fun.formatTime(event.getDuration()),
+                      event.getValue(EXCEPTION_FIELD),
+                      event.getStartTime()
+    );
 
   }
 }

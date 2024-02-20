@@ -41,17 +41,16 @@ public class HttpCommand extends Command {
   public HttpCommand(final String name,
                      final String description,
                      final BiFunction<JsObj, String[], IO<HttpResponse<String>>> req
-                    ) {
+  ) {
     super(String.format("%s %s",
                         PREFIX_COMMAND,
                         name
-                       ),
+    ),
           description,
-          tokens ->
-              tokens[0].equals(PREFIX_COMMAND)
-                  && tokens.length > 1
-                  && name.equalsIgnoreCase(Functions.joinTail(tokens))
-         );
+          tokens -> tokens[0].equals(PREFIX_COMMAND)
+                    && tokens.length > 1
+                    && name.equalsIgnoreCase(Functions.joinTail(tokens))
+    );
     this.request = req;
   }
 
@@ -65,30 +64,29 @@ public class HttpCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
+  ) {
     return tokens -> IO.lazy(Clock.realTime)
                        .then(tic -> request.apply(conf,
                                                   tokens)
-                                           .map(resp ->
-                                                    JsObj.of("status_code",
-                                                             JsInt.of(resp.statusCode()),
-                                                             "time",
-                                                             JsLong.of(System.currentTimeMillis() - tic),
-                                                             "method",
-                                                             JsStr.of(resp.request()
-                                                                          .method()),
-                                                             "uri",
-                                                             JsStr.of(resp.request()
-                                                                          .uri()
-                                                                          .toString()),
-                                                             "body",
-                                                             JsStr.of(resp.body()),
-                                                             "headers",
-                                                             headers2Obj(resp.headers()
-                                                                             .map())
-                                                            )
-                                                         .toString()
-                                               ));
+                                           .map(resp -> JsObj.of("status_code",
+                                                                 JsInt.of(resp.statusCode()),
+                                                                 "time",
+                                                                 JsLong.of(System.currentTimeMillis() - tic),
+                                                                 "method",
+                                                                 JsStr.of(resp.request()
+                                                                              .method()),
+                                                                 "uri",
+                                                                 JsStr.of(resp.request()
+                                                                              .uri()
+                                                                              .toString()),
+                                                                 "body",
+                                                                 JsStr.of(resp.body()),
+                                                                 "headers",
+                                                                 headers2Obj(resp.headers()
+                                                                                 .map())
+                                           )
+                                                             .toString()
+                                           ));
   }
 
   private JsObj headers2Obj(final Map<String, List<String>> map) {
@@ -99,7 +97,7 @@ public class HttpCommand extends Command {
                                               .stream()
                                               .map(JsStr::of)
                                               .collect(Collectors.toList()))
-                     );
+      );
     }
     return json;
   }

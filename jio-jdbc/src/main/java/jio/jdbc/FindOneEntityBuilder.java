@@ -30,7 +30,6 @@ public final class FindOneEntityBuilder<Filter, Entity> {
   private static final Pattern PATTERN = Pattern.compile(SELECT_REGEX,
                                                          Pattern.CASE_INSENSITIVE);
 
-
   private FindOneEntityBuilder(String sqlQuery,
                                Duration timeout,
                                ParamsSetter<Filter> setter,
@@ -66,7 +65,6 @@ public final class FindOneEntityBuilder<Filter, Entity> {
                                       setter,
                                       mapper);
   }
-
 
   /**
    * Sets the fetch size for the JDBC query operation.
@@ -113,7 +111,7 @@ public final class FindOneEntityBuilder<Filter, Entity> {
    *
    * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} representing the JDBC query operation with a duration, input, and output. Note: The
-   * operations are performed on virtual threads for improved concurrency and resource utilization.
+   *         operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see FindOneEntity#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<Filter, Entity> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
@@ -133,7 +131,7 @@ public final class FindOneEntityBuilder<Filter, Entity> {
    * virtual threads for improved concurrency and resource utilization.
    *
    * @return A {@code ClosableStatement} representing the JDBC query operation with a duration, input, and output. Note:
-   * The operations are performed on virtual threads for improved concurrency and resource utilization.
+   *         The operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see FindOneEntity#buildClosable()
    */
   public ClosableStatement<Filter, Entity> buildClosable() {

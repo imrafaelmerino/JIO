@@ -1,20 +1,18 @@
 package jio.http.client;
 
-import java.io.IOException;
-import java.util.concurrent.Executors;
-import jio.ExceptionFun;
-import jio.IO;
-import jio.RetryPolicy;
+import static java.util.Objects.requireNonNull;
+import static jio.http.client.HttpReqEvent.RESULT.FAILURE;
+import static jio.http.client.HttpReqEvent.RESULT.SUCCESS;
 
+import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
-import static jio.http.client.HttpReqEvent.RESULT.FAILURE;
-import static jio.http.client.HttpReqEvent.RESULT.SUCCESS;
+import jio.ExceptionFun;
+import jio.IO;
+import jio.RetryPolicy;
 
 final class JioHttpClientImpl implements JioHttpClient {
 
@@ -29,12 +27,11 @@ final class JioHttpClientImpl implements JioHttpClient {
   private final HttpLambda<String> ofStringLambda;
   private final boolean recordEvents;
 
-
   JioHttpClientImpl(final HttpClient.Builder javaClientBuilder,
                     final RetryPolicy reqRetryPolicy,
                     final Predicate<Throwable> reqRetryPredicate,
                     final boolean recordEvents
-                   ) {
+  ) {
     this.javaClient = requireNonNull(javaClientBuilder).build();
     this.reqRetryPolicy = reqRetryPolicy;
     this.reqRetryPredicate = reqRetryPredicate;
@@ -47,7 +44,7 @@ final class JioHttpClientImpl implements JioHttpClient {
   <O> HttpResponse<O> requestWrapper(final JioHttpClientImpl myClient,
                                      final HttpRequest request,
                                      final HttpResponse.BodyHandler<O> handler
-                                    ) throws IOException, InterruptedException {
+  ) throws IOException, InterruptedException {
 
     if (recordEvents) {
       var event = new HttpReqEvent();
@@ -56,7 +53,7 @@ final class JioHttpClientImpl implements JioHttpClient {
       try {
         var resp = myClient.javaClient.send(request,
                                             handler
-                                           );
+        );
         event.end();
         if (event.shouldCommit()) {
           var uri = request.uri();
@@ -85,11 +82,10 @@ final class JioHttpClientImpl implements JioHttpClient {
     } else {
       return myClient.javaClient.send(request,
                                       handler
-                                     );
+      );
     }
 
   }
-
 
   @Override
   public <T> HttpLambda<T> bodyHandler(final HttpResponse.BodyHandler<T> handler) {
@@ -97,15 +93,14 @@ final class JioHttpClientImpl implements JioHttpClient {
     if (reqRetryPolicy != null && reqRetryPredicate != null) {
       return builder -> {
         requireNonNull(builder);
-        return IO.task(() -> requestWrapper(this,
-                                            builder.build(),
-                                            handler
-                                           ),
-                       Executors.newVirtualThreadPerTaskExecutor()
-                      )
+        return IO.taskOn(() -> requestWrapper(this,
+                                              builder.build(),
+                                              handler
+        )
+        )
                  .retry(reqRetryPredicate,
                         reqRetryPolicy
-                       );
+                 );
       };
     }
     if (reqRetryPolicy != null) {
@@ -114,9 +109,8 @@ final class JioHttpClientImpl implements JioHttpClient {
         return IO.task(() -> requestWrapper(this,
                                             builder.build(),
                                             handler
-                                           ),
-                       Executors.newVirtualThreadPerTaskExecutor()
-                      )
+        )
+        )
                  .retry(reqRetryPolicy);
       };
     }
@@ -125,9 +119,8 @@ final class JioHttpClientImpl implements JioHttpClient {
       return IO.task(() -> requestWrapper(this,
                                           builder.build(),
                                           handler
-                                         ),
-                     Executors.newVirtualThreadPerTaskExecutor()
-                    );
+      )
+      );
     };
   }
 
@@ -161,6 +154,3 @@ final class JioHttpClientImpl implements JioHttpClient {
     return discardingLambda;
   }
 }
-
-
-

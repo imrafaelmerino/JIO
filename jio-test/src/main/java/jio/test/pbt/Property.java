@@ -1,10 +1,8 @@
 package jio.test.pbt;
 
-import fun.gen.Gen;
-import jio.BiLambda;
-import jio.IO;
-import jsonvalues.JsObj;
+import static java.util.Objects.requireNonNull;
 
+import fun.gen.Gen;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -17,8 +15,10 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jio.BiLambda;
+import jio.IO;
+import jio.Result;
+import jsonvalues.JsObj;
 
 /**
  * Represents a property of a piece of code or program that should always be held and never fails.
@@ -39,8 +39,14 @@ public non-sealed class Property<GenValue> extends Testable {
   private final Path path;
   private final Map<String, Predicate<GenValue>> classifiers;
 
-  Property(String name, Gen<GenValue> gen, BiLambda<JsObj, GenValue, TestResult> property, String description,
-           int times, Path path, boolean collect, Map<String, Predicate<GenValue>> classifiers) {
+  Property(String name,
+           Gen<GenValue> gen,
+           BiLambda<JsObj, GenValue, TestResult> property,
+           String description,
+           int times,
+           Path path,
+           boolean collect,
+           Map<String, Predicate<GenValue>> classifiers) {
     this.name = name;
     this.gen = gen;
     this.property = property;
@@ -53,20 +59,22 @@ public non-sealed class Property<GenValue> extends Testable {
 
 
   private String getTags(GenValue value) {
-      if (classifiers == null) {
-          return "";
-      }
+    if (classifiers == null) {
+      return "";
+    }
     return classifiers.keySet()
-        .stream()
-        .filter(key -> classifiers.get(key).test(value))
-        .collect(Collectors.joining(","));
+                      .stream()
+                      .filter(key -> classifiers.get(key)
+                                                .test(value))
+                      .collect(Collectors.joining(","));
   }
 
 
   void dump(Report report) {
     synchronized (Property.class) {
       try {
-        Files.writeString(path, report + "\n");
+        Files.writeString(path,
+                          report + "\n");
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
@@ -75,31 +83,34 @@ public non-sealed class Property<GenValue> extends Testable {
 
 
   /**
-   * Returns a new testable instance that represents the property and will be executed in parallel
-   * for the specified number of times, using multiple threads from the common ForkJoinPool.
+   * Returns a new testable instance that represents the property and will be executed in parallel for the specified
+   * number of times, using multiple threads from the common ForkJoinPool.
    *
    * @param n the number of parallel executions for the property
    * @return a new testable instance with parallel execution
    */
   public Testable repeatPar(final int n) {
-    return new ParProperty<>(n, this);
+    return new ParProperty<>(n,
+                             this);
   }
 
   /**
-   * Returns a new testable instance that represents the property and will be executed sequentially
-   * for the specified number of times.
+   * Returns a new testable instance that represents the property and will be executed sequentially for the specified
+   * number of times.
    *
    * @param n the number of sequential executions for the property
    * @return a new testable instance with sequential execution
    */
   public Testable repeatSeq(final int n) {
-    return new SeqProperty<>(n, this);
+    return new SeqProperty<>(n,
+                             this);
   }
 
   @Override
   IO<Report> createTask(final JsObj conf) {
     Supplier<Report> task = () -> {
-      Report report = new Report(name, description);
+      Report report = new Report(name,
+                                 description);
       long seed = seedGen.nextLong();
       Supplier<GenValue> rg = gen.apply(new Random(seed));
       report.setStartTime(Instant.now());
@@ -108,35 +119,46 @@ public non-sealed class Property<GenValue> extends Testable {
         var tic = Instant.now();
         var generated = rg.get();
         String tags = getTags(generated);
-          if (classifiers != null) {
-              report.classify(tags);
+        if (classifiers != null) {
+          report.classify(tags);
+        }
+        if (collect) {
+          report.collect(generated == null ? "null" : generated.toString());
+        }
+        var context = new Context(tic,
+                                  seed,
+                                  i,
+                                  generated,
+                                  tags);
+        var result = property.apply(conf,
+                                    generated)
+                             .get();
+        switch (result) {
+          case Result.Success(TestResult tr) -> {
+            report.tac(tic);
+            if (tr instanceof TestFailure tf) {
+              report.addFailure(new FailureContext(context,
+                                                   tf));
+            }
           }
-          if (collect) {
-              report.collect(generated == null ? "null" : generated.toString());
+          case Result.Failure(Exception exc) -> {
+            report.tac(tic);
+            if (requireNonNull(exc) instanceof TestFailure tf) {
+              report.addFailure(new FailureContext(context,
+                                                   tf));
+            } else {
+              report.addException(new ExceptionContext(context,
+                                                       exc));
+            }
           }
-        var context = new Context(tic, seed, i, generated, tags);
-        property.apply(conf, generated)
-            .onResult(tr -> {
-                  report.tac(tic);
-                    if (tr instanceof TestFailure tf) {
-                        report.addFailure(new FailureContext(context, tf));
-                    }
-                },
-                exc -> {
-                  report.tac(tic);
-                  if (requireNonNull(exc) instanceof TestFailure tf) {
-                    report.addFailure(new FailureContext(context, tf));
-                  } else {
-                    report.addException(new ExceptionContext(context, exc));
-                  }
-                });
+        }
       }
       report.setEndTime(Instant.now());
       return report;
     };
 
-    IO<Report> io = IO.managedLazy(task)
-        .peekSuccess(Report::summarize);
+    IO<Report> io = IO.lazyOn(task)
+                      .peekSuccess(Report::summarize);
 
     return path == null ? io : io.peekSuccess(this::dump);
 

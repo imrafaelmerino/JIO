@@ -15,15 +15,19 @@ import org.postgresql.util.PSQLState;
  * <p>The class includes the following methods and predicates:</p>
  *
  * <ul>
- *   <li>{@link #findPSQLExceptionRecursively}: A function to find instances of {@link PSQLException} in the exception chain.</li>
- *   <li>{@link #findPSQLExceptionRecursively(Predicate)}: A predicate to check if the given exception is a {@link PSQLException}
- *       with a specified SQL state.</li>
- *   <li>{@link #HAS_QUERY_CANCELED}: A predicate to identify exceptions related to statement timeout, where the server cancels
- *       the query when the query timeout expires.</li>
- *   <li>{@link #HAS_CONNECTION_ERROR}: A predicate to check if the given exception is a connection error specific to PostgreSQL,
- *       including states such as {@link PSQLState#CONNECTION_UNABLE_TO_CONNECT}, {@link PSQLState#CONNECTION_DOES_NOT_EXIST},
- *       {@link PSQLState#CONNECTION_REJECTED}, {@link PSQLState#CONNECTION_FAILURE}, and
- *       {@link PSQLState#CONNECTION_FAILURE_DURING_TRANSACTION}.</li>
+ * <li>{@link #findPSQLExceptionRecursively}: A function to find instances of {@link PSQLException} in the exception
+ * chain.</li>
+ * <li>{@link #findPSQLExceptionRecursively(Predicate)}: A predicate to check if the given exception is a
+ * {@link PSQLException}
+ * with a specified SQL state.</li>
+ * <li>{@link #HAS_QUERY_CANCELED}: A predicate to identify exceptions related to statement timeout, where the server
+ * cancels
+ * the query when the query timeout expires.</li>
+ * <li>{@link #HAS_CONNECTION_ERROR}: A predicate to check if the given exception is a connection error specific to
+ * PostgreSQL,
+ * including states such as {@link PSQLState#CONNECTION_UNABLE_TO_CONNECT}, {@link PSQLState#CONNECTION_DOES_NOT_EXIST},
+ * {@link PSQLState#CONNECTION_REJECTED}, {@link PSQLState#CONNECTION_FAILURE}, and
+ * {@link PSQLState#CONNECTION_FAILURE_DURING_TRANSACTION}.</li>
  * </ul>
  *
  * <p>The class is final and cannot be instantiated, as it only provides static utility methods.</p>
@@ -43,10 +47,9 @@ public final class PostgresFun {
    *
    * @see PSQLException
    */
-  public static final Function<Throwable, Optional<PSQLException>> findPSQLExceptionRecursively =
-      e -> ExceptionFun.findCauseRecursively(exc -> exc instanceof PSQLException)
-                       .apply(e)
-                       .map(it -> ((PSQLException) it));
+  public static final Function<Throwable, Optional<PSQLException>> findPSQLExceptionRecursively = e -> ExceptionFun.findCauseRecursively(exc -> exc instanceof PSQLException)
+                                                                                                                   .apply(e)
+                                                                                                                   .map(it -> ((PSQLException) it));
 
   /**
    * Predicate to check if the given exception is a {@link PSQLException} with a specified SQL state.
@@ -62,7 +65,6 @@ public final class PostgresFun {
                                             .orElse(false);
   }
 
-
   private static final String QUERY_CANCELED_CODE = "57014";
 
   /**
@@ -75,7 +77,6 @@ public final class PostgresFun {
 
   private PostgresFun() {
   }
-
 
   /**
    * Predicate to check if the given exception is a connection error specific to PostgreSQL. This predicate can be used
@@ -95,6 +96,5 @@ public final class PostgresFun {
    * @see ExceptionFun#findUltimateCause(Throwable)
    */
   public final static Predicate<Throwable> HAS_CONNECTION_ERROR = findPSQLExceptionRecursively(PSQLState::isConnectionError);
-
 
 }

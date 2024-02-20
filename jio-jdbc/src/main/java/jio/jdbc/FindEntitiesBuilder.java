@@ -63,8 +63,8 @@ public final class FindEntitiesBuilder<Filter, Entity> {
    * Creates a new instance of QueryStmBuilder with the specified SQL query statement, parameter setter, and result
    * mapper.
    *
-   * @param <Filter>      The type of input elements for the query operation.
-   * @param <Entity>      The type of the output result from the query operation.
+   * @param <Filter> The type of input elements for the query operation.
+   * @param <Entity> The type of the output result from the query operation.
    * @param sqlQuery The SQL query statement for the query operation.
    * @param timeout  The time the driver will wait for a statement to execute
    * @param setter   A function to set parameters on a {@link java.sql.PreparedStatement}.
@@ -126,7 +126,7 @@ public final class FindEntitiesBuilder<Filter, Entity> {
    *
    * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} representing the JDBC query operation. Note: The operations are performed on virtual
-   * threads for improved concurrency and resource utilization.
+   *         threads for improved concurrency and resource utilization.
    * @see FindEntities#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<Filter, List<Entity>> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
@@ -146,7 +146,7 @@ public final class FindEntitiesBuilder<Filter, Entity> {
    * virtual threads for improved concurrency and resource utilization.
    *
    * @return A {@code ClosableStatement} representing the JDBC query operation with a duration, input, and output. Note:
-   * The operations are performed on virtual threads for improved concurrency and resource utilization.
+   *         The operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see FindEntities#buildClosable()
    */
   public ClosableStatement<Filter, List<Entity>> buildClosable() {

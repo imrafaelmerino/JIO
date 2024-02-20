@@ -13,7 +13,6 @@ import java.util.List;
 @FunctionalInterface
 public interface ResultSetMapper<Entity> {
 
-
   /**
    * Mapper to handle a resul-set that contains at most one row. The `map` function doesn't have to call the `next`
    * method, just to collect the data from the column names.
@@ -44,7 +43,6 @@ public interface ResultSetMapper<Entity> {
       return entities;
     };
   }
-
 
   /**
    * Applies the mapping function to the given {@code ResultSet} to produce an object of type {@code T}.

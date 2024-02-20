@@ -22,7 +22,7 @@ class ExitCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
+  ) {
     System.out.println("bye bye");
     System.exit(0);
     return null;

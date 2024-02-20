@@ -1,6 +1,5 @@
 package jio;
 
-
 import static java.util.Objects.requireNonNull;
 
 import java.time.Duration;
@@ -11,7 +10,6 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -124,13 +122,13 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
     return IO.task(callable)
              .then(resource -> map.apply(resource)
                                   .then(success -> {
-                                          try {
-                                            resource.close();
-                                            return IO.succeed(success);
-                                          } catch (Exception e) {
-                                            return IO.fail(e);
-                                          }
-                                        },
+                                    try {
+                                      resource.close();
+                                      return IO.succeed(success);
+                                    } catch (Exception e) {
+                                      return IO.fail(e);
+                                    }
+                                  },
                                         failure -> {
                                           try {
                                             resource.close();
@@ -142,7 +140,6 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
 
   }
 
-
   /**
    * Creates an effect that always succeeds and returns the same value.
    *
@@ -153,7 +150,6 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
   public static <Output> IO<Output> succeed(final Output val) {
     return new Val<>(() -> new Success<>(val));
   }
-
 
   /**
    * Creates an effect from a lazy computation. Every time the `get()` or `result` method is called, the provided
@@ -196,9 +192,9 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
   }
 
   /**
-   * Creates an effect from a task modeled with a {@link Callable} and executes it using the specified {@link Executor}.
-   * Every time the `get()` or `result` method is called, the provided task is executed asynchronously using the given
-   * executor.
+   * Creates an effect from a task modeled with a {@link Callable} and executes it using the
+   * newVirtualThreadPerTaskExecutor. Every time the `get()` or `result` method is called, the provided task is executed
+   * asynchronously using the given executor.
    *
    * @param callable the callable task to be executed.
    * @param <Output> the type parameter representing the result type of the effect.
@@ -218,9 +214,9 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
   }
 
   /**
-   * Creates an effect from a task modeled with a {@link Callable} and executes it using the specified {@link Executor}.
-   * Every time the `get()` or `result` method is called, the provided task is executed asynchronously using the given
-   * executor.
+   * Creates an effect from a task modeled with a {@link Callable} and executes it using the
+   * newVirtualThreadPerTaskExecutor. Every time the `get()` or `result` method is called, the provided task is executed
+   * asynchronously using the given executor.
    *
    * @param callable the callable task to be executed.
    * @param <Output> the type parameter representing the result type of the effect.
@@ -284,7 +280,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
         try {
           return scope.join()
                       .result();
-        } catch (Exception e) {// Throws if none of the subtasks completed successfully
+        } catch (Exception e) {
           return new Failure<>(e);
         }
       }
@@ -306,7 +302,6 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
     var unused = executor.submit(this::get);
     return IO.NULL();
   }
-
 
   /**
    * Creates a new effect that, when this succeeds, maps the computed value into another value using the specified
@@ -348,7 +343,6 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
     });
   }
 
-
   /**
    * Creates a new effect by applying the specified {@link Lambda} to the result of this effect (if it succeeds). If
    * this effect fails, the new effect also ends with the same failure, and the lambda is not applied. This method is
@@ -368,7 +362,6 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
     };
 
   }
-
 
   /**
    * Creates a new effect after evaluating this one. If this succeeds, the result is applied to the specified
@@ -392,7 +385,6 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
       case Failure<Output>(Exception exception) -> failureLambda.apply(exception);
     };
   }
-
 
   /**
    * Creates a new effect that will handle any failure that this effect might contain and will be recovered with the
@@ -427,7 +419,6 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
                 lambda);
   }
 
-
   /**
    * Creates a new effect that will handle any failure that this effect might contain and will be recovered with a new
    * effect evaluated by the specified lambda. If the new effect fails again, the new failure is ignored, and the
@@ -436,7 +427,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
    *
    * @param lambda the lambda to apply if this effect fails, producing a new effect.
    * @return a new effect representing either the original value or the result of applying the lambda in case of
-   * failure.
+   *         failure.
    */
   public IO<Output> fallbackTo(final Lambda<? super Throwable, Output> lambda) {
     requireNonNull(lambda);
@@ -448,7 +439,6 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
 
   }
 
-
   /**
    * Creates a new effect that passes the exception to the specified failConsumer in case of failure. The given consumer
    * is responsible for handling the exception and can't fail itself. If it fails, the exception would be just printed
@@ -459,7 +449,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
    */
   public IO<Output> peekFailure(final Consumer<? super Throwable> failConsumer) {
     return peek($ -> {
-                },
+    },
                 failConsumer);
   }
 
@@ -486,21 +476,21 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
    * @param successConsumer the consumer that takes the successful result.
    * @param failureConsumer the consumer that takes the failure.
    * @return a new effect representing the original value or the result of applying the consumers in case of success or
-   * failure.
+   *         failure.
    */
   public IO<Output> peek(final Consumer<? super Output> successConsumer,
                          final Consumer<? super Throwable> failureConsumer) {
     requireNonNull(successConsumer);
     requireNonNull(failureConsumer);
     return then(it -> {
-                  try {
-                    successConsumer.accept(it);
-                  } catch (Exception exception) {
-                    Fun.publishException("peek",
-                                         exception);
-                  }
-                  return succeed(it);
-                },
+      try {
+        successConsumer.accept(it);
+      } catch (Exception exception) {
+        Fun.publishException("peek",
+                             exception);
+      }
+      return succeed(it);
+    },
                 exc -> {
                   try {
                     failureConsumer.accept(exc);
@@ -511,7 +501,6 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
                   return fail(exc);
                 });
   }
-
 
   /**
    * Creates a new effect that will retry the computation according to the specified {@link RetryPolicy policy} if this
@@ -534,7 +523,6 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
                  predicate);
 
   }
-
 
   /**
    * Creates a new effect that will retry the computation according to the specified {@link RetryPolicy policy} if this
@@ -571,19 +559,18 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
                                           predicate);
                            }
                            return sleep(duration)
-                               .then($ -> retry(effect,
-                                                policy,
-                                                new RetryStatus(rs.counter() + 1,
-                                                                rs.cumulativeDelay()
-                                                                  .plus(duration),
-                                                                duration),
-                                                predicate));
+                                                 .then($ -> retry(effect,
+                                                                  policy,
+                                                                  new RetryStatus(rs.counter() + 1,
+                                                                                  rs.cumulativeDelay()
+                                                                                    .plus(duration),
+                                                                                  duration),
+                                                                  predicate));
                          }
                          return fail(exc);
                        });
 
   }
-
 
   /**
    * Creates a new effect that repeats the computation according to the specified {@link RetryPolicy policy} if the
@@ -605,7 +592,6 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
 
   }
 
-
   private IO<Output> repeat(IO<Output> exp,
                             RetryPolicy policy,
                             RetryStatus rs,
@@ -626,15 +612,15 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
                         predicate);
         }
         return sleep(delay)
-            .then($ -> repeat(exp,
-                              policy,
-                              new RetryStatus(rs.counter() + 1,
-                                              rs.cumulativeDelay()
-                                                .plus(delay),
-                                              delay),
-                              predicate)
+                           .then($ -> repeat(exp,
+                                             policy,
+                                             new RetryStatus(rs.counter() + 1,
+                                                             rs.cumulativeDelay()
+                                                               .plus(delay),
+                                                             delay),
+                                             predicate)
 
-                 );
+                           );
       }
       return succeed(output);
     });
@@ -665,22 +651,21 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
   public IO<Output> debug(final EventBuilder<Output> builder) {
     requireNonNull(builder);
     return IO.lazy(() -> {
-               EvalExpEvent expEvent = new EvalExpEvent();
-               expEvent.begin();
-               return expEvent;
-             })
+      EvalExpEvent expEvent = new EvalExpEvent();
+      expEvent.begin();
+      return expEvent;
+    })
              .then(event -> this.peek(val -> {
-                                        event.end();
-                                        builder.updateAndCommit(val,
-                                                                event);
-                                      },
+               event.end();
+               builder.updateAndCommit(val,
+                                       event);
+             },
                                       exc -> {
                                         event.end();
                                         builder.updateAndCommit(exc,
                                                                 event);
                                       }));
   }
-
 
   public IO<Output> sleep(final Duration duration) {
     Objects.requireNonNull(duration);
@@ -698,6 +683,5 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
     });
 
   }
-
 
 }

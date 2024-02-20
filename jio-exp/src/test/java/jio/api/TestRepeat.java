@@ -11,7 +11,6 @@ import jio.RetryPolicies;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-
 public class TestRepeat {
 
   static Random random = new Random();
@@ -41,12 +40,12 @@ public class TestRepeat {
     int max = 10;
     IO<Pair<Integer, Integer>> pair = PairExp.par(IO.lazyOn(() -> sleepRandom(max)),
                                                   IO.lazyOn(() -> sleepRandom(max))
-                                                 )
+    )
                                              .debugEach("pair")
                                              .repeat(e -> true,
                                                      RetryPolicies.constantDelay(Duration.ofMillis(100))
                                                                   .limitRetriesByCumulativeDelay(Duration.ofSeconds(1))
-                                                    );
+                                             );
     try {
       ListExp<Pair<Integer, Integer>> exp = ListExp.par();
       for (int i = 0; i < 500; i++) {

@@ -33,7 +33,7 @@ public final class ClientSessionBuilder implements Supplier<ClientSession> {
    */
   ClientSessionBuilder(final MongoClient client,
                        final ClientSessionOptions options
-                      ) {
+  ) {
     this.client = Objects.requireNonNull(client);
     this.options = Objects.requireNonNull(options);
   }
@@ -47,7 +47,7 @@ public final class ClientSessionBuilder implements Supplier<ClientSession> {
    */
   public static ClientSessionBuilder of(final MongoClient client,
                                         final ClientSessionOptions options
-                                       ) {
+  ) {
     return new ClientSessionBuilder(client,
                                     options);
   }
@@ -63,7 +63,6 @@ public final class ClientSessionBuilder implements Supplier<ClientSession> {
                                     ClientSessionOptions.builder()
                                                         .build());
   }
-
 
   @Override
   public ClientSession get() {

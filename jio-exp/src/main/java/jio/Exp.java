@@ -14,8 +14,7 @@ import jio.Result.Success;
  */
 sealed abstract class Exp<Output> extends IO<Output>
     permits AllExp, AnyExp, CondExp, IfElseExp, JsArrayExp, JsObjExp, ListExp, PairExp, SwitchExp,
-            TripleExp {
-
+    TripleExp {
 
   final Function<EvalExpEvent, BiConsumer<Output, Throwable>> jfrPublisher;
 
@@ -24,7 +23,8 @@ sealed abstract class Exp<Output> extends IO<Output>
   }
 
   Function<EvalExpEvent, BiConsumer<Output, Throwable>> getJFRPublisher(final EventBuilder<Output> builder) {
-    return event -> (val, exc) -> {
+    return event -> (val,
+                     exc) -> {
       event.end();
       if (exc == null) {
         builder.updateAndCommit(val,
@@ -54,11 +54,9 @@ sealed abstract class Exp<Output> extends IO<Output>
     }
     return result;
 
-
   }
 
   abstract Result<Output> reduceExp();
-
 
   /**
    * Defines a strategy for retrying each operand of this expression when a specified condition is met, based on the
@@ -70,8 +68,7 @@ sealed abstract class Exp<Output> extends IO<Output>
    */
   abstract Exp<Output> retryEach(final Predicate<? super Throwable> predicate,
                                  final RetryPolicy policy
-                                );
-
+  );
 
   /**
    * Defines a strategy for retrying each operand of this expression based on the given retry policy.
@@ -80,7 +77,6 @@ sealed abstract class Exp<Output> extends IO<Output>
    * @return a new expression with retry behavior applied to each operand
    */
   abstract Exp<Output> retryEach(final RetryPolicy policy);
-
 
   /**
    * Attaches a debug mechanism to each operand of this expression, allowing you to monitor and log the execution of
@@ -91,7 +87,6 @@ sealed abstract class Exp<Output> extends IO<Output>
    */
   abstract Exp<Output> debugEach(final EventBuilder<Output> messageBuilder);
 
-
   /**
    * Attaches a debug mechanism to each operand of this expression, allowing you to monitor and log the execution of
    * each operand individually.
@@ -100,6 +95,5 @@ sealed abstract class Exp<Output> extends IO<Output>
    * @return a new expression with debug behavior applied to each operand
    */
   abstract Exp<Output> debugEach(final String context);
-
 
 }

@@ -41,7 +41,6 @@ public final class BatchExecutedEventFormatter implements Function<RecordedEvent
       batch-counter: %s""".replace("\n",
                                    " ");
 
-
   private BatchExecutedEventFormatter() {
 
   }
@@ -65,27 +64,25 @@ public final class BatchExecutedEventFormatter implements Function<RecordedEvent
     var result = event.getValue(BatchExecutedEvent.RESULT_FIELD);
     boolean isSuccess = BatchExecutedEvent.RESULT.SUCCESS.name()
                                                          .equals(result);
-    return isSuccess ?
-           String.format(SUCCESS_FORMAT,
-                         event.getStartTime(),
-                         label,
-                         result,
-                         Fun.formatTime(event.getDuration()),
-                         event.getValue(BatchExecutedEvent.ROWS_AFFECTED_FIELD),
-                         event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD)
-                        ) :
-           String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
-                         event.getStartTime(),
-                         label,
-                         result,
-                         Fun.formatTime(event.getDuration()),
-                         event.getValue(BatchExecutedEvent.ROWS_AFFECTED_FIELD),
-                         event.getValue(BatchExecutedEvent.EXECUTED_BATCHES_FIELD),
-                         event.getValue(BatchExecutedEvent.BATCH_SIZE_FIELD),
-                         event.getValue(BatchExecutedEvent.STM_SIZE_FIELD),
-                         event.getValue(BatchExecutedEvent.SQL_FIELD),
-                         event.getValue(BatchExecutedEvent.EXCEPTION_FIELD),
-                         event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD)
-                        );
+    return isSuccess ? String.format(SUCCESS_FORMAT,
+                                     event.getStartTime(),
+                                     label,
+                                     result,
+                                     Fun.formatTime(event.getDuration()),
+                                     event.getValue(BatchExecutedEvent.ROWS_AFFECTED_FIELD),
+                                     event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD)
+    ) : String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
+                      event.getStartTime(),
+                      label,
+                      result,
+                      Fun.formatTime(event.getDuration()),
+                      event.getValue(BatchExecutedEvent.ROWS_AFFECTED_FIELD),
+                      event.getValue(BatchExecutedEvent.EXECUTED_BATCHES_FIELD),
+                      event.getValue(BatchExecutedEvent.BATCH_SIZE_FIELD),
+                      event.getValue(BatchExecutedEvent.STM_SIZE_FIELD),
+                      event.getValue(BatchExecutedEvent.SQL_FIELD),
+                      event.getValue(BatchExecutedEvent.EXCEPTION_FIELD),
+                      event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD)
+    );
   }
 }

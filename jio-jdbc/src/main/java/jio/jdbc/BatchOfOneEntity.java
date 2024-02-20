@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 import jio.IO;
 import jio.Lambda;
 
@@ -23,7 +22,6 @@ class BatchOfOneEntity<Params> {
   final int batchSize;
   private final boolean enableJFR;
   private final String label;
-
 
   /**
    * Constructs a {@code BatchStm} instance with the specified settings.
@@ -60,28 +58,27 @@ class BatchOfOneEntity<Params> {
    *
    * @param builder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} representing the JDBC batch operation with a duration, input, and output. Note: The
-   * operations are performed on virtual threads for improved concurrency and resource utilization.
+   *         operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see BatchOfOneEntity#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<List<Params>, BatchResult> buildAutoClosable(DatasourceBuilder builder) {
     return inputs -> IO.task(
-        () -> JfrEventDecorator.decorateBatch(
-            () -> {
-              try (var connection = builder.get()
-                                           .getConnection()
-              ) {
-                try (var ps = connection.prepareStatement(sql)) {
-                  ps.setQueryTimeout((int) timeout.toSeconds());
-                  return process(inputs,
-                                 ps);
-                }
-              }
-            },
-            sql,
-            enableJFR,
-            label),
-        Executors.newVirtualThreadPerTaskExecutor()
-                            );
+                             () -> JfrEventDecorator.decorateBatch(
+                                                                   () -> {
+                                                                     try (var connection = builder.get()
+                                                                                                  .getConnection()
+                                                                     ) {
+                                                                       try (var ps = connection.prepareStatement(sql)) {
+                                                                         ps.setQueryTimeout((int) timeout.toSeconds());
+                                                                         return process(inputs,
+                                                                                        ps);
+                                                                       }
+                                                                     }
+                                                                   },
+                                                                   sql,
+                                                                   enableJFR,
+                                                                   label)
+    );
   }
 
   /**
@@ -91,25 +88,24 @@ class BatchOfOneEntity<Params> {
    * performed on virtual threads for improved concurrency and resource utilization.
    *
    * @return A {@code ClosableStatement} representing the JDBC batch operation with a duration, input, and output. Note:
-   * The operations are performed on virtual threads for improved concurrency and resource utilization.
+   *         The operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see BatchOfOneEntity#buildClosable()
    */
   public ClosableStatement<List<Params>, BatchResult> buildClosable() {
-    return (params, connection) ->
-        IO.task(
-            () -> JfrEventDecorator.decorateBatch(
-                () -> {
-                  try (var ps = connection.prepareStatement(sql)) {
-                    ps.setQueryTimeout((int) timeout.toSeconds());
-                    return process(params,
-                                   ps);
-                  }
-                },
-                sql,
-                enableJFR,
-                label),
-            Executors.newVirtualThreadPerTaskExecutor()
-               );
+    return (params,
+            connection) -> IO.task(
+                                   () -> JfrEventDecorator.decorateBatch(
+                                                                         () -> {
+                                                                           try (var ps = connection.prepareStatement(sql)) {
+                                                                             ps.setQueryTimeout((int) timeout.toSeconds());
+                                                                             return process(params,
+                                                                                            ps);
+                                                                           }
+                                                                         },
+                                                                         sql,
+                                                                         enableJFR,
+                                                                         label)
+            );
   }
 
   private BatchResult process(List<Params> inputs,

@@ -28,7 +28,6 @@ final class UpdateStmExecutedEvent extends Event {
   static final String EXCEPTION_FIELD = "exception";
   static final String LABEL_FIELD = "label";
 
-
   /**
    * the method of the request
    */
@@ -47,7 +46,6 @@ final class UpdateStmExecutedEvent extends Event {
    * Short label to identify the statement
    */
   String label;
-
 
   enum RESULT {
     SUCCESS, FAILURE

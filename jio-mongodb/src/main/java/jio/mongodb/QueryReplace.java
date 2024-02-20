@@ -16,8 +16,6 @@ import jsonvalues.JsObj;
 public record QueryReplace(JsObj query,
                            JsObj newDoc) {
 
-
-
   /**
    * Creates a query and a new doc
    *
@@ -25,11 +23,11 @@ public record QueryReplace(JsObj query,
    * @param newDoc the new doc to replace the one found by the query
    */
   public QueryReplace {
-      if (query == null) {
-          throw new IllegalArgumentException("query is null");
-      }
-      if (newDoc == null) {
-          throw new IllegalArgumentException("newDoc is null");
-      }
+    if (query == null) {
+      throw new IllegalArgumentException("query is null");
+    }
+    if (newDoc == null) {
+      throw new IllegalArgumentException("newDoc is null");
+    }
   }
 }

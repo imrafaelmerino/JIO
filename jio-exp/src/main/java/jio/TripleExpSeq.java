@@ -15,7 +15,7 @@ final class TripleExpSeq<First, Second, Third> extends TripleExp<First, Second, 
                       final IO<Second> _2,
                       final IO<Third> _3,
                       final Function<EvalExpEvent, BiConsumer<Triple<First, Second, Third>, Throwable>> debugger
-                     ) {
+  ) {
     super(_1,
           _2,
           _3,
@@ -25,18 +25,18 @@ final class TripleExpSeq<First, Second, Third> extends TripleExp<First, Second, 
   @Override
   public TripleExp<First, Second, Third> retryEach(final Predicate<? super Throwable> predicate,
                                                    final RetryPolicy policy
-                                                  ) {
+  ) {
     requireNonNull(predicate);
     requireNonNull(policy);
     return new TripleExpSeq<>(_1.retry(predicate,
                                        policy
-                                      ),
+    ),
                               _2.retry(predicate,
                                        policy
-                                      ),
+                              ),
                               _3.retry(predicate,
                                        policy
-                                      ),
+                              ),
                               jfrPublisher
     );
   }
@@ -53,7 +53,7 @@ final class TripleExpSeq<First, Second, Third> extends TripleExp<First, Second, 
       return new Result.Success<>(Triple.of(first,
                                             second,
                                             third
-                                           ));
+      ));
     } catch (Exception e) {
       return new Failure<>(e);
     }
@@ -65,27 +65,26 @@ final class TripleExpSeq<First, Second, Third> extends TripleExp<First, Second, 
     return new TripleExpSeq<>(DebuggerHelper.debugIO(_1,
                                                      String.format("%s[1]",
                                                                    eventBuilder.exp
-                                                                  ),
+                                                     ),
                                                      eventBuilder.context
 
-                                                    ),
+    ),
                               DebuggerHelper.debugIO(_2,
                                                      String.format("%s[2]",
                                                                    eventBuilder.exp
-                                                                  ),
+                                                     ),
                                                      eventBuilder.context
 
-                                                    ),
+                              ),
                               DebuggerHelper.debugIO(_3,
                                                      String.format("%s[3]",
                                                                    eventBuilder.exp
-                                                                  ),
+                                                     ),
                                                      eventBuilder.context
-                                                    ),
+                              ),
                               getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public TripleExp<First, Second, Third> debugEach(final String context) {

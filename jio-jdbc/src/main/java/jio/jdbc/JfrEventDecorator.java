@@ -28,8 +28,7 @@ class JfrEventDecorator {
   static int decorateUpdateStm(Callable<Integer> op,
                                String sql,
                                boolean enableJFR,
-                               String label)
-      throws Exception {
+                               String label) throws Exception {
     if (enableJFR) {
       UpdateStmExecutedEvent event = new UpdateStmExecutedEvent();
       event.begin();
@@ -71,8 +70,7 @@ class JfrEventDecorator {
   static <O> O decorateInsertOneStm(Callable<O> op,
                                     String sql,
                                     boolean enableJFR,
-                                    String label)
-      throws Exception {
+                                    String label) throws Exception {
     if (enableJFR) {
       UpdateStmExecutedEvent event = new UpdateStmExecutedEvent();
       event.begin();
@@ -116,8 +114,7 @@ class JfrEventDecorator {
                                       String sql,
                                       boolean enableJFR,
                                       String label,
-                                      int fetchSize)
-      throws Exception {
+                                      int fetchSize) throws Exception {
     if (enableJFR) {
       EntitiesFoundEvent event = new EntitiesFoundEvent();
       event.begin();
@@ -198,7 +195,6 @@ class JfrEventDecorator {
     }
   }
 
-
   /**
    * Wraps the provided batch operation with JFR events if enabled.
    *
@@ -212,8 +208,7 @@ class JfrEventDecorator {
   static BatchResult decorateBatch(Callable<BatchResult> op,
                                    String sql,
                                    boolean enableJFR,
-                                   String label)
-      throws Exception {
+                                   String label) throws Exception {
     if (enableJFR) {
       BatchExecutedEvent event = new BatchExecutedEvent();
       event.begin();
@@ -277,31 +272,30 @@ class JfrEventDecorator {
                               boolean enableJFR) {
     if (enableJFR) {
       return IO.lazy(() -> {
-                 var event = new TxExecutedEvent();
-                 event.begin();
-                 return event;
-               })
-               .then(event ->
-                         tx.then(txResult -> {
-                                   event.end();
-                                   if (event.shouldCommit()) {
-                                     event.label = label;
-                                     event.result = RESULT.SUCCESS.name();
-                                     event.commit();
-                                   }
-                                   return IO.succeed(txResult);
-                                 },
-                                 exc -> {
-                                   event.end();
-                                   if (event.shouldCommit()) {
-                                     event.label = label;
-                                     event.result = RESULT.FAILURE.name();
-                                     event.exception = ExceptionFun.findUltimateCause(exc)
-                                                                   .toString();
-                                     event.commit();
-                                   }
-                                   return IO.fail(exc);
-                                 }));
+        var event = new TxExecutedEvent();
+        event.begin();
+        return event;
+      })
+               .then(event -> tx.then(txResult -> {
+                 event.end();
+                 if (event.shouldCommit()) {
+                   event.label = label;
+                   event.result = RESULT.SUCCESS.name();
+                   event.commit();
+                 }
+                 return IO.succeed(txResult);
+               },
+                                      exc -> {
+                                        event.end();
+                                        if (event.shouldCommit()) {
+                                          event.label = label;
+                                          event.result = RESULT.FAILURE.name();
+                                          event.exception = ExceptionFun.findUltimateCause(exc)
+                                                                        .toString();
+                                          event.commit();
+                                        }
+                                        return IO.fail(exc);
+                                      }));
     } else {
       return tx;
     }
@@ -312,41 +306,40 @@ class JfrEventDecorator {
                                                boolean enableJFR) {
     if (enableJFR) {
       return IO.lazy(() -> {
-                 var event = new TxExecutedEvent();
-                 event.begin();
-                 return event;
-               })
-               .then(event ->
-                         tx.then(txResult -> {
-                                   event.end();
-                                   if (event.shouldCommit()) {
-                                     event.label = label;
-                                     if (txResult instanceof TxPartialSuccess partialSuccess) {
-                                       event.savePoint = partialSuccess.savePointName();
-                                       event.exception = ExceptionFun.findUltimateCause(partialSuccess.cause())
-                                                                     .toString();
-                                       event.result = RESULT.PARTIAL_SUCCESS.name();
+        var event = new TxExecutedEvent();
+        event.begin();
+        return event;
+      })
+               .then(event -> tx.then(txResult -> {
+                 event.end();
+                 if (event.shouldCommit()) {
+                   event.label = label;
+                   if (txResult instanceof TxPartialSuccess partialSuccess) {
+                     event.savePoint = partialSuccess.savePointName();
+                     event.exception = ExceptionFun.findUltimateCause(partialSuccess.cause())
+                                                   .toString();
+                     event.result = RESULT.PARTIAL_SUCCESS.name();
 
-                                     } else {
-                                       event.result = RESULT.SUCCESS.name();
-                                     }
+                   } else {
+                     event.result = RESULT.SUCCESS.name();
+                   }
 
-                                     event.commit();
-                                   }
-                                   return IO.succeed(txResult);
-                                 },
-                                 exc -> {
-                                   event.end();
-                                   if (event.shouldCommit()) {
-                                     event.label = label;
-                                     event.result = RESULT.SUCCESS.name();
-                                     event.exception = ExceptionFun.findUltimateCause(exc)
-                                                                   .toString();
-                                     event.commit();
-                                     ;
-                                   }
-                                   return IO.fail(exc);
-                                 }));
+                   event.commit();
+                 }
+                 return IO.succeed(txResult);
+               },
+                                      exc -> {
+                                        event.end();
+                                        if (event.shouldCommit()) {
+                                          event.label = label;
+                                          event.result = RESULT.SUCCESS.name();
+                                          event.exception = ExceptionFun.findUltimateCause(exc)
+                                                                        .toString();
+                                          event.commit();
+                                          ;
+                                        }
+                                        return IO.fail(exc);
+                                      }));
     } else {
       return tx;
     }

@@ -36,26 +36,22 @@ class ListCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
-    return tokens ->
-    {
+  ) {
+    return tokens -> {
       int nArgs = tokens.length - 1;
-        if (nArgs > 1) {
-            return Errors.TOO_MANY_ARGUMENTS.apply(nArgs,
-                                                   this);
-        }
-      List<String> list =
-          commands.stream()
-                  .map(it -> it.name)
-                  .sorted(Comparator.naturalOrder())
-                  .collect(Collectors.toList());
-      return tokens.length == 1 ?
-             IO.succeed(String.join("\n",
-                                    list)) :
-             IO.succeed(list.stream()
-                            .filter(it -> it.startsWith(tokens[1]))
-                            .collect(Collectors.joining("\n"))
-                       );
+      if (nArgs > 1) {
+        return Errors.TOO_MANY_ARGUMENTS.apply(nArgs,
+                                               this);
+      }
+      List<String> list = commands.stream()
+                                  .map(it -> it.name)
+                                  .sorted(Comparator.naturalOrder())
+                                  .collect(Collectors.toList());
+      return tokens.length == 1 ? IO.succeed(String.join("\n",
+                                                         list)) : IO.succeed(list.stream()
+                                                                                 .filter(it -> it.startsWith(tokens[1]))
+                                                                                 .collect(Collectors.joining("\n"))
+                                                         );
     };
   }
 }

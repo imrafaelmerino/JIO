@@ -6,7 +6,6 @@ import jio.Result.Success;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-
 public class TestIfElseExp {
 
   @Test
@@ -21,13 +20,11 @@ public class TestIfElseExp {
     Assertions.assertEquals(new Success<>(1),
                             a.debugEach("ifelse")
                              .get()
-                           );
+    );
 
     Assertions.assertEquals(new Success<>(1),
                             a.get());
 
-
   }
-
 
 }

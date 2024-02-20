@@ -63,10 +63,8 @@ public final class ExceptionFun {
    *
    * @see ConnectException
    */
-  public static final Predicate<Throwable> HAS_CONNECTION_REFUSE =
-      e -> findConnectionExcRecursively("connection refused"::equalsIgnoreCase).apply(e)
-                                                                               .isPresent();
-
+  public static final Predicate<Throwable> HAS_CONNECTION_REFUSE = e -> findConnectionExcRecursively("connection refused"::equalsIgnoreCase).apply(e)
+                                                                                                                                            .isPresent();
 
   /**
    * Returns a function that finds the cause in the exception chain that satisfies the given predicate, specifically for
@@ -109,29 +107,24 @@ public final class ExceptionFun {
    *
    * @see SocketException
    */
-  public static Function<Throwable, Optional<ConnectException>> findConnectionExcRecursively =
-      e -> findCauseRecursively(exc -> exc instanceof ConnectException).apply(e)
-                                                                       .map(it -> ((ConnectException) it));
-
+  public static Function<Throwable, Optional<ConnectException>> findConnectionExcRecursively = e -> findCauseRecursively(exc -> exc instanceof ConnectException).apply(e)
+                                                                                                                                                                .map(it -> ((ConnectException) it));
 
   /**
    * Returns a function that finds the cause in the exception chain that is an instance of {@link SocketException}.
    *
    * @see SocketException
    */
-  public static Function<Throwable, Optional<SocketException>> findSocketExcRecursively =
-      e -> findCauseRecursively(exc -> exc instanceof SocketException).apply(e)
-                                                                      .map(it -> ((SocketException) it));
+  public static Function<Throwable, Optional<SocketException>> findSocketExcRecursively = e -> findCauseRecursively(exc -> exc instanceof SocketException).apply(e)
+                                                                                                                                                          .map(it -> ((SocketException) it));
 
   /**
    * Returns a function that finds the cause in the exception chain that is an instance of {@link EOFException}.
    *
    * @see EOFException
    */
-  public static Function<Throwable, Optional<EOFException>> findEndOfStreamExcRecursively =
-      e -> findCauseRecursively(exc -> exc instanceof EOFException).apply(e)
-                                                                   .map(it -> ((EOFException) it));
-
+  public static Function<Throwable, Optional<EOFException>> findEndOfStreamExcRecursively = e -> findCauseRecursively(exc -> exc instanceof EOFException).apply(e)
+                                                                                                                                                         .map(it -> ((EOFException) it));
 
   /**
    * A predefined function to find instances of {@link SocketException} in the exception chain with a message indicating
@@ -139,17 +132,14 @@ public final class ExceptionFun {
    *
    * @see SocketException
    */
-  public static final Predicate<Throwable> HAS_CONNECTION_RESET =
-      e -> findSocketExcRecursively("connection reset"::equalsIgnoreCase).apply(e)
-                                                                         .isPresent();
+  public static final Predicate<Throwable> HAS_CONNECTION_RESET = e -> findSocketExcRecursively("connection reset"::equalsIgnoreCase).apply(e)
+                                                                                                                                     .isPresent();
   /**
    * A predefined function to find instances of {@link EOFException} in the exception chain.
    *
    * @see EOFException
    */
-  public static final Predicate<Throwable> HAS_END_OF_STREAM =
-      e -> findEndOfStreamExcRecursively.apply(e)
-                                        .isPresent();
-
+  public static final Predicate<Throwable> HAS_END_OF_STREAM = e -> findEndOfStreamExcRecursively.apply(e)
+                                                                                                 .isPresent();
 
 }

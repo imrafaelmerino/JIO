@@ -23,11 +23,11 @@ public record QueryUpdate(JsObj query,
    * @param updateCommands the new doc to replace the one found by the query
    */
   public QueryUpdate {
-      if (query == null) {
-          throw new IllegalArgumentException("query is null");
-      }
-      if (updateCommands == null) {
-          throw new IllegalArgumentException("updateCommands is null");
-      }
+    if (query == null) {
+      throw new IllegalArgumentException("query is null");
+    }
+    if (updateCommands == null) {
+      throw new IllegalArgumentException("updateCommands is null");
+    }
   }
 }

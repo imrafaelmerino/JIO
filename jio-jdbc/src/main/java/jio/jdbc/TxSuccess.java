@@ -8,5 +8,4 @@ package jio.jdbc;
  */
 public record TxSuccess<Output>(Output output) implements TxResult {
 
-
 }

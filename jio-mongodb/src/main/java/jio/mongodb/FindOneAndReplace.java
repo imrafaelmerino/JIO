@@ -1,17 +1,15 @@
 package jio.mongodb;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.model.FindOneAndReplaceOptions;
-import java.util.concurrent.Executors;
-import jio.IO;
-import jsonvalues.JsObj;
-
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.Converters.toBson;
 import static jio.mongodb.MongoOpEvent.OP.FIND_ONE_AND_REPLACE;
+
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.model.FindOneAndReplaceOptions;
+import java.util.Objects;
+import java.util.function.Supplier;
+import jio.IO;
+import jsonvalues.JsObj;
 
 /**
  * Represents a MongoDB find one and replace operation to updateCommands a single document in a collection
@@ -68,7 +66,6 @@ public final class FindOneAndReplace extends Op implements MongoLambda<QueryRepl
     return this;
   }
 
-
   /**
    * Applies the find one and replace operation to the specified MongoDB collection with the provided query and
    * replacement document.
@@ -81,26 +78,22 @@ public final class FindOneAndReplace extends Op implements MongoLambda<QueryRepl
   public IO<JsObj> apply(final ClientSession session,
                          final QueryReplace queryReplace) {
     Objects.requireNonNull(queryReplace);
-    Supplier<JsObj> supplier =
-        decorateWithEvent(() -> {
-                       var collection = requireNonNull(this.collection.get());
-                       return session == null ?
-                              collection
-                                  .findOneAndReplace(toBson(queryReplace.query()),
-                                                     queryReplace.newDoc(),
-                                                     options
-                                                    ) :
-                              collection
-                                  .findOneAndReplace(session,
-                                                     toBson(queryReplace.query()),
-                                                     queryReplace.newDoc(),
-                                                     options
-                                                    );
-                     },
-                          FIND_ONE_AND_REPLACE
-                         );
-    return IO.lazy(supplier,
-                   Executors.newVirtualThreadPerTaskExecutor());
+    Supplier<JsObj> supplier = decorateWithEvent(() -> {
+      var collection = requireNonNull(this.collection.get());
+      return session == null ? collection
+                                         .findOneAndReplace(toBson(queryReplace.query()),
+                                                            queryReplace.newDoc(),
+                                                            options
+                                         ) : collection
+                                                       .findOneAndReplace(session,
+                                                                          toBson(queryReplace.query()),
+                                                                          queryReplace.newDoc(),
+                                                                          options
+                                                       );
+    },
+                                                 FIND_ONE_AND_REPLACE
+    );
+    return IO.lazy(supplier);
   }
 
   /**

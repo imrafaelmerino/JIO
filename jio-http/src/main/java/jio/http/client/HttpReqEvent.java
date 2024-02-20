@@ -2,7 +2,6 @@ package jio.http.client;
 
 import jdk.jfr.*;
 
-
 /**
  * Event that is created and written to the Flight Recorder system when a request response is received or an exception
  * happens during the exchange
@@ -44,10 +43,8 @@ final class HttpReqEvent extends Event {
   @Label("HTTP Client Request Counter")
   long reqCounter;
 
-
   enum RESULT {
     SUCCESS, FAILURE
   }
-
 
 }

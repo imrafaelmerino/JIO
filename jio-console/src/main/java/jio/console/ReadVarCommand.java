@@ -11,7 +11,7 @@ import java.util.function.Function;
 /**
  * Command to read the content of a specified variable with the command:
  * <pre>
- *     var-get {name}
+ * var-get {name}
  * </pre>
  * <p>
  * Users can specify the name of the variable they want to read, and the command will return the variable's content as a
@@ -19,8 +19,8 @@ import java.util.function.Function;
  * <p>
  * Examples:
  * <pre>
- *     var-get age
- *     var-get $var
+ * var-get age
+ * var-get $var
  * </pre>
  *
  * @see Command
@@ -38,42 +38,41 @@ class ReadVarCommand extends Command {
                   $command age
                   $command $var""".replace("$command",
                                            COMMAND_NAME)
-         );
+    );
   }
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
+  ) {
     Lambda<String, String> program = var -> IO.lazy(() -> {
       var value = state.variables.get(var);
-        if (value != null) {
-            return value;
-        }
+      if (value != null) {
+        return value;
+      }
       var list = state.listsVariables.get(var);
-        if (list != null) {
-            return String.join("\n",
-                               list);
-        }
+      if (list != null) {
+        return String.join("\n",
+                           list);
+      }
       return "";
     });
 
     return tokens -> {
       int nTokens = tokens.length;
 
-        if (nTokens == 1) {
-            return Programs.ASK_FOR_INPUT(new AskForInputParams("Type the name of the variable",
-                                                                name -> state.variables.containsKey(name) ||
+      if (nTokens == 1) {
+        return Programs.ASK_FOR_INPUT(new AskForInputParams("Type the name of the variable",
+                                                            name -> state.variables.containsKey(name) ||
                                                                     state.listsVariables.containsKey(name),
-                                                                "The variable doesn't exist",
-                                                                RetryPolicies.limitRetries(3)
-                                          )
-                                         )
-                           .then(program);
-        }
+                                                            "The variable doesn't exist",
+                                                            RetryPolicies.limitRetries(3)
+        )
+        )
+                       .then(program);
+      }
 
       return program.apply(tokens[1]);
-
 
     };
   }

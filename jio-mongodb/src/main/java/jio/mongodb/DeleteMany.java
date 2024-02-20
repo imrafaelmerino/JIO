@@ -1,18 +1,16 @@
 package jio.mongodb;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.model.DeleteOptions;
-import com.mongodb.client.result.DeleteResult;
-import java.util.concurrent.Executors;
-import jio.IO;
-import jsonvalues.JsObj;
-
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.Converters.toBson;
 import static jio.mongodb.MongoOpEvent.OP.DELETE_MANY;
+
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.model.DeleteOptions;
+import com.mongodb.client.result.DeleteResult;
+import java.util.Objects;
+import java.util.function.Supplier;
+import jio.IO;
+import jsonvalues.JsObj;
 
 /**
  * Represents an operation to delete multiple documents from a MongoDB collection. This class provides flexibility in
@@ -30,7 +28,6 @@ import static jio.mongodb.MongoOpEvent.OP.DELETE_MANY;
  */
 public final class DeleteMany extends Op implements MongoLambda<JsObj, DeleteResult> {
 
-
   private static final DeleteOptions DEFAULT_OPTIONS = new DeleteOptions();
   private DeleteOptions options = DEFAULT_OPTIONS;
 
@@ -43,7 +40,6 @@ public final class DeleteMany extends Op implements MongoLambda<JsObj, DeleteRes
     super(collection,
           true);
   }
-
 
   /**
    * Creates a new {@code DeleteMany} instance with the specified collection, using default delete options and a result
@@ -67,29 +63,23 @@ public final class DeleteMany extends Op implements MongoLambda<JsObj, DeleteRes
     return this;
   }
 
-
   @Override
   public IO<DeleteResult> apply(final ClientSession session,
                                 final JsObj query
-                               ) {
+  ) {
     Objects.requireNonNull(query);
-    Supplier<DeleteResult> supplier =
-        decorateWithEvent(() -> {
-                       var collection = requireNonNull(this.collection.get());
-                       return
-                           session == null ?
-                           collection.deleteMany(toBson(query),
-                                                 options
-                                                ) :
-                           collection.deleteMany(session,
-                                                 toBson(query),
-                                                 options
-                                                );
-                     },
-                          DELETE_MANY
-                         );
-    return IO.lazy(supplier,
-                   Executors.newVirtualThreadPerTaskExecutor());
+    Supplier<DeleteResult> supplier = decorateWithEvent(() -> {
+      var collection = requireNonNull(this.collection.get());
+      return session == null ? collection.deleteMany(toBson(query),
+                                                     options
+      ) : collection.deleteMany(session,
+                                toBson(query),
+                                options
+      );
+    },
+                                                        DELETE_MANY
+    );
+    return IO.lazy(supplier);
   }
 
   /**

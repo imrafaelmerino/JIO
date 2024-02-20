@@ -63,5 +63,4 @@ final class BatchExecutedEvent extends Event {
    */
   String label;
 
-
 }

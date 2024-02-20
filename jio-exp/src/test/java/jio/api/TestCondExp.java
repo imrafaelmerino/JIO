@@ -17,7 +17,7 @@ public class TestCondExp {
                                         IO.TRUE,
                                         () -> Constants.B,
                                         () -> Constants.C
-                                       )
+                            )
                                    .map(String::toUpperCase)
                                    .get());
 
@@ -25,7 +25,7 @@ public class TestCondExp {
                                       () -> Constants.A,
                                       IO.FALSE,
                                       () -> Constants.B
-                                     )
+    )
                                  .get());
 
     Assertions.assertEquals(new Success<>("C"),
@@ -36,7 +36,7 @@ public class TestCondExp {
                                         IO.TRUE,
                                         () -> Constants.C,
                                         () -> Constants.C
-                                       )
+                            )
                                    .map(String::toUpperCase)
                                    .get());
 
@@ -50,7 +50,7 @@ public class TestCondExp {
                                         IO.TRUE,
                                         () -> Constants.D,
                                         () -> Constants.C
-                                       )
+                            )
                                    .map(String::toUpperCase)
                                    .get());
 
@@ -66,7 +66,7 @@ public class TestCondExp {
                                         IO.TRUE,
                                         () -> Constants.A,
                                         () -> Constants.C
-                                       )
+                            )
                                    .map(String::toUpperCase)
                                    .get());
 
@@ -84,7 +84,7 @@ public class TestCondExp {
                                         IO.TRUE,
                                         () -> Constants.B,
                                         () -> Constants.C
-                                       )
+                            )
                                    .map(String::toUpperCase)
                                    .get());
 
@@ -102,7 +102,7 @@ public class TestCondExp {
                                         IO.FALSE,
                                         () -> Constants.B,
                                         () -> Constants.C
-                                       )
+                            )
                                    .map(String::toUpperCase)
                                    .get());
   }
@@ -111,15 +111,15 @@ public class TestCondExp {
   public void parallel_constructors() {
 
     Assertions.assertEquals(
-        new Success<>("B"),
-        CondExp.par(IO.FALSE,
-                    () -> Constants.A,
-                    IO.TRUE,
-                    () -> Constants.B,
-                    () -> Constants.C
-                   )
-               .map(String::toUpperCase)
-               .get());
+                            new Success<>("B"),
+                            CondExp.par(IO.FALSE,
+                                        () -> Constants.A,
+                                        IO.TRUE,
+                                        () -> Constants.B,
+                                        () -> Constants.C
+                            )
+                                   .map(String::toUpperCase)
+                                   .get());
 
     Assertions.assertEquals(new Success<>("C"),
                             CondExp.par(IO.FALSE,
@@ -129,7 +129,7 @@ public class TestCondExp {
                                         IO.TRUE,
                                         () -> Constants.C,
                                         () -> Constants.C
-                                       )
+                            )
                                    .map(String::toUpperCase)
                                    .get());
 
@@ -143,7 +143,7 @@ public class TestCondExp {
                                         IO.TRUE,
                                         () -> Constants.D,
                                         () -> Constants.C
-                                       )
+                            )
                                    .map(String::toUpperCase)
                                    .get());
 
@@ -159,7 +159,7 @@ public class TestCondExp {
                                         IO.TRUE,
                                         () -> Constants.A,
                                         () -> Constants.C
-                                       )
+                            )
                                    .map(String::toUpperCase)
                                    .get());
 
@@ -177,7 +177,7 @@ public class TestCondExp {
                                         IO.TRUE,
                                         () -> Constants.B,
                                         () -> Constants.C
-                                       )
+                            )
                                    .map(String::toUpperCase)
                                    .get());
 
@@ -195,7 +195,7 @@ public class TestCondExp {
                                         IO.FALSE,
                                         () -> Constants.B,
                                         () -> Constants.C
-                                       )
+                            )
                                    .map(String::toUpperCase)
                                    .get());
   }
@@ -207,15 +207,14 @@ public class TestCondExp {
                           IO.FALSE,
                           () -> IO.succeed("b"),
                           () -> IO.succeed("default")
-                         )
+    )
                      .debugEach("context")
                      .get();
 
     Assertions.assertEquals(new Success<>("default"),
                             exp
-                           );
+    );
 
   }
-
 
 }

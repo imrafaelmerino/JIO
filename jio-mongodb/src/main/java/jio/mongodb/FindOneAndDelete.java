@@ -1,17 +1,15 @@
 package jio.mongodb;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.model.FindOneAndDeleteOptions;
-import java.util.concurrent.Executors;
-import jio.IO;
-import jsonvalues.JsObj;
-
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.Converters.toBson;
 import static jio.mongodb.MongoOpEvent.OP.FIND_ONE_AND_DELETE;
+
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.model.FindOneAndDeleteOptions;
+import java.util.Objects;
+import java.util.function.Supplier;
+import jio.IO;
+import jsonvalues.JsObj;
 
 /**
  * Represents a MongoDB find one and delete operation to remove a single document from a collection asynchronously using
@@ -67,7 +65,6 @@ public final class FindOneAndDelete extends Op implements MongoLambda<JsObj, JsO
     return this;
   }
 
-
   /**
    * Applies the find one and delete operation to the specified MongoDB collection with the provided query criteria.
    *
@@ -79,20 +76,16 @@ public final class FindOneAndDelete extends Op implements MongoLambda<JsObj, JsO
   public IO<JsObj> apply(final ClientSession session,
                          final JsObj query) {
     Objects.requireNonNull(query);
-    Supplier<JsObj> supplier =
-        decorateWithEvent(() -> {
-                       var collection = requireNonNull(this.collection.get());
-                       return session == null ?
-                              collection.findOneAndDelete(toBson(query),
-                                                          options) :
-                              collection.findOneAndDelete(session,
-                                                          toBson(query),
-                                                          options);
-                     },
-                          FIND_ONE_AND_DELETE
-                         );
-    return IO.lazy(supplier,
-                   Executors.newVirtualThreadPerTaskExecutor());
+    Supplier<JsObj> supplier = decorateWithEvent(() -> {
+      var collection = requireNonNull(this.collection.get());
+      return session == null ? collection.findOneAndDelete(toBson(query),
+                                                           options) : collection.findOneAndDelete(session,
+                                                                                                  toBson(query),
+                                                                                                  options);
+    },
+                                                 FIND_ONE_AND_DELETE
+    );
+    return IO.lazy(supplier);
   }
 
   /**

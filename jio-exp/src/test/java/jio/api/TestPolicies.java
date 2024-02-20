@@ -1,6 +1,5 @@
 package jio.api;
 
-
 import java.time.Duration;
 import java.util.List;
 import jio.RetryPolicies;
@@ -18,13 +17,13 @@ public class TestPolicies {
                                                 .simulate(20);
     Assertions.assertEquals(5,
                             simulation.size()
-                           );
+    );
     Assertions.assertEquals(new RetryStatus(4,
                                             Duration.ofMillis(100),
                                             Duration.ofMillis(40)
-                            ),
+    ),
                             simulation.getLast()
-                           );
+    );
 
   }
 
@@ -38,7 +37,7 @@ public class TestPolicies {
                                                 .simulate(20);
     Assertions.assertEquals(20,
                             simulation.size()
-                           );
+    );
     Assertions.assertTrue(simulation.stream()
                                     .allMatch(rs -> rs.previousDelay()
                                                       .compareTo(cap) <= 0));
@@ -54,13 +53,12 @@ public class TestPolicies {
                                                 .simulate(20);
     Assertions.assertEquals(6,
                             simulation.size()
-                           );
+    );
     Assertions.assertTrue(simulation.stream()
                                     .allMatch(rs -> rs.cumulativeDelay()
                                                       .compareTo(acc) <= 0));
 
   }
-
 
   @Test
   public void test_simulation_4() {
@@ -72,13 +70,12 @@ public class TestPolicies {
                                                 .simulate(20);
     Assertions.assertEquals(9,
                             simulation.size()
-                           );
+    );
     Assertions.assertTrue(simulation.stream()
                                     .allMatch(rs -> rs.previousDelay()
                                                       .compareTo(cap) <= 0));
 
   }
-
 
   @Test
   public void test_simulation_5() {
@@ -92,25 +89,25 @@ public class TestPolicies {
     System.out.println(simulation);
     Assertions.assertEquals(20,
                             simulation.size()
-                           );
+    );
     Assertions.assertEquals(10,
                             simulation.get(1)
                                       .previousDelay()
                                       .toMillis()
-                           );
+    );
     Assertions.assertEquals(20,
                             simulation.get(2)
                                       .previousDelay()
                                       .toMillis()
-                           );
+    );
     Assertions.assertEquals(200,
                             simulation.getLast()
                                       .cumulativeDelay()
                                       .toMillis()
-                           );
+    );
     Assertions.assertTrue(simulation.subList(3,
                                              simulation.size()
-                                            )
+    )
                                     .stream()
                                     .allMatch(rs -> rs.previousDelay()
                                                       .compareTo(tenMillis) == 0));

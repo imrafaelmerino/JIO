@@ -1,20 +1,18 @@
 package jio.mongodb;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.model.InsertOneOptions;
-import com.mongodb.client.result.InsertOneResult;
-import java.util.concurrent.Executors;
-import jio.IO;
-import jsonvalues.JsObj;
-
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.MongoOpEvent.OP.INSERT_ONE;
 
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.model.InsertOneOptions;
+import com.mongodb.client.result.InsertOneResult;
+import java.util.Objects;
+import java.util.function.Supplier;
+import jio.IO;
+import jsonvalues.JsObj;
+
 /**
- * A class for performing insert one operations on a MongoDB collection.
+ * A class for performing insert one operation on a MongoDB collection.
  * <p>
  * The `InsertOne` class is designed for inserting a single document into a MongoDB collection. It provides flexibility
  * in handling the result and allows you to specify various options for the insert operation. You can create instances
@@ -63,7 +61,6 @@ public final class InsertOne extends Op implements MongoLambda<JsObj, InsertOneR
     return this;
   }
 
-
   /**
    * Applies the insert one operation to the specified MongoDB collection with a `JsObj` document.
    *
@@ -75,20 +72,16 @@ public final class InsertOne extends Op implements MongoLambda<JsObj, InsertOneR
   public IO<InsertOneResult> apply(final ClientSession session,
                                    final JsObj message) {
     Objects.requireNonNull(message);
-    Supplier<InsertOneResult> supplier =
-        decorateWithEvent(() -> {
-                       var collection = requireNonNull(this.collection.get());
-                       return session == null ?
-                              collection.insertOne(message,
-                                                   options) :
-                              collection.insertOne(session,
-                                                   message,
-                                                   options);
-                     },
-                          INSERT_ONE
-                         );
-    return IO.lazy(supplier,
-                   Executors.newVirtualThreadPerTaskExecutor());
+    Supplier<InsertOneResult> supplier = decorateWithEvent(() -> {
+      var collection = requireNonNull(this.collection.get());
+      return session == null ? collection.insertOne(message,
+                                                    options) : collection.insertOne(session,
+                                                                                    message,
+                                                                                    options);
+    },
+                                                           INSERT_ONE
+    );
+    return IO.lazy(supplier);
   }
 
   /**

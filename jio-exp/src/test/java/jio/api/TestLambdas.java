@@ -12,8 +12,7 @@ public class TestLambdas {
   @Test
   public void test_lambda_lift() {
 
-    Lambda<String, String> fn =
-        Lambda.liftFunction(String::trim);
+    Lambda<String, String> fn = Lambda.liftFunction(String::trim);
 
     Assertions.assertEquals(new Success<>("hi"),
                             fn.apply("  hi  ")
@@ -25,14 +24,13 @@ public class TestLambdas {
                             p.apply(" ")
                              .get());
 
-
   }
 
   @Test
   public void test_bilambda_lift() {
 
-    BiLambda<String, String, String> fn =
-        BiLambda.<String, String, String>liftFunction((a, b) -> a + b);
+    BiLambda<String, String, String> fn = BiLambda.<String, String, String>liftFunction((a,
+                                                                                         b) -> a + b);
 
     Assertions.assertEquals(new Success<>("ab"),
                             fn.apply("a",

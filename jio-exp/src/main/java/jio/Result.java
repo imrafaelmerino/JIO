@@ -4,7 +4,6 @@ import java.util.concurrent.Callable;
 
 public sealed interface Result<Output> extends Callable<Output> permits Result.Success, Result.Failure {
 
-
   Result<Void> NULL = new Success<>(null);
   Result<Boolean> TRUE = new Success<>(true);
 
@@ -17,7 +16,6 @@ public sealed interface Result<Output> extends Callable<Output> permits Result.S
       case Failure<Output>(Exception exception) -> throw exception;
     };
   }
-
 
   record Success<Output>(Output value) implements Result<Output> {
 

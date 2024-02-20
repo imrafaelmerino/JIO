@@ -1,6 +1,5 @@
 package jio;
 
-
 import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
@@ -25,13 +24,12 @@ public final class EventBuilder<Output> {
   final String exp;
   final String context;
   Function<Output, String> successValue = val -> val == null ? "null" : val.toString();
-  Function<Throwable, String> failureMessage =
-      e -> ExceptionFun.findUltimateCause(e)
-                       .toString();
+  Function<Throwable, String> failureMessage = e -> ExceptionFun.findUltimateCause(e)
+                                                                .toString();
 
   private EventBuilder(final String exp,
                        final String context
-                      ) {
+  ) {
     this.exp = requireNonNull(exp);
     if (exp.isBlank() || exp.isEmpty()) {
       throw new IllegalArgumentException("exp must be a legible string");
@@ -49,7 +47,7 @@ public final class EventBuilder<Output> {
    */
   public static <Output> EventBuilder<Output> of(final String exp,
                                                  final String context
-                                                ) {
+  ) {
     return new EventBuilder<>(exp,
                               context);
   }
@@ -62,7 +60,7 @@ public final class EventBuilder<Output> {
    * @return a new {@code EventBuilder} instance
    */
   public static <O> EventBuilder<O> of(final String exp
-                                      ) {
+  ) {
     return EventBuilder.of(exp,
                            "");
   }

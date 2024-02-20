@@ -12,7 +12,6 @@ import java.util.function.Function;
 import jio.BiLambda;
 import jio.Lambda;
 
-
 /**
  * Represents a lambda that takes two arguments as inputs (some parameters and a connection) and produces an IO effect
  * that executes a JDBC statement, producing a result of type {@code Output}.
@@ -32,10 +31,11 @@ public interface ClosableStatement<Params, Output> extends BiLambda<Params, Conn
    * @return A new ClosableStatement representing the combined execution.
    */
   default <OtherOutput> ClosableStatement<Params, OtherOutput> then(ClosableStatement<Output, OtherOutput> other) {
-    return (params, connection) -> this.apply(params,
-                                              connection)
-                                       .then(output -> other.apply(output,
-                                                                   connection));
+    return (params,
+            connection) -> this.apply(params,
+                                      connection)
+                               .then(output -> other.apply(output,
+                                                           connection));
   }
 
   /**
@@ -47,9 +47,10 @@ public interface ClosableStatement<Params, Output> extends BiLambda<Params, Conn
    * @return A new ClosableStatement representing the combined execution.
    */
   default <OtherOutput> ClosableStatement<Params, OtherOutput> then(Lambda<Output, OtherOutput> other) {
-    return (params, connection) -> this.apply(params,
-                                              connection)
-                                       .then(other);
+    return (params,
+            connection) -> this.apply(params,
+                                      connection)
+                               .then(other);
   }
 
   /**
@@ -60,9 +61,10 @@ public interface ClosableStatement<Params, Output> extends BiLambda<Params, Conn
    * @return A new ClosableStatement with the mapped success output.
    */
   default <OtherOutput> ClosableStatement<Params, OtherOutput> map(Function<Output, OtherOutput> successMap) {
-    return (params, connection) -> this.apply(params,
-                                              connection)
-                                       .map(successMap);
+    return (params,
+            connection) -> this.apply(params,
+                                      connection)
+                               .map(successMap);
   }
 
   /**
@@ -71,11 +73,11 @@ public interface ClosableStatement<Params, Output> extends BiLambda<Params, Conn
    * @param failureMap The Function to map the failure.
    * @return A new ClosableStatement with the mapped failure.
    */
-  default ClosableStatement<Params, Output> mapFailure(Function<Throwable, Throwable> failureMap) {
-    return (params, connection) -> this.apply(params,
-                                              connection)
-                                       .mapFailure(failureMap);
+  default ClosableStatement<Params, Output> mapFailure(Function<Exception, Exception> failureMap) {
+    return (params,
+            connection) -> this.apply(params,
+                                      connection)
+                               .mapFailure(failureMap);
   }
-
 
 }

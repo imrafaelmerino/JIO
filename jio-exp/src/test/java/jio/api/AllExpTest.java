@@ -26,24 +26,21 @@ public class AllExpTest {
     Assertions.assertEquals(Result.FALSE,
                             allIsFalse.get());
 
-
   }
 
   @Test
   public void parallel_constructor() {
 
-    var allIsTrue =
-        AllExp.par(AllExp.par(IO.TRUE,
-                              IO.TRUE),
-                   IO.TRUE);
+    var allIsTrue = AllExp.par(AllExp.par(IO.TRUE,
+                                          IO.TRUE),
+                               IO.TRUE);
 
     Assertions.assertEquals(Result.TRUE,
                             allIsTrue.get());
 
-    var allIsFalse =
-        AllExp.par(AllExp.par(IO.TRUE,
-                              IO.TRUE),
-                   IO.FALSE);
+    var allIsFalse = AllExp.par(AllExp.par(IO.TRUE,
+                                           IO.TRUE),
+                                IO.FALSE);
 
     Assertions.assertEquals(Result.FALSE,
                             allIsFalse.get());
@@ -53,13 +50,13 @@ public class AllExpTest {
   public void test_debug_each() {
     var exp = AllExp.par(IO.TRUE,
                          IO.TRUE
-                        )
+    )
                     .debugEach("context")
                     .get();
 
     Assertions.assertEquals(Result.TRUE,
                             exp
-                           );
+    );
 
   }
 

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-
 /**
  * A RetryPolicy is a function that takes a RetryStatus and possibly returns the duration of the delay to wait before
  * the next try.
@@ -46,9 +45,7 @@ public interface RetryPolicy extends Function<RetryStatus, Duration> {
       if (bDelay == null) {
         return null;
       }
-      return aDelay.compareTo(bDelay) >= 0 ?
-             aDelay :
-             bDelay;
+      return aDelay.compareTo(bDelay) >= 0 ? aDelay : bDelay;
     };
   }
 
@@ -82,9 +79,7 @@ public interface RetryPolicy extends Function<RetryStatus, Duration> {
       if (delay == null) {
         return null;
       }
-      return delay.compareTo(cap) >= 0 ?
-             cap :
-             delay;
+      return delay.compareTo(cap) >= 0 ? cap : delay;
     };
 
   }
@@ -103,9 +98,7 @@ public interface RetryPolicy extends Function<RetryStatus, Duration> {
       if (delay == null) {
         return null;
       }
-      return delay.compareTo(max) >= 0 ?
-             null :
-             delay;
+      return delay.compareTo(max) >= 0 ? null : delay;
     };
   }
 

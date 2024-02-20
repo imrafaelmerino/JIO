@@ -31,7 +31,7 @@ public final class MultipartForm {
   public static String createContentTypeHeader(final String boundary) {
     return String.format("multipart/form-data; boundary=%s",
                          Objects.requireNonNull(boundary)
-                        );
+    );
   }
 
   /**
@@ -48,7 +48,7 @@ public final class MultipartForm {
   public static String createBody(final Map<String, String> fields,
                                   final Map<String, File> files,
                                   final String boundary
-                                 ) throws UncheckedIOException {
+  ) throws UncheckedIOException {
     try {
 
       StringBuilder builder = new StringBuilder();
@@ -81,8 +81,8 @@ public final class MultipartForm {
                .append("\"\r\n")
                .append("\r\n")
                .append(
-                   Files.readString(file.getValue()
-                                        .toPath()))
+                       Files.readString(file.getValue()
+                                            .toPath()))
                .append("\r\n");
       }
 

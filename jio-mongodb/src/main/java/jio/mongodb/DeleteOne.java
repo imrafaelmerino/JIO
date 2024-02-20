@@ -1,20 +1,17 @@
 package jio.mongodb;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.model.DeleteOptions;
-import com.mongodb.client.result.DeleteResult;
-import java.util.concurrent.Executors;
-import jio.IO;
-import jsonvalues.JsObj;
-import org.bson.conversions.Bson;
-
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.Converters.toBson;
 import static jio.mongodb.MongoOpEvent.OP.DELETE_ONE;
 
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.model.DeleteOptions;
+import com.mongodb.client.result.DeleteResult;
+import java.util.Objects;
+import java.util.function.Supplier;
+import jio.IO;
+import jsonvalues.JsObj;
+import org.bson.conversions.Bson;
 
 /**
  * Represents an operation to delete a single document from a MongoDB collection. This class provides flexibility in
@@ -68,7 +65,6 @@ public final class DeleteOne extends Op implements MongoLambda<JsObj, DeleteResu
     return this;
   }
 
-
   /**
    * Applies the delete one operation to the specified MongoDB collection using the provided query and options.
    *
@@ -80,21 +76,17 @@ public final class DeleteOne extends Op implements MongoLambda<JsObj, DeleteResu
   public IO<DeleteResult> apply(final ClientSession session,
                                 final JsObj query) {
     Objects.requireNonNull(query);
-    Supplier<DeleteResult> supplier =
-        decorateWithEvent(() -> {
-                       var collection = requireNonNull(this.collection.get());
-                       final Bson result = toBson(requireNonNull(query));
-                       return session == null ?
-                              collection.deleteOne(result,
-                                                   options) :
-                              collection.deleteOne(session,
-                                                   result,
-                                                   options);
-                     },
-                          DELETE_ONE
-                         );
-    return IO.lazy(supplier,
-                   Executors.newVirtualThreadPerTaskExecutor());
+    Supplier<DeleteResult> supplier = decorateWithEvent(() -> {
+      var collection = requireNonNull(this.collection.get());
+      final Bson result = toBson(requireNonNull(query));
+      return session == null ? collection.deleteOne(result,
+                                                    options) : collection.deleteOne(session,
+                                                                                    result,
+                                                                                    options);
+    },
+                                                        DELETE_ONE
+    );
+    return IO.lazy(supplier);
   }
 
   /**

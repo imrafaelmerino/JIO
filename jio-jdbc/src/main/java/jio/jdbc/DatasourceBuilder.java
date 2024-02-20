@@ -60,7 +60,7 @@ public final class DatasourceBuilder implements Supplier<DataSource> {
   public DatasourceBuilder(final String user,
                            final byte[] sec,
                            final String url
-                          ) {
+  ) {
     this.user = Objects.requireNonNull(user);
     this.sec = Objects.requireNonNull(sec);
     this.url = Objects.requireNonNull(url);

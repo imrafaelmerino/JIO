@@ -15,7 +15,7 @@ import static java.util.Objects.requireNonNull;
  * You can create PairExp expressions using the 'seq' method to evaluate effects sequentially, or using the 'par' method
  * to evaluate effects in parallel. If one effect fails, the entire expression fails.
  *
- * @param <First> the type of the first computation
+ * @param <First>  the type of the first computation
  * @param <Second> the type of the second computation
  */
 public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Second>> permits PairExpSeq, PairExpPar {
@@ -43,7 +43,7 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
    */
   public static <A, B> PairExp<A, B> seq(final IO<A> first,
                                          final IO<B> second
-                                        ) {
+  ) {
     return new PairExpSeq<>(requireNonNull(first),
                             requireNonNull(second),
                             null
@@ -62,7 +62,7 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
    */
   public static <A, B> PairExp<A, B> par(final IO<A> first,
                                          final IO<B> second
-                                        ) {
+  ) {
     return new PairExpPar<>(requireNonNull(first),
                             requireNonNull(second),
                             null
@@ -87,12 +87,10 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
     return _2;
   }
 
-
   @Override
   public abstract PairExp<First, Second> retryEach(final Predicate<? super Throwable> predicate,
                                                    final RetryPolicy policy
-                                                  );
-
+  );
 
   @Override
   public PairExp<First, Second> retryEach(final RetryPolicy policy) {
@@ -100,14 +98,11 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
                      policy);
   }
 
-
   @Override
   public abstract PairExp<First, Second> debugEach(final EventBuilder<Pair<First, Second>> messageBuilder
-                                                  );
-
+  );
 
   @Override
   public abstract PairExp<First, Second> debugEach(final String context);
-
 
 }

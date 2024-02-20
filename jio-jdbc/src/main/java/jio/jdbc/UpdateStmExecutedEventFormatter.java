@@ -40,7 +40,6 @@ public final class UpdateStmExecutedEventFormatter implements Function<RecordedE
       update-counter: %s""".replace("\n",
                                     " ");
 
-
   private UpdateStmExecutedEventFormatter() {
 
   }
@@ -62,23 +61,21 @@ public final class UpdateStmExecutedEventFormatter implements Function<RecordedE
     var label = event.getValue(UpdateStmExecutedEvent.LABEL_FIELD);
     boolean isSuccess = UpdateStmExecutedEvent.RESULT.SUCCESS.name()
                                                              .equals(result);
-    return isSuccess ?
-           String.format(SUCCESS_FORMAT,
-                         event.getStartTime(),
-                         label,
-                         result,
-                         event.getValue(UpdateStmExecutedEvent.ROWS_AFFECTED_FIELD),
-                         Fun.formatTime(event.getDuration()),
-                         event.getValue(UpdateStmExecutedEvent.UPDATE_COUNTER_FIELD)
-                        ) :
-           String.format(FAILURE_FORMAT,
-                         event.getStartTime(),
-                         label,
-                         result,
-                         event.getValue(UpdateStmExecutedEvent.EXCEPTION_FIELD),
-                         Fun.formatTime(event.getDuration()),
-                         event.getValue(UpdateStmExecutedEvent.SQL_FIELD),
-                         event.getValue(UpdateStmExecutedEvent.UPDATE_COUNTER_FIELD)
-                        );
+    return isSuccess ? String.format(SUCCESS_FORMAT,
+                                     event.getStartTime(),
+                                     label,
+                                     result,
+                                     event.getValue(UpdateStmExecutedEvent.ROWS_AFFECTED_FIELD),
+                                     Fun.formatTime(event.getDuration()),
+                                     event.getValue(UpdateStmExecutedEvent.UPDATE_COUNTER_FIELD)
+    ) : String.format(FAILURE_FORMAT,
+                      event.getStartTime(),
+                      label,
+                      result,
+                      event.getValue(UpdateStmExecutedEvent.EXCEPTION_FIELD),
+                      Fun.formatTime(event.getDuration()),
+                      event.getValue(UpdateStmExecutedEvent.SQL_FIELD),
+                      event.getValue(UpdateStmExecutedEvent.UPDATE_COUNTER_FIELD)
+    );
   }
 }

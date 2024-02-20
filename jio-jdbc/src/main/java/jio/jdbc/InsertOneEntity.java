@@ -3,7 +3,6 @@ package jio.jdbc;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.Duration;
-import java.util.concurrent.Executors;
 import java.util.function.Function;
 import jio.IO;
 import jio.Lambda;
@@ -77,35 +76,33 @@ final class InsertOneEntity<Params, Output> {
    * @see #buildClosable() for using insert statements during transactions
    */
   Lambda<Params, Output> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
-    return params ->
-        IO.task(() -> JfrEventDecorator.decorateInsertOneStm(
-                    () -> {
-                      try (var connection = datasourceBuilder.get()
-                                                             .getConnection()
-                      ) {
-                        try (var ps = connection.prepareStatement(sql,
-                                                                  Statement.RETURN_GENERATED_KEYS)
-                        ) {
-                          ps.setQueryTimeout((int) timeout.toSeconds());
-                          int unused = setter.apply(params)
-                                             .apply(ps);
-                          assert unused > 0;
-                          int numRowsAffected = ps.executeUpdate();
-                          assert numRowsAffected >= 0;
-                          try (ResultSet resultSet = ps.getGeneratedKeys()) {
-                            if (resultSet.next()) {
-                              return mapResult.apply(params)
-                                              .apply(resultSet);
-                            }
-                            throw new ColumnNotGeneratedException(sql);
-                          }
-                        }
-                      }
-                    },
-                    sql,
-                    enableJFR,
-                    label),
-                Executors.newVirtualThreadPerTaskExecutor());
+    return params -> IO.task(() -> JfrEventDecorator.decorateInsertOneStm(
+                                                                          () -> {
+                                                                            try (var connection = datasourceBuilder.get()
+                                                                                                                   .getConnection()
+                                                                            ) {
+                                                                              try (var ps = connection.prepareStatement(sql,
+                                                                                                                        Statement.RETURN_GENERATED_KEYS)
+                                                                              ) {
+                                                                                ps.setQueryTimeout((int) timeout.toSeconds());
+                                                                                int unused = setter.apply(params)
+                                                                                                   .apply(ps);
+                                                                                assert unused > 0;
+                                                                                int numRowsAffected = ps.executeUpdate();
+                                                                                assert numRowsAffected >= 0;
+                                                                                try (ResultSet resultSet = ps.getGeneratedKeys()) {
+                                                                                  if (resultSet.next()) {
+                                                                                    return mapResult.apply(params)
+                                                                                                    .apply(resultSet);
+                                                                                  }
+                                                                                  throw new ColumnNotGeneratedException(sql);
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          sql,
+                                                                          enableJFR,
+                                                                          label));
   }
 
   /**
@@ -115,33 +112,32 @@ final class InsertOneEntity<Params, Output> {
    * an output object
    *
    * @return A {@code ClosableStatement} representing the insert statement. Note: The operations are performed by
-   * virtual threads.
+   *         virtual threads.
    */
   ClosableStatement<Params, Output> buildClosable() {
-    return (params, connection) ->
-        IO.task(() -> JfrEventDecorator.decorateInsertOneStm(
-                    () -> {
-                      try (var ps = connection.prepareStatement(sql,
-                                                                Statement.RETURN_GENERATED_KEYS)
-                      ) {
-                        ps.setQueryTimeout((int) timeout.toSeconds());
-                        int unused = setter.apply(params)
-                                           .apply(ps);
-                        assert unused > 0;
-                        int numRowsAffected = ps.executeUpdate();
-                        assert numRowsAffected == 1;
-                        try (ResultSet resultSet = ps.getGeneratedKeys()) {
-                          if (resultSet.next()) {
-                            return mapResult.apply(params)
-                                            .apply(resultSet);
-                          }
-                          throw new ColumnNotGeneratedException(sql);
-                        }
-                      }
-                    },
-                    sql,
-                    enableJFR,
-                    label),
-                Executors.newVirtualThreadPerTaskExecutor());
+    return (params,
+            connection) -> IO.task(() -> JfrEventDecorator.decorateInsertOneStm(
+                                                                                () -> {
+                                                                                  try (var ps = connection.prepareStatement(sql,
+                                                                                                                            Statement.RETURN_GENERATED_KEYS)
+                                                                                  ) {
+                                                                                    ps.setQueryTimeout((int) timeout.toSeconds());
+                                                                                    int unused = setter.apply(params)
+                                                                                                       .apply(ps);
+                                                                                    assert unused > 0;
+                                                                                    int numRowsAffected = ps.executeUpdate();
+                                                                                    assert numRowsAffected == 1;
+                                                                                    try (ResultSet resultSet = ps.getGeneratedKeys()) {
+                                                                                      if (resultSet.next()) {
+                                                                                        return mapResult.apply(params)
+                                                                                                        .apply(resultSet);
+                                                                                      }
+                                                                                      throw new ColumnNotGeneratedException(sql);
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                sql,
+                                                                                enableJFR,
+                                                                                label));
   }
 }

@@ -40,7 +40,6 @@ public final class EntitiesFoundEventFormatter implements Function<RecordedEvent
       sql: %s; query-counter: %s""".replace("\n",
                                             " ");
 
-
   private EntitiesFoundEventFormatter() {
 
   }
@@ -63,26 +62,24 @@ public final class EntitiesFoundEventFormatter implements Function<RecordedEvent
     var fetchSize = event.getValue(EntitiesFoundEvent.FETCH_SIZE_FIELD);
     boolean isSuccess = EntitiesFoundEvent.RESULT.SUCCESS.name()
                                                          .equals(result);
-    return isSuccess ?
-           String.format(SUCCESS_FORMAT,
-                         event.getStartTime(),
-                         label,
-                         result,
-                         event.getValue(EntitiesFoundEvent.ROWS_RETURNED_FIELD),
-                         Fun.formatTime(event.getDuration()),
-                         fetchSize,
-                         event.getValue(EntitiesFoundEvent.QUERY_COUNTER_FIELD)
+    return isSuccess ? String.format(SUCCESS_FORMAT,
+                                     event.getStartTime(),
+                                     label,
+                                     result,
+                                     event.getValue(EntitiesFoundEvent.ROWS_RETURNED_FIELD),
+                                     Fun.formatTime(event.getDuration()),
+                                     fetchSize,
+                                     event.getValue(EntitiesFoundEvent.QUERY_COUNTER_FIELD)
 
-                        ) :
-           String.format(FAILURE_FORMAT,
-                         event.getStartTime(),
-                         label,
-                         result,
-                         event.getValue(EntitiesFoundEvent.EXCEPTION_FIELD),
-                         Fun.formatTime(event.getDuration()),
-                         fetchSize,
-                         event.getValue(EntitiesFoundEvent.SQL_FIELD),
-                         event.getValue(EntitiesFoundEvent.QUERY_COUNTER_FIELD)
-                        );
+    ) : String.format(FAILURE_FORMAT,
+                      event.getStartTime(),
+                      label,
+                      result,
+                      event.getValue(EntitiesFoundEvent.EXCEPTION_FIELD),
+                      Fun.formatTime(event.getDuration()),
+                      fetchSize,
+                      event.getValue(EntitiesFoundEvent.SQL_FIELD),
+                      event.getValue(EntitiesFoundEvent.QUERY_COUNTER_FIELD)
+    );
   }
 }

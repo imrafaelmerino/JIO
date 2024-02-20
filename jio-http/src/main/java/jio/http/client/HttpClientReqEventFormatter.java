@@ -17,11 +17,11 @@ import jio.time.Fun;
  * </p>
  *
  * <p>
- * The formatted output for a successful event is: "{@link  #SUCCESS_FORMAT}".
+ * The formatted output for a successful event is: "{@link #SUCCESS_FORMAT}".
  * </p>
  *
  * <p>
- * The formatted output for an event with an exception is: "{@link  #FAILURE_FORMAT}".
+ * The formatted output for an event with an exception is: "{@link #FAILURE_FORMAT}".
  * </p>
  *
  * <p>
@@ -38,13 +38,12 @@ public final class HttpClientReqEventFormatter implements Function<RecordedEvent
    * The singleton instance of HttpClientEventFormatter.
    */
   public static final HttpClientReqEventFormatter INSTANCE = new HttpClientReqEventFormatter();
-  private static final String SUCCESS_FORMAT =
-      """
-          event: http-req; method: %s; host: %s; path: %s;
-          result: %s; status-code: %s; duration: %s;
-          req-counter: %s; start_time: %s
-          """.replace("\n",
-                      " ");
+  private static final String SUCCESS_FORMAT = """
+      event: http-req; method: %s; host: %s; path: %s;
+      result: %s; status-code: %s; duration: %s;
+      req-counter: %s; start_time: %s
+      """.replace("\n",
+                  " ");
   private static final String FAILURE_FORMAT = """
       event: http-req; method: %s; host: %s; path: %s;
       result: %s; exception: %s; duration: %s;
@@ -88,7 +87,7 @@ public final class HttpClientReqEventFormatter implements Function<RecordedEvent
                            Fun.formatTime(event.getDuration()),
                            event.getValue(REQ_COUNTER_FIELD),
                            event.getStartTime()
-                          );
+      );
     }
     return String.format(FAILURE_FORMAT,
                          event.getValue(METHOD_FIELD),
@@ -99,7 +98,7 @@ public final class HttpClientReqEventFormatter implements Function<RecordedEvent
                          Fun.formatTime(event.getDuration()),
                          event.getValue(REQ_COUNTER_FIELD),
                          event.getStartTime()
-                        );
+    );
 
   }
 }

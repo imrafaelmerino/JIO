@@ -20,7 +20,6 @@ import jdk.jfr.StackTrace;
 
 final class EntitiesFoundEvent extends Event {
 
-
   static final String QUERY_COUNTER_FIELD = "queryCounter";
   static final String ROWS_RETURNED_FIELD = "rowsReturned";
   static final String FETCH_SIZE_FIELD = "fetchSize";

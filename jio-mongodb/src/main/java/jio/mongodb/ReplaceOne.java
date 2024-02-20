@@ -1,17 +1,15 @@
 package jio.mongodb;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.model.ReplaceOptions;
-import com.mongodb.client.result.UpdateResult;
-import java.util.concurrent.Executors;
-import jio.IO;
-
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.Converters.toBson;
 import static jio.mongodb.MongoOpEvent.OP.REPLACE_ONE;
+
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.model.ReplaceOptions;
+import com.mongodb.client.result.UpdateResult;
+import java.util.Objects;
+import java.util.function.Supplier;
+import jio.IO;
 
 /**
  * A class for performing replace one operations on a MongoDB collection.
@@ -78,21 +76,18 @@ public final class ReplaceOne extends Op implements MongoLambda<QueryReplace, Up
     Objects.requireNonNull(queryReplace);
 
     Supplier<UpdateResult> supplier = decorateWithEvent(() -> {
-                                                     var collection = requireNonNull(this.collection.get());
-                                                     return session == null ?
-                                                            collection.replaceOne(toBson(queryReplace.query()),
-                                                                                  queryReplace.newDoc(),
-                                                                                  options
-                                                                                 ) :
-                                                            collection.replaceOne(session,
-                                                                                  toBson(queryReplace.query()),
-                                                                                  queryReplace.newDoc(),
-                                                                                  options
-                                                                                 );
-                                                   },
+      var collection = requireNonNull(this.collection.get());
+      return session == null ? collection.replaceOne(toBson(queryReplace.query()),
+                                                     queryReplace.newDoc(),
+                                                     options
+      ) : collection.replaceOne(session,
+                                toBson(queryReplace.query()),
+                                queryReplace.newDoc(),
+                                options
+      );
+    },
                                                         REPLACE_ONE);
-    return IO.lazy(supplier,
-                   Executors.newVirtualThreadPerTaskExecutor());
+    return IO.lazy(supplier);
   }
 
   /**

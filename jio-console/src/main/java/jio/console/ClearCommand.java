@@ -25,7 +25,7 @@ class ClearCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
+  ) {
     return tokens -> {
       int nArgs = tokens.length - 1;
       if (nArgs > 1) {

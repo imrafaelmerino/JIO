@@ -16,8 +16,9 @@ import java.util.Objects;
  * </p>
  *
  * <ul>
- *     <li>{@link #of(Savepoint, Object)}: Creates a new instance without a specific cause.</li>
- *     <li>{@link #of(Savepoint, Object, Throwable)}: Creates a new instance with a specified cause (typically an exception).</li>
+ * <li>{@link #of(Savepoint, Object)}: Creates a new instance without a specific cause.</li>
+ * <li>{@link #of(Savepoint, Object, Throwable)}: Creates a new instance with a specified cause (typically an
+ * exception).</li>
  * </ul>
  */
 @SuppressWarnings("serial")

@@ -47,7 +47,7 @@ public final class EvalExpEventFormatter implements Function<RecordedEvent, Stri
       event: eval-exp; exp: %s; result: %s;
       output: %s; duration: %s; context: %s;
       start_time: %s""".replace("\n",
-                                                       " ");
+                                " ");
   private static final String EVENT_NAME = "jio.exp.EvalExp";
 
   /**
@@ -68,20 +68,18 @@ public final class EvalExpEventFormatter implements Function<RecordedEvent, Stri
   @Override
   public String apply(RecordedEvent event) {
     assert event.getEventType()
-            .getName()
-            .equals(EVENT_NAME);
+                .getName()
+                .equals(EVENT_NAME);
     var result = event.getValue(RESULT_FIELD);
     boolean isSuccess = RESULT.SUCCESS.name()
                                       .equals(result);
     return String.format(FORMAT,
                          event.getValue(EXP_FIELD),
                          event.getValue(RESULT_FIELD),
-                         isSuccess ?
-                         formatOutput.apply(event.getValue(VALUE_FIELD)) :
-                         event.getValue(EXCEPTION_FIELD),
+                         isSuccess ? formatOutput.apply(event.getValue(VALUE_FIELD)) : event.getValue(EXCEPTION_FIELD),
                          jio.time.Fun.formatTime(event.getDuration()),
                          event.getValue(CONTEXT_FIELD),
                          event.getStartTime()
-                        );
+    );
   }
 }

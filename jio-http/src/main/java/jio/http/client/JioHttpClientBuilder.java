@@ -26,7 +26,6 @@ public final class JioHttpClientBuilder implements Supplier<JioHttpClient> {
   private RetryPolicy reqRetryPolicy;
   private boolean recordEvents = true;
 
-
   private JioHttpClientBuilder(HttpClient.Builder builder) {
 
     //since we don't use `sendAsync` method we don't need an executor. Turns out that the java API
@@ -42,7 +41,6 @@ public final class JioHttpClientBuilder implements Supplier<JioHttpClient> {
              }
            }));
   }
-
 
   /**
    * Constructs a JioHttpClientBuilder with the specified HTTP client.
@@ -92,7 +90,6 @@ public final class JioHttpClientBuilder implements Supplier<JioHttpClient> {
     return this;
   }
 
-
   /**
    * Creates a new instance of JioHttpClient with the configured options.
    *
@@ -108,6 +105,5 @@ public final class JioHttpClientBuilder implements Supplier<JioHttpClient> {
                                  recordEvents
     );
   }
-
 
 }

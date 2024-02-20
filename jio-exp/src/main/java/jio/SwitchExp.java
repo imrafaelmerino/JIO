@@ -1,6 +1,5 @@
 package jio;
 
-
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
             final List<Lambda<Input, Output>> lambdas,
             final Lambda<Input, Output> otherwise,
             final Function<EvalExpEvent, BiConsumer<Output, Throwable>> debugger
-           ) {
+  ) {
     super(debugger);
     this.val = val;
     this.predicates = predicates;
@@ -69,22 +68,19 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
                                                     List<Lambda<Input, Output>> lambdas,
                                                     Lambda<Input, Output> otherwise,
                                                     int condTestedSoFar
-                                                   ) {
+  ) {
     if (condTestedSoFar == tests.size()) {
       return otherwise.apply(input)
                       .get();
     }
     return tests.get(condTestedSoFar)
-                .test(input) ?
-           lambdas.get(condTestedSoFar)
-                  .apply(input)
-                  .get() :
-           get(input,
-               tests,
-               lambdas,
-               otherwise,
-               condTestedSoFar + 1);
-
+                .test(input) ? lambdas.get(condTestedSoFar)
+                                      .apply(input)
+                                      .get() : get(input,
+                                                   tests,
+                                                   lambdas,
+                                                   otherwise,
+                                                   condTestedSoFar + 1);
 
   }
 
@@ -97,7 +93,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
                            lambdas,
                            otherwise,
                            0
-                          );
+      );
     } catch (Exception e) {
       return new Failure<>(e);
     }
@@ -114,7 +110,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
   @Override
   public SwitchExp<Input, Output> retryEach(final Predicate<? super Throwable> predicate,
                                             final RetryPolicy policy
-                                           ) {
+  ) {
     requireNonNull(predicate);
     requireNonNull(policy);
     return new SwitchExp<>(val.retry(predicate,
@@ -131,28 +127,26 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
     );
   }
 
-
   @Override
   public SwitchExp<Input, Output> debugEach(final EventBuilder<Output> eventBuilder
-                                           ) {
+  ) {
     return new SwitchExp<>(DebuggerHelper.debugIO(val,
                                                   "%s-eval".formatted(eventBuilder.exp),
                                                   eventBuilder.context
-                                                 ),
+    ),
                            predicates,
                            DebuggerHelper.debugLambdas(lambdas,
                                                        "%s-branch".formatted(eventBuilder.exp),
                                                        eventBuilder.context
-                                                      ),
+                           ),
                            DebuggerHelper.debugLambda(otherwise,
                                                       "%s-otherwise".formatted(eventBuilder.exp),
                                                       eventBuilder.context
-                                                     ),
+                           ),
                            getJFRPublisher(eventBuilder)
 
     );
   }
-
 
   @Override
   public SwitchExp<Input, Output> retryEach(final RetryPolicy policy) {
@@ -160,13 +154,11 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
                      policy);
   }
 
-
   @Override
   public SwitchExp<Input, Output> debugEach(final String context) {
     return debugEach(EventBuilder.of(this.getClass()
                                          .getSimpleName(),
                                      context));
-
 
   }
 

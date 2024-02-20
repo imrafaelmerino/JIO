@@ -23,7 +23,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
 
   ListExp(List<IO<Elem>> list,
           Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
-         ) {
+  ) {
     super(debugger);
     this.list = list;
   }
@@ -52,7 +52,8 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
 
       @Override
       public BinaryOperator<List<IO<O>>> combiner() {
-        return (a, b) -> {
+        return (a,
+                b) -> {
           a.addAll(b);
           return b;
         };
@@ -94,7 +95,8 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
 
       @Override
       public BinaryOperator<List<IO<O>>> combiner() {
-        return (a, b) -> {
+        return (a,
+                b) -> {
           a.addAll(b);
           return b;
         };
@@ -111,7 +113,6 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
       }
     };
   }
-
 
   /**
    * Creates a ListExp from a list of effects that will be evaluated sequentially. If one fails, the whole expression
@@ -135,7 +136,6 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
     return new ListExpSeq<>(list,
                             null);
   }
-
 
   /**
    * Creates a ListExp from a list of effects that will be evaluated in parallel. If one fails, the whole expression
@@ -189,7 +189,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
                                                        .map(Supplier::get)
                                                        .toArray(CompletableFuture[]::new))
                                             .thenApply(it -> ((Elem) it))
-                    );
+    );
   }
 
   /**
@@ -217,12 +217,10 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
    */
   public abstract ListExp<Elem> tail();
 
-
   @Override
   public abstract ListExp<Elem> retryEach(final Predicate<? super Throwable> predicate,
                                           final RetryPolicy policy
-                                         );
-
+  );
 
   @Override
   public ListExp<Elem> retryEach(final RetryPolicy policy) {
@@ -230,10 +228,9 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
                      policy);
   }
 
-
   @Override
   public abstract ListExp<Elem> debugEach(final EventBuilder<List<Elem>> messageBuilder
-                                         );
+  );
 
   @Override
   public abstract ListExp<Elem> debugEach(final String context);

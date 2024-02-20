@@ -13,7 +13,7 @@ public enum ControlChars {
   /**
    * removes any active control sequence. Classical use to stop printing in some color:
    * <pre>
-   *      System.out.println(RED + "printing in read" + RESET + "printing back in black")
+   * System.out.println(RED + "printing in read" + RESET + "printing back in black")
    * </pre>
    */
   RESET("\u001b[0m"),

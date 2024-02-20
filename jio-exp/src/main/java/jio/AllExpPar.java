@@ -15,33 +15,31 @@ import jio.Result.Success;
 
 final class AllExpPar extends AllExp {
 
-
   public AllExpPar(final List<IO<Boolean>> exps,
                    final Function<EvalExpEvent, BiConsumer<Boolean, Throwable>> debugger
-                  ) {
+  ) {
     super(
-        debugger,
-        exps
-         );
+          debugger,
+          exps
+    );
   }
 
   @Override
   public AllExp retryEach(
-      final Predicate<? super Throwable> predicate,
-      final RetryPolicy policy
-                         ) {
+                          final Predicate<? super Throwable> predicate,
+                          final RetryPolicy policy
+  ) {
     requireNonNull(predicate);
     requireNonNull(policy);
     return new AllExpPar(
-        exps.stream()
-            .map(it -> it.retry(predicate,
-                                policy
-                               ))
-            .toList(),
-        jfrPublisher
+                         exps.stream()
+                             .map(it -> it.retry(predicate,
+                                                 policy
+                             ))
+                             .toList(),
+                         jfrPublisher
     );
   }
-
 
   @Override
   Result<Boolean> reduceExp() {
@@ -61,13 +59,12 @@ final class AllExpPar extends AllExp {
     }
   }
 
-
   @Override
   public AllExp debugEach(final EventBuilder<Boolean> builder) {
     Objects.requireNonNull(builder);
     return new AllExpPar(DebuggerHelper.debugConditions(exps,
                                                         builder
-                                                       ),
+    ),
                          getJFRPublisher(builder)
     );
   }
@@ -77,9 +74,8 @@ final class AllExpPar extends AllExp {
     return debugEach(EventBuilder.of(this.getClass()
                                          .getSimpleName(),
                                      context
-                                    ));
+    ));
 
   }
-
 
 }

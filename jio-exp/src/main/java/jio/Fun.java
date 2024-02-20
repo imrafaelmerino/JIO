@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 /**
  * Class with handy functions for development with jio
  */
- final class Fun {
+final class Fun {
 
   private Fun() {
   }
@@ -26,6 +26,5 @@ import java.util.function.Supplier;
     event.expression = exp;
     event.commit();
   }
-
 
 }

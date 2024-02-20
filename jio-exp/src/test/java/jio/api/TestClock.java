@@ -33,18 +33,16 @@ public class TestClock {
     Assertions.assertEquals(0,
                             Duration.between(Instant.ofEpochMilli(realTime.get()),
                                              Instant.now()
-                                            )
+                            )
                                     .toDays()
-                           );
+    );
     Assertions.assertEquals(0,
                             Duration.between(Instant.ofEpochMilli(realTime.get()),
                                              Instant.now()
-                                            )
+                            )
                                     .toHours()
-                           );
-
+    );
 
   }
-
 
 }

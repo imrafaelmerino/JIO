@@ -11,12 +11,11 @@ import java.util.function.Predicate;
 import jio.Result.Failure;
 import jio.Result.Success;
 
-
 final class AnyExpPar extends AnyExp {
 
   public AnyExpPar(final List<IO<Boolean>> exps,
                    final Function<EvalExpEvent, BiConsumer<Boolean, Throwable>> debugger
-                  ) {
+  ) {
     super(debugger,
           exps);
   }
@@ -24,13 +23,13 @@ final class AnyExpPar extends AnyExp {
   @Override
   public AnyExp retryEach(final Predicate<? super Throwable> predicate,
                           final RetryPolicy policy
-                         ) {
+  ) {
     Objects.requireNonNull(predicate);
     Objects.requireNonNull(policy);
     return new AnyExpPar(exps.stream()
                              .map(it -> it.retry(predicate,
                                                  policy
-                                                ))
+                             ))
                              .toList(),
                          jfrPublisher
     );
@@ -59,11 +58,10 @@ final class AnyExpPar extends AnyExp {
     Objects.requireNonNull(eventBuilder);
     return new AnyExpPar(DebuggerHelper.debugConditions(exps,
                                                         eventBuilder
-                                                       ),
+    ),
                          getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public AnyExp debugEach(final String context) {

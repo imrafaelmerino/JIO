@@ -29,7 +29,7 @@ class Base64EncodeCommand extends Command {
               Examples:
                   $command hi! i'll be encoded into base 64""".replace("$command",
                                                                        COMMAND_NAME)
-         );
+    );
   }
 
   private static IO<String> encode(String text) {
@@ -39,13 +39,13 @@ class Base64EncodeCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
+  ) {
     return tokens -> {
       int nTokens = tokens.length;
-        if (nTokens == 1) {
-            return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type the text"))
-                           .then(Base64EncodeCommand::encode);
-        }
+      if (nTokens == 1) {
+        return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type the text"))
+                       .then(Base64EncodeCommand::encode);
+      }
       return encode(Functions.joinTail(tokens));
     };
   }

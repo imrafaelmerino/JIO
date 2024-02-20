@@ -2,7 +2,6 @@ package jio.http.server;
 
 import jdk.jfr.*;
 
-
 @Label("jio-httpserver-req")
 @Name("jio.http.server.Req")
 @Category({"JIO", "HTTP"})

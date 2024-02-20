@@ -9,7 +9,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-
 final class Functions {
 
   private Functions() {
@@ -26,11 +25,10 @@ final class Functions {
       }
     }
   };
-  static final Function<String[], List<String>> tail =
-      tokens -> Arrays.stream(tokens)
-                      .toList()
-                      .subList(1,
-                               tokens.length);
+  static final Function<String[], List<String>> tail = tokens -> Arrays.stream(tokens)
+                                                                       .toList()
+                                                                       .subList(1,
+                                                                                tokens.length);
 
   static String joinTail(String[] tokens) {
     return String.join(" ",
@@ -41,11 +39,10 @@ final class Functions {
     return IntStream.range(0,
                            (int) Math.pow(2,
                                           path.size()
-                                         )
-                          )
+                           )
+    )
                     .mapToObj(i -> " ")
                     .collect(Collectors.joining());
   }
-
 
 }
