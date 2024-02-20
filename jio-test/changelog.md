@@ -1,18 +1,3 @@
-** Version 1.1.0 **
+** Version 3.0.0 **
 
-Breaking changes:
-
-- `PropBuilder` implements `Supplier<Property>` and `build` method becomes `get`
-- `StubBuilder` implements `Supplier<IO>` and `build` method becomes `get`
-- `CRUDPropBuilder` implements `Supplier<PropBuilder>` and `build` method becomes `get`
-- `CRDPropBuilder` implements `Supplier<PropBuilder>` and `build` method becomes `get`
-
-New:
-
-- `JdbcTestDebugger` to debug events from jio-jdbc
-- All debuggers assert that they received the appropriate event
-
-
-** Version 1.1.0 **
-
-- upgrade java-fun to version 2.0.0
+- Support for up to Java 17
