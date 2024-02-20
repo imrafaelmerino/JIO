@@ -11,7 +11,7 @@ import jio.Lambda;
  * option to disable Java Flight Recorder (JFR) event recording for the query execution.
  *
  * @param <Filter> The type of input parameters for the JDBC query.
- * @param <Entity>  The type of the output result for the JDBC query.
+ * @param <Entity> The type of the output result for the JDBC query.
  */
 public final class FindOneEntityBuilder<Filter, Entity> {
 
@@ -36,7 +36,8 @@ public final class FindOneEntityBuilder<Filter, Entity> {
                                ParamsSetter<Filter> setter,
                                ResultSetMapper<Entity> mapper) {
     this.sqlQuery = Objects.requireNonNull(sqlQuery);
-    if(!PATTERN.matcher(sqlQuery).matches()){
+    if (!PATTERN.matcher(sqlQuery)
+                .matches()) {
       throw new IllegalArgumentException("`sql` must match the pattern `%s`".formatted(SELECT_REGEX));
     }
     this.timeout = Objects.requireNonNull(timeout);

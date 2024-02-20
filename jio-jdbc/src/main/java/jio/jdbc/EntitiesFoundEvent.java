@@ -1,7 +1,12 @@
 package jio.jdbc;
 
 import java.util.concurrent.atomic.AtomicLong;
-import jdk.jfr.*;
+import jdk.jfr.Category;
+import jdk.jfr.Description;
+import jdk.jfr.Event;
+import jdk.jfr.Label;
+import jdk.jfr.Name;
+import jdk.jfr.StackTrace;
 
 /**
  * Event that is created and written to the Flight Recorder system when a request response is received or an exception

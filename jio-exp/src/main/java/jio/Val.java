@@ -1,9 +1,8 @@
 package jio;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
-
 import static java.util.Objects.requireNonNull;
+
+import java.util.function.Supplier;
 
 /**
  * Represents a value, which is an irreducible expression. Values of type {@code Val} encapsulate a value of type
@@ -18,19 +17,15 @@ import static java.util.Objects.requireNonNull;
  */
 final class Val<Output> extends IO<Output> {
 
-  private final Supplier<CompletableFuture<Output>> effect;
+  private final Supplier<Result<Output>> effect;
 
-  Val(final Supplier<CompletableFuture<Output>> effect) {
+  Val(final Supplier<Result<Output>> effect) {
     this.effect = requireNonNull(effect);
   }
 
   @Override
-  public CompletableFuture<Output> get() {
-    try {
-      return effect.get();
-    } catch (Throwable throwable) {
-      return CompletableFuture.failedFuture(throwable);
-    }
+  public Result<Output> get() {
+    return effect.get();
   }
 
 }

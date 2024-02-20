@@ -23,11 +23,10 @@ Bugs:
 
 - `HttpClientEventFormatter` missing a comma the format of errors
 
-** Version 1.2.0 **
-Breaking:
+** Version 1.2.0 ** Breaking:
 
-- `HttpClientEventFormatter` prints time in human readable way instead of milliseconds
-  and other changes in the line format (see javadoc)
+- `HttpClientEventFormatter` prints time in human readable way instead of milliseconds and other
+  changes in the line format (see javadoc)
 - JFR event annotations renamed: name from `jio.httpclient` to `jio.http.client.HttpReq`
 
 Refactor:
@@ -44,12 +43,12 @@ Refactor:
 Breaking:
 
 - This version only support Java 21 or greater
-- Rename from `ClientCredsBuilder` to  `ClientCredentialsBuilder`
+- Rename from `ClientCredsBuilder` to `ClientCredentialsBuilder`
 
 New:
 
-- All the requests are made by virtual-threads using the `client.sync(...)`
-  method from the java http-client
+- All the requests are made by virtual-threads using the `client.sync(...)` method from the java
+  http-client
 
 ** Version 2.0.8 **
 

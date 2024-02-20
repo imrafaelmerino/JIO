@@ -1,9 +1,9 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents the result of evaluating an effect with the method {@link SwitchExp#eval(Object)} of a SwitchExp. This
@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
  * }
  * </pre>
  *
- * @param <Input> the type of the value to be evaluated
+ * @param <Input>  the type of the value to be evaluated
  * @param <Output> the type of returned value of the expression
  */
 public final class SwitchMatcher<Input, Output> {

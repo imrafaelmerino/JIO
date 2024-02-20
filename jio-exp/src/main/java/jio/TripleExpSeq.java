@@ -1,14 +1,13 @@
 package jio;
 
-import fun.tuple.Triple;
+import static java.util.Objects.requireNonNull;
 
+import fun.tuple.Triple;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
 
 final class TripleExpSeq<First, Second, Third> extends TripleExp<First, Second, Third> {
 
@@ -43,17 +42,21 @@ final class TripleExpSeq<First, Second, Third> extends TripleExp<First, Second, 
   }
 
   @Override
-  CompletableFuture<Triple<First, Second, Third>> reduceExp() {
-    return _1.get()
-             .thenCompose(first -> _2.get()
-                                     .thenCompose(second -> _3.get()
-                                                              .thenApply(third -> Triple.of(first,
-                                                                                            second,
-                                                                                            third
-                                                                                           )
-                                                                        )
-                                                 )
-                         );
+  Result<Triple<First, Second, Third>> reduceExp() {
+    try {
+      var first = _1.get()
+                    .call();
+      var second = _2.get()
+                     .call();
+      var third = _3.get()
+                    .call();
+      return new Result.Success<>(Triple.of(first,
+                                            second,
+                                            third
+                                           ));
+    } catch (Exception e) {
+      return new Failure<>(e);
+    }
   }
 
   @Override

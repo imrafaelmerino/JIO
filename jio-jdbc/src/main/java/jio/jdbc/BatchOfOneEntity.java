@@ -1,14 +1,13 @@
 package jio.jdbc;
 
-import jio.IO;
-import jio.Lambda;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import jio.IO;
+import jio.Lambda;
 
 /**
  * Represents a JDBC batch operation for inserting or updating multiple records in a database.
@@ -74,8 +73,7 @@ class BatchOfOneEntity<Params> {
                 try (var ps = connection.prepareStatement(sql)) {
                   ps.setQueryTimeout((int) timeout.toSeconds());
                   return process(inputs,
-                                 ps,
-                                 connection);
+                                 ps);
                 }
               }
             },
@@ -104,8 +102,7 @@ class BatchOfOneEntity<Params> {
                   try (var ps = connection.prepareStatement(sql)) {
                     ps.setQueryTimeout((int) timeout.toSeconds());
                     return process(params,
-                                   ps,
-                                   connection);
+                                   ps);
                   }
                 },
                 sql,
@@ -116,8 +113,7 @@ class BatchOfOneEntity<Params> {
   }
 
   private BatchResult process(List<Params> inputs,
-                              PreparedStatement ps,
-                              Connection connection) throws SQLException {
+                              PreparedStatement ps) throws SQLException {
     List<SQLException> errors = new ArrayList<>();
     int executedBatches = 0, rowsAffected = 0, batchSizeCounter = 0;
     for (int i = 0; i < inputs.size(); i++) {
@@ -134,7 +130,6 @@ class BatchOfOneEntity<Params> {
               rowsAffected += code;
             }
           }
-          connection.commit();
           ps.clearBatch();
           batchSizeCounter = 0;  // Reset batchSizeCounter after each batch
         }

@@ -16,6 +16,8 @@ import jsonvalues.JsObj;
 public record QueryReplace(JsObj query,
                            JsObj newDoc) {
 
+
+
   /**
    * Creates a query and a new doc
    *

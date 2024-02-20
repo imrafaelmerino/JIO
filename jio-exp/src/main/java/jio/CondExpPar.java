@@ -1,16 +1,19 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
 
 
 final class CondExpPar<Output> extends CondExp<Output> {
@@ -31,21 +34,27 @@ final class CondExpPar<Output> extends CondExp<Output> {
   }
 
   @Override
-  CompletableFuture<Output> reduceExp() {
-    @SuppressWarnings("unchecked")
-    CompletableFuture<Boolean>[] cfs = tests.stream()
-                                            .map(Supplier::get)
-                                            .toArray(CompletableFuture[]::new);
-    return CompletableFuture.allOf(cfs)
-                            .thenCompose($ -> getFirstThatIsTrueOrDefault(cfs));
+  Result<Output> reduceExp() {
+    try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+
+      List<Subtask<Boolean>> tasks = tests.stream()
+                                          .map(cond -> scope.fork(cond.get()))
+                                          .toList();
+
+      try {
+        scope.join()
+             .throwIfFailed();
+        return getFirstThatIsTrueOrDefault(tasks);
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
+    }
   }
 
-  private CompletableFuture<Output> getFirstThatIsTrueOrDefault(CompletableFuture<Boolean>[] cfs) {
-    List<Boolean> predicatesResults = Arrays.stream(cfs)
-                                            .map(CompletableFuture::join)
-                                            .toList();
-    for (int i = 0; i < predicatesResults.size(); i++) {
-      if (predicatesResults.get(i)) {
+  private Result<Output> getFirstThatIsTrueOrDefault(List<Subtask<Boolean>> tasks) {
+
+    for (int i = 0; i < tasks.size(); i++) {
+      if (tasks.get(i).get()) {
         return consequences.get(i)
                            .get()
                            .get();

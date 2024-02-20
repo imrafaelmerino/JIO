@@ -44,15 +44,15 @@ public final class CustomerDatabaseOps {
   private CustomerDatabaseOps(DatasourceBuilder datasourceBuilder) {
     this.datasourceBuilder = datasourceBuilder;
 
+    ResultSetMapper<List<Long>> mapper = ResultSetMapper.ONE_ROW_PER_ENTITY(r -> r.getLong("id"));
     countCustomer =
-        FindEntitiesBuilder.<Void, List<Long>>of("SELECT * FROM customer",
-                                                 id -> (paramPosition, preparedStatement) -> {
-                                                   return paramPosition;
-                                                 },
-                                                 ResultSetMapper.ONE_ROW_PER_ENTITY(r -> r.getLong("id")),
-                                                 Duration.ofSeconds(1)
-
-                                                )
+        FindEntitiesBuilder.<Void, Long>of("SELECT * FROM customer",
+                                           id -> (paramPosition, preparedStatement) -> {
+                                             return paramPosition;
+                                           },
+                                           mapper,
+                                           Duration.ofSeconds(1)
+                                          )
                            .withEventLabel("find all customers")
                            .buildAutoClosable(datasourceBuilder)
                            .apply(null)

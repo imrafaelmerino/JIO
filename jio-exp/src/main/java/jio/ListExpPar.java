@@ -1,18 +1,19 @@
 package jio;
 
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
 
 
 final class ListExpPar<Elem> extends ListExp<Elem> {
@@ -60,15 +61,22 @@ final class ListExpPar<Elem> extends ListExp<Elem> {
 
   @Override
   @SuppressWarnings("unchecked")
-  CompletableFuture<List<Elem>> reduceExp() {
-    CompletableFuture<Elem>[] cfs = list.stream()
-                                        .map(Supplier::get)
-                                        .toArray(CompletableFuture[]::new);
-    return CompletableFuture.allOf(cfs)
-                            .thenApply(n -> Arrays.stream(cfs)
-                                                  .map(CompletableFuture::join)
-                                                  .collect(Collectors.toList())
-                                      );
+  Result<List<Elem>> reduceExp() {
+    try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+
+      List<? extends Subtask<Elem>> xs =
+          list.stream()
+              .map(exp -> scope.fork(exp.get()))
+              .toList();
+      scope.join()
+           .throwIfFailed();
+      return new Success<>(xs.stream()
+                             .map(Subtask::get)
+                             .collect(Collectors.toList()));
+
+    } catch (Exception e) {
+      return new Failure<>(e);
+    }
   }
 
   @Override

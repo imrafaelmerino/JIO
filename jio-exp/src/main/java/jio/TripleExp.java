@@ -1,12 +1,11 @@
 package jio;
 
-import fun.tuple.Triple;
+import static java.util.Objects.requireNonNull;
 
+import fun.tuple.Triple;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents an expression that is reduced to a triple. Their elements can be evaluated either in parallel or
@@ -15,12 +14,13 @@ import static java.util.Objects.requireNonNull;
  * You can create TripleExp expressions using the 'seq' method to evaluate effects sequentially, or using the 'par'
  * method to evaluate effects in parallel. If one effect fails, the entire expression fails.
  *
- * @param <First> the type of the first computation
+ * @param <First>  the type of the first computation
  * @param <Second> the type of the second computation
- * @param <Third> the type of the third computation
+ * @param <Third>  the type of the third computation
  */
-public abstract sealed class TripleExp<First, Second, Third> extends Exp<Triple<First, Second, Third>> permits TripleExpPar,
-                                                                                                               TripleExpSeq {
+public abstract sealed class TripleExp<First, Second, Third> extends Exp<Triple<First, Second, Third>> permits
+                                                                                                       TripleExpPar,
+                                                                                                       TripleExpSeq {
 
   final IO<First> _1;
   final IO<Second> _2;

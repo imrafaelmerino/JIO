@@ -1,9 +1,10 @@
 package jio;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import jio.Result.Failure;
+import jio.Result.Success;
 
 /**
  * Abstract base class representing an expression that can be composed of different operands, which can be either
@@ -36,16 +37,27 @@ sealed abstract class Exp<Output> extends IO<Output>
   }
 
   @Override
-  public CompletableFuture<Output> get() {
+  public Result<Output> get() {
     if (jfrPublisher == null) {
       return reduceExp();
     }
     EvalExpEvent event = new EvalExpEvent();
     event.begin();
-    return reduceExp().whenComplete(jfrPublisher.apply(event));
+    Result<Output> result = reduceExp();
+    switch (result) {
+      case Success<Output>(Output output) -> jfrPublisher.apply(event)
+                                                         .accept(output,
+                                                                 null);
+      case Failure<Output>(Throwable exception) -> jfrPublisher.apply(event)
+                                                               .accept(null,
+                                                                       exception);
+    }
+    return result;
+
+
   }
 
-  abstract CompletableFuture<Output> reduceExp();
+  abstract Result<Output> reduceExp();
 
 
   /**

@@ -2,10 +2,9 @@ package jio.jdbc.exceptions;
 
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import jio.ExceptionFun;
 import org.postgresql.util.PSQLException;
-
-import java.util.function.Predicate;
 import org.postgresql.util.PSQLState;
 
 /**

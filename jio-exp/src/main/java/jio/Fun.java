@@ -16,7 +16,6 @@ import java.util.function.Supplier;
   }
 
   static void publishException(String exp,
-                               String context,
                                Throwable exc) {
     EvalExpEvent event = new EvalExpEvent();
     event.exception = String.format("%s:%s",
@@ -25,7 +24,6 @@ import java.util.function.Supplier;
                                     exc.getMessage());
     event.result = EvalExpEvent.RESULT.FAILURE.name();
     event.expression = exp;
-    event.context = context;
     event.commit();
   }
 

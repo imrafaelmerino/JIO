@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * A functional interface for mapping rows from a {@link java.sql.ResultSet} to objects of type {@code T}.
@@ -23,7 +22,7 @@ public interface ResultSetMapper<Entity> {
    * @param <Entity> the type of the entity
    * @return the Entity
    */
-  static <Entity> ResultSetMapper<Entity> ONE_ROW(Function<ResultSet, Entity> map) {
+  static <Entity> ResultSetMapper<Entity> ONE_ROW(ResultSetMapper<Entity> map) {
     return resultSet -> resultSet.next() ? map.apply(resultSet) : null;
   }
 

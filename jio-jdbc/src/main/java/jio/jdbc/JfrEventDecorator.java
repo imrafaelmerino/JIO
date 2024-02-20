@@ -1,10 +1,9 @@
 package jio.jdbc;
 
 import java.util.List;
-import jio.ExceptionFun;
-
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import jio.ExceptionFun;
 import jio.IO;
 import jio.jdbc.TxExecutedEvent.RESULT;
 

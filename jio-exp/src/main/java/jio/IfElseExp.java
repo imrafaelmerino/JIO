@@ -1,12 +1,13 @@
 package jio;
 
-import java.util.concurrent.CompletableFuture;
+import static java.util.Objects.requireNonNull;
+
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
 
 /**
  * Represents an expression that combines a predicate effect with two alternative effect suppliers, one for the
@@ -90,15 +91,21 @@ public final class IfElseExp<Output> extends Exp<Output> {
 
 
   @Override
-  CompletableFuture<Output> reduceExp() {
+  Result<Output> reduceExp() {
 
-    return predicate.get()
-                    .thenCompose(bool -> bool ?
-                                         consequence.get()
-                                                    .get() :
-                                         alternative.get()
-                                                    .get()
-                                );
+    try {
+      return new Success<>(predicate.get()
+                                    .call() ?
+                           consequence.get()
+                                      .get()
+                                      .call() :
+                           alternative.get()
+                                      .get()
+                                      .call());
+    } catch (Exception e) {
+      return new Failure<>(e);
+    }
+
   }
 
 

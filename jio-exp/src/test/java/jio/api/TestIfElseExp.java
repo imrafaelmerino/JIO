@@ -2,6 +2,7 @@ package jio.api;
 
 import jio.IO;
 import jio.IfElseExp;
+import jio.Result.Success;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,13 +18,13 @@ public class TestIfElseExp {
                                     .consequence(() -> IO.succeed(1 / 0))
                                     .alternative(() -> Constants.ONE);
 
-    Assertions.assertEquals(1,
+    Assertions.assertEquals(new Success<>(1),
                             a.debugEach("ifelse")
-                             .join()
+                             .get()
                            );
 
-    Assertions.assertEquals(1,
-                            a.join());
+    Assertions.assertEquals(new Success<>(1),
+                            a.get());
 
 
   }

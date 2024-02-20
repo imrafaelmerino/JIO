@@ -1,14 +1,15 @@
 package jio;
 
-import fun.tuple.Pair;
+import static java.util.Objects.requireNonNull;
 
+import fun.tuple.Pair;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
 
 final class PairExpPar<First, Second> extends PairExp<First, Second> {
 
@@ -38,14 +39,19 @@ final class PairExpPar<First, Second> extends PairExp<First, Second> {
   }
 
   @Override
-  CompletableFuture<Pair<First, Second>> reduceExp() {
-    CompletableFuture<First> a = _1.get();
-    CompletableFuture<Second> b = _2.get();
-    return a.thenCombine(b,
-                         Pair::of
-                        );
+  Result<Pair<First, Second>> reduceExp() {
+    try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+      var first = scope.fork(_1.get());
+      var second = scope.fork(_2.get());
+      scope.join()
+           .throwIfFailed();
+      return new Success<>(Pair.of(first.get(),
+                                   second.get())
+      );
+    } catch (Exception e) {
+      return new Failure<>(e);
+    }
   }
-
 
   @Override
   public PairExp<First, Second> debugEach(final EventBuilder<Pair<First, Second>> eventBuilder
@@ -67,7 +73,6 @@ final class PairExpPar<First, Second> extends PairExp<First, Second> {
                             getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public PairExp<First, Second> debugEach(final String context) {

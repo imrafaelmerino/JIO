@@ -4,7 +4,6 @@ import jio.IO;
 import jio.Lambda;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -24,7 +23,7 @@ final class FindEntities<Filter, Entity> {
    */
   final Duration timeout;
 
-  private final ResultSetMapper<Entity> mapper;
+  private final ResultSetMapper<List<Entity>> mapper;
   /**
    * The SQL update statement.
    */
@@ -61,7 +60,7 @@ final class FindEntities<Filter, Entity> {
   FindEntities(Duration timeout,
                String sql,
                ParamsSetter<Filter> setter,
-               ResultSetMapper<Entity> mapper,
+               ResultSetMapper<List<Entity>> mapper,
                int fetchSize,
                boolean enableJFR,
                String label) {
@@ -100,11 +99,7 @@ final class FindEntities<Filter, Entity> {
                             statement.setQueryTimeout((int) timeout.toSeconds());
                             statement.setFetchSize(fetchSize);
                             var rs = statement.executeQuery();
-                            List<Entity> result = new ArrayList<>();
-                            while (rs.next()) {
-                              result.add(mapper.apply(rs));
-                            }
-                            return result;
+                            return mapper.apply(rs);
                           },
                           sql,
                           enableJFR,
@@ -135,11 +130,7 @@ final class FindEntities<Filter, Entity> {
                           ps.setQueryTimeout((int) timeout.toSeconds());
                           ps.setFetchSize(fetchSize);
                           var rs = ps.executeQuery();
-                          List<Entity> result = new ArrayList<>();
-                          while (rs.next()) {
-                            result.add(mapper.apply(rs));
-                          }
-                          return result;
+                          return mapper.apply(rs);
                         },
                         sql,
                         enableJFR,

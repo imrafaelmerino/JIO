@@ -2,6 +2,7 @@ package jio.api;
 
 import jio.AnyExp;
 import jio.IO;
+import jio.Result;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -10,45 +11,49 @@ public class TestAnyExp {
   @Test
   public void sequential_constructor() {
 
-    var a = AnyExp.seq(AnyExp.seq(IO.FALSE,
-                                  IO.FALSE),
-                       IO.TRUE);
+    var anyIsTrue = AnyExp.seq(AnyExp.seq(IO.FALSE,
+                                          IO.FALSE),
+                               IO.TRUE);
 
-    Assertions.assertTrue(a.join());
+    Assertions.assertEquals(Result.TRUE,
+                            anyIsTrue.get());
 
-    var b = AnyExp.seq(AnyExp.seq(IO.FALSE,
-                                  IO.FALSE),
-                       IO.FALSE);
+    var anyIsFalse = AnyExp.seq(AnyExp.seq(IO.FALSE,
+                                           IO.FALSE),
+                                IO.FALSE);
 
-    Assertions.assertFalse(b.join());
+    Assertions.assertEquals(Result.FALSE,
+                            anyIsFalse.get());
 
   }
 
   @Test
   public void parallel_constructor() {
 
-    var a = AnyExp.par(AnyExp.par(IO.TRUE,
-                                  IO.FALSE),
-                       IO.FALSE);
+    var anyIsTrue = AnyExp.par(AnyExp.par(IO.TRUE,
+                                          IO.FALSE),
+                               IO.FALSE);
 
-    Assertions.assertTrue(a.join());
+    Assertions.assertEquals(Result.TRUE,
+                            anyIsTrue.get());
 
-    var b = AnyExp.seq(AnyExp.par(IO.FALSE,
-                                  IO.FALSE),
-                       IO.FALSE);
+    var anyIsFalse = AnyExp.par(AnyExp.par(IO.FALSE,
+                                           IO.FALSE),
+                                IO.FALSE);
 
-    Assertions.assertFalse(b.join());
+    Assertions.assertEquals(Result.FALSE,
+                            anyIsFalse.get());
   }
 
   @Test
-  public void test_debugeach() {
+  public void test_debug_each() {
     var exp = AnyExp.par(IO.FALSE,
                          IO.TRUE
                         )
                     .debugEach("context")
-                    .join();
+                    .get();
 
-    Assertions.assertEquals(true,
+    Assertions.assertEquals(Result.TRUE,
                             exp
                            );
 

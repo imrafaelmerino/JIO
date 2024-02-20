@@ -16,16 +16,12 @@ docker exec -it mongo1 mongosh
 ```
 
 ```javascript
-rs.initiate(
-       {
-         _id: "rs0",
-         members: [
-           { _id: 0, host: "192.168.1.17:27017" },
-           { _id: 1, host: "192.168.1.17:27018" },
-           { _id: 2, host: "192.168.1.17:27019" }
-         ]
-       }
-     )
+rs.initiate({
+  _id: "rs0",
+  members: [
+    { _id: 0, host: "192.168.1.17:27017" },
+    { _id: 1, host: "192.168.1.17:27018" },
+    { _id: 2, host: "192.168.1.17:27019" },
+  ],
+});
 ```
-
-

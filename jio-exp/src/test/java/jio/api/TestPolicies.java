@@ -1,13 +1,12 @@
 package jio.api;
 
 
+import java.time.Duration;
+import java.util.List;
 import jio.RetryPolicies;
 import jio.RetryStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
-import java.util.List;
 
 public class TestPolicies {
 
@@ -87,11 +86,10 @@ public class TestPolicies {
     List<RetryStatus> simulation = RetryPolicies.incrementalDelay(tenMillis)
                                                 .append(RetryPolicies.limitRetries(2))
                                                 .followedBy(RetryPolicies.constantDelay(tenMillis)
-                                                                         .limitRetriesByCumulativeDelay(Duration.ofMillis(200)
-                                                                                                       )
-                                                           )
-                                                    .
-                                                simulate(20);
+                                                                         .limitRetriesByCumulativeDelay(Duration.ofMillis(200)))
+                                                .simulate(20);
+
+    System.out.println(simulation);
     Assertions.assertEquals(20,
                             simulation.size()
                            );

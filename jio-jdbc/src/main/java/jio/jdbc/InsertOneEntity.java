@@ -1,12 +1,12 @@
 package jio.jdbc;
 
-import java.util.function.Function;
-import jio.IO;
-import jio.Lambda;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.Duration;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
+import jio.IO;
+import jio.Lambda;
 
 /**
  * A class representing a generic insert operation with a generated key in a relational database using JDBC. The class

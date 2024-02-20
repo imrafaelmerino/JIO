@@ -37,11 +37,11 @@
     <MAVEN-COMPILER-PLUGIN.VERSION>3.10.1</MAVEN-COMPILER-PLUGIN.VERSION>
     <MAVEN-COMPILER-PLUGIN.SOURCE>21</MAVEN-COMPILER-PLUGIN.SOURCE>
     <MAVEN-COMPILER-PLUGIN.TARGET>21</MAVEN-COMPILER-PLUGIN.TARGET>
-    <MAVEN-SUREFIRE-PLUGIN.VERSION>3.0.0-M6</MAVEN-SUREFIRE-PLUGIN.VERSION>
+    <MAVEN-SUREFIRE-PLUGIN.VERSION>3.2.5</MAVEN-SUREFIRE-PLUGIN.VERSION>
     <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
     <JSON-VALUES.VERSION>13.4.0</JSON-VALUES.VERSION>
-    <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
+    <JUNIT-JUPITER-ENGINE.VERSION>5.1.1</JUNIT-JUPITER-ENGINE.VERSION>
   </properties>
 
   <build>
@@ -50,24 +50,36 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${MAVEN-SUREFIRE-PLUGIN.VERSION}</version>
+        <executions>
+          <execution>
+            <id>unit-tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <argLine>--enable-preview</argLine>
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*Tests.java</include>
+            <include>**/*TestCase.java</include>
+          </includes>
+          <failIfNoTests>false</failIfNoTests>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>${MAVEN-JAR-PLUGIN.VERSION}</version>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <Automatic-Module-Name>jio_exp</Automatic-Module-Name>
-            </manifestEntries>
-          </archive>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${MAVEN-JAVADOC-PLUGIN.VERSION}</version>
         <configuration>
+          <additionalOptions>--enable-preview</additionalOptions>
           <source>${MAVEN-COMPILER-PLUGIN.SOURCE}</source>
         </configuration>
         <executions>
@@ -84,11 +96,15 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.0</version>
         <configuration>
-          <source>21</source>
-          <target>21</target>
+          <source>${MAVEN-COMPILER-PLUGIN.SOURCE}</source>
+          <target>${MAVEN-COMPILER-PLUGIN.TARGET}</target>
           <showWarnings>true</showWarnings>
           <encoding>${project.build.sourceEncoding}</encoding>
-          <compilerArgs>--enable-preview
+          <compilerArgs>
+            <arg>-XDcompilePolicy=simple</arg>
+            <arg>-Xplugin:ErrorProne</arg>
+            <arg>-Xlint:all</arg>
+            <arg>--enable-preview</arg>
           </compilerArgs>
           <annotationProcessorPaths>
             <path>

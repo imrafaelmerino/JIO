@@ -1,16 +1,15 @@
 package jio.api;
 
+import java.util.List;
 import jio.IO;
 import jio.SwitchExp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 public class TestSwitchExp {
 
   @Test
-  public void test_object_constructors() {
+  public void test_object_constructors() throws Exception {
 
     IO<String> a =
         SwitchExp.<String, String>eval(IO.succeed("a"))
@@ -24,7 +23,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("A",
-                            a.join());
+                            a.get()
+                             .call());
 
     Assertions.assertNull(SwitchExp.<String, String>eval(IO.succeed("c"))
                                    .match("a",
@@ -32,7 +32,8 @@ public class TestSwitchExp {
                                           "b",
                                           x -> Constants.B
                                          )
-                                   .join()
+                                   .get()
+                                   .call()
                          );
 
     IO<String> b =
@@ -49,7 +50,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("B",
-                            b.join());
+                            b.get()
+                             .call());
 
     IO<String> c =
         SwitchExp.<String, String>eval("c")
@@ -67,7 +69,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("C",
-                            c.join());
+                            c.get()
+                             .call());
 
     IO<String> d =
         SwitchExp.<String, String>eval("d")
@@ -87,7 +90,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("D",
-                            d.join());
+                            d.get()
+                             .call());
 
     SwitchExp<String, String> patterns = SwitchExp.<String, String>eval("e")
                                                   .match("a",
@@ -109,7 +113,8 @@ public class TestSwitchExp {
                 .map(String::toUpperCase);
 
     Assertions.assertEquals("A",
-                            e.join());
+                            e.get()
+                             .call());
 
     IO<String> f =
         SwitchExp.<String, String>eval("h")
@@ -131,12 +136,13 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("H",
-                            f.join());
+                            f.get()
+                             .call());
 
   }
 
   @Test
-  public void test_list_constructors() {
+  public void test_list_constructors() throws Exception {
 
     IO<String> a =
         SwitchExp.<String, String>eval("a")
@@ -150,7 +156,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("A",
-                            a.join());
+                            a.get()
+                             .call());
 
     Assertions.assertNull(SwitchExp.<String, String>eval("d")
                                    .match(List.of("a",
@@ -159,7 +166,8 @@ public class TestSwitchExp {
                                           List.of("b"),
                                           x -> Constants.B
                                          )
-                                   .join()
+                                   .get()
+                                   .call()
                          );
 
     IO<String> b =
@@ -175,7 +183,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("B",
-                            b.join());
+                            b.get()
+                             .call());
 
     IO<String> c =
         SwitchExp.<String, String>eval("c")
@@ -192,7 +201,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("C",
-                            c.join());
+                            c.get()
+                             .call());
 
     IO<String> d =
         SwitchExp.<String, String>eval("d")
@@ -211,7 +221,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("D",
-                            d.join());
+                            d.get()
+                             .call());
 
     IO<String> e =
         SwitchExp.<String, String>eval("e")
@@ -236,7 +247,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("A",
-                            e.join());
+                            e.get()
+                             .call());
 
     IO<String> f =
         SwitchExp.<String, String>eval("h")
@@ -257,12 +269,13 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("H",
-                            f.join());
+                            f.get()
+                             .call());
 
   }
 
   @Test
-  public void test_predicate_constructors() {
+  public void test_predicate_constructors() throws Exception {
 
     IO<String> a =
         SwitchExp.<String, String>eval("a")
@@ -275,7 +288,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("A",
-                            a.join());
+                            a.get()
+                             .call());
 
     Assertions.assertNull(SwitchExp.<String, String>eval("c")
                                    .match(x -> x.equals("a"),
@@ -283,7 +297,8 @@ public class TestSwitchExp {
                                           x -> x.equals("b"),
                                           x -> Constants.B
                                          )
-                                   .join());
+                                   .get()
+                                   .call());
 
     IO<String> b =
         SwitchExp.<String, String>eval("b")
@@ -298,7 +313,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("B",
-                            b.join());
+                            b.get()
+                             .call());
 
     IO<String> c =
         SwitchExp.<String, String>eval("c")
@@ -315,7 +331,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("C",
-                            c.join());
+                            c.get()
+                             .call());
 
     IO<String> d =
         SwitchExp.<String, String>eval("d")
@@ -334,7 +351,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("D",
-                            d.join());
+                            d.get()
+                             .call());
 
     IO<String> e =
         SwitchExp.<String, String>eval("e")
@@ -355,7 +373,8 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("A",
-                            e.join());
+                            e.get()
+                             .call());
 
     IO<String> f =
         SwitchExp.<String, String>eval("h")
@@ -376,13 +395,14 @@ public class TestSwitchExp {
                  .map(String::toUpperCase);
 
     Assertions.assertEquals("H",
-                            f.join());
+                            f.get()
+                             .call());
 
 
   }
 
   @Test
-  public void test_debug_each() {
+  public void test_debug_each() throws Exception {
     var exp = SwitchExp.<Integer, String>eval(IO.succeed(2))
                        .match(1,
                               i -> IO.succeed("one"),
@@ -391,7 +411,8 @@ public class TestSwitchExp {
                               i -> IO.succeed("default")
                              )
                        .debugEach("context")
-                       .join();
+                       .get()
+                       .call();
 
     Assertions.assertEquals("two",
                             exp

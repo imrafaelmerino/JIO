@@ -108,7 +108,7 @@ public interface Lambda<Input, Output> extends Function<Input, IO<Output>> {
    * @return A new Lambda that represents the composition of this Lambda and the provided failure mapping function.
    * @since 1.0
    */
-  default Lambda<Input, Output> mapFailure(Function<Throwable, Throwable> mapFailure) {
+  default Lambda<Input, Output> mapFailure(Function<Exception, Exception> mapFailure) {
     return input -> this.apply(input)
                         .mapFailure(mapFailure);
   }

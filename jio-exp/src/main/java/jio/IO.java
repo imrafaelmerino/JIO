@@ -1,15 +1,27 @@
 package jio;
 
 
+import static java.util.Objects.requireNonNull;
+
 import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
 
 /**
  * Represents a functional effect that encapsulates asynchronous computations, including successful results and
@@ -30,10 +42,6 @@ import static java.util.Objects.requireNonNull;
  * <p>
  * Functional effects support a wide range of operations for composing, transforming, and handling asynchronous
  * computations. These operations include mapping, flat mapping, error handling, retries, timeouts, and debugging.
- * <p>
- * To perform a blocking wait for the computation's result, you can use the {@link IO#result()} method, which blocks the
- * caller thread until the computation is complete and returns the result or throws a failure as a
- * {@link CompletionException}.
  *
  * <p>
  * Functional effects are a powerful tool for modeling and handling asynchronous operations in a composable way while
@@ -41,27 +49,23 @@ import static java.util.Objects.requireNonNull;
  * I/O operations, concurrent processing, and distributed systems.
  *
  * @param <Output> the type of the result returned by the computation when it succeeds.
- * @see CompletableFuture
- * @see CompletionException
- * @see java.util.concurrent.Executor
- * @see ForkJoinPool.ManagedBlocker
  * @see RetryPolicy
  * @see EventBuilder
  * @see EvalExpEvent
  * @see Val
- * @see Delay
  * @see Exp
  */
 
-public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Output>> permits Delay, Exp,
-                                                                                               Val {
+public sealed abstract class IO<Output> implements Supplier<Result<Output>> permits Exp, Val {
+
+  static ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
   /**
-   * Effect that always succeed with true
+   * Effect that always succeeds with true
    */
   public static final IO<Boolean> TRUE = succeed(true);
   /**
-   * Effect that always succeed with false
+   * Effect that always succeeds with false
    */
   public static final IO<Boolean> FALSE = succeed(false);
 
@@ -93,8 +97,15 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * @param <Output> the type parameter representing the result type of the CompletableFuture.
    * @return an IO effect that wraps the provided lazy effect.
    */
-  public static <Output> IO<Output> effect(final Supplier<CompletableFuture<Output>> effect) {
-    return new Val<>(requireNonNull(effect));
+  public static <Output> IO<Output> effect(final Supplier<Future<Output>> effect) {
+    return new Val<>(() -> {
+      try {
+        return new Success<>(effect.get()
+                                   .get());
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
+    });
   }
 
   /**
@@ -109,8 +120,7 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * @return an IO effect.
    */
   public static <Output, Input extends AutoCloseable> IO<Output> resource(final Callable<? extends Input> callable,
-                                                                          final Lambda<? super Input, Output> map
-                                                                         ) {
+                                                                          final Lambda<? super Input, Output> map) {
     return IO.task(callable)
              .then(resource -> map.apply(resource)
                                   .then(success -> {
@@ -128,8 +138,7 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
                                           } catch (Exception e) {
                                             return IO.fail(e);
                                           }
-                                        })
-                  );
+                                        }));
 
   }
 
@@ -142,7 +151,7 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * @return an IO effect that always succeeds with the specified value.
    */
   public static <Output> IO<Output> succeed(final Output val) {
-    return new Val<>(() -> CompletableFuture.completedFuture(val));
+    return new Val<>(() -> new Success<>(val));
   }
 
 
@@ -158,14 +167,13 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    */
   public static <Output> IO<Output> lazy(final Supplier<? extends Output> supplier) {
     requireNonNull(supplier);
-    return
-        new Val<>(() -> {
-          try {
-            return CompletableFuture.completedFuture(supplier.get());
-          } catch (Throwable e) {
-            return CompletableFuture.failedFuture(e);
-          }
-        });
+    return new Val<>(() -> {
+      try {
+        return new Success<>(supplier.get());
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
+    });
   }
 
   /**
@@ -178,14 +186,13 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    */
   public static <Output> IO<Output> task(final Callable<? extends Output> callable) {
     requireNonNull(callable);
-    return
-        new Val<>(() -> {
-          try {
-            return CompletableFuture.completedFuture(callable.call());
-          } catch (Throwable e) {
-            return CompletableFuture.failedFuture(e);
-          }
-        });
+    return new Val<>(() -> {
+      try {
+        return new Success<>(callable.call());
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
+    });
   }
 
   /**
@@ -194,27 +201,39 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * executor.
    *
    * @param callable the callable task to be executed.
-   * @param executor the executor responsible for running the task.
    * @param <Output> the type parameter representing the result type of the effect.
    * @return an IO effect encapsulating the callable task.
    */
-  public static <Output> IO<Output> task(final Callable<? extends Output> callable,
-                                         final Executor executor
-                                        ) {
+  public static <Output> IO<Output> lazyOn(final Supplier<? extends Output> callable) {
     requireNonNull(callable);
-    return IO.effect(() -> {
+    return new Val<>(() -> {
       try {
-        return CompletableFuture.supplyAsync(() -> {
-                                               try {
-                                                 return callable.call();
-                                               } catch (Exception e) {
-                                                 throw new CompletionException(e);
-                                               }
-                                             },
-                                             executor
-                                            );
+        return new Success<>(executor.submit(callable::get)
+                                     .get());
       } catch (Exception e) {
-        return CompletableFuture.failedFuture(e);
+        return new Failure<>(e);
+      }
+    });
+
+  }
+
+  /**
+   * Creates an effect from a task modeled with a {@link Callable} and executes it using the specified {@link Executor}.
+   * Every time the `get()` or `result` method is called, the provided task is executed asynchronously using the given
+   * executor.
+   *
+   * @param callable the callable task to be executed.
+   * @param <Output> the type parameter representing the result type of the effect.
+   * @return an IO effect encapsulating the callable task.
+   */
+  public static <Output> IO<Output> taskOn(final Callable<? extends Output> callable) {
+    requireNonNull(callable);
+    return new Val<>(() -> {
+      try {
+        return new Success<>(executor.submit(callable)
+                                     .get());
+      } catch (Exception e) {
+        return new Failure<>(e);
       }
     });
 
@@ -228,82 +247,10 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    *                 an exception).
    * @return an IO effect that returns the specified exception as its result.
    */
-  public static <Output> IO<Output> fail(final Throwable exc) {
+  public static <Output> IO<Output> fail(final Exception exc) {
     requireNonNull(exc);
-    return new Val<>(() -> CompletableFuture.failedFuture(exc));
+    return new Val<>(() -> new Failure<>(exc));
 
-  }
-
-  /**
-   * Creates an effect from a lazy computation modeled with a {@link Supplier} and executes it asynchronously using the
-   * specified {@link Executor}. Every time the `get()` or `result` method is called, the provided lazy computation is
-   * executed asynchronously using the given executor.
-   *
-   * @param supplier the supplier representing the lazy computation to be executed.
-   * @param executor the executor responsible for running the computation.
-   * @param <Output> the type parameter representing the result type of the effect.
-   * @return an IO effect encapsulating the lazy computation executed with the specified executor.
-   */
-  public static <Output> IO<Output> lazy(final Supplier<Output> supplier,
-                                         final Executor executor
-                                        ) {
-    requireNonNull(supplier);
-    requireNonNull(executor);
-    return new Val<>(() -> CompletableFuture.supplyAsync(supplier,
-                                                         executor
-                                                        ));
-
-  }
-
-  /**
-   * Creates an effect from a supplier using the Java interface {@link ForkJoinPool.ManagedBlocker ManagedBlocker} to
-   * efficiently utilize the common Java fork/join thread pool.
-   * <p>
-   * Please note that every time the `get` or `result` methods are called on the returned effect, the `get` method of
-   * the provided supplier is invoked, and a new computation is executed.
-   * <p>
-   * Also, be aware that the maximum default level of parallelism that can be achieved with the ForkJoin pool is
-   * typically governed by the {@link ForkJoinPool#DEFAULT_COMMON_MAX_SPARES} constant, which can be overridden using
-   * the "java.util.concurrent.ForkJoinPool.common.maximumSpares" system property. Exceeding this limit may result in a
-   * {@link RejectedExecutionException} exception with the message "Thread limit exceeded replacing blocked worker."
-   *
-   * @param supplier the supplier representing the computation.
-   * @param <Output> the type parameter representing the result type of the effect.
-   * @return an IO effect encapsulating the computation, utilizing the ForkJoin pool if available.
-   */
-  public static <Output> IO<Output> managedLazy(final Supplier<? extends Output> supplier) {
-    requireNonNull(supplier);
-    return new Val<>(() ->
-                         Thread.currentThread() instanceof ForkJoinWorkerThread ?
-                         CompletableFuture.completedFuture(ManagedBlockerHelper.computeSupplier(supplier)) :
-                         CompletableFuture.supplyAsync(() -> ManagedBlockerHelper.computeSupplier(supplier),
-                                                       ForkJoinPool.commonPool()
-                                                      ));
-  }
-
-  /**
-   * Creates an effect from a task modeled with a {@link Callable} and executes it using the Java interface
-   * {@link ForkJoinPool.ManagedBlocker ManagedBlocker} to efficiently utilize the common Java fork/join thread pool.
-   * <p>
-   * Please note that every time the `get` or `result` methods are called on the returned effect, the provided task is
-   * executed, and a new computation is performed.
-   * <p>
-   * Also, be aware that the maximum default level of parallelism that can be achieved with the ForkJoin pool is
-   * typically governed by the {@link ForkJoinPool#DEFAULT_COMMON_MAX_SPARES} constant, which can be overridden using
-   * the "java.util.concurrent.ForkJoinPool.common.maximumSpares" system property. Exceeding this limit may result in a
-   * {@link RejectedExecutionException} exception with the message "Thread limit exceeded replacing blocked worker."
-   *
-   * @param task     the callable task to be executed.
-   * @param <Output> the type parameter representing the result type of the effect.
-   * @return an IO effect encapsulating the callable task, utilizing the ForkJoin pool if available.
-   */
-  public static <Output> IO<Output> managedTask(final Callable<? extends Output> task) {
-    requireNonNull(task);
-    return new Val<>(() ->
-                         Thread.currentThread() instanceof ForkJoinWorkerThread ?
-                         CompletableFuture.completedFuture(ManagedBlockerHelper.computeTask(task)) :
-                         CompletableFuture.supplyAsync(() -> ManagedBlockerHelper.computeTask(task))
-    );
   }
 
   /**
@@ -318,26 +265,30 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * @return a new computation representing the first to complete among the provided computations.
    */
   @SafeVarargs
-  @SuppressWarnings({"unchecked", "varargs"})
-  public static <Output> IO<Output> race(final IO<? extends Output> first,
-                                         final IO<? extends Output>... others) {
+  public static <Output> IO<Output> race(final IO<Output> first,
+                                         final IO<Output>... others) {
     requireNonNull(first);
     requireNonNull(others);
-    List<IO<? extends Output>> list = new ArrayList<>();
-    list.add(first);
+    List<IO<Output>> tasks = new ArrayList<>();
+    tasks.add(first);
     if (others.length > 0) {
-      List<IO<? extends Output>> c = Arrays.stream(others)
-                                           .toList();
-      list.addAll(c);
+      List<IO<Output>> c = Arrays.stream(others)
+                                 .toList();
+      tasks.addAll(c);
     }
-    return IO.effect(() -> {
-                       var cfs = list.stream()
-                                     .map(Supplier::get)
-                                     .toArray(CompletableFuture[]::new);
-                       return CompletableFuture.anyOf(cfs)
-                                               .thenApply(it -> ((Output) it));
-                     }
-                    );
+    return new Val<>(() -> {
+      try (var scope = new StructuredTaskScope.ShutdownOnSuccess<Result<Output>>()) {
+        for (var task : tasks) {
+          scope.fork(task::get);
+        }
+        try {
+          return scope.join()
+                      .result();
+        } catch (Exception e) {// Throws if none of the subtasks completed successfully
+          return new Failure<>(e);
+        }
+      }
+    });
 
   }
 
@@ -352,11 +303,8 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    */
   @SuppressWarnings("ReturnValueIgnored")
   public IO<Void> async() {
-    return IO.NULL()
-             .then(nill -> {
-               get();
-               return IO.NULL();
-             });
+    var unused = executor.submit(this::get);
+    return IO.NULL();
   }
 
 
@@ -370,7 +318,10 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    */
   public <OutputMapped> IO<OutputMapped> map(final Function<? super Output, ? extends OutputMapped> fn) {
     requireNonNull(fn);
-    return IO.effect(() -> requireNonNull(get()).thenApply(fn));
+    return new Val<>(() -> switch (get()) {
+      case Success<Output>(Output output) -> new Success<>(fn.apply(output));
+      case Failure<Output>(Exception exception) -> new Failure<>(exception);
+    });
   }
 
   /**
@@ -384,17 +335,17 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * <p>This operation creates a new IO operation with the same behavior as the original one, except for the handling
    * of failures as modified by the mapping function.</p>
    *
-   * @param mappingFunction The function to apply to the failure. It takes the original exception and returns the
-   *                        transformed exception.
+   * @param fn The function to apply to the failure. It takes the original exception and returns the transformed
+   *           exception.
    * @return A new IO operation with the same result type, where failures are transformed using the provided function.
    * @throws NullPointerException If the mapping function {@code fn} is {@code null}.
-   * @see CompletableFuture#exceptionallyCompose(java.util.function.Function)
    */
-  public IO<Output> mapFailure(final Function<Throwable, Throwable> mappingFunction) {
-    requireNonNull(mappingFunction);
-    return IO.effect(() -> requireNonNull(get())
-                         .exceptionallyCompose(exc -> CompletableFuture.failedFuture(mappingFunction.apply(exc)))
-                    );
+  public IO<Output> mapFailure(final Function<Exception, Exception> fn) {
+    requireNonNull(fn);
+    return new Val<>(() -> switch (get()) {
+      case Success<Output> s -> s;
+      case Failure<Output>(Exception exception) -> new Failure<>(fn.apply(exception));
+    });
   }
 
 
@@ -410,10 +361,12 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    */
   public <Q> IO<Q> then(final Lambda<? super Output, Q> fn) {
     requireNonNull(fn);
-    return effect(() -> requireNonNull(get()).thenCompose(it -> fn.apply(it)
-                                                                  .get()
-                                                         )
-                 );
+    var result = this.get();
+    return switch (result) {
+      case Success<Output>(Output output) -> fn.apply(output);
+      case Failure<Output>(Exception exception) -> IO.fail(exception);
+    };
+
   }
 
 
@@ -429,18 +382,15 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    */
 
   public <Q> IO<Q> then(final Lambda<? super Output, Q> successLambda,
-                        final Lambda<? super Throwable, Q> failureLambda
-                       ) {
+                        final Lambda<? super Exception, Q> failureLambda) {
     requireNonNull(successLambda);
     requireNonNull(failureLambda);
 
-    return effect(() -> requireNonNull(get()).thenCompose(it -> successLambda.apply(it)
-                                                                             .get()
-                                                         )
-                                             .exceptionallyCompose(exc -> failureLambda.apply(exc.getCause())
-                                                                                       .get()
-                                                                  )
-                 );
+    var result = this.get();
+    return switch (result) {
+      case Success<Output>(Output output) -> successLambda.apply(output);
+      case Failure<Output>(Exception exception) -> failureLambda.apply(exception);
+    };
   }
 
 
@@ -453,10 +403,13 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * @param fn the function to apply if this effect fails, taking the exception as input.
    * @return a new effect representing the original value or the result of applying the function in case of failure.
    */
-  public IO<Output> recover(final Function<? super Throwable, Output> fn) {
+  public IO<Output> recover(final Function<? super Exception, Output> fn) {
     requireNonNull(fn);
-    return then(IO::succeed,
-                exc -> succeed(fn.apply(exc)));
+    return new Val<>(() -> switch (get()) {
+      case Success<Output> success -> success;
+      case Failure<Output>(Exception exception) -> new Success<>(fn.apply(exception));
+    });
+
   }
 
   /**
@@ -471,8 +424,7 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
   public IO<Output> recoverWith(final Lambda<? super Throwable, Output> lambda) {
     requireNonNull(lambda);
     return then(IO::succeed,
-                lambda
-               );
+                lambda);
   }
 
 
@@ -492,9 +444,7 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
     return then(IO::succeed,
                 exc -> lambda.apply(exc)
                              .then(IO::succeed,
-                                   exc1 -> fail(exc)
-                                  )
-               );
+                                   exc1 -> fail(exc)));
 
   }
 
@@ -510,8 +460,7 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
   public IO<Output> peekFailure(final Consumer<? super Throwable> failConsumer) {
     return peek($ -> {
                 },
-                failConsumer
-               );
+                failConsumer);
   }
 
   /**
@@ -525,8 +474,7 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
   public IO<Output> peekSuccess(final Consumer<? super Output> successConsumer) {
     return peek(successConsumer,
                 e -> {
-                }
-               );
+                });
   }
 
   /**
@@ -541,8 +489,7 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * failure.
    */
   public IO<Output> peek(final Consumer<? super Output> successConsumer,
-                         final Consumer<? super Throwable> failureConsumer
-                        ) {
+                         final Consumer<? super Throwable> failureConsumer) {
     requireNonNull(successConsumer);
     requireNonNull(failureConsumer);
     return then(it -> {
@@ -550,7 +497,6 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
                     successConsumer.accept(it);
                   } catch (Exception exception) {
                     Fun.publishException("peek",
-                                         "Exception thrown by a consumer provided by the API client",
                                          exception);
                   }
                   return succeed(it);
@@ -560,60 +506,10 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
                     failureConsumer.accept(exc);
                   } catch (Exception exception) {
                     Fun.publishException("peek",
-                                         "Exception thrown by a consumer provided by the API client",
                                          exception);
                   }
                   return fail(exc);
                 });
-  }
-
-
-  /**
-   * Creates a new effect that fails with a {@link TimeoutException} if this effect doesn't compute any value within the
-   * specified time duration.
-   *
-   * @param time the time amount, which must be greater than 0.
-   * @param unit the time unit representing the time duration.
-   * @return a new effect representing the original value if computed within the timeout, or a failure with a
-   * TimeoutException.
-   * @throws IllegalArgumentException if the specified time is less than or equal to 0.
-   */
-  public IO<Output> timeout(final long time,
-                            final TimeUnit unit
-                           ) {
-    if (time <= 0) {
-      throw new IllegalArgumentException("time <= 0");
-    }
-    requireNonNull(unit);
-    return IO.effect(() -> requireNonNull(get()).orTimeout(time,
-                                                           unit));
-
-  }
-
-  /**
-   * Creates a new effect that is evaluated to the given value if this effect doesn't terminate in the specified time.
-   * In other words, a timeout failure is map to the specified default value.
-   *
-   * @param time       the time amount
-   * @param unit       the time unit
-   * @param defaultVal the default value evaluated if a timeout happens
-   * @return a new effect
-   */
-  public IO<Output> timeoutOrElse(final long time,
-                                  final TimeUnit unit,
-                                  final Supplier<Output> defaultVal
-                                 ) {
-    if (time <= 0) {
-      throw new IllegalArgumentException("time <= 0");
-    }
-    requireNonNull(unit);
-    requireNonNull(defaultVal);
-    return IO.effect(() -> requireNonNull(get()).completeOnTimeout(defaultVal.get(),
-                                                                   time,
-                                                                   unit
-                                                                  )
-                    );
-
   }
 
 
@@ -629,15 +525,13 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * @see RetryPolicy
    */
   public IO<Output> retry(final Predicate<? super Throwable> predicate,
-                          final RetryPolicy policy
-                         ) {
+                          final RetryPolicy policy) {
     requireNonNull(predicate);
     requireNonNull(policy);
     return retry(this,
                  policy,
                  RetryStatus.ZERO,
-                 predicate
-                );
+                 predicate);
 
   }
 
@@ -656,46 +550,37 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
                  policy);
   }
 
-  private IO<Output> retry(IO<Output> exp,
-                           Function<RetryStatus, Optional<Duration>> policy,
+  private IO<Output> retry(IO<Output> effect,
+                           Function<RetryStatus, Duration> policy,
                            RetryStatus rs,
-                           Predicate<? super Throwable> predicate
-                          ) {
+                           Predicate<? super Throwable> predicate) {
 
-    return exp.then(IO::succeed,
-                    exc -> {
-                      if (predicate.test(exc)) {
-                        Optional<Duration> delayOpt = policy.apply(rs);
-                        if (delayOpt.isEmpty()) {
-                          return fail(exc);
-                        }
-                        Duration duration = delayOpt.get();
-
-                        if (duration.isZero()) {
-                          return retry(exp,
-                                       policy,
-                                       new RetryStatus(rs.counter() + 1,
-                                                       rs.cumulativeDelay(),
-                                                       Duration.ZERO
-                                       ),
-                                       predicate
-                                      );
-                        }
-                        return Delay.of(duration)
-                                    .then($ -> retry(exp,
-                                                     policy,
-                                                     new RetryStatus(rs.counter() + 1,
-                                                                     rs.cumulativeDelay()
-                                                                       .plus(duration),
-                                                                     duration
-                                                     ),
-                                                     predicate
-                                                    )
-                                         );
-                      }
-                      return fail(exc);
-                    }
-                   );
+    return effect.then(IO::succeed,
+                       exc -> {
+                         if (predicate.test(exc)) {
+                           Duration duration = policy.apply(rs);
+                           if (duration == null) {
+                             return fail(exc);
+                           }
+                           if (duration.isZero()) {
+                             return retry(effect,
+                                          policy,
+                                          new RetryStatus(rs.counter() + 1,
+                                                          rs.cumulativeDelay(),
+                                                          Duration.ZERO),
+                                          predicate);
+                           }
+                           return sleep(duration)
+                               .then($ -> retry(effect,
+                                                policy,
+                                                new RetryStatus(rs.counter() + 1,
+                                                                rs.cumulativeDelay()
+                                                                  .plus(duration),
+                                                                duration),
+                                                predicate));
+                         }
+                         return fail(exc);
+                       });
 
   }
 
@@ -712,13 +597,11 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
    * @see RetryPolicy
    */
   public IO<Output> repeat(final Predicate<? super Output> predicate,
-                           final RetryPolicy policy
-                          ) {
+                           final RetryPolicy policy) {
     return repeat(this,
                   requireNonNull(policy),
                   RetryStatus.ZERO,
-                  requireNonNull(predicate)
-                 );
+                  requireNonNull(predicate));
 
   }
 
@@ -726,38 +609,32 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
   private IO<Output> repeat(IO<Output> exp,
                             RetryPolicy policy,
                             RetryStatus rs,
-                            Predicate<? super Output> predicate
-                           ) {
+                            Predicate<? super Output> predicate) {
 
     return exp.then(output -> {
       if (predicate.test(output)) {
-        Optional<Duration> delayOpt = policy.apply(rs);
-        if (delayOpt.isEmpty()) {
+        Duration delay = policy.apply(rs);
+        if (delay == null) {
           return succeed(output);
         }
-        Duration duration = delayOpt.get();
-        if (duration.isZero()) {
+        if (delay.isZero()) {
           return repeat(exp,
                         policy,
                         new RetryStatus(rs.counter() + 1,
                                         rs.cumulativeDelay(),
-                                        Duration.ZERO
-                        ),
-                        predicate
-                       );
+                                        Duration.ZERO),
+                        predicate);
         }
-        return Delay.of(duration)
-                    .then($ -> repeat(exp,
-                                      policy,
-                                      new RetryStatus(rs.counter() + 1,
-                                                      rs.cumulativeDelay()
-                                                        .plus(duration),
-                                                      duration
-                                      ),
-                                      predicate
-                                     )
+        return sleep(delay)
+            .then($ -> repeat(exp,
+                              policy,
+                              new RetryStatus(rs.counter() + 1,
+                                              rs.cumulativeDelay()
+                                                .plus(delay),
+                                              delay),
+                              predicate)
 
-                         );
+                 );
       }
       return succeed(output);
     });
@@ -801,84 +678,26 @@ public sealed abstract class IO<Output> implements Supplier<CompletableFuture<Ou
                                         event.end();
                                         builder.updateAndCommit(exc,
                                                                 event);
-                                      }
-                                     )
-                  );
+                                      }));
   }
 
-  /**
-   * Sleeps for the specified duration before evaluating this effect.
-   * <p>This method introduces a pause in the execution flow for the specified duration using the
-   * {@link Delay#of(Duration)} effect.It can be useful for testing purposes. However, it should be used with caution,
-   * as introducing delays in a program can impact performance and behavior.
-   *
-   * @param duration The duration to sleep for.
-   * @return An {@code IO<Output>} representing the delayed operation.
-   */
+
   public IO<Output> sleep(final Duration duration) {
     Objects.requireNonNull(duration);
-    return Delay.of(duration)
-                .then(it -> this);
-
-  }
-
-
-  /**
-   * Computes this effect and passes the result to the specified consumer or handles the exception using the provided
-   * exception handler. Internally, it creates a new CompletionStage with the same result or exception as this stage,
-   * that executes the given consumer or exception handler when this IO effect completes.
-   *
-   * @param successConsumer The consumer to be called with the result value if the operation succeeds.
-   * @param failureConsumer The handler to be called with the exception if the operation fails.
-   */
-  public void onResult(final Consumer<Output> successConsumer,
-                       final Consumer<Throwable> failureConsumer
-                      ) {
-    requireNonNull(successConsumer);
-    requireNonNull(failureConsumer);
-    var unused = get().whenComplete((value, exc) -> {
-      if (exc == null) {
-        successConsumer.accept(value);
-      } else {
-        failureConsumer.accept(exc);
+    return new Val<>(() -> {
+      try {
+        Thread.sleep(duration);
+        return get();
+      } catch (InterruptedException e) {
+        Thread.currentThread()
+              .interrupt();
+        return new Failure<>(e);
+      } catch (Exception e) {
+        return new Failure<>(e);
       }
     });
-    assert unused != null;
+
   }
 
-  /**
-   * Blocks the caller thread to wait for the result of this effect. Any failure during the computation will be thrown
-   * as an exception.
-   * <p>
-   * This method is a blocking call and is commonly used for testing purposes or in situations where blocking is
-   * acceptable. When using virtual threads, it is completely normal to call this method.
-   * </p>
-   *
-   * @return the computed value.
-   * @throws Exception if a failure occurs during the computation.
-   * @see #join()
-   */
-  public Output result() throws Exception {
-    try {
-      return get().join();
-    } catch (CompletionException e) {
-      Throwable cause = e.getCause();
-      if (cause != null) {
-        throw ((Exception) cause);
-      }
-      throw e;
-    }
-  }
-
-
-  /**
-   * Returns the result value when this effect completes or throws an (unchecked) exception if completed exceptionally.
-   * Concretely, this method throws an (unchecked) CompletionException with the underlying exception as its cause.
-   *
-   * @return the computed value.
-   */
-  public Output join() {
-    return get().join();
-  }
 
 }

@@ -1,17 +1,19 @@
 package jio;
 
-import jsonvalues.JsArray;
-import jsonvalues.JsValue;
+import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
+import jsonvalues.JsArray;
+import jsonvalues.JsValue;
 
 final class JsArrayExpPar extends JsArrayExp {
 
@@ -28,15 +30,22 @@ final class JsArrayExpPar extends JsArrayExp {
    * @return a CompletableFuture of a json array
    */
   @Override
-  CompletableFuture<JsArray> reduceExp() {
-    var result = CompletableFuture.completedFuture(JsArray.empty());
+  Result<JsArray> reduceExp() {
+    try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
 
-    for (final IO<? extends JsValue> future : list) {
-      result = result.thenCombine(future.get(),
-                                  JsArray::append
-                                 );
+      List<? extends Subtask<? extends JsValue>> xs =
+          list.stream()
+              .map(exp -> scope.fork(exp.get()))
+              .toList();
+      scope.join()
+           .throwIfFailed();
+      return new Success<>(JsArray.ofIterable(xs.stream()
+                                                .map(Subtask::get)
+                                                .collect(Collectors.toList())));
+
+    } catch (Exception e) {
+      return new Failure<>(e);
     }
-    return result;
   }
 
 

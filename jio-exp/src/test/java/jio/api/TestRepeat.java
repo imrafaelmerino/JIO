@@ -1,6 +1,9 @@
 package jio.api;
 
 import fun.tuple.Pair;
+import java.time.Duration;
+import java.util.Random;
+import java.util.concurrent.ForkJoinPool;
 import jio.IO;
 import jio.ListExp;
 import jio.PairExp;
@@ -8,13 +11,10 @@ import jio.RetryPolicies;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.util.concurrent.ForkJoinPool;
-
-import static jio.api.TestManagedBlocker.random;
 
 public class TestRepeat {
 
+  static Random random = new Random();
   static int maxActiveThreadCount = -1;
 
   public static int sleepRandom(int max) {
@@ -39,8 +39,8 @@ public class TestRepeat {
   public void testRepeatLimits() {
 
     int max = 10;
-    IO<Pair<Integer, Integer>> pair = PairExp.par(IO.managedLazy(() -> sleepRandom(max)),
-                                                  IO.managedLazy(() -> sleepRandom(max))
+    IO<Pair<Integer, Integer>> pair = PairExp.par(IO.lazyOn(() -> sleepRandom(max)),
+                                                  IO.lazyOn(() -> sleepRandom(max))
                                                  )
                                              .debugEach("pair")
                                              .repeat(e -> true,
@@ -53,7 +53,7 @@ public class TestRepeat {
         exp = exp.append(pair);
       }
 
-      System.out.println(exp.join());
+      System.out.println(exp.get());
     } finally {
       System.out.println(maxActiveThreadCount);
     }

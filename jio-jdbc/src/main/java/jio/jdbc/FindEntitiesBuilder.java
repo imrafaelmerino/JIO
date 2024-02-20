@@ -27,7 +27,7 @@ public final class FindEntitiesBuilder<Filter, Entity> {
 
   private final String sqlQuery;
   private final ParamsSetter<Filter> setter;
-  private final ResultSetMapper<Entity> mapper;
+  private final ResultSetMapper<List<Entity>> mapper;
   private int fetchSize = DEFAULT_FETCH_SIZE;
 
   private String label;
@@ -48,7 +48,7 @@ public final class FindEntitiesBuilder<Filter, Entity> {
   private FindEntitiesBuilder(Duration timeout,
                               String sqlQuery,
                               ParamsSetter<Filter> setter,
-                              ResultSetMapper<Entity> mapper) {
+                              ResultSetMapper<List<Entity>> mapper) {
     this.timeout = Objects.requireNonNull(timeout);
     this.sqlQuery = Objects.requireNonNull(sqlQuery);
     if (!PATTERN.matcher(sqlQuery)
@@ -63,18 +63,18 @@ public final class FindEntitiesBuilder<Filter, Entity> {
    * Creates a new instance of QueryStmBuilder with the specified SQL query statement, parameter setter, and result
    * mapper.
    *
-   * @param <I>      The type of input elements for the query operation.
-   * @param <O>      The type of the output result from the query operation.
+   * @param <Filter>      The type of input elements for the query operation.
+   * @param <Entity>      The type of the output result from the query operation.
    * @param sqlQuery The SQL query statement for the query operation.
    * @param timeout  The time the driver will wait for a statement to execute
    * @param setter   A function to set parameters on a {@link java.sql.PreparedStatement}.
    * @param mapper   A function to map the result set to the desired output type.
    * @return A new instance of QueryStmBuilder.
    */
-  public static <I, O> FindEntitiesBuilder<I, O> of(String sqlQuery,
-                                                    ParamsSetter<I> setter,
-                                                    ResultSetMapper<O> mapper,
-                                                    Duration timeout) {
+  public static <Filter, Entity> FindEntitiesBuilder<Filter, Entity> of(String sqlQuery,
+                                                                        ParamsSetter<Filter> setter,
+                                                                        ResultSetMapper<List<Entity>> mapper,
+                                                                        Duration timeout) {
     return new FindEntitiesBuilder<>(timeout,
                                      sqlQuery,
                                      setter,

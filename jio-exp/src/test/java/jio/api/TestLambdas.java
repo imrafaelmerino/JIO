@@ -2,6 +2,8 @@ package jio.api;
 
 import jio.BiLambda;
 import jio.Lambda;
+import jio.Result;
+import jio.Result.Success;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -13,14 +15,15 @@ public class TestLambdas {
     Lambda<String, String> fn =
         Lambda.liftFunction(String::trim);
 
-    Assertions.assertEquals("hi",
+    Assertions.assertEquals(new Success<>("hi"),
                             fn.apply("  hi  ")
-                              .join());
+                              .get());
 
     Lambda<String, Boolean> p = Lambda.liftPredicate(String::isBlank);
 
-    Assertions.assertTrue(p.apply(" ")
-                           .join());
+    Assertions.assertEquals(Result.TRUE,
+                            p.apply(" ")
+                             .get());
 
 
   }
@@ -31,16 +34,17 @@ public class TestLambdas {
     BiLambda<String, String, String> fn =
         BiLambda.<String, String, String>liftFunction((a, b) -> a + b);
 
-    Assertions.assertEquals("ab",
+    Assertions.assertEquals(new Success<>("ab"),
                             fn.apply("a",
                                      "b")
-                              .join());
+                              .get());
 
     BiLambda<String, String, Boolean> p = BiLambda.liftPredicate(String::endsWith);
 
-    Assertions.assertTrue(p.apply("ab",
-                                  "b")
-                           .join());
+    Assertions.assertEquals(Result.TRUE,
+                            p.apply("ab",
+                                    "b")
+                             .get());
 
   }
 }

@@ -1,19 +1,19 @@
 package jio;
 
-import jsonvalues.JsObj;
-import jsonvalues.JsValue;
+import static java.util.Objects.requireNonNull;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
+import jsonvalues.JsObj;
+import jsonvalues.JsValue;
 
 /**
  * Represents a supplier of a completable future which result is a json object. It has the same recursive structure as a
@@ -61,20 +61,21 @@ final class JsObjExpSeq extends JsObjExp {
    * @return a CompletableFuture of a json object
    */
   @Override
-  CompletableFuture<JsObj> reduceExp() {
+  Result<JsObj> reduceExp() {
 
-    CompletableFuture<JsObj> result = CompletableFuture.completedFuture(JsObj.empty());
-
-    for (final Map.Entry<String, IO<? extends JsValue>> tuple : bindings.entrySet()) {
-      result = result.thenCombine(tuple.getValue()
-                                       .get(),
-                                  (obj, value) -> obj.set(tuple.getKey(),
-                                                          value
-                                                         )
-                                 );
+    JsObj result = JsObj.empty();
+    for (var entry : bindings.entrySet()) {
+      try {
+        result = result.set(entry.getKey(),
+                            entry.getValue()
+                                 .get()
+                                 .call());
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
     }
 
-    return result;
+    return new Success<>(result);
   }
 
 

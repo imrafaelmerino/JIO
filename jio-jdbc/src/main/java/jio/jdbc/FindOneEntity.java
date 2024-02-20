@@ -139,7 +139,7 @@ final class FindOneEntity<Filter, Entity> {
                           ps.setQueryTimeout((int) timeout.toSeconds());
                           ps.setFetchSize(1);
                           var rs = ps.executeQuery();
-                          return rs.next() ? mapper.apply(rs) : null;
+                          return mapper.apply(rs);
                         },
                         sql,
                         enableJFR,

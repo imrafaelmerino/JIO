@@ -2,6 +2,7 @@ package jio.api;
 
 import fun.tuple.Triple;
 import jio.IO;
+import jio.Result.Success;
 import jio.TripleExp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,11 +21,11 @@ public class TestTripleExp {
                      );
 
     Assertions.assertEquals(
-        Triple.of("a",
-                  "b",
-                  "c"
-                 ),
-        triple.join());
+        new Success<>(Triple.of("a",
+                                "b",
+                                "c"
+                               )),
+        triple.get());
   }
 
 
@@ -38,11 +39,11 @@ public class TestTripleExp {
                      );
 
     Assertions.assertEquals(
-        Triple.of("a",
-                  "b",
-                  "c"
-                 ),
-        triple.join()
+        new Success<>(Triple.of("a",
+                                "b",
+                                "c"
+                               )),
+        triple.get()
                            );
   }
 

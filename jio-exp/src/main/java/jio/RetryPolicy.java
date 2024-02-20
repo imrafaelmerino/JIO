@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 
 
@@ -25,7 +24,7 @@ import java.util.function.Function;
  *
  * @see RetryPolicies
  */
-public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
+public interface RetryPolicy extends Function<RetryStatus, Duration> {
 
   /**
    * Combines this policy with another policy. If either policy (this or other) returns {@code Optional.empty()}, the
@@ -39,15 +38,17 @@ public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
   default RetryPolicy append(final RetryPolicy other) {
     Objects.requireNonNull(other);
     return retryStatus -> {
-      Optional<Duration> aOpt = RetryPolicy.this.apply(retryStatus);
-      if (aOpt.isEmpty()) {
-        return aOpt;
+      Duration aDelay = RetryPolicy.this.apply(retryStatus);
+      if (aDelay == null) {
+        return null;
       }
-      Optional<Duration> bOpt = other.apply(retryStatus);
-      return bOpt.map(duration -> aOpt.get()
-                                      .compareTo(duration) >= 0 ?
-                                  aOpt.get() :
-                                  duration);
+      Duration bDelay = other.apply(retryStatus);
+      if (bDelay == null) {
+        return null;
+      }
+      return aDelay.compareTo(bDelay) >= 0 ?
+             aDelay :
+             bDelay;
     };
   }
 
@@ -62,8 +63,8 @@ public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
   default RetryPolicy followedBy(final RetryPolicy other) {
     Objects.requireNonNull(other);
     return rs -> {
-      Optional<Duration> delay = this.apply(rs);
-      return delay.isEmpty() ? other.apply(rs) : delay;
+      Duration delay = this.apply(rs);
+      return delay == null ? other.apply(rs) : delay;
     };
   }
 
@@ -77,13 +78,12 @@ public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
   default RetryPolicy capDelay(final Duration cap) {
     Objects.requireNonNull(cap);
     return rs -> {
-      Optional<Duration> delay = this.apply(rs);
-      if (delay.isEmpty()) {
-        return delay;
+      Duration delay = this.apply(rs);
+      if (delay == null) {
+        return null;
       }
-      return delay.get()
-                  .compareTo(cap) >= 0 ?
-             Optional.of(cap) :
+      return delay.compareTo(cap) >= 0 ?
+             cap :
              delay;
     };
 
@@ -99,13 +99,12 @@ public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
   default RetryPolicy limitRetriesByDelay(final Duration max) {
     Objects.requireNonNull(max);
     return rs -> {
-      Optional<Duration> delay = this.apply(rs);
-      if (delay.isEmpty()) {
-        return delay;
+      Duration delay = this.apply(rs);
+      if (delay == null) {
+        return null;
       }
-      return delay.get()
-                  .compareTo(max) >= 0 ?
-             Optional.empty() :
+      return delay.compareTo(max) >= 0 ?
+             null :
              delay;
     };
   }
@@ -120,7 +119,7 @@ public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
   default RetryPolicy limitRetriesByCumulativeDelay(final Duration max) {
     Objects.requireNonNull(max);
     return rs -> rs.cumulativeDelay()
-                   .compareTo(max) <= 0 ? this.apply(rs) : Optional.empty();
+                   .compareTo(max) <= 0 ? this.apply(rs) : null;
   }
 
   /**
@@ -140,10 +139,9 @@ public interface RetryPolicy extends Function<RetryStatus, Optional<Duration>> {
                                        Duration.ZERO,
                                        Duration.ZERO);
     for (int i = 1; i <= iterations; i++) {
-      Optional<Duration> opt = this.apply(next);
-      if (opt.isPresent()) {
+      Duration delay = this.apply(next);
+      if (delay != null) {
         simulation.add(next);
-        Duration delay = opt.get();
         next = new RetryStatus(next.counter() + 1,
                                next.cumulativeDelay()
                                    .plus(delay),

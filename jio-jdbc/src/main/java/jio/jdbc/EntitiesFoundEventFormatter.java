@@ -1,8 +1,7 @@
 package jio.jdbc;
 
-import jdk.jfr.consumer.RecordedEvent;
-
 import java.util.function.Function;
+import jdk.jfr.consumer.RecordedEvent;
 import jio.time.Fun;
 
 /**
