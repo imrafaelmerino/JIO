@@ -12,14 +12,13 @@ public final class DeleteStub extends ReqHandlerStub {
   private DeleteStub(final BodyStub body,
                      final StatusCodeStub statusCode,
                      final HeadersStub headers
-                    ) {
+  ) {
     super(requireNonNull(body),
           requireNonNull(statusCode),
           requireNonNull(headers),
           "delete"
-         );
+    );
   }
-
 
   /**
    * Creates a DELETE handler stub that builds the HTTP response from the given body, status code, and headers stubs.
@@ -32,7 +31,7 @@ public final class DeleteStub extends ReqHandlerStub {
   public static DeleteStub of(final BodyStub body,
                               final StatusCodeStub statusCode,
                               final HeadersStub headers
-                             ) {
+  ) {
     return new DeleteStub(body,
                           statusCode,
                           headers);
@@ -47,7 +46,7 @@ public final class DeleteStub extends ReqHandlerStub {
    */
   public static DeleteStub of(final BodyStub body,
                               final StatusCodeStub statusCode
-                             ) {
+  ) {
     return new DeleteStub(body,
                           statusCode,
                           HeadersStub.EMPTY);

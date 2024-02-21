@@ -1,8 +1,10 @@
 package jio.jdbc;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.Duration;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import jio.IO;
 import jio.Lambda;
@@ -76,33 +78,17 @@ final class InsertOneEntity<Params, Output> {
    * @see #buildClosable() for using insert statements during transactions
    */
   Lambda<Params, Output> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
-    return params -> IO.task(() -> JfrEventDecorator.decorateInsertOneStm(
-                                                                          () -> {
-                                                                            try (var connection = datasourceBuilder.get()
-                                                                                                                   .getConnection()
-                                                                            ) {
-                                                                              try (var ps = connection.prepareStatement(sql,
-                                                                                                                        Statement.RETURN_GENERATED_KEYS)
-                                                                              ) {
-                                                                                ps.setQueryTimeout((int) timeout.toSeconds());
-                                                                                int unused = setter.apply(params)
-                                                                                                   .apply(ps);
-                                                                                assert unused > 0;
-                                                                                int numRowsAffected = ps.executeUpdate();
-                                                                                assert numRowsAffected >= 0;
-                                                                                try (ResultSet resultSet = ps.getGeneratedKeys()) {
-                                                                                  if (resultSet.next()) {
-                                                                                    return mapResult.apply(params)
-                                                                                                    .apply(resultSet);
-                                                                                  }
-                                                                                  throw new ColumnNotGeneratedException(sql);
-                                                                                }
-                                                                              }
-                                                                            }
-                                                                          },
-                                                                          sql,
-                                                                          enableJFR,
-                                                                          label));
+    return params -> {
+      Callable<Output> callable = () -> {
+        try (var connection = datasourceBuilder.get()
+                                               .getConnection()
+        ) {
+          return insertOne(params,
+                           connection);
+        }
+      };
+      return IO.task(callable);
+    };
   }
 
   /**
@@ -116,28 +102,38 @@ final class InsertOneEntity<Params, Output> {
    */
   ClosableStatement<Params, Output> buildClosable() {
     return (params,
-            connection) -> IO.task(() -> JfrEventDecorator.decorateInsertOneStm(
-                                                                                () -> {
-                                                                                  try (var ps = connection.prepareStatement(sql,
-                                                                                                                            Statement.RETURN_GENERATED_KEYS)
-                                                                                  ) {
-                                                                                    ps.setQueryTimeout((int) timeout.toSeconds());
-                                                                                    int unused = setter.apply(params)
-                                                                                                       .apply(ps);
-                                                                                    assert unused > 0;
-                                                                                    int numRowsAffected = ps.executeUpdate();
-                                                                                    assert numRowsAffected == 1;
-                                                                                    try (ResultSet resultSet = ps.getGeneratedKeys()) {
-                                                                                      if (resultSet.next()) {
-                                                                                        return mapResult.apply(params)
-                                                                                                        .apply(resultSet);
-                                                                                      }
-                                                                                      throw new ColumnNotGeneratedException(sql);
-                                                                                    }
-                                                                                  }
-                                                                                },
-                                                                                sql,
-                                                                                enableJFR,
-                                                                                label));
+            connection) -> {
+      Callable<Output> callable = () -> insertOne(params,
+                                                  connection);
+      return IO.task(callable);
+    };
+  }
+
+  private Output insertOne(final Params params,
+                           final Connection connection) throws Exception {
+    try (var ps = connection.prepareStatement(sql,
+                                              Statement.RETURN_GENERATED_KEYS)
+    ) {
+      return JfrEventDecorator.decorateInsertOneStm(
+                                                    () -> {
+                                                      ps.setQueryTimeout((int) timeout.toSeconds());
+                                                      int unused = setter.apply(params)
+                                                                         .apply(ps);
+                                                      assert unused > 0;
+                                                      int numRowsAffected = ps.executeUpdate();
+                                                      assert numRowsAffected >= 0;
+                                                      try (ResultSet resultSet = ps.getGeneratedKeys()) {
+                                                        if (resultSet.next()) {
+                                                          return mapResult.apply(params)
+                                                                          .apply(resultSet);
+                                                        }
+                                                        throw new ColumnNotGeneratedException(sql);
+                                                      }
+
+                                                    },
+                                                    sql,
+                                                    enableJFR,
+                                                    label);
+    }
   }
 }

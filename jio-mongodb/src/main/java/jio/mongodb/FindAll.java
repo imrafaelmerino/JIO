@@ -66,4 +66,5 @@ public final class FindAll extends Find implements MongoLambda<FindBuilder, Find
     return query(session,
                  findBuilder);
   }
+
 }

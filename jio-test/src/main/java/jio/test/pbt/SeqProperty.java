@@ -6,7 +6,6 @@ import jsonvalues.JsObj;
 
 import java.util.Objects;
 
-
 non-sealed class SeqProperty<GenValue> extends Testable {
 
   final int executionTimes;

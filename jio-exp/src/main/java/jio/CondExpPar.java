@@ -2,10 +2,8 @@ package jio;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.function.BiConsumer;
@@ -36,9 +34,9 @@ final class CondExpPar<Output> extends CondExp<Output> {
   Result<Output> reduceExp() {
     try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
 
-      List<Subtask<Boolean>> tasks = tests.stream()
-                                          .map(cond -> scope.fork(cond.get()))
-                                          .toList();
+      List<Subtask<Result<Boolean>>> tasks = tests.stream()
+                                                  .map(scope::fork)
+                                                  .toList();
 
       try {
         scope.join()
@@ -50,18 +48,19 @@ final class CondExpPar<Output> extends CondExp<Output> {
     }
   }
 
-  private Result<Output> getFirstThatIsTrueOrDefault(List<Subtask<Boolean>> tasks) {
+  private Result<Output> getFirstThatIsTrueOrDefault(List<Subtask<Result<Boolean>>> tasks) throws Exception {
 
     for (int i = 0; i < tasks.size(); i++) {
       if (tasks.get(i)
-               .get()) {
+               .get()
+               .call()) {
         return consequences.get(i)
                            .get()
-                           .get();
+                           .call();
       }
     }
     return otherwise.get()
-                    .get();
+                    .call();
   }
 
   @Override

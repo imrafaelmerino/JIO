@@ -135,7 +135,7 @@ public final class HttpServerBuilder {
                             start,
                             end
     )
-     .get()
+     .result()
      .call();
   }
 
@@ -164,7 +164,7 @@ public final class HttpServerBuilder {
                             start,
                             end
     )
-     .get()
+     .result()
      .call();
   }
 
@@ -177,9 +177,9 @@ public final class HttpServerBuilder {
     }
     return build(requireNonNull(host),
                  start
-    ).recoverWith(error -> buildAtRandomRec(host,
-                                            start + 1,
-                                            end));
+    ).recoverWith(_ -> buildAtRandomRec(host,
+                                        start + 1,
+                                        end));
   }
 
   /**
@@ -295,7 +295,7 @@ public final class HttpServerBuilder {
   public HttpServer start(final int port) throws Exception {
     return build("localhost",
                  port
-    ).get()
+    ).result()
      .call();
   }
 
@@ -313,7 +313,7 @@ public final class HttpServerBuilder {
     return build(host,
                  port
     )
-     .get()
+     .result()
      .call();
   }
 

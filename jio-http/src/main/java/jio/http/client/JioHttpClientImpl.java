@@ -91,11 +91,11 @@ final class JioHttpClientImpl implements JioHttpClient {
   public <T> HttpLambda<T> bodyHandler(final HttpResponse.BodyHandler<T> handler) {
     requireNonNull(handler);
     if (reqRetryPolicy != null && reqRetryPredicate != null) {
-      return builder -> {
-        requireNonNull(builder);
-        return IO.taskOn(() -> requestWrapper(this,
-                                              builder.build(),
-                                              handler
+      return requestBuilder -> {
+        requireNonNull(requestBuilder);
+        return IO.task(() -> requestWrapper(this,
+                                            requestBuilder.build(),
+                                            handler
         )
         )
                  .retry(reqRetryPredicate,
@@ -104,20 +104,20 @@ final class JioHttpClientImpl implements JioHttpClient {
       };
     }
     if (reqRetryPolicy != null) {
-      return builder -> {
-        requireNonNull(builder);
+      return requestBuilder -> {
+        requireNonNull(requestBuilder);
         return IO.task(() -> requestWrapper(this,
-                                            builder.build(),
+                                            requestBuilder.build(),
                                             handler
         )
         )
                  .retry(reqRetryPolicy);
       };
     }
-    return builder -> {
-      requireNonNull(builder);
+    return requestBuilder -> {
+      requireNonNull(requestBuilder);
       return IO.task(() -> requestWrapper(this,
-                                          builder.build(),
+                                          requestBuilder.build(),
                                           handler
       )
       );

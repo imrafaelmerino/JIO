@@ -7,7 +7,7 @@ import jio.Result.Success;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestLambdas {
+public class LambdasTest {
 
   @Test
   public void test_lambda_lift() {
@@ -16,13 +16,13 @@ public class TestLambdas {
 
     Assertions.assertEquals(new Success<>("hi"),
                             fn.apply("  hi  ")
-                              .get());
+                              .result());
 
     Lambda<String, Boolean> p = Lambda.liftPredicate(String::isBlank);
 
     Assertions.assertEquals(Result.TRUE,
                             p.apply(" ")
-                             .get());
+                             .result());
 
   }
 
@@ -35,14 +35,14 @@ public class TestLambdas {
     Assertions.assertEquals(new Success<>("ab"),
                             fn.apply("a",
                                      "b")
-                              .get());
+                              .result());
 
     BiLambda<String, String, Boolean> p = BiLambda.liftPredicate(String::endsWith);
 
     Assertions.assertEquals(Result.TRUE,
                             p.apply("ab",
                                     "b")
-                             .get());
+                             .result());
 
   }
 }

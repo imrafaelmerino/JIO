@@ -1,15 +1,14 @@
 package jio.http.client.oauth;
 
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import jio.IO;
 import jio.Lambda;
 import jio.http.client.HttpLambda;
 import jio.http.client.JioHttpClient;
 import jio.http.client.JioHttpClientBuilder;
-
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * An HTTP client with support for OAuth Client Credentials Grant. This client allows you to make HTTP requests with
@@ -134,9 +133,10 @@ final class ClientCredentialsClient implements OauthHttpClient {
       return IO.fail(new RefreshTokenLoop(deep));
     }
 
-    IO<String> getToken = (refreshToken || this.accessToken == null) ? accessTokenReq.apply(this)
-                                                                                     .then(getAccessToken)
-                                                                                     .peekSuccess(newToken -> this.accessToken = newToken)
+    IO<String> getToken = (refreshToken || this.accessToken == null)
+        ? accessTokenReq.apply(this)
+                        .then(getAccessToken)
+                        .peekSuccess(newToken -> this.accessToken = newToken)
         : IO.succeed(this.accessToken);
 
     return getToken.then(token -> httpLambda.apply(builder.setHeader(authorizationHeaderName,
@@ -147,7 +147,8 @@ final class ClientCredentialsClient implements OauthHttpClient {
                                                                                                           builder,
                                                                                                           true,
                                                                                                           deep + 1
-                                            ) : IO.succeed(resp)
+                                            )
+                                                : IO.succeed(resp)
                                             )
     );
   }

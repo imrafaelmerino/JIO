@@ -2,6 +2,7 @@ package jio;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.StructuredTaskScope;
@@ -17,7 +18,7 @@ import jsonvalues.JsValue;
 
 final class JsArrayExpPar extends JsArrayExp {
 
-  public JsArrayExpPar(List<IO<? extends JsValue>> list,
+  public JsArrayExpPar(List<IO<JsValue>> list,
                        Function<EvalExpEvent, BiConsumer<JsArray, Throwable>> debugger
   ) {
     super(list,
@@ -33,14 +34,18 @@ final class JsArrayExpPar extends JsArrayExp {
   Result<JsArray> reduceExp() {
     try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
 
-      List<? extends Subtask<? extends JsValue>> xs = list.stream()
-                                                          .map(exp -> scope.fork(exp.get()))
-                                                          .toList();
+      List<Subtask<Result<JsValue>>> xs = list.stream()
+                                              .map(scope::fork)
+                                              .toList();
       scope.join()
            .throwIfFailed();
-      return new Success<>(JsArray.ofIterable(xs.stream()
-                                                .map(Subtask::get)
-                                                .collect(Collectors.toList())));
+      List<JsValue> result = new ArrayList<>();
+      for (var task : xs) {
+        JsValue call = task.get()
+                           .call();
+        result.add(call);
+      }
+      return new Success<>(JsArray.ofIterable(result));
 
     } catch (Exception e) {
       return new Failure<>(e);

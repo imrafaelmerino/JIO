@@ -44,15 +44,16 @@ final class AllExpPar extends AllExp {
   @Override
   Result<Boolean> reduceExp() {
     try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-      List<Subtask<Boolean>> computed = new ArrayList<>(exps.size());
+      List<Subtask<Result<Boolean>>> computed = new ArrayList<>(exps.size());
       for (var task : exps) {
-        computed.add(scope.fork(task.get()));
+        computed.add(scope.fork(task));
       }
       try {
         scope.join()
              .throwIfFailed();
         return new Success<>(computed.stream()
-                                     .allMatch(Subtask::get));  // Throws if none of the subtasks completed successfully
+                                     .allMatch(task -> task.get()
+                                                           .equals(Result.TRUE)));  // Throws if none of the subtasks completed successfully
       } catch (Exception e) {
         return new Failure<>(e);
       }

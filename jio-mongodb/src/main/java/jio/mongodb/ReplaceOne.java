@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 import jio.IO;
 
 /**
- * A class for performing replace one operations on a MongoDB collection.
+ * A class for performing replace one operation on a MongoDB collection.
  * <p>
  * The `ReplaceOne` class is designed for performing replace operations to updateCommands a single document within a
  * MongoDB collection. It provides flexibility in handling the result and allows you to specify various options for the
@@ -24,9 +24,9 @@ import jio.IO;
  * can use the provided `QueryReplace` object to define the query and the new document for the operation.
  *
  * @see CollectionBuilder
- * @see QueryReplace
+ * @see QueryAndDoc
  */
-public final class ReplaceOne extends Op implements MongoLambda<QueryReplace, UpdateResult> {
+public final class ReplaceOne extends Op implements MongoLambda<QueryAndDoc, UpdateResult> {
 
   static final ReplaceOptions DEFAULT_OPTIONS = new ReplaceOptions();
   private ReplaceOptions options = DEFAULT_OPTIONS;
@@ -66,23 +66,23 @@ public final class ReplaceOne extends Op implements MongoLambda<QueryReplace, Up
   /**
    * Applies the replace one operation to the specified MongoDB collection with a query and a new document.
    *
-   * @param session      The MongoDB client session, or null if not within a session.
-   * @param queryReplace The query and new document criteria for the operation.
+   * @param session     The MongoDB client session, or null if not within a session.
+   * @param queryAndDoc The query and new document criteria for the operation.
    * @return An IO representing the result of the replace one operation.
    */
   @Override
   public IO<UpdateResult> apply(final ClientSession session,
-                                final QueryReplace queryReplace) {
-    Objects.requireNonNull(queryReplace);
+                                final QueryAndDoc queryAndDoc) {
+    Objects.requireNonNull(queryAndDoc);
 
     Supplier<UpdateResult> supplier = decorateWithEvent(() -> {
       var collection = requireNonNull(this.collection.get());
-      return session == null ? collection.replaceOne(toBson(queryReplace.query()),
-                                                     queryReplace.newDoc(),
+      return session == null ? collection.replaceOne(toBson(queryAndDoc.query()),
+                                                     queryAndDoc.newDoc(),
                                                      options
       ) : collection.replaceOne(session,
-                                toBson(queryReplace.query()),
-                                queryReplace.newDoc(),
+                                toBson(queryAndDoc.query()),
+                                queryAndDoc.newDoc(),
                                 options
       );
     },

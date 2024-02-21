@@ -48,7 +48,7 @@ public final class RetryPolicies {
    */
   public static RetryPolicy constantDelay(final Duration delay) {
     Objects.requireNonNull(delay);
-    return rs -> delay;
+    return _ -> delay;
   }
 
   /**

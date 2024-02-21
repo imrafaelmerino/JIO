@@ -58,7 +58,7 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
     List<Elem> xs = new ArrayList<>(list.size());
     for (var entry : list) {
       try {
-        xs.add(entry.get()
+        xs.add(entry.call()
                     .call()
         );
       } catch (Exception e) {

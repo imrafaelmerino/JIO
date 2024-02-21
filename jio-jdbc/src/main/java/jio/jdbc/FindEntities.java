@@ -1,7 +1,9 @@
 package jio.jdbc;
 
+import java.sql.Connection;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.Callable;
 import jio.IO;
 import jio.Lambda;
 
@@ -83,27 +85,18 @@ final class FindEntities<Filter, Entity> {
    * @see #buildClosable() for using query statements during transactions
    */
   Lambda<Filter, List<Entity>> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
-    return params -> IO.task(() -> {
-      try (var connection = datasourceBuilder.get()
-                                             .getConnection()
-      ) {
-        try (var statement = connection.prepareStatement(sql)) {
-          return JfrEventDecorator.decorateQueryStm(
-                                                    () -> {
-                                                      var unused = setter.apply(params)
-                                                                         .apply(statement);
-                                                      statement.setQueryTimeout((int) timeout.toSeconds());
-                                                      statement.setFetchSize(fetchSize);
-                                                      var rs = statement.executeQuery();
-                                                      return mapper.apply(rs);
-                                                    },
-                                                    sql,
-                                                    enableJFR,
-                                                    label,
-                                                    fetchSize);
+    return params -> {
+      Callable<List<Entity>> callable = () -> {
+        try (var connection = datasourceBuilder.get()
+                                               .getConnection()
+        ) {
+          return find(params,
+                      connection);
         }
-      }
-    });
+      };
+
+      return IO.task(callable);
+    };
   }
 
   /**
@@ -116,22 +109,29 @@ final class FindEntities<Filter, Entity> {
    */
   ClosableStatement<Filter, List<Entity>> buildClosable() {
     return (params,
-            connection) -> IO.task(() -> {
-              try (var ps = connection.prepareStatement(sql)) {
-                return JfrEventDecorator.decorateQueryStm(
-                                                          () -> {
-                                                            var unused = setter.apply(params)
-                                                                               .apply(ps);
-                                                            ps.setQueryTimeout((int) timeout.toSeconds());
-                                                            ps.setFetchSize(fetchSize);
-                                                            var rs = ps.executeQuery();
-                                                            return mapper.apply(rs);
-                                                          },
-                                                          sql,
-                                                          enableJFR,
-                                                          label,
-                                                          fetchSize);
-              }
-            });
+            connection) -> {
+      Callable<List<Entity>> callable = () -> find(params,
+                                                   connection);
+      return IO.task(callable);
+    };
+  }
+
+  private List<Entity> find(final Filter params,
+                            final Connection connection) throws Exception {
+    try (var ps = connection.prepareStatement(sql)) {
+      return JfrEventDecorator.decorateQueryStm(
+                                                () -> {
+                                                  var unused = setter.apply(params)
+                                                                     .apply(ps);
+                                                  ps.setQueryTimeout((int) timeout.toSeconds());
+                                                  ps.setFetchSize(fetchSize);
+                                                  var rs = ps.executeQuery();
+                                                  return mapper.apply(rs);
+                                                },
+                                                sql,
+                                                enableJFR,
+                                                label,
+                                                fetchSize);
+    }
   }
 }

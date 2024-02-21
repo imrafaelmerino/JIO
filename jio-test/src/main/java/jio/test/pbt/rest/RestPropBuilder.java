@@ -27,29 +27,26 @@ import static java.util.Objects.requireNonNull;
 abstract class RestPropBuilder<GenReqBody, PropBuilder extends RestPropBuilder<GenReqBody, PropBuilder>> {
 
   @SuppressWarnings("UnnecessaryLambda")
-  final static Function<HttpResponse<String>, TestResult> DEFAULT_RESP_ASSERT =
-      resp -> resp.statusCode() < 300 ?
-              TestResult.SUCCESS :
-              TestFailure.reason("Expected status code < 300, but got a " + resp.statusCode());
+  final static Function<HttpResponse<String>, TestResult> DEFAULT_RESP_ASSERT = resp -> resp.statusCode() < 300
+      ? TestResult.SUCCESS : TestFailure.reason("Expected status code < 300, but got a " + resp.statusCode());
   final String name;
   final BiLambda<JsObj, GenReqBody, HttpResponse<String>> post;
   final BiLambda<JsObj, String, HttpResponse<String>> get;
   final BiLambda<JsObj, String, HttpResponse<String>> delete;
   final Gen<GenReqBody> gen;
   @SuppressWarnings("UnnecessaryLambda")
-  private final Function<JsPath, BiFunction<GenReqBody, HttpResponse<String>, IO<String>>> getIdFromPath =
-      path -> (body, resp) -> {
-        try {
-          JsObj respBody = JsObj.parse(resp.body());
-          JsValue id = respBody.get(path);
-          return id == JsNothing.NOTHING ?
-                 IO.fail(TestFailure.reason(path + " not found in the following json: " + resp.body()))
-                                         :
-                 IO.succeed(id.toString());
-        } catch (JsParserException e) {
-          return IO.fail(TestFailure.reason("resp body is not a Json well-formed: " + resp.body()));
-        }
-      };
+  private final Function<JsPath, BiFunction<GenReqBody, HttpResponse<String>, IO<String>>> getIdFromPath = path -> (body,
+                                                                                                                    resp) -> {
+    try {
+      JsObj respBody = JsObj.parse(resp.body());
+      JsValue id = respBody.get(path);
+      return id == JsNothing.NOTHING ? IO.fail(TestFailure.reason(path + " not found in the following json: " + resp
+                                                                                                                    .body()))
+          : IO.succeed(id.toString());
+    } catch (JsParserException e) {
+      return IO.fail(TestFailure.reason("resp body is not a Json well-formed: " + resp.body()));
+    }
+  };
   Function<HttpResponse<String>, TestResult> postAssert = DEFAULT_RESP_ASSERT;
   Function<HttpResponse<String>, TestResult> getAssert = DEFAULT_RESP_ASSERT;
   Function<HttpResponse<String>, TestResult> deleteAssert = DEFAULT_RESP_ASSERT;
@@ -69,7 +66,7 @@ abstract class RestPropBuilder<GenReqBody, PropBuilder extends RestPropBuilder<G
                          BiLambda<JsObj, GenReqBody, HttpResponse<String>> p_post,
                          BiLambda<JsObj, String, HttpResponse<String>> p_get,
                          BiLambda<JsObj, String, HttpResponse<String>> p_delete
-                        ) {
+  ) {
     this.post = requireNonNull(p_post);
     this.get = requireNonNull(p_get);
     this.delete = requireNonNull(p_delete);
@@ -118,8 +115,9 @@ abstract class RestPropBuilder<GenReqBody, PropBuilder extends RestPropBuilder<G
    * Sets the function to extract an ID for subsequent HTTP requests. You can choose from two specific ways to extract
    * the ID:
    * <ul>
-   *   <li>Use {@link #withGetIdFromReqBody(Function)} to extract the ID from the request body of type O.</li>
-   *   <li>Use {@link #withGetIdFromJSONRespPath(JsPath)} to extract the ID from the HTTP response using a specific path.</li>
+   * <li>Use {@link #withGetIdFromReqBody(Function)} to extract the ID from the request body of type O.</li>
+   * <li>Use {@link #withGetIdFromJSONRespPath(JsPath)} to extract the ID from the HTTP response using a specific
+   * path.</li>
    * </ul>
    *
    * @param getId The function to extract an ID for subsequent HTTP requests.
@@ -152,19 +150,18 @@ abstract class RestPropBuilder<GenReqBody, PropBuilder extends RestPropBuilder<G
   @SuppressWarnings("unchecked")
   public PropBuilder withGetIdFromReqBody(final Function<GenReqBody, String> p_getId) {
     requireNonNull(p_getId);
-    this.getId = (body, resp) -> {
+    this.getId = (body,
+                  resp) -> {
       String id = p_getId.apply(body);
-      return id == null || id.isBlank() || id.isEmpty() ?
-             IO.fail(TestFailure.reason("id not found")) :
-             IO.succeed(id);
+      return id == null || id.isBlank() || id.isEmpty() ? IO.fail(TestFailure.reason("id not found")) : IO.succeed(id);
     };
     return (PropBuilder) this;
   }
 
   Lambda<HttpResponse<String>, IdResp> assertResp(
-      Function<HttpResponse<String>, TestResult> assertResp,
-      String id
-                                                 ) {
+                                                  Function<HttpResponse<String>, TestResult> assertResp,
+                                                  String id
+  ) {
     return resp -> {
       TestResult result = assertResp.apply(resp);
       if (result instanceof TestFailure f) {

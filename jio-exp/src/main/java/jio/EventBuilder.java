@@ -1,8 +1,8 @@
 package jio;
 
-import java.util.function.Function;
-
 import static java.util.Objects.requireNonNull;
+
+import java.util.function.Function;
 
 /**
  * Represents a builder to create JFR {@link jdk.jfr.consumer.RecordedEvent} from computations performed by the JIO API.
@@ -90,8 +90,8 @@ public final class EventBuilder<Output> {
     return this;
   }
 
-  EvalExpEvent updateEvent(final Output output,
-                           final EvalExpEvent event) {
+  EvalExpEvent updateSuccessfulEvent(final Output output,
+                                     final EvalExpEvent event) {
     event.result = EvalExpEvent.RESULT.SUCCESS.name();
     event.value = successValue.apply(output);
     event.context = context;
@@ -99,8 +99,8 @@ public final class EventBuilder<Output> {
     return event;
   }
 
-  EvalExpEvent updateEvent(final Throwable exc,
-                           final EvalExpEvent event) {
+  EvalExpEvent updateFailureEvent(final Throwable exc,
+                                  final EvalExpEvent event) {
     var cause = ExceptionFun.findUltimateCause(exc);
     event.result = EvalExpEvent.RESULT.FAILURE.name();
     event.context = context;
@@ -109,19 +109,19 @@ public final class EventBuilder<Output> {
     return event;
   }
 
-  void updateAndCommit(final Output output,
-                       final EvalExpEvent event) {
+  void commitSuccess(final Output output,
+                     final EvalExpEvent event) {
     if (event.shouldCommit()) {
-      updateEvent(output,
-                  event).commit();
+      updateSuccessfulEvent(output,
+                            event).commit();
     }
   }
 
-  void updateAndCommit(final Throwable exc,
-                       final EvalExpEvent event) {
+  void commitFailure(final Throwable exc,
+                     final EvalExpEvent event) {
     if (event.shouldCommit()) {
-      updateEvent(exc,
-                  event).commit();
+      updateFailureEvent(exc,
+                         event).commit();
     }
   }
 }

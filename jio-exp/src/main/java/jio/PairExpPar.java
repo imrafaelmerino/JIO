@@ -41,12 +41,14 @@ final class PairExpPar<First, Second> extends PairExp<First, Second> {
   @Override
   Result<Pair<First, Second>> reduceExp() {
     try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-      var first = scope.fork(_1.get());
-      var second = scope.fork(_2.get());
+      var first = scope.fork(_1);
+      var second = scope.fork(_2);
       scope.join()
            .throwIfFailed();
-      return new Success<>(Pair.of(first.get(),
-                                   second.get())
+      return new Success<>(Pair.of(first.get()
+                                        .call(),
+                                   second.get()
+                                         .call())
       );
     } catch (Exception e) {
       return new Failure<>(e);

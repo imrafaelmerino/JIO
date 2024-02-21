@@ -5,7 +5,9 @@ class EventFields {
   public static final String LABEL = "label";
   public static final String FETCH_SIZE = "fetchSize";
 
-  private EventFields(){}
+  private EventFields() {
+  }
+
   static final String EXCEPTION = "exception";
   static final String RESULT = "result";
   static final String SQL = "sql";

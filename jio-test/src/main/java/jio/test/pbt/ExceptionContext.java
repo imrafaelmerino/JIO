@@ -1,6 +1,5 @@
 package jio.test.pbt;
 
-
 import jsonvalues.JsArray;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
@@ -22,14 +21,14 @@ public record ExceptionContext(Context context,
    * name, and stacktrace. The JSON schema is as follows:
    *
    * <pre>
-   *     {@code
+   * {@code
    *     {
    *         "context": JsObj (see Context#toJson()),
    *         "message": String (or empty string if null),
    *         "type": String (class name of the exception),
    *         "stacktrace": JsArray[String]
-   *     }
-   *     }
+   * }
+   * }
    * </pre>
    *
    * @return A JSON representation of the exception context.
@@ -49,8 +48,7 @@ public record ExceptionContext(Context context,
                                       .getName()),
                     "stacktrace",
                     JsArray.ofIterable(stacktrace)
-                   );
+    );
   }
-
 
 }

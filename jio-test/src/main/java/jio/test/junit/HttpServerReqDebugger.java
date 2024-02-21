@@ -46,7 +46,6 @@ final class HttpServerReqDebugger implements Consumer<RecordedEvent> {
 
   static final String EVENT_NAME = "jio.http.server.Req";
 
-
   @Override
   public void accept(RecordedEvent event) {
     assert EVENT_NAME.equals(event.getEventType()
@@ -54,12 +53,9 @@ final class HttpServerReqDebugger implements Consumer<RecordedEvent> {
     var result = event.getValue(EventFields.RESULT);
     boolean isSuccess = "SUCCESS".equals(result);
     var str = String.format(isSuccess ? FORMAT_SUC : FORMAT_ERR,
-                            isSuccess ?
-                            Utils.categorizeHttpStatusCode(event.getValue(EventFields.STATUS_CODE)) :
-                            result,
-                            isSuccess ?
-                            event.getValue(EventFields.STATUS_CODE) :
-                            event.getValue(EventFields.EXCEPTION),
+                            isSuccess ? Utils.categorizeHttpStatusCode(event.getValue(EventFields.STATUS_CODE))
+                                : result,
+                            isSuccess ? event.getValue(EventFields.STATUS_CODE) : event.getValue(EventFields.EXCEPTION),
                             Fun.formatTime(event.getDuration()
                                                 .toNanos()),
                             event.getValue(EventFields.PROTOCOL),
@@ -73,7 +69,7 @@ final class HttpServerReqDebugger implements Consumer<RecordedEvent> {
                             event.getStartTime()
                                  .atZone(ZoneOffset.UTC)
                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                           );
+    );
     synchronized (System.out) {
       System.out.println(str);
       System.out.flush();

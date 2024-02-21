@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.StructuredTaskScope.Subtask;
@@ -70,20 +69,20 @@ final class JsObjExpPar extends JsObjExp {
                                   .stream()
                                   .toList();
 
-      Map<String, Subtask<? extends JsValue>> tasks = keys.stream()
-                                                          .collect(Collectors.toMap(it -> it,
-                                                                                    it -> scope.fork(bindings.get(it)
-                                                                                                             .get())
-                                                          ));
+      Map<String, Subtask<Result<? extends JsValue>>> tasks = keys.stream()
+                                                                  .collect(Collectors.toMap(it -> it,
+                                                                                            it -> scope.fork(bindings.get(it))
+                                                                  ));
 
       try {
         scope.join()
              .throwIfFailed();
         JsObj json = JsObj.empty();
-        for (Entry<String, Subtask<? extends JsValue>> entry : tasks.entrySet()) {
+        for (var entry : tasks.entrySet()) {
           json = json.set(entry.getKey(),
                           entry.getValue()
-                               .get());
+                               .get()
+                               .call());
         }
         return new Success<>(json);
 

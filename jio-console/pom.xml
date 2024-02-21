@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.imrafaelmerino</groupId>
   <artifactId>jio-console</artifactId>
-  <version>4.0.0</version>
+  <version>3.0.0</version>
   <name>jio-console</name>
   <description>Java Input-Output Monad</description>
   <url>https://github.com/imrafaelmerino/jio</url>
@@ -40,7 +40,7 @@
     <MAVEN-SUREFIRE-PLUGIN.VERSION>3.2.5</MAVEN-SUREFIRE-PLUGIN.VERSION>
     <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
-    <JIO-EXP-VERSION>4.0.0</JIO-EXP-VERSION>
+    <JIO-EXP-VERSION>3.0.0</JIO-EXP-VERSION>
     <JUNIT-JUPITER-ENGINE.VERSION>5.1.1</JUNIT-JUPITER-ENGINE.VERSION>
     <FORMATTER-MAVEN-PLUGIN.VERSION>2.23.0</FORMATTER-MAVEN-PLUGIN.VERSION>
   </properties>

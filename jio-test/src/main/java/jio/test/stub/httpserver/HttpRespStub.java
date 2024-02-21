@@ -16,9 +16,9 @@ import java.util.function.IntFunction;
  *            status code (integer).
  */
 sealed interface HttpRespStub<R> extends
-                                 IntFunction<Function<InputStream, Function<URI, Function<Headers, R>>>> permits
-                                                                                                         BodyStub,
-                                                                                                         HeadersStub,
-                                                                                                         StatusCodeStub {
+                             IntFunction<Function<InputStream, Function<URI, Function<Headers, R>>>> permits
+    BodyStub,
+    HeadersStub,
+    StatusCodeStub {
 
 }

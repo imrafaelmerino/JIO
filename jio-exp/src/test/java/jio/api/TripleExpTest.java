@@ -7,7 +7,7 @@ import jio.TripleExp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestTripleExp {
+public class TripleExpTest {
 
   @Test
   public void sequential_constructor() {
@@ -22,7 +22,7 @@ public class TestTripleExp {
                                                     "b",
                                                     "c"
                             )),
-                            triple.get());
+                            triple.call());
   }
 
   @Test
@@ -38,7 +38,7 @@ public class TestTripleExp {
                                                     "b",
                                                     "c"
                             )),
-                            triple.get()
+                            triple.call()
     );
   }
 

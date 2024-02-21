@@ -8,7 +8,7 @@ import jsonvalues.JsStr;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestJsArrayExp {
+public class JsArrayExpTest {
 
   @Test
   public void test_parallel_constructors() {
@@ -21,7 +21,7 @@ public class TestJsArrayExp {
                                              .map(JsStr::of)
                             )
                                       .debugEach("array")
-                                      .get()
+                                      .call()
     );
   }
 

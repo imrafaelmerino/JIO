@@ -14,7 +14,7 @@ import jsonvalues.JsStr;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestJsObjExp {
+public class JsObjExpTest {
 
   @Test
   public void test_sequential_constructors() throws Exception {
@@ -22,7 +22,7 @@ public class TestJsObjExp {
                                                    JsStr.of("a"))),
                             JsObjExp.seq("a",
                                          A.map(JsStr::of))
-                                    .get()
+                                    .call()
     );
 
     Assertions.assertEquals(new Success<>(JsObj.of("a",
@@ -35,7 +35,7 @@ public class TestJsObjExp {
                                          "b",
                                          B.map(JsStr::of)
                             )
-                                    .get()
+                                    .call()
     );
 
     Assertions.assertEquals(new Success<>(JsObj.of("a",
@@ -52,7 +52,7 @@ public class TestJsObjExp {
                                          "c",
                                          ONE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
     );
 
     Assertions.assertEquals(JsObj.of("a",
@@ -73,7 +73,7 @@ public class TestJsObjExp {
                                          "d",
                                          TWO.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -99,7 +99,7 @@ public class TestJsObjExp {
                                          "e",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -129,7 +129,7 @@ public class TestJsObjExp {
                                          "f",
                                          TWO.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -163,7 +163,7 @@ public class TestJsObjExp {
                                          "g",
                                          TWO.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -201,7 +201,7 @@ public class TestJsObjExp {
                                          "h",
                                          TWO.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -243,7 +243,7 @@ public class TestJsObjExp {
                                          "i",
                                          TWO.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -289,7 +289,7 @@ public class TestJsObjExp {
                                          "j",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -339,7 +339,7 @@ public class TestJsObjExp {
                                          "k",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -393,7 +393,7 @@ public class TestJsObjExp {
                                          "l",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -451,7 +451,7 @@ public class TestJsObjExp {
                                          "m",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -513,7 +513,7 @@ public class TestJsObjExp {
                                          "n",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -579,7 +579,7 @@ public class TestJsObjExp {
                                          "o",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
   }
@@ -593,7 +593,7 @@ public class TestJsObjExp {
                             JsObjExp.par("a",
                                          A.map(JsStr::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -608,7 +608,7 @@ public class TestJsObjExp {
                                          "b",
                                          B.map(JsStr::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -626,7 +626,7 @@ public class TestJsObjExp {
                                          "c",
                                          ONE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -648,7 +648,7 @@ public class TestJsObjExp {
                                          "d",
                                          TWO.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -674,7 +674,7 @@ public class TestJsObjExp {
                                          "e",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -704,7 +704,7 @@ public class TestJsObjExp {
                                          "f",
                                          TWO.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -738,7 +738,7 @@ public class TestJsObjExp {
                                          "g",
                                          TWO.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -776,7 +776,7 @@ public class TestJsObjExp {
                                          "h",
                                          TWO.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -818,7 +818,7 @@ public class TestJsObjExp {
                                          "i",
                                          TWO.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -864,7 +864,7 @@ public class TestJsObjExp {
                                          "j",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -914,7 +914,7 @@ public class TestJsObjExp {
                                          "k",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -968,7 +968,7 @@ public class TestJsObjExp {
                                          "l",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -1026,7 +1026,7 @@ public class TestJsObjExp {
                                          "m",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -1088,7 +1088,7 @@ public class TestJsObjExp {
                                          "n",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
 
@@ -1154,7 +1154,7 @@ public class TestJsObjExp {
                                          "o",
                                          THREE.map(JsInt::of)
                             )
-                                    .get()
+                                    .call()
                                     .call()
     );
   }

@@ -1,7 +1,9 @@
 package jio.jdbc;
 
+import java.sql.Connection;
 import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import jio.IO;
 import jio.Lambda;
 
@@ -75,24 +77,37 @@ final class UpdateStm<Params> {
    */
 
   Lambda<Params, Integer> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
-    return params -> IO.task(() -> JfrEventDecorator.decorateUpdateStm(
-                                                                       () -> {
-                                                                         try (var connection = datasourceBuilder.get()
-                                                                                                                .getConnection()
-                                                                         ) {
-                                                                           try (var statement = connection.prepareStatement(sql)
-                                                                           ) {
-                                                                             statement.setQueryTimeout((int) timeout.toSeconds());
-                                                                             int unused = setter.apply(params)
-                                                                                                .apply(statement);
-                                                                             assert unused > 0;
-                                                                             return statement.executeUpdate();
-                                                                           }
-                                                                         }
-                                                                       },
-                                                                       sql,
-                                                                       enableJFR,
-                                                                       label));
+    return params -> {
+      Callable<Integer> callable = () -> {
+        try (var connection = datasourceBuilder.get()
+                                               .getConnection()
+        ) {
+          return updateStm(params,
+                           connection);
+        }
+      };
+      return IO.task(callable);
+    };
+  }
+
+  private int updateStm(final Params params,
+                        final Connection connection) throws Exception {
+    try (var statement = connection.prepareStatement(sql)
+    ) {
+      return JfrEventDecorator.decorateUpdateStm(
+                                                 () -> {
+
+                                                   statement.setQueryTimeout((int) timeout.toSeconds());
+                                                   int unused = setter.apply(params)
+                                                                      .apply(statement);
+                                                   assert unused > 0;
+                                                   return statement.executeUpdate();
+
+                                                 },
+                                                 sql,
+                                                 enableJFR,
+                                                 label);
+    }
   }
 
   /**
@@ -105,20 +120,11 @@ final class UpdateStm<Params> {
    */
   ClosableStatement<Params, Integer> buildClosable() {
     return (params,
-            connection) -> IO.task(() -> JfrEventDecorator.decorateUpdateStm(
-                                                                             () -> {
-                                                                               try (var statement = connection.prepareStatement(sql)
-                                                                               ) {
-                                                                                 statement.setQueryTimeout((int) timeout.toSeconds());
-                                                                                 int unused = setter.apply(params)
-                                                                                                    .apply(statement);
-                                                                                 assert unused > 0;
-                                                                                 return statement.executeUpdate();
-                                                                               }
+            connection) -> {
+      Callable<Integer> callable = () -> updateStm(params,
+                                                   connection);
 
-                                                                             },
-                                                                             sql,
-                                                                             enableJFR,
-                                                                             label));
+      return IO.task(callable);
+    };
   }
 }

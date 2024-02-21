@@ -1,14 +1,19 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.*;
+import java.util.concurrent.StructuredTaskScope;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
 
 /**
  * Represents an expression that is reduced to a list of values. You can create ListExp expressions using the 'seq'
@@ -183,13 +188,20 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
    *
    * @return the first effect that is evaluated
    */
-  @SuppressWarnings("unchecked")
   public IO<Elem> race() {
-    return IO.effect(() -> CompletableFuture.anyOf(list.stream()
-                                                       .map(Supplier::get)
-                                                       .toArray(CompletableFuture[]::new))
-                                            .thenApply(it -> ((Elem) it))
-    );
+    return new Val<>(() -> {
+      try (var scope = new StructuredTaskScope.ShutdownOnSuccess<Result<Elem>>()) {
+        for (var task : list) {
+          scope.fork(task);
+        }
+        try {
+          return scope.join()
+                      .result();
+        } catch (Exception e) {
+          return new Failure<>(e);
+        }
+      }
+    });
   }
 
   /**
@@ -224,7 +236,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
 
   @Override
   public ListExp<Elem> retryEach(final RetryPolicy policy) {
-    return retryEach(e -> true,
+    return retryEach(_ -> true,
                      policy);
   }
 

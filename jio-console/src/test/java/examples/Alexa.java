@@ -23,7 +23,7 @@ public class Alexa {
                                            JsConsole.of(JsSpecs.bool()),
                                            "d",
                                            JsConsole.of(JsSpecs.arrayOfStr()
-                                                       )
+                                           )
     );
     Random random = new Random();
     myCommnads.add(new SupplierCommand("supplier",

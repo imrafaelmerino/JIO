@@ -70,4 +70,5 @@ public final class FindOne extends Find implements MongoLambda<FindBuilder, JsOb
     return query(session,
                  builder).map(MongoIterable::first);
   }
+
 }

@@ -55,7 +55,7 @@ public class GroupReport {
    */
   public void assertThat(Predicate<Report> condition,
                          Supplier<String> message
-                        ) {
+  ) {
 
     reports.forEach(r -> r.assertThat(condition,
                                       message));
@@ -72,24 +72,25 @@ public class GroupReport {
                   .reduce(JsObj.empty()
                                .set(groupName,
                                     JsObj.empty()),
-                          (json, report) -> json.set(groupName,
-                                                     json.getObj(groupName)
-                                                         .set(report.getPropName(),
-                                                              report.toJson())
-                                                    ),
-                          (a, b) -> JsObj.of(groupName,
-                                             a.getObj(groupName)
-                                              .union(b.getObj(groupName),
-                                                     JsArray.TYPE.LIST
-                                                    )
-                                            )
-                         );
+                          (json,
+                           report) -> json.set(groupName,
+                                               json.getObj(groupName)
+                                                   .set(report.getPropName(),
+                                                        report.toJson())
+                           ),
+                          (a,
+                           b) -> JsObj.of(groupName,
+                                          a.getObj(groupName)
+                                           .union(b.getObj(groupName),
+                                                  JsArray.TYPE.LIST
+                                           )
+                           )
+                  );
   }
 
   @Override
   public String toString() {
     return toJson().toString();
   }
-
 
 }

@@ -39,7 +39,7 @@ public interface JsConsole<Output extends JsValue> extends Lambda<JsPath, Output
                                                      path
                                                     )
                                       )
-                           .then(__ -> Programs.READ_LINE)
+                           .then(a -> Programs.READ_LINE)
                            .then(s -> {
                                    try {
                                      if (s.isEmpty()) {

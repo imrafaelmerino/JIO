@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import jio.IO;
+import jio.Result.Success;
 import jio.mongodb.CollectionBuilder;
 import jio.mongodb.Converters;
 import jio.mongodb.DatabaseBuilder;
@@ -17,7 +18,6 @@ import jio.mongodb.FindOne;
 import jio.mongodb.InsertOne;
 import jio.mongodb.MongoClientBuilder;
 import jio.mongodb.MongoLambda;
-import jio.mongodb.TxBuilder;
 import jio.test.junit.Debugger;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
@@ -30,6 +30,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+
 @Disabled
 public class TestMongo {
 
@@ -41,29 +42,27 @@ public class TestMongo {
   private static IO<List<JsObj>> find;
   private static FindAll findAll;
 
-  MongoLambda<JsObj, JsObj> insertAndSetId =
-      (session, obj) ->
-          insertOne.apply(session,
-                          obj)
-                   .map(result -> obj.set("id",
-                                          Converters.toHexId(result))
-                       );
-  MongoLambda<PersonAddress, PersonAddress> insertInCascade =
-      (session, pa) -> insertAndSetId.apply(session,
-                                            pa.person)
-                                     .then(updatedPerson ->
-                                               insertAndSetId.apply(session,
-                                                                    pa.address.set("person_id",
-                                                                                   updatedPerson.getStr("id")))
-                                                             .map(updatedAddress -> new PersonAddress(updatedPerson,
-                                                                                                      updatedAddress))
-                                          );
+  MongoLambda<JsObj, JsObj> insertAndSetId = (session,
+                                              obj) -> insertOne.apply(session,
+                                                                      obj)
+                                                               .map(result -> obj.set("id",
+                                                                                      Converters.toHexId(result))
+                                                               );
+  MongoLambda<PersonAddress, PersonAddress> insertInCascade = (session,
+                                                               pa) -> insertAndSetId.apply(session,
+                                                                                           pa.person)
+                                                                                    .then(updatedPerson -> insertAndSetId.apply(session,
+                                                                                                                                pa.address.set("person_id",
+                                                                                                                                               updatedPerson.getStr("id")))
+                                                                                                                         .map(updatedAddress -> new PersonAddress(updatedPerson,
+                                                                                                                                                                  updatedAddress))
+                                                                                    );
 
   @BeforeAll
   public static void prepare() {
 
     MongoClient mongoClient = MongoClientBuilder.DEFAULT
-        .build("mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0");
+                                                        .build("mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0");
     DatabaseBuilder database = DatabaseBuilder.of(mongoClient,
                                                   "test");
     var dataCollection = CollectionBuilder.of(database,
@@ -85,7 +84,6 @@ public class TestMongo {
 
     findAll = FindAll.of(dataCollection);
 
-
   }
 
   @Test
@@ -96,40 +94,40 @@ public class TestMongo {
                           "b",
                           JsIntGen.arbitrary(0,
                                              10)
-                         );
+    );
 
     Supplier<JsObj> supplier = gen.apply(new Random());
 
     IntStream.range(0,
                     1000
-                   )
+    )
              .parallel()
              .forEach(i -> {
                JsObj obj = supplier.get();
-               Assertions.assertEquals(obj,
+               Assertions.assertEquals(new Success<>(obj),
                                        insertOne.standalone()
                                                 .apply(obj)
                                                 .map(Converters::toHexId)
                                                 .then(id -> findOne.standalone()
                                                                    .apply(FindBuilder.of(Converters.toObjId(id))))
                                                 .map(it -> it.delete("_id"))
-                                                .join()
-                                      );
+                                                .result()
+               );
              });
 
     System.out.println(findAll.standalone()
                               .apply(FindBuilder.of(JsObj.empty()))
                               .map(Converters::toJsArray)
                               .result()
+                              .call()
                               .size());
 
-    List<JsObj> arr = find.result();
+    List<JsObj> arr = find.result()
+                          .call();
     System.out.println(arr.size());
     Assertions.assertTrue(arr.size() > 1);
 
-
   }
-
 
   record PersonAddress(JsObj person,
                        JsObj address) {

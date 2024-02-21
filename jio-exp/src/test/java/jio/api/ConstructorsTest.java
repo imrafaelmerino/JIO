@@ -21,7 +21,7 @@ import jsonvalues.JsObj;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestConstructors {
+public class ConstructorsTest {
 
   @Test
   public void succeed_constructor() throws Exception {
@@ -29,13 +29,13 @@ public class TestConstructors {
     IO<String> foo = IO.succeed("foo");
 
     Assertions.assertEquals(new Success<>("foo"),
-                            foo.get());
+                            foo.result());
 
     Instant before = Instant.now();
     IO<Instant> now = IO.lazy(Instant::now);
 
     Assertions.assertTrue(
-                          before.isBefore(now.get()
+                          before.isBefore(now.result()
                                              .call()));
 
   }
@@ -49,7 +49,7 @@ public class TestConstructors {
                             .debugEach("my-op");
 
     Assertions.assertEquals(Result.FALSE,
-                            par.get());
+                            par.result());
 
     IO<Boolean> seq = AllExp.seq(IO.FALSE,
                                  IO.TRUE,
@@ -57,7 +57,7 @@ public class TestConstructors {
                             .debugEach("my-op");
 
     Assertions.assertEquals(Result.FALSE,
-                            seq.get());
+                            seq.result());
 
   }
 
@@ -68,7 +68,7 @@ public class TestConstructors {
                                      .consequence(() -> IO.succeed("consequence"))
                                      .alternative(() -> IO.succeed("alternative"))
                                      .debugEach("my-op")
-                                     .get()
+                                     .result()
     );
   }
 
@@ -114,7 +114,7 @@ public class TestConstructors {
                                          )
                             )
                                     .debugEach("my-op")
-                                    .get()
+                                    .result()
 
     );
   }
@@ -127,14 +127,13 @@ public class TestConstructors {
                                       "text");
       Files.writeString(file.toPath(),
                         "hi");
-      BufferedReader bufferedReader = new BufferedReader(
-                                                         new FileReader(file,
-                                                                        StandardCharsets.UTF_8));
-      return bufferedReader;
+      return new BufferedReader(
+                                new FileReader(file,
+                                               StandardCharsets.UTF_8));
     },
                                    it -> IO.succeed(it.lines()
                                                       .collect(Collectors.joining())))
-                         .get();
+                         .result();
 
     Assertions.assertEquals(new Success<>("hi"),
                             a);
@@ -148,7 +147,7 @@ public class TestConstructors {
         throw new IllegalArgumentException("hi");
       })
         .debug()
-        .get()
+        .result()
         .call();
     } catch (Exception e) {
       Assertions.assertEquals("hi",
@@ -156,17 +155,16 @@ public class TestConstructors {
     }
 
     try {
-      IO.taskOn(() -> {
+      IO.task(() -> {
         throw new IllegalArgumentException("hi");
       }
       )
         .debug()
-        .get()
+        .result()
         .call();
     } catch (Exception e) {
       Assertions.assertEquals("hi",
-                              e.getCause()
-                               .getMessage());
+                              e.getMessage());
     }
   }
 

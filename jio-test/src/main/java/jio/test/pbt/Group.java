@@ -23,7 +23,6 @@ public final class Group {
 
   private Path path;
 
-
   private Group(String name,
                 List<Testable> props) {
     this.name = Objects.requireNonNull(name);

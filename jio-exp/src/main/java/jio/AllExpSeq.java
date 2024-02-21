@@ -47,7 +47,7 @@ final class AllExpSeq extends AllExp {
     for (IO<Boolean> exp : exps) {
       try {
         if (result) {
-          result = exp.get()
+          result = exp.call()
                       .call();
         } else {
           return new Success<>(false);

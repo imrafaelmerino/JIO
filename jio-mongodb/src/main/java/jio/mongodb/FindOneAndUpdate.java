@@ -29,7 +29,7 @@ import jsonvalues.JsObj;
  *
  * @see CollectionBuilder
  */
-public final class FindOneAndUpdate extends Op implements MongoLambda<QueryUpdate, JsObj> {
+public final class FindOneAndUpdate extends Op implements MongoLambda<QueryAndCommand, JsObj> {
 
   private static final FindOneAndUpdateOptions DEFAULT_OPTIONS = new FindOneAndUpdateOptions();
   private FindOneAndUpdateOptions options = DEFAULT_OPTIONS;
@@ -77,7 +77,7 @@ public final class FindOneAndUpdate extends Op implements MongoLambda<QueryUpdat
    */
   @Override
   public IO<JsObj> apply(final ClientSession session,
-                         final QueryUpdate queryUpdate) {
+                         final QueryAndCommand queryUpdate) {
     Objects.requireNonNull(queryUpdate);
     Supplier<JsObj> supplier = decorateWithEvent(() -> {
       var collection = requireNonNull(this.collection.get());

@@ -13,8 +13,7 @@ import jio.Result.Success;
  * @param <Output> the type of the result returned by this expression when it succeeds
  */
 sealed abstract class Exp<Output> extends IO<Output>
-    permits AllExp, AnyExp, CondExp, IfElseExp, JsArrayExp, JsObjExp, ListExp, PairExp, SwitchExp,
-    TripleExp {
+    permits AllExp, AnyExp, CondExp, IfElseExp, JsArrayExp, JsObjExp, ListExp, PairExp, SwitchExp, TripleExp {
 
   final Function<EvalExpEvent, BiConsumer<Output, Throwable>> jfrPublisher;
 
@@ -27,17 +26,17 @@ sealed abstract class Exp<Output> extends IO<Output>
                      exc) -> {
       event.end();
       if (exc == null) {
-        builder.updateAndCommit(val,
-                                event);
+        builder.commitSuccess(val,
+                              event);
       } else {
-        builder.updateAndCommit(exc,
-                                event);
+        builder.commitFailure(exc,
+                              event);
       }
     };
   }
 
   @Override
-  public Result<Output> get() {
+  public Result<Output> call() {
     if (jfrPublisher == null) {
       return reduceExp();
     }

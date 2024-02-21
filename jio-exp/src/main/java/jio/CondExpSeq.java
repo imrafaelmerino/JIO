@@ -33,19 +33,20 @@ final class CondExpSeq<Output> extends CondExp<Output> {
                                    Supplier<IO<O>> otherwise,
                                    int condTestedSoFar
   ) {
-    if (condTestedSoFar == tests.size()) {
-      return otherwise.get()
-                      .get();
-    }
+
     try {
+      if (condTestedSoFar == tests.size()) {
+        return otherwise.get()
+                        .call();
+      }
       return tests.get(condTestedSoFar)
-                  .get()
+                  .call()
                   .call() ? consequences.get(condTestedSoFar)
                                         .get()
-                                        .get() : get(tests,
-                                                     consequences,
-                                                     otherwise,
-                                                     condTestedSoFar + 1);
+                                        .call() : get(tests,
+                                                      consequences,
+                                                      otherwise,
+                                                      condTestedSoFar + 1);
     } catch (Exception e) {
       return new Failure<>(e);
     }

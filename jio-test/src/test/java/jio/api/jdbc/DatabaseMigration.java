@@ -1,8 +1,6 @@
 package jio.api.jdbc;
 
-
 import org.flywaydb.core.Flyway;
-
 
 public class DatabaseMigration {
 

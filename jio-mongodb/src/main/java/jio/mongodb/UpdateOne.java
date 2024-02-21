@@ -1,16 +1,15 @@
 package jio.mongodb;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.result.UpdateResult;
-import jio.IO;
-
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.Converters.toBson;
 import static jio.mongodb.MongoOpEvent.OP.UPDATE_ONE;
+
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
+import java.util.Objects;
+import java.util.function.Supplier;
+import jio.IO;
 
 /**
  * A class for performing updateCommands one operation on a MongoDB collection.
@@ -25,9 +24,9 @@ import static jio.mongodb.MongoOpEvent.OP.UPDATE_ONE;
  * can use the provided `QueryUpdate` object to define the query and updateCommands criteria for the operation.
  *
  * @see CollectionBuilder
- * @see QueryUpdate
+ * @see QueryAndCommand
  */
-public final class UpdateOne extends Op implements MongoLambda<QueryUpdate, UpdateResult> {
+public final class UpdateOne extends Op implements MongoLambda<QueryAndCommand, UpdateResult> {
 
   private static final UpdateOptions DEFAULT_OPTIONS = new UpdateOptions();
   private UpdateOptions options = DEFAULT_OPTIONS;
@@ -66,22 +65,22 @@ public final class UpdateOne extends Op implements MongoLambda<QueryUpdate, Upda
   /**
    * Applies the updateCommands one operation to the specified MongoDB collection with a query and an updateCommands.
    *
-   * @param session     The MongoDB client session, or null if not within a session.
-   * @param queryUpdate The query and updateCommands criteria for the operation.
+   * @param session         The MongoDB client session, or null if not within a session.
+   * @param queryAndCommand The query and updateCommands criteria for the operation.
    * @return An IO representing the result of the updateCommands one operation.
    */
   @Override
   public IO<UpdateResult> apply(final ClientSession session,
-                                final QueryUpdate queryUpdate) {
-    Objects.requireNonNull(queryUpdate);
+                                final QueryAndCommand queryAndCommand) {
+    Objects.requireNonNull(queryAndCommand);
     Supplier<UpdateResult> supplier = decorateWithEvent(() -> {
       var collection = requireNonNull(this.collection.get());
-      return session == null ? collection.updateOne(toBson(queryUpdate.query()),
-                                                    toBson(queryUpdate.updateCommands()),
+      return session == null ? collection.updateOne(toBson(queryAndCommand.query()),
+                                                    toBson(queryAndCommand.updateCommands()),
                                                     options
       ) : collection.updateOne(session,
-                               toBson(queryUpdate.query()),
-                               toBson(queryUpdate.updateCommands()),
+                               toBson(queryAndCommand.query()),
+                               toBson(queryAndCommand.updateCommands()),
                                options
       );
     },

@@ -2,7 +2,11 @@ package jio;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import jio.Result.Failure;
+import jio.Result.Success;
 
 /**
  * Represents a value, which is an irreducible expression. Values of type {@code Val} encapsulate a value of type
@@ -17,15 +21,15 @@ import java.util.function.Supplier;
  */
 final class Val<Output> extends IO<Output> {
 
-  private final Supplier<Result<Output>> effect;
+  private final Callable<Result<Output>> effect;
 
-  Val(final Supplier<Result<Output>> effect) {
+  Val(final Callable<Result<Output>> effect) {
     this.effect = requireNonNull(effect);
   }
 
   @Override
-  public Result<Output> get() {
-    return effect.get();
+  public Result<Output> call() throws Exception {
+    return effect.call();
   }
 
 }

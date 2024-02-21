@@ -12,12 +12,12 @@ public final class PatchStub extends ReqHandlerStub {
   private PatchStub(final BodyStub body,
                     final StatusCodeStub statusCode,
                     final HeadersStub headers
-                   ) {
+  ) {
     super(requireNonNull(body),
           requireNonNull(statusCode),
           requireNonNull(headers),
           "PATCH"
-         );
+    );
   }
 
   /**
@@ -31,7 +31,7 @@ public final class PatchStub extends ReqHandlerStub {
   public static PatchStub of(final BodyStub body,
                              final StatusCodeStub statusCode,
                              final HeadersStub headers
-                            ) {
+  ) {
     return new PatchStub(body,
                          statusCode,
                          headers);
@@ -46,10 +46,9 @@ public final class PatchStub extends ReqHandlerStub {
    */
   public static PatchStub of(final BodyStub body,
                              final StatusCodeStub statusCode
-                            ) {
+  ) {
     return new PatchStub(body,
                          statusCode,
                          HeadersStub.EMPTY);
   }
 }
-

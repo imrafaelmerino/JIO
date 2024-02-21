@@ -47,7 +47,7 @@ final class AnyExpSeq extends AnyExp {
         if (result) {
           return new Success<>(true);
         } else {
-          result = exp.get()
+          result = exp.call()
                       .call();
         }
       } catch (Exception e) {

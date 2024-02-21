@@ -2,11 +2,12 @@ package jio.api;
 
 import jio.CondExp;
 import jio.IO;
+import jio.Result;
 import jio.Result.Success;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestCondExp {
+public class CondExpTest {
 
   @Test
   public void sequential_constructors() {
@@ -19,14 +20,15 @@ public class TestCondExp {
                                         () -> Constants.C
                             )
                                    .map(String::toUpperCase)
-                                   .get());
+                                   .result());
 
-    Assertions.assertNull(CondExp.seq(IO.FALSE,
-                                      () -> Constants.A,
-                                      IO.FALSE,
-                                      () -> Constants.B
-    )
-                                 .get());
+    Assertions.assertEquals(Result.NULL,
+                            CondExp.seq(IO.FALSE,
+                                        () -> Constants.A,
+                                        IO.FALSE,
+                                        () -> Constants.B
+                            )
+                                   .call());
 
     Assertions.assertEquals(new Success<>("C"),
                             CondExp.seq(IO.FALSE,
@@ -38,7 +40,7 @@ public class TestCondExp {
                                         () -> Constants.C
                             )
                                    .map(String::toUpperCase)
-                                   .get());
+                                   .result());
 
     Assertions.assertEquals(new Success<>("D"),
                             CondExp.seq(IO.FALSE,
@@ -52,7 +54,7 @@ public class TestCondExp {
                                         () -> Constants.C
                             )
                                    .map(String::toUpperCase)
-                                   .get());
+                                   .result());
 
     Assertions.assertEquals(new Success<>("A"),
                             CondExp.seq(IO.FALSE,
@@ -68,7 +70,7 @@ public class TestCondExp {
                                         () -> Constants.C
                             )
                                    .map(String::toUpperCase)
-                                   .get());
+                                   .result());
 
     Assertions.assertEquals(new Success<>("B"),
                             CondExp.seq(IO.FALSE,
@@ -86,7 +88,7 @@ public class TestCondExp {
                                         () -> Constants.C
                             )
                                    .map(String::toUpperCase)
-                                   .get());
+                                   .result());
 
     Assertions.assertEquals(new Success<>("C"),
                             CondExp.seq(IO.FALSE,
@@ -104,7 +106,7 @@ public class TestCondExp {
                                         () -> Constants.C
                             )
                                    .map(String::toUpperCase)
-                                   .get());
+                                   .result());
   }
 
   @Test
@@ -119,7 +121,7 @@ public class TestCondExp {
                                         () -> Constants.C
                             )
                                    .map(String::toUpperCase)
-                                   .get());
+                                   .result());
 
     Assertions.assertEquals(new Success<>("C"),
                             CondExp.par(IO.FALSE,
@@ -131,7 +133,7 @@ public class TestCondExp {
                                         () -> Constants.C
                             )
                                    .map(String::toUpperCase)
-                                   .get());
+                                   .result());
 
     Assertions.assertEquals(new Success<>("D"),
                             CondExp.par(IO.FALSE,
@@ -145,7 +147,7 @@ public class TestCondExp {
                                         () -> Constants.C
                             )
                                    .map(String::toUpperCase)
-                                   .get());
+                                   .result());
 
     Assertions.assertEquals(new Success<>("A"),
                             CondExp.par(IO.FALSE,
@@ -161,7 +163,7 @@ public class TestCondExp {
                                         () -> Constants.C
                             )
                                    .map(String::toUpperCase)
-                                   .get());
+                                   .result());
 
     Assertions.assertEquals(new Success<>("B"),
                             CondExp.par(IO.FALSE,
@@ -179,7 +181,7 @@ public class TestCondExp {
                                         () -> Constants.C
                             )
                                    .map(String::toUpperCase)
-                                   .get());
+                                   .result());
 
     Assertions.assertEquals(new Success<>("C"),
                             CondExp.par(IO.FALSE,
@@ -197,7 +199,7 @@ public class TestCondExp {
                                         () -> Constants.C
                             )
                                    .map(String::toUpperCase)
-                                   .get());
+                                   .result());
   }
 
   @Test
@@ -209,7 +211,7 @@ public class TestCondExp {
                           () -> IO.succeed("default")
     )
                      .debugEach("context")
-                     .get();
+                     .result();
 
     Assertions.assertEquals(new Success<>("default"),
                             exp

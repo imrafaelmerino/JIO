@@ -11,7 +11,7 @@ import jio.RetryPolicies;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class TestRepeat {
+public class RepeatTest {
 
   static Random random = new Random();
   static int maxActiveThreadCount = -1;
@@ -38,11 +38,11 @@ public class TestRepeat {
   public void testRepeatLimits() {
 
     int max = 10;
-    IO<Pair<Integer, Integer>> pair = PairExp.par(IO.lazyOn(() -> sleepRandom(max)),
-                                                  IO.lazyOn(() -> sleepRandom(max))
+    IO<Pair<Integer, Integer>> pair = PairExp.par(IO.lazy(() -> sleepRandom(max)),
+                                                  IO.lazy(() -> sleepRandom(max))
     )
                                              .debugEach("pair")
-                                             .repeat(e -> true,
+                                             .repeat(_ -> true,
                                                      RetryPolicies.constantDelay(Duration.ofMillis(100))
                                                                   .limitRetriesByCumulativeDelay(Duration.ofSeconds(1))
                                              );
@@ -52,7 +52,7 @@ public class TestRepeat {
         exp = exp.append(pair);
       }
 
-      System.out.println(exp.get());
+      System.out.println(exp.call());
     } finally {
       System.out.println(maxActiveThreadCount);
     }

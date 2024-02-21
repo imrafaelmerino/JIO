@@ -10,7 +10,6 @@ import jsonvalues.gen.JsInstantGen;
 import jsonvalues.gen.JsArrayGen;
 import jsonvalues.gen.JsBoolGen;
 
-
 public class Generators {
 
   public static final JsObjGen categoryGen = JsObjGen.of(Fields.NAME,
@@ -20,22 +19,22 @@ public class Generators {
                                                     JsStrGen.alphabetic());
 
   public static final JsObjGen orderGen = JsObjGen.of(
-      Fields.PET_ID,
-      JsLongGen.arbitrary()
-               .suchThat(petId -> petId.value >= 0),
-      Fields.QUANTITY,
-      JsIntGen.arbitrary()
-              .suchThat(quantity -> quantity.value >= 0),
-      Fields.SHIP_DATE,
-      JsInstantGen.arbitrary(),
-      Fields.STATUS,
-      Combinators.oneOf(JsStr.of("placed"),
-                        JsStr.of("approved"),
-                        JsStr.of("delivered")
-                       ),
-      Fields.COMPLETE,
-      JsBoolGen.arbitrary()
-                                                     );
+                                                      Fields.PET_ID,
+                                                      JsLongGen.arbitrary()
+                                                               .suchThat(petId -> petId.value >= 0),
+                                                      Fields.QUANTITY,
+                                                      JsIntGen.arbitrary()
+                                                              .suchThat(quantity -> quantity.value >= 0),
+                                                      Fields.SHIP_DATE,
+                                                      JsInstantGen.arbitrary(),
+                                                      Fields.STATUS,
+                                                      Combinators.oneOf(JsStr.of("placed"),
+                                                                        JsStr.of("approved"),
+                                                                        JsStr.of("delivered")
+                                                      ),
+                                                      Fields.COMPLETE,
+                                                      JsBoolGen.arbitrary()
+  );
 
   public static final JsObjGen userGen = JsObjGen.of(Fields.USERNAME,
                                                      JsStrGen.alphabetic(),
@@ -51,7 +50,7 @@ public class Generators {
                                                      JsStrGen.alphabetic(),
                                                      Fields.USER_STATUS,
                                                      JsIntGen.arbitrary()
-                                                    )
+  )
                                                  .withReqKeys(Fields.USERNAME)
                                                  .withNonNullValues(Fields.USERNAME);
 
@@ -74,8 +73,8 @@ public class Generators {
                                                     Combinators.oneOf(JsStr.of("available"),
                                                                       JsStr.of("pending"),
                                                                       JsStr.of("sold")
-                                                                     )
-                                                   )
+                                                    )
+  )
                                                 .withReqKeys(Fields.REQ_PET_FIELDS)
                                                 .withNonNullValues(Fields.REQ_PET_FIELDS);
 }

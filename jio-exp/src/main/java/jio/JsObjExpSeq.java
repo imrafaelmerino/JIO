@@ -66,7 +66,7 @@ final class JsObjExpSeq extends JsObjExp {
       try {
         result = result.set(entry.getKey(),
                             entry.getValue()
-                                 .get()
+                                 .call()
                                  .call());
       } catch (Exception e) {
         return new Failure<>(e);

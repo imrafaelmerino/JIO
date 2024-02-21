@@ -21,15 +21,14 @@ import static java.util.Objects.requireNonNull;
  * @param <GenReqBody> The type of data generated to feed the property tests.
  */
 public final class CRDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBody, CRDPropBuilder<GenReqBody>> implements
-                                                                                                              Supplier<PropertyBuilder<GenReqBody>> {
-
+                                 Supplier<PropertyBuilder<GenReqBody>> {
 
   private CRDPropBuilder(String name,
                          Gen<GenReqBody> gen,
                          BiLambda<JsObj, GenReqBody, HttpResponse<String>> p_post,
                          BiLambda<JsObj, String, HttpResponse<String>> p_get,
                          BiLambda<JsObj, String, HttpResponse<String>> p_delete
-                        ) {
+  ) {
     super(name,
           gen,
           p_post,
@@ -53,15 +52,18 @@ public final class CRDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBody
                                                            final Lambda<GenReqBody, HttpResponse<String>> p_post,
                                                            final Lambda<String, HttpResponse<String>> p_get,
                                                            final Lambda<String, HttpResponse<String>> p_delete
-                                                          ) {
+  ) {
     requireNonNull(p_post);
     requireNonNull(p_get);
     requireNonNull(p_delete);
     return new CRDPropBuilder<>(name,
                                 gen,
-                                (conf, body) -> requireNonNull(p_post).apply(body),
-                                (conf, id) -> requireNonNull(p_get).apply(id),
-                                (conf, id) -> requireNonNull(p_delete).apply(id));
+                                (conf,
+                                 body) -> requireNonNull(p_post).apply(body),
+                                (conf,
+                                 id) -> requireNonNull(p_get).apply(id),
+                                (conf,
+                                 id) -> requireNonNull(p_delete).apply(id));
   }
 
   /**
@@ -83,7 +85,7 @@ public final class CRDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBody
                                                            final BiLambda<JsObj, GenReqBody, HttpResponse<String>> p_post,
                                                            final BiLambda<JsObj, String, HttpResponse<String>> p_get,
                                                            final BiLambda<JsObj, String, HttpResponse<String>> p_delete
-                                                          ) {
+  ) {
     return new CRDPropBuilder<>(name,
                                 gen,
                                 p_post,
@@ -98,44 +100,42 @@ public final class CRDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBody
    */
   @Override
   public PropertyBuilder<GenReqBody> get() {
-    BiLambda<JsObj, GenReqBody, TestResult> lambda =
-        (conf, body) -> post.apply(conf,
-                                   body)
-                            .then(resp -> {
-                                    TestResult result = postAssert.apply(resp);
-                                    if (result instanceof TestFailure f) {
-                                      return IO.fail(f);
-                                    }
-                                    return getId.apply(body,
-                                                       resp);
-                                  }
-                                 )
-                            .then(id -> get.apply(conf,
-                                                  id)
-                                           .then(assertResp(getAssert,
-                                                            id))
+    BiLambda<JsObj, GenReqBody, TestResult> lambda = (conf,
+                                                      body) -> post.apply(conf,
+                                                                          body)
+                                                                   .then(resp -> {
+                                                                     TestResult result = postAssert.apply(resp);
+                                                                     if (result instanceof TestFailure f) {
+                                                                       return IO.fail(f);
+                                                                     }
+                                                                     return getId.apply(body,
+                                                                                        resp);
+                                                                   }
+                                                                   )
+                                                                   .then(id -> get.apply(conf,
+                                                                                         id)
+                                                                                  .then(assertResp(getAssert,
+                                                                                                   id))
 
-                                 )
+                                                                   )
 
-                            .then(idResp -> delete.apply(conf,
-                                                         idResp.id())
-                                                  .then(assertResp(deleteAssert,
-                                                                   idResp.id()))
-                                 )
+                                                                   .then(idResp -> delete.apply(conf,
+                                                                                                idResp.id())
+                                                                                         .then(assertResp(deleteAssert,
+                                                                                                          idResp.id()))
+                                                                   )
 
-                            .then(idResp -> get.apply(conf,
-                                                      idResp.id()))
+                                                                   .then(idResp -> get.apply(conf,
+                                                                                             idResp.id()))
 
-                            .map(resp -> resp.statusCode() == 404 ?
-                                         TestResult.SUCCESS :
-                                         TestFailure.reason(
-                                             "Entity found after being deleted successfully. Status code received %d".formatted(
-                                                 resp.statusCode())));
+                                                                   .map(resp -> resp.statusCode() == 404
+                                                                       ? TestResult.SUCCESS : TestFailure.reason(
+                                                                                                                 "Entity found after being deleted successfully. Status code received %d".formatted(
+                                                                                                                                                                                                    resp.statusCode())));
 
     return PropertyBuilder.ofLambda(name,
                                     gen,
                                     lambda);
   }
-
 
 }

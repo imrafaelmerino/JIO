@@ -121,7 +121,8 @@ public final class FindOneEntityBuilder<Filter, Entity> {
                                mapper,
                                fetchSize,
                                enableJFR,
-                               label).buildAutoClosable(datasourceBuilder);
+                               label)
+                                     .buildAutoClosable(datasourceBuilder);
   }
 
   /**

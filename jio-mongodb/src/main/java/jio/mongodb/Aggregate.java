@@ -77,4 +77,5 @@ public final class Aggregate extends Op implements MongoLambda<List<Bson>, Aggre
     this.recordEvents = false;
     return this;
   }
+
 }

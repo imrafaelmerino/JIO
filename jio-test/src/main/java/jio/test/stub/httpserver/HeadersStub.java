@@ -29,5 +29,4 @@ public non-sealed interface HeadersStub extends HttpRespStub<Headers> {
     return n -> reqBody -> uri -> reqHeaders -> respHeaders;
   }
 
-
 }

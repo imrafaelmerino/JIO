@@ -39,9 +39,9 @@ final class PairExpSeq<First, Second> extends PairExp<First, Second> {
   @Override
   Result<Pair<First, Second>> reduceExp() {
     try {
-      var first = _1.get()
+      var first = _1.call()
                     .call();
-      var second = _2.get()
+      var second = _2.call()
                      .call();
       return new Result.Success<>(Pair.of(first,
                                           second

@@ -92,12 +92,13 @@ public final class IfElseExp<Output> extends Exp<Output> {
   Result<Output> reduceExp() {
 
     try {
-      return new Success<>(predicate.get()
-                                    .call() ? consequence.get()
-                                                         .get()
-                                                         .call() : alternative.get()
-                                                                              .get()
-                                                                              .call());
+      Result<Boolean> predicate = this.predicate.call();
+      return switch (predicate) {
+        case Success(Boolean output) -> output ? this.consequence.get()
+                                                                 .call() : this.alternative.get()
+                                                                                           .call();
+        case Failure(Exception e) -> new Failure<>(e);
+      };
     } catch (Exception e) {
       return new Failure<>(e);
     }
@@ -135,7 +136,7 @@ public final class IfElseExp<Output> extends Exp<Output> {
 
   @Override
   public IfElseExp<Output> retryEach(final RetryPolicy policy) {
-    return retryEach(e -> true,
+    return retryEach(_ -> true,
                      policy);
   }
 

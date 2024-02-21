@@ -6,7 +6,7 @@ import jio.Result.Success;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestIfElseExp {
+public class IfElseExpTest {
 
   @Test
   @SuppressWarnings({"divzero", "ConstantOverflow"})
@@ -19,11 +19,11 @@ public class TestIfElseExp {
 
     Assertions.assertEquals(new Success<>(1),
                             a.debugEach("ifelse")
-                             .get()
+                             .call()
     );
 
     Assertions.assertEquals(new Success<>(1),
-                            a.get());
+                            a.call());
 
   }
 

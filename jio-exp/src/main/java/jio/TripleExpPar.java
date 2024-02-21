@@ -46,14 +46,17 @@ final class TripleExpPar<First, Second, Third> extends TripleExp<First, Second, 
   @Override
   Result<Triple<First, Second, Third>> reduceExp() {
     try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-      var first = scope.fork(_1.get());
-      var second = scope.fork(_2.get());
-      var third = scope.fork(_3.get());
+      var first = scope.fork(_1);
+      var second = scope.fork(_2);
+      var third = scope.fork(_3);
       scope.join()
            .throwIfFailed();
-      return new Success<>(Triple.of(first.get(),
-                                     second.get(),
-                                     third.get())
+      return new Success<>(Triple.of(first.get()
+                                          .call(),
+                                     second.get()
+                                           .call(),
+                                     third.get()
+                                          .call())
       );
     } catch (Exception e) {
       return new Failure<>(e);

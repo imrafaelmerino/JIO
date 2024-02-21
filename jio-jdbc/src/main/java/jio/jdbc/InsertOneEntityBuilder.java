@@ -123,7 +123,8 @@ public final class InsertOneEntityBuilder<Params, Output> {
                                  setParams,
                                  mapResult,
                                  enableJFR,
-                                 label)
-                                       .buildClosable();
+                                 label
+    )
+     .buildClosable();
   }
 }

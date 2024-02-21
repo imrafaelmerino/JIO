@@ -1,9 +1,8 @@
 package jio.http.client;
 
-import jio.RetryPolicy;
-
 import java.net.http.HttpResponse;
 import java.util.function.Predicate;
+import jio.RetryPolicy;
 
 /**
  * Represents a wrapper around the HTTP Java client to make HTTP requests asynchronously using

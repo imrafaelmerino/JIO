@@ -1,8 +1,21 @@
 package jio.api.exp;
 
+import static jio.api.exp.Stubs.A_AFTER_1_SEC;
+import static jio.api.exp.Stubs.B_AFTER_1_SEC;
+import static jio.api.exp.Stubs.C_AFTER_1_SEC;
+
 import fun.tuple.Pair;
 import fun.tuple.Triple;
-import jio.*;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import jio.IO;
+import jio.IfElseExp;
+import jio.JsArrayExp;
+import jio.JsObjExp;
+import jio.ListExp;
+import jio.PairExp;
+import jio.TripleExp;
 import jio.test.junit.Debugger;
 import jsonvalues.JsArray;
 import jsonvalues.JsObj;
@@ -11,26 +24,20 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-
-import static jio.api.exp.Stubs.*;
-
-
 public class StubSupplierTests {
 
   @RegisterExtension
-  static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
+  static Debugger debugger = Debugger.of(Duration.ofSeconds(5));
 
   @Test
-  public void ifelse_exp_measuring_time() {
+  public void if_else_exp_measuring_time() throws Exception {
     long start = System.nanoTime();
     var x = IfElseExp.<String>predicate(IO.FALSE)
                      .consequence(A_AFTER_1_SEC)
                      .alternative(B_AFTER_1_SEC)
                      .debugEach("context")
-                     .join();
+                     .call()
+                     .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -42,19 +49,18 @@ public class StubSupplierTests {
                            );
     Assertions.assertTrue(duration < 3);
 
-
   }
 
   @Test
-  public void triple_exp_sequential_measuring_time() {
+  public void triple_exp_sequential_measuring_time() throws Exception {
     long start = System.nanoTime();
 
-    Triple<String, String, String> triple =
-        TripleExp.seq(A_AFTER_1_SEC.get(),
-                      B_AFTER_1_SEC.get(),
-                      C_AFTER_1_SEC.get()
-                     )
-                 .join();
+    Triple<String, String, String> triple = TripleExp.seq(A_AFTER_1_SEC.get(),
+                                                          B_AFTER_1_SEC.get(),
+                                                          C_AFTER_1_SEC.get()
+                                                         )
+                                                     .call()
+                                                     .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -72,15 +78,15 @@ public class StubSupplierTests {
   }
 
   @Test
-  public void triple_exp_parallel_measuring_time() {
+  public void triple_exp_parallel_measuring_time() throws Exception {
     long start = System.nanoTime();
-    Triple<String, String, String> triple =
-        TripleExp.par(A_AFTER_1_SEC.get(),
-                      B_AFTER_1_SEC.get(),
-                      C_AFTER_1_SEC.get()
-                     )
-                 .debugEach("context")
-                 .join();
+    Triple<String, String, String> triple = TripleExp.par(A_AFTER_1_SEC.get(),
+                                                          B_AFTER_1_SEC.get(),
+                                                          C_AFTER_1_SEC.get()
+                                                         )
+                                                     .debugEach("context")
+                                                     .call()
+                                                     .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -93,13 +99,13 @@ public class StubSupplierTests {
                                      ),
                             triple
                            );
+    System.out.println(duration);
     Assertions.assertTrue(duration < 3);
-
 
   }
 
   @Test
-  public void jobj_exp_parallel_measuring_time() {
+  public void jsobj_exp_parallel_measuring_time() throws Exception {
     long start = System.nanoTime();
     var obj = JsObjExp.par("a",
                            JsObjExp.par("a",
@@ -117,7 +123,8 @@ public class StubSupplierTests {
                                          )
                           )
                       .debugEach("context")
-                      .join();
+                      .call()
+                      .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -139,17 +146,16 @@ public class StubSupplierTests {
                            );
     Assertions.assertTrue(duration < 2);
 
-
   }
 
   @Test
-  public void pair_exp_sequential_measuring_time() {
+  public void pair_exp_sequential_measuring_time() throws Exception {
     long start = System.nanoTime();
 
-    Pair<String, String> pair =
-        PairExp.seq(A_AFTER_1_SEC.get(),
-                    B_AFTER_1_SEC.get())
-               .join();
+    Pair<String, String> pair = PairExp.seq(A_AFTER_1_SEC.get(),
+                                            B_AFTER_1_SEC.get())
+                                       .call()
+                                       .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -163,18 +169,16 @@ public class StubSupplierTests {
                            );
     Assertions.assertTrue(duration >= 2);
 
-
   }
 
-
   @Test
-  public void pair_exp_parallel_measuring_time() {
+  public void pair_exp_parallel_measuring_time() throws Exception {
     long start = System.nanoTime();
-    Pair<String, String> pair =
-        PairExp.par(A_AFTER_1_SEC.get(),
-                    B_AFTER_1_SEC.get())
-               .debugEach("context")
-               .join();
+    Pair<String, String> pair = PairExp.par(A_AFTER_1_SEC.get(),
+                                            B_AFTER_1_SEC.get())
+                                       .debugEach("context")
+                                       .call()
+                                       .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -189,11 +193,10 @@ public class StubSupplierTests {
     Assertions.assertTrue(duration < 2,
                           "%s is not lower than two sg".formatted(duration));
 
-
   }
 
   @Test
-  public void array_exp_seq_time() {
+  public void array_exp_seq_time() throws Exception {
     long start = System.nanoTime();
     var arr = JsArrayExp.seq(A_AFTER_1_SEC.get()
                                           .map(JsStr::of),
@@ -201,7 +204,8 @@ public class StubSupplierTests {
                                           .map(JsStr::of)
                             )
                         .debugEach("context")
-                        .join();
+                        .call()
+                        .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -215,19 +219,18 @@ public class StubSupplierTests {
                            );
     Assertions.assertTrue(duration >= 2);
 
-
   }
 
   @Test
-  public void list_exp_parallel_measuring_time() {
+  public void list_exp_parallel_measuring_time() throws Exception {
     long start = System.nanoTime();
-    List<String> list =
-        ListExp.par(A_AFTER_1_SEC.get(),
-                    B_AFTER_1_SEC.get(),
-                    C_AFTER_1_SEC.get()
-                   )
-               .debugEach("context")
-               .join();
+    List<String> list = ListExp.par(A_AFTER_1_SEC.get(),
+                                    B_AFTER_1_SEC.get(),
+                                    C_AFTER_1_SEC.get()
+                                   )
+                               .debugEach("context")
+                               .call()
+                               .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS

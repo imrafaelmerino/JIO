@@ -3,8 +3,7 @@ package jio.http.client.oauth;
 /**
  * This exception happens when the predicate to check when refreshing the oauth token, that is specified in
  * {@link ClientCredentialsBuilder}, is evaluated to true for a predefined number of times in a row, producing the
- * following
- * loop:
+ * following loop:
  *
  * <pre>
  *
@@ -38,8 +37,6 @@ package jio.http.client.oauth;
 public final class RefreshTokenLoop extends Exception {
 
   RefreshTokenLoop(int n) {
-    super("The refresh token predicate has been evaluated to true for " + n + " times in a row. It could" +
-          "be an error on its implementation because it's returning true to ask for a new access token" +
-          "when it shouldn't.");
+    super(STR."The refresh token predicate has been evaluated to true for \{n} times in a row. It couldbe an error on its implementation because it's returning true to ask for a new access tokenwhen it shouldn't.");
   }
 }

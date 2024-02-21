@@ -36,7 +36,7 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
                                 final Function<HttpExchange, Integer> code,
                                 final Function<HttpExchange, String> body,
                                 final String method
-                               ) {
+  ) {
     this.headers = requireNonNull(headers);
     this.code = requireNonNull(code);
     this.method = requireNonNull(method);
@@ -64,7 +64,7 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
           for (final String value : values) {
             headers.add(key,
                         value
-                       );
+            );
           }
         }
 
@@ -72,9 +72,8 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
           byte[] bodyBytes = body.apply(exchange)
                                  .getBytes(StandardCharsets.UTF_8);
           exchange.sendResponseHeaders(code.apply(exchange),
-                                       bodyBytes
-                                           .length
-                                      );
+                                       bodyBytes.length
+          );
           outputStream.write(bodyBytes);
           outputStream.flush();
         }
@@ -82,7 +81,7 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
       } catch (Exception e) {
         returnExceptionMessageError(exchange,
                                     e
-                                   );
+        );
       }
     } else {
       returnUnexpectedHttpMethodError(exchange,
@@ -93,27 +92,26 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
 
   private void returnExceptionMessageError(HttpExchange exchange,
                                            Exception e
-                                          ) throws IOException {
+  ) throws IOException {
     var outputStream = exchange.getResponseBody();
     var response = e.getMessage();
     byte[] bytesResponse = response.getBytes(StandardCharsets.UTF_8);
     exchange.sendResponseHeaders(500,
                                  bytesResponse.length
-                                );
+    );
     outputStream.write(bytesResponse);
     outputStream.flush();
     outputStream.close();
   }
 
   private void returnUnexpectedHttpMethodError(HttpExchange exchange,
-                                               String requestMethod)
-      throws IOException {
+                                               String requestMethod) throws IOException {
     try (var outputStream = exchange.getResponseBody()) {
       var response = method + " method was expected, but " + requestMethod + " was received.";
       byte[] bytesResponse = response.getBytes(StandardCharsets.UTF_8);
       exchange.sendResponseHeaders(500,
                                    bytesResponse.length
-                                  );
+      );
       outputStream.write(bytesResponse);
       outputStream.flush();
     }

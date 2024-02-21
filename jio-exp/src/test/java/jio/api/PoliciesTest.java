@@ -7,7 +7,7 @@ import jio.RetryStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestPolicies {
+public class PoliciesTest {
 
   @Test
   public void test_simulation_1() {

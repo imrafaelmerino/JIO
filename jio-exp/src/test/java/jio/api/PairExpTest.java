@@ -6,7 +6,7 @@ import jio.PairExp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestPairExp {
+public class PairExpTest {
 
   @Test
   public void sequential_constructor() throws Exception {
@@ -18,7 +18,7 @@ public class TestPairExp {
     Assertions.assertEquals(Pair.of("a",
                                     "b"
     ),
-                            pair.get()
+                            pair.call()
                                 .call()
     );
   }

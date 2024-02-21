@@ -149,7 +149,7 @@ public final class Console {
                                      .then(it -> it != null ? Programs.PRINT_NEW_LINE(it + "\n") : IO.NULL(),
                                            e -> Programs.PRINT_NEW_LINE(e.getMessage() + "\n")
                                      )
-                                     .get();
+                                     .result();
     }
 
   }

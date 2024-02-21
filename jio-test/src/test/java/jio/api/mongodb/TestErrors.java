@@ -1,6 +1,5 @@
 package jio.api.mongodb;
 
-
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
@@ -21,9 +20,7 @@ import org.junit.jupiter.api.Disabled;
 @Disabled
 public class TestErrors {
 
-
   private static FindOne findOne;
-
 
   private static CollectionBuilder getMongoCollectionBuilder(String connectionString) {
     var connString = new ConnectionString(connectionString);
@@ -53,15 +50,16 @@ public class TestErrors {
                        JsStr.of("a"),
                        "b",
                        JsInt.of(1)
-                      );
+    );
     // "java.util.concurrent.CompletionException: jio.JioFailure: Timeout while receiving message"
     Assertions.assertTrue(findOne.standalone()
                                  .apply(FindBuilder.of(obj))
                                  .then(o -> IO.FALSE,
                                        e -> IO.succeed(MongoFun.HAS_READ_TIMEOUT.test(e))
-                                      )
+                                 )
                                  .result()
-                         );
+                                 .call()
+    );
 
   }
 
@@ -79,7 +77,7 @@ public class TestErrors {
                          JsStr.of("a"),
                          "b",
                          JsInt.of(1)
-                        );
+    );
     //   "Timed out after 10 ms while waiting to connect. Client view of cluster state is {type=UNKNOWN, " +
     //   "servers=[{address=localhost:27017, type=UNKNOWN, " +
     //   "state=CONNECTING, exception={com.mongodb.MongoSocketReadTimeoutException: " +
@@ -88,9 +86,10 @@ public class TestErrors {
                                  .apply(FindBuilder.of(obj))
                                  .then(o -> IO.TRUE,
                                        e -> IO.succeed(MongoFun.HAS_CONNECTION_TIMEOUT
-                                                           .test(e))
-                                      )
-                                 .result());
+                                                                                      .test(e))
+                                 )
+                                 .call()
+                                 .call());
 
   }
 }

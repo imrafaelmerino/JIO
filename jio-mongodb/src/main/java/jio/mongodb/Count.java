@@ -85,4 +85,5 @@ public final class Count extends Op implements MongoLambda<JsObj, Long> {
     this.recordEvents = false;
     return this;
   }
+
 }

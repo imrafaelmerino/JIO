@@ -99,4 +99,5 @@ public final class DeleteOne extends Op implements MongoLambda<JsObj, DeleteResu
     this.recordEvents = false;
     return this;
   }
+
 }

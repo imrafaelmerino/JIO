@@ -1,6 +1,12 @@
 package jio.api.http.api;
 
 import com.sun.net.httpserver.HttpServer;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import jio.ExceptionFun;
 import jio.IO;
 import jio.http.client.HttpExceptionFun;
@@ -16,14 +22,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.Map;
-
-
 public class TestErrors {
 
   @RegisterExtension
@@ -37,9 +35,11 @@ public class TestErrors {
                                                       8000,
                                                       9000);
 
+  public TestErrors() throws Exception {
+  }
 
   @Test
-  public void test_http_connect_timeout() {
+  public void test_http_connect_timeout() throws Exception {
 
     JioHttpClient client = JioHttpClientBuilder.of(HttpClient.newBuilder()
                                                              .connectTimeout(Duration.ofNanos(1)))
@@ -51,7 +51,8 @@ public class TestErrors {
                                                        .uri(URI.create("https://www.google.com")))
                                      .then(response -> IO.FALSE,
                                            failure -> IO.succeed(HttpExceptionFun.HAS_CONNECTION_TIMEOUT.test(failure)))
-                                     .join();
+                                     .result()
+                                     .call();
     Assertions.assertTrue(isConnectTimeout);
   }
 
@@ -59,7 +60,7 @@ public class TestErrors {
    * you also receive the failure UNRESOLVED_ADDRESS_CAUSE_PRISM whe the router is off
    */
   @Test
-  public void test_domain_doesnt_exists() {
+  public void test_domain_doesnt_exists() throws Exception {
 
     JioHttpClient client = JioHttpClientBuilder.of(HttpClient.newBuilder())
                                                .get();
@@ -69,16 +70,17 @@ public class TestErrors {
                                                    .GET()
                                                    .uri(URI.create("https://www.google.foo")))
                                  .then(response -> IO.FALSE,
-                                       failure -> IO.succeed(ExceptionFun.findConnectionExcRecursively.apply(failure).isPresent()))
-                                 .join();
+                                       failure -> IO.succeed(ExceptionFun.findConnectionExcRecursively.apply(failure)
+                                                                                                      .isPresent()))
+                                 .result()
+                                 .call();
 
     Assertions.assertTrue(isUnresolved);
 
   }
 
-
   @Test
-  public void test_http_timeout() {
+  public void test_http_timeout() throws Exception {
 
     JioHttpClient client = JioHttpClientBuilder.of(HttpClient.newBuilder()
                                                              .connectTimeout(Duration.of(1,
@@ -93,14 +95,15 @@ public class TestErrors {
                                                 .uri(uri))
                               .then(response -> IO.FALSE,
                                     failure -> IO.succeed(HttpExceptionFun.HAS_CONNECTION_TIMEOUT.test(failure)))
-                              .join();
+                              .result()
+                              .call();
 
     Assertions.assertTrue(isTimeout);
 
   }
 
   @Test
-  public void testRequestTimeout() {
+  public void testRequestTimeout() throws Exception {
     GetStub getStrReqHandler = GetStub.of(BodyStub.consAfter("",
                                                              Duration.ofSeconds(1)),
                                           n -> bodyReq -> uri -> headers -> 200,
@@ -125,7 +128,8 @@ public class TestErrors {
                                                        .timeout(Duration.ofMillis(500)))
                                      .then(response -> IO.FALSE,
                                            failure -> IO.succeed(HttpExceptionFun.HAS_REQUEST_TIMEOUT.test(failure)))
-                                     .join();
+                                     .result()
+                                     .call();
 
     Assertions.assertTrue(isRequestTimeout);
 

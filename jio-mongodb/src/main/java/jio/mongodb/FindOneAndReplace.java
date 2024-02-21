@@ -28,7 +28,7 @@ import jsonvalues.JsObj;
  *
  * @see CollectionBuilder
  */
-public final class FindOneAndReplace extends Op implements MongoLambda<QueryReplace, JsObj> {
+public final class FindOneAndReplace extends Op implements MongoLambda<QueryAndDoc, JsObj> {
 
   private static final FindOneAndReplaceOptions DEFAULT_OPTIONS = new FindOneAndReplaceOptions();
   private FindOneAndReplaceOptions options = DEFAULT_OPTIONS;
@@ -70,24 +70,24 @@ public final class FindOneAndReplace extends Op implements MongoLambda<QueryRepl
    * Applies the find one and replace operation to the specified MongoDB collection with the provided query and
    * replacement document.
    *
-   * @param session      The MongoDB client session, or null if not within a session.
-   * @param queryReplace The query and replacement document information.
+   * @param session     The MongoDB client session, or null if not within a session.
+   * @param queryAndDoc The query and replacement document information.
    * @return An IO representing the result of the find one and replace operation.
    */
   @Override
   public IO<JsObj> apply(final ClientSession session,
-                         final QueryReplace queryReplace) {
-    Objects.requireNonNull(queryReplace);
+                         final QueryAndDoc queryAndDoc) {
+    Objects.requireNonNull(queryAndDoc);
     Supplier<JsObj> supplier = decorateWithEvent(() -> {
       var collection = requireNonNull(this.collection.get());
       return session == null ? collection
-                                         .findOneAndReplace(toBson(queryReplace.query()),
-                                                            queryReplace.newDoc(),
+                                         .findOneAndReplace(toBson(queryAndDoc.query()),
+                                                            queryAndDoc.newDoc(),
                                                             options
                                          ) : collection
                                                        .findOneAndReplace(session,
-                                                                          toBson(queryReplace.query()),
-                                                                          queryReplace.newDoc(),
+                                                                          toBson(queryAndDoc.query()),
+                                                                          queryAndDoc.newDoc(),
                                                                           options
                                                        );
     },

@@ -5,6 +5,7 @@ import java.util.concurrent.Callable;
 public sealed interface Result<Output> extends Callable<Output> permits Result.Success, Result.Failure {
 
   Result<Void> NULL = new Success<>(null);
+
   Result<Boolean> TRUE = new Success<>(true);
 
   Result<Boolean> FALSE = new Success<>(false);

@@ -10,7 +10,6 @@ import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import jio.Result.Failure;
 import jio.Result.Success;
 
@@ -57,18 +56,21 @@ final class ListExpPar<Elem> extends ListExp<Elem> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   Result<List<Elem>> reduceExp() {
     try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
 
-      List<? extends Subtask<Elem>> xs = list.stream()
-                                             .map(exp -> scope.fork(exp.get()))
-                                             .toList();
+      List<Subtask<Result<Elem>>> xs = list.stream()
+                                           .map(scope::fork)
+                                           .toList();
       scope.join()
            .throwIfFailed();
-      return new Success<>(xs.stream()
-                             .map(Subtask::get)
-                             .collect(Collectors.toList()));
+      List<Elem> result = new ArrayList<>();
+      for (Subtask<Result<Elem>> task : xs) {
+        Elem call = task.get()
+                        .call();
+        result.add(call);
+      }
+      return new Success<>(result);
 
     } catch (Exception e) {
       return new Failure<>(e);

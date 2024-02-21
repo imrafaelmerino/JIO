@@ -22,7 +22,7 @@ import jsonvalues.JsValue;
 
 final class JsArrayExpSeq extends JsArrayExp {
 
-  public JsArrayExpSeq(final List<IO<? extends JsValue>> list,
+  public JsArrayExpSeq(final List<IO<JsValue>> list,
                        final Function<EvalExpEvent, BiConsumer<JsArray, Throwable>> debugger
   ) {
     super(list,
@@ -39,7 +39,7 @@ final class JsArrayExpSeq extends JsArrayExp {
     List<JsValue> xs = new ArrayList<>(list.size());
     for (var entry : list) {
       try {
-        xs.add(entry.get()
+        xs.add(entry.call()
                     .call()
         );
       } catch (Exception e) {

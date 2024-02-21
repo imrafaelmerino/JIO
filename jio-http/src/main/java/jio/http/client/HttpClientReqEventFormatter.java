@@ -1,8 +1,7 @@
 package jio.http.client;
 
-import jdk.jfr.consumer.RecordedEvent;
-
 import java.util.function.Function;
+import jdk.jfr.consumer.RecordedEvent;
 import jio.http.client.HttpReqEvent.RESULT;
 import jio.time.Fun;
 

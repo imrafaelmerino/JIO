@@ -5,4 +5,3 @@ public record EmailEntity(String email,
                           Long id) {
 
 }
-

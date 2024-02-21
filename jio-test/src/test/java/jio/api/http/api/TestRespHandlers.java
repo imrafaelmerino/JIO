@@ -1,6 +1,12 @@
 package jio.api.http.api;
 
 import com.sun.net.httpserver.HttpServer;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.Map;
 import jio.IO;
 import jio.http.client.JioHttpClient;
 import jio.http.client.JioHttpClientBuilder;
@@ -17,13 +23,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.Map;
-
 public class TestRespHandlers {
 
   @RegisterExtension
@@ -32,32 +31,31 @@ public class TestRespHandlers {
   static JioHttpClient httpClient;
 
   @BeforeAll
-  public static void prepare() {
+  public static void prepare() throws Exception {
 
     GetStub getStrReqHandler = GetStub.of(BodyStub.cons("foo"),
                                           StatusCodeStub.cons(200),
                                           HeadersStub.EMPTY
-                                         );
+    );
 
     GetStub getJsonReqHandler = GetStub.of(BodyStub.cons(JsObj.of("a",
                                                                   JsStr.of("b")
-                                                                 )
+    )
                                                               .toString()),
                                            StatusCodeStub.cons(200),
                                            HeadersStub.EMPTY
-                                          );
-    HttpServerBuilder builder =
-        HttpServerBuilder.of(Map.of("/get_str",
-                                    getStrReqHandler,
-                                    "/get_json",
-                                    getJsonReqHandler
-                                   )
-                            );
+    );
+    HttpServerBuilder builder = HttpServerBuilder.of(Map.of("/get_str",
+                                                            getStrReqHandler,
+                                                            "/get_json",
+                                                            getJsonReqHandler
+    )
+    );
 
     HttpServer server = builder.startAtRandom("localhost",
                                               8000,
                                               9000
-                                             );
+    );
 
     port = server.getAddress()
                  .getPort();
@@ -68,56 +66,52 @@ public class TestRespHandlers {
   }
 
   @Test
-  public void test_get_str() {
+  public void test_get_str() throws Exception {
 
     String uri = String.format("http://localhost:%s/get_str",
                                port
-                              );
+    );
 
-    IO<HttpResponse<String>> val =
-        httpClient.ofString()
-                  .apply(HttpRequest.newBuilder()
-                                    .GET()
-                                    .uri(URI.create(uri))
-                        );
+    IO<HttpResponse<String>> val = httpClient.ofString()
+                                             .apply(HttpRequest.newBuilder()
+                                                               .GET()
+                                                               .uri(URI.create(uri))
+                                             );
 
-    HttpResponse<String> resp = val.get()
-                                   .join();
+    HttpResponse<String> resp = val.result()
+                                   .call();
     Assertions.assertEquals("foo",
                             resp.body()
-                           );
+    );
     Assertions.assertEquals(200,
                             resp.statusCode()
-                           );
+    );
 
   }
 
-
   @Test
-  public void test_get_json() {
+  public void test_get_json() throws Exception {
 
     String uri = String.format("http://localhost:%s/get_json",
                                port
-                              );
+    );
 
-    IO<HttpResponse<String>> val =
-        httpClient.ofString()
-                  .apply(HttpRequest.newBuilder()
-                                    .GET()
-                                    .uri(URI.create(uri))
-                        );
+    IO<HttpResponse<String>> val = httpClient.ofString()
+                                             .apply(HttpRequest.newBuilder()
+                                                               .GET()
+                                                               .uri(URI.create(uri))
+                                             );
 
-    HttpResponse<String> resp = val.get()
-                                   .join();
+    HttpResponse<String> resp = val.result()
+                                   .call();
     Assertions.assertEquals(JsObj.of("a",
                                      JsStr.of("b")
-                                    ),
+    ),
                             JsObj.parse(resp.body())
-                           );
+    );
     Assertions.assertEquals(200,
                             resp.statusCode()
-                           );
+    );
   }
-
 
 }

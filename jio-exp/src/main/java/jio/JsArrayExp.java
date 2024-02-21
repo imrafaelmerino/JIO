@@ -1,7 +1,6 @@
 package jio;
 
-import jsonvalues.JsArray;
-import jsonvalues.JsValue;
+import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +9,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static java.util.Objects.requireNonNull;
+import jsonvalues.JsArray;
+import jsonvalues.JsValue;
 
 /**
  * Represents a sequence of effects that produce JSON values ({@link JsValue}) and combines them into a JSON array. This
@@ -20,9 +19,9 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpPar, JsArrayExpSeq {
 
-  final List<IO<? extends JsValue>> list;
+  final List<IO<JsValue>> list;
 
-  JsArrayExp(List<IO<? extends JsValue>> list,
+  JsArrayExp(List<IO<JsValue>> list,
              Function<EvalExpEvent, BiConsumer<JsArray, Throwable>> debugger
   ) {
     super(debugger);
@@ -37,8 +36,8 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
    * @return a JsArrayExp for sequential evaluation
    */
   @SafeVarargs
-  public static JsArrayExp seq(final IO<? extends JsValue>... effects) {
-    var list = new ArrayList<IO<? extends JsValue>>();
+  public static JsArrayExp seq(final IO<JsValue>... effects) {
+    var list = new ArrayList<IO<JsValue>>();
     for (var other : requireNonNull(effects)) {
       list.add(requireNonNull(other));
     }
@@ -54,8 +53,8 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
    * @return a JsArrayExp for parallel evaluation
    */
   @SafeVarargs
-  public static JsArrayExp par(final IO<? extends JsValue>... effects) {
-    var list = new ArrayList<IO<? extends JsValue>>();
+  public static JsArrayExp par(final IO<JsValue>... effects) {
+    var list = new ArrayList<IO<JsValue>>();
     for (var other : requireNonNull(effects)) {
       list.add(requireNonNull(other));
     }
@@ -63,8 +62,8 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
                              null);
   }
 
-  List<IO<? extends JsValue>> debugJsArray(List<IO<? extends JsValue>> exps,
-                                           EventBuilder<JsArray> eventBuilder
+  List<IO<JsValue>> debugJsArray(List<IO<JsValue>> exps,
+                                 EventBuilder<JsArray> eventBuilder
   ) {
     return IntStream.range(0,
                            exps.size())
@@ -94,7 +93,7 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
 
   @Override
   public JsArrayExp retryEach(RetryPolicy policy) {
-    return retryEach(e -> true,
+    return retryEach(_ -> true,
                      policy);
   }
 

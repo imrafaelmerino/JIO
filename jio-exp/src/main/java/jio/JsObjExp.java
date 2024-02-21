@@ -1,7 +1,6 @@
 package jio;
 
-import jsonvalues.JsObj;
-import jsonvalues.JsValue;
+import static java.util.Objects.requireNonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,8 +8,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jsonvalues.JsObj;
+import jsonvalues.JsValue;
 
 /**
  * Represents an expression that is reduced to a JSON object. It follows the same recursive structure as a JSON object,
@@ -1662,7 +1661,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
 
   @Override
   public JsObjExp retryEach(final RetryPolicy policy) {
-    return retryEach(e -> true,
+    return retryEach(_ -> true,
                      policy);
   }
 

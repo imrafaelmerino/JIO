@@ -20,16 +20,16 @@ import jio.Result.Failure;
 public final class SwitchExp<Input, Output> extends Exp<Output> {
 
   private final IO<Input> val;
-  private final List<Predicate<Input>> predicates;
-  private final List<Lambda<Input, Output>> lambdas;
-  private final Lambda<Input, Output> otherwise;
+  private final List<Predicate<Result<Input>>> predicates;
+  private final List<Lambda<Result<Input>, Output>> lambdas;
+  private final Lambda<Result<Input>, Output> otherwise;
 
   SwitchExp(final IO<Input> val,
-            final List<Predicate<Input>> predicates,
-            final List<Lambda<Input, Output>> lambdas,
-            final Lambda<Input, Output> otherwise,
+            final List<Predicate<Result<Input>>> predicates,
+            final List<Lambda<Result<Input>, Output>> lambdas,
+            final Lambda<Result<Input>, Output> otherwise,
             final Function<EvalExpEvent, BiConsumer<Output, Throwable>> debugger
-  ) {
+           ) {
     super(debugger);
     this.val = val;
     this.predicates = predicates;
@@ -38,8 +38,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
   }
 
   /**
-   * Creates a SwitchMatcher from a given value that will be evaluated and matched against the branches defined with the
-   * {@link SwitchMatcher#match(Object, Lambda, Object, Lambda, Lambda) match} method
+   * Creates a SwitchMatcher from a given value that will be evaluated and matched against different branches
    *
    * @param input    the input that will be evaluated
    * @param <Input>  the type of the input
@@ -51,8 +50,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
   }
 
   /**
-   * Creates a SwitchMatcher from a given effect that will be evaluated and matched against the branches defined with
-   * the {@link SwitchMatcher#match(Object, Lambda, Object, Lambda, Lambda) match} method
+   * Creates a SwitchMatcher from a given effect that will be evaluated and matched against different branches
    *
    * @param input    the effect that will be evaluated
    * @param <Input>  the type of the input
@@ -63,37 +61,36 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
     return new SwitchMatcher<>(requireNonNull(input));
   }
 
-  private static <Input, Output> Result<Output> get(Input input,
-                                                    List<Predicate<Input>> tests,
-                                                    List<Lambda<Input, Output>> lambdas,
-                                                    Lambda<Input, Output> otherwise,
+  private static <Input, Output> Result<Output> get(Result<Input> input,
+                                                    List<Predicate<Result<Input>>> tests,
+                                                    List<Lambda<Result<Input>, Output>> lambdas,
+                                                    Lambda<Result<Input>, Output> otherwise,
                                                     int condTestedSoFar
-  ) {
+                                                   ) {
     if (condTestedSoFar == tests.size()) {
       return otherwise.apply(input)
-                      .get();
+                      .result();
     }
     return tests.get(condTestedSoFar)
                 .test(input) ? lambdas.get(condTestedSoFar)
                                       .apply(input)
-                                      .get() : get(input,
-                                                   tests,
-                                                   lambdas,
-                                                   otherwise,
-                                                   condTestedSoFar + 1);
+                                      .result() : get(input,
+                                                      tests,
+                                                      lambdas,
+                                                      otherwise,
+                                                      condTestedSoFar + 1);
 
   }
 
   @Override
   Result<Output> reduceExp() {
     try {
-      return SwitchExp.get(val.get()
-                              .call(),
+      return SwitchExp.get(val.result(),
                            predicates,
                            lambdas,
                            otherwise,
                            0
-      );
+                          );
     } catch (Exception e) {
       return new Failure<>(e);
     }
@@ -110,7 +107,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
   @Override
   public SwitchExp<Input, Output> retryEach(final Predicate<? super Throwable> predicate,
                                             final RetryPolicy policy
-  ) {
+                                           ) {
     requireNonNull(predicate);
     requireNonNull(policy);
     return new SwitchExp<>(val.retry(predicate,
@@ -129,20 +126,20 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
 
   @Override
   public SwitchExp<Input, Output> debugEach(final EventBuilder<Output> eventBuilder
-  ) {
+                                           ) {
     return new SwitchExp<>(DebuggerHelper.debugIO(val,
                                                   "%s-eval".formatted(eventBuilder.exp),
                                                   eventBuilder.context
-    ),
+                                                 ),
                            predicates,
                            DebuggerHelper.debugLambdas(lambdas,
                                                        "%s-branch".formatted(eventBuilder.exp),
                                                        eventBuilder.context
-                           ),
+                                                      ),
                            DebuggerHelper.debugLambda(otherwise,
                                                       "%s-otherwise".formatted(eventBuilder.exp),
                                                       eventBuilder.context
-                           ),
+                                                     ),
                            getJFRPublisher(eventBuilder)
 
     );
@@ -150,7 +147,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
 
   @Override
   public SwitchExp<Input, Output> retryEach(final RetryPolicy policy) {
-    return retryEach(e -> true,
+    return retryEach(_ -> true,
                      policy);
   }
 

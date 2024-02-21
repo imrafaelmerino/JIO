@@ -98,4 +98,5 @@ public final class FindOneAndDelete extends Op implements MongoLambda<JsObj, JsO
     this.recordEvents = false;
     return this;
   }
+
 }

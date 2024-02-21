@@ -20,20 +20,20 @@ import java.util.Objects;
  *
  * <pre>
  * {code
- *     public class TestProperties {
+ * public class TestProperties {
  *
- *      {@literal @}Command
- *     static Property prop1;
+ * {@literal @}Command
+ * static Property prop1;
  *
- *      {@literal @}Command
- *     static Property prop2;
+ * {@literal @}Command
+ * static Property prop2;
  *
- *     public static void main(String[] args) throws IOException {
- *         new PropertyConsole(List.of(TestProperties.class)).start(args);
- *     }
+ * public static void main(String[] args) throws IOException {
+ * new PropertyConsole(List.of(TestProperties.class)).start(args);
+ * }
  *
- *     typing the command 'list prop' in the console will show the list of properties available
- *     }
+ * typing the command 'list prop' in the console will show the list of properties available
+ * }
  *
  * </pre>
  *
@@ -76,7 +76,7 @@ public final class PropertyConsole {
     }
     if (args.length > 1) {
       System.out.println(
-          "Only an argument with the absolute path to the configuration file is required");
+                         "Only an argument with the absolute path to the configuration file is required");
     }
     console.eval(getConf(args[0]));
   }
@@ -98,45 +98,43 @@ public final class PropertyConsole {
       return JsObj.parse(conf);
     } catch (JsParserException e) {
       throw new IllegalArgumentException(
-          String.format("The content of the file %s is not a Json object",
-                        path));
+                                         String.format("The content of the file %s is not a Json object",
+                                                       path));
     }
 
   }
 
   @SuppressWarnings("rawtypes")
   private List<Property> getPropertiesCommand() {
-    return
-        propertyClasses.stream()
-                       .flatMap(it ->
-                                    Arrays.stream(it.getDeclaredFields())
-                                          .toList()
-                                          .stream()
-                                          .peek(f -> f.setAccessible(true))
-                                          .filter(f -> f.getType()
-                                                        .equals(Property.class)
-                                              && f.isAnnotationPresent(jio.test.pbt.Command.class))
-                               )
-                       .filter(f -> {
-                         try {
-                           //if f is not static it throws a NullPointerException
-                           var unused = f.get(null);
-                           return true;
-                         } catch (Exception e) {
-                           System.out.printf(
-                               "Property %s need to be static to be converted in a command callable from the console%n",
-                               f.getName());
-                           return false;
-                         }
-                       })
-                       .map(f -> {
-                         try {
-                           return f.get(null);
-                         } catch (IllegalAccessException e) {
-                           throw new RuntimeException(e);
-                         }
-                       })
-                       .map(c -> ((Property) c))
-                       .toList();
+    return propertyClasses.stream()
+                          .flatMap(it -> Arrays.stream(it.getDeclaredFields())
+                                               .toList()
+                                               .stream()
+                                               .peek(f -> f.setAccessible(true))
+                                               .filter(f -> f.getType()
+                                                             .equals(Property.class)
+                                                            && f.isAnnotationPresent(jio.test.pbt.Command.class))
+                          )
+                          .filter(f -> {
+                            try {
+                              //if f is not static it throws a NullPointerException
+                              var unused = f.get(null);
+                              return true;
+                            } catch (Exception e) {
+                              System.out.printf(
+                                                "Property %s need to be static to be converted in a command callable from the console%n",
+                                                f.getName());
+                              return false;
+                            }
+                          })
+                          .map(f -> {
+                            try {
+                              return f.get(null);
+                            } catch (IllegalAccessException e) {
+                              throw new RuntimeException(e);
+                            }
+                          })
+                          .map(c -> ((Property) c))
+                          .toList();
   }
 }

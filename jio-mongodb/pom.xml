@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.imrafaelmerino</groupId>
   <artifactId>jio-mongodb</artifactId>
-  <version>4.0.0</version>
+  <version>3.0.0</version>
   <name>jio-mongodb</name>
   <description>Functional and reactive MongoDB client in Java</description>
   <url>https://github.com/imrafaelmerino/jio</url>
@@ -41,7 +41,7 @@
     <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
     <MONGO-VALUES-VERSION>1.0.3</MONGO-VALUES-VERSION>
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
-    <JIO-EXP-VERSION>4.0.0</JIO-EXP-VERSION>
+    <JIO-EXP-VERSION>3.0.0</JIO-EXP-VERSION>
     <JUNIT-JUPITER-ENGINE.VERSION>5.1.1</JUNIT-JUPITER-ENGINE.VERSION>
     <MONGO-DRIVER-SYNC>4.11.0</MONGO-DRIVER-SYNC>
     <FORMATTER-MAVEN-PLUGIN.VERSION>2.23.0</FORMATTER-MAVEN-PLUGIN.VERSION>

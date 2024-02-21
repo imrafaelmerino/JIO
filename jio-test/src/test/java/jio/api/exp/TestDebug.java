@@ -2,17 +2,17 @@ package jio.api.exp;
 
 import fun.gen.BoolGen;
 import fun.gen.Combinators;
-import java.util.Locale;
+import java.time.Duration;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 import jio.IO;
 import jio.IfElseExp;
+import jio.Result.Success;
 import jio.SwitchExp;
 import jio.test.junit.Debugger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.function.Supplier;
 
 public class TestDebug {
 
@@ -37,30 +37,39 @@ public class TestDebug {
                                                    "U")
                                             .sample();
 
-    SwitchExp<String, String> match =
-        SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
-                                                .consequence(() -> IO.lazy(loserCase))
-                                                .alternative(() -> IO.lazy(upperCase))
-                                      )
-                 .match(List.of("a",
-                                "e",
-                                "i",
-                                "o",
-                                "u"),
-                        s -> IO.succeed("%s %s".formatted(s,
-                                                          s.toUpperCase(Locale.ENGLISH))),
-                        List.of("A",
-                                "E",
-                                "I",
-                                "O",
-                                "U"),
-                        s -> IO.succeed("%s %s".formatted(s,
-                                                          s.toLowerCase(Locale.ENGLISH))),
-                        s -> IO.NULL()
-                       )
-                 .debugEach("context");
+    List<Success<String>> xs = Stream.of("a",
+                                         "e",
+                                         "i",
+                                         "o",
+                                         "u")
+                                     .map(Success::new)
+                                     .toList();
+    List<Success<String>> ys = Stream.of("A",
+                                         "E",
+                                         "I",
+                                         "O",
+                                         "U")
+                                     .map(Success::new)
+                                     .toList();
+    SwitchExp<String, String> match = SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
+                                                                              .consequence(() -> IO.lazy(loserCase))
+                                                                              .alternative(() -> IO.lazy(upperCase))
+    )
+                                               .matchList(xs,
+                                                          s -> IO.NULL(),
+                                                          /*IO.succeed("%s %s".formatted(s.call(),
+                                                                                        s.call()
+                                                                                         .toUpperCase(Locale.ENGLISH))
+                                                                     ),*/
+                                                          ys,
+                                                          s -> IO.NULL(),
+                                                          /*       IO.succeed("%s %s".formatted(s.call(),
+                                                                                               s.call().toLowerCase(Locale.ENGLISH))),*/
+                                                          s -> IO.NULL()
+                                               )
+                                               .debugEach("context");
 
-    System.out.println(match.join());
+    System.out.println(match.call());
 
   }
 }

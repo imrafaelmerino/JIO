@@ -6,7 +6,7 @@ import jio.Result;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestAnyExp {
+public class AnyExpTest {
 
   @Test
   public void sequential_constructor() {
@@ -16,14 +16,14 @@ public class TestAnyExp {
                                IO.TRUE);
 
     Assertions.assertEquals(Result.TRUE,
-                            anyIsTrue.get());
+                            anyIsTrue.call());
 
     var anyIsFalse = AnyExp.seq(AnyExp.seq(IO.FALSE,
                                            IO.FALSE),
                                 IO.FALSE);
 
     Assertions.assertEquals(Result.FALSE,
-                            anyIsFalse.get());
+                            anyIsFalse.call());
 
   }
 
@@ -35,14 +35,14 @@ public class TestAnyExp {
                                IO.FALSE);
 
     Assertions.assertEquals(Result.TRUE,
-                            anyIsTrue.get());
+                            anyIsTrue.call());
 
     var anyIsFalse = AnyExp.par(AnyExp.par(IO.FALSE,
                                            IO.FALSE),
                                 IO.FALSE);
 
     Assertions.assertEquals(Result.FALSE,
-                            anyIsFalse.get());
+                            anyIsFalse.call());
   }
 
   @Test
@@ -51,7 +51,7 @@ public class TestAnyExp {
                          IO.TRUE
     )
                     .debugEach("context")
-                    .get();
+                    .call();
 
     Assertions.assertEquals(Result.TRUE,
                             exp

@@ -94,7 +94,7 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
 
   @Override
   public PairExp<First, Second> retryEach(final RetryPolicy policy) {
-    return retryEach(e -> true,
+    return retryEach(_ -> true,
                      policy);
   }
 

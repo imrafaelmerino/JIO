@@ -11,4 +11,3 @@ public sealed interface TestResult permits TestFailure, TestSuccess {
    */
   TestSuccess SUCCESS = new TestSuccess();
 }
-

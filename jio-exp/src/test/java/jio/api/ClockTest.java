@@ -1,13 +1,12 @@
 package jio.api;
 
+import java.time.Duration;
+import java.time.Instant;
 import jio.time.Clock;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.time.Instant;
-
-public class TestClock {
+public class ClockTest {
 
   @Test
   public void test_measure_time() throws InterruptedException {
@@ -22,7 +21,7 @@ public class TestClock {
 
     long duration = Duration.ofNanos(end - start)
                             .toMillis();
-    System.out.println("duration(ms): " + duration);
+    System.out.println(STR."duration(ms): \{duration}");
     Assertions.assertTrue(duration >= 10);
   }
 

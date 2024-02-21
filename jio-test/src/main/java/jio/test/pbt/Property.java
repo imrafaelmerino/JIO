@@ -57,7 +57,6 @@ public non-sealed class Property<GenValue> extends Testable {
     this.times = times;
   }
 
-
   private String getTags(GenValue value) {
     if (classifiers == null) {
       return "";
@@ -69,7 +68,6 @@ public non-sealed class Property<GenValue> extends Testable {
                       .collect(Collectors.joining(","));
   }
 
-
   void dump(Report report) {
     synchronized (Property.class) {
       try {
@@ -80,7 +78,6 @@ public non-sealed class Property<GenValue> extends Testable {
       }
     }
   }
-
 
   /**
    * Returns a new testable instance that represents the property and will be executed in parallel for the specified
@@ -114,7 +111,7 @@ public non-sealed class Property<GenValue> extends Testable {
       long seed = seedGen.nextLong();
       Supplier<GenValue> rg = gen.apply(new Random(seed));
       report.setStartTime(Instant.now());
-      for (int i = 1; i <= times; i++) {
+      for (int i = 1; i<=times;i++) {
         report.incTest();
         var tic = Instant.now();
         var generated = rg.get();
@@ -132,7 +129,7 @@ public non-sealed class Property<GenValue> extends Testable {
                                   tags);
         var result = property.apply(conf,
                                     generated)
-                             .get();
+                             .result();
         switch (result) {
           case Result.Success(TestResult tr) -> {
             report.tac(tic);
@@ -157,12 +154,11 @@ public non-sealed class Property<GenValue> extends Testable {
       return report;
     };
 
-    IO<Report> io = IO.lazyOn(task)
+    IO<Report> io = IO.lazy(task)
                       .peekSuccess(Report::summarize);
 
     return path == null ? io : io.peekSuccess(this::dump);
 
   }
-
 
 }

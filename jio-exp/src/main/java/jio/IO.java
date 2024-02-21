@@ -10,8 +10,6 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.function.Consumer;
@@ -54,9 +52,7 @@ import jio.Result.Success;
  * @see Exp
  */
 
-public sealed abstract class IO<Output> implements Supplier<Result<Output>> permits Exp, Val {
-
-  static ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+public sealed abstract class IO<Output> implements Callable<Result<Output>> permits Exp, Val {
 
   /**
    * Effect that always succeeds with true
@@ -192,50 +188,6 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
   }
 
   /**
-   * Creates an effect from a task modeled with a {@link Callable} and executes it using the
-   * newVirtualThreadPerTaskExecutor. Every time the `get()` or `result` method is called, the provided task is executed
-   * asynchronously using the given executor.
-   *
-   * @param callable the callable task to be executed.
-   * @param <Output> the type parameter representing the result type of the effect.
-   * @return an IO effect encapsulating the callable task.
-   */
-  public static <Output> IO<Output> lazyOn(final Supplier<? extends Output> callable) {
-    requireNonNull(callable);
-    return new Val<>(() -> {
-      try {
-        return new Success<>(executor.submit(callable::get)
-                                     .get());
-      } catch (Exception e) {
-        return new Failure<>(e);
-      }
-    });
-
-  }
-
-  /**
-   * Creates an effect from a task modeled with a {@link Callable} and executes it using the
-   * newVirtualThreadPerTaskExecutor. Every time the `get()` or `result` method is called, the provided task is executed
-   * asynchronously using the given executor.
-   *
-   * @param callable the callable task to be executed.
-   * @param <Output> the type parameter representing the result type of the effect.
-   * @return an IO effect encapsulating the callable task.
-   */
-  public static <Output> IO<Output> taskOn(final Callable<? extends Output> callable) {
-    requireNonNull(callable);
-    return new Val<>(() -> {
-      try {
-        return new Success<>(executor.submit(callable)
-                                     .get());
-      } catch (Exception e) {
-        return new Failure<>(e);
-      }
-    });
-
-  }
-
-  /**
    * Creates an effect that always returns a failed result with the specified exception.
    *
    * @param exc      the exception to be returned by the effect.
@@ -275,7 +227,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
     return new Val<>(() -> {
       try (var scope = new StructuredTaskScope.ShutdownOnSuccess<Result<Output>>()) {
         for (var task : tasks) {
-          scope.fork(task::get);
+          scope.fork(task);
         }
         try {
           return scope.join()
@@ -299,7 +251,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
    */
   @SuppressWarnings("ReturnValueIgnored")
   public IO<Void> async() {
-    var unused = executor.submit(this::get);
+    var unused = VirtualThreadExecutor.INSTANCE.submit(this);
     return IO.NULL();
   }
 
@@ -313,7 +265,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
    */
   public <OutputMapped> IO<OutputMapped> map(final Function<? super Output, ? extends OutputMapped> fn) {
     requireNonNull(fn);
-    return new Val<>(() -> switch (get()) {
+    return new Val<>(() -> switch (call()) {
       case Success<Output>(Output output) -> new Success<>(fn.apply(output));
       case Failure<Output>(Exception exception) -> new Failure<>(exception);
     });
@@ -337,7 +289,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
    */
   public IO<Output> mapFailure(final Function<Exception, Exception> fn) {
     requireNonNull(fn);
-    return new Val<>(() -> switch (get()) {
+    return new Val<>(() -> switch (call()) {
       case Success<Output> s -> s;
       case Failure<Output>(Exception exception) -> new Failure<>(fn.apply(exception));
     });
@@ -355,12 +307,11 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
    */
   public <Q> IO<Q> then(final Lambda<? super Output, Q> fn) {
     requireNonNull(fn);
-    var result = this.get();
-    return switch (result) {
-      case Success<Output>(Output output) -> fn.apply(output);
-      case Failure<Output>(Exception exception) -> IO.fail(exception);
-    };
-
+    return new Val<>(() -> switch (call()) {
+      case Success<Output>(Output output) -> fn.apply(output)
+                                               .call();
+      case Failure<Output>(Exception e) -> new Failure<>(e);
+    });
   }
 
   /**
@@ -378,12 +329,12 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
                         final Lambda<? super Exception, Q> failureLambda) {
     requireNonNull(successLambda);
     requireNonNull(failureLambda);
-
-    var result = this.get();
-    return switch (result) {
-      case Success<Output>(Output output) -> successLambda.apply(output);
-      case Failure<Output>(Exception exception) -> failureLambda.apply(exception);
-    };
+    return new Val<>(() -> switch (call()) {
+      case Success<Output>(Output output) -> successLambda.apply(output)
+                                                          .call();
+      case Failure<Output>(Exception exception) -> failureLambda.apply(exception)
+                                                                .call();
+    });
   }
 
   /**
@@ -397,7 +348,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
    */
   public IO<Output> recover(final Function<? super Exception, Output> fn) {
     requireNonNull(fn);
-    return new Val<>(() -> switch (get()) {
+    return new Val<>(() -> switch (call()) {
       case Success<Output> success -> success;
       case Failure<Output>(Exception exception) -> new Success<>(fn.apply(exception));
     });
@@ -463,7 +414,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
    */
   public IO<Output> peekSuccess(final Consumer<? super Output> successConsumer) {
     return peek(successConsumer,
-                e -> {
+                _ -> {
                 });
   }
 
@@ -534,7 +485,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
    * @see RetryPolicy
    */
   public IO<Output> retry(final RetryPolicy policy) {
-    return retry(e -> true,
+    return retry(_ -> true,
                  policy);
   }
 
@@ -559,7 +510,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
                                           predicate);
                            }
                            return sleep(duration)
-                                                 .then($ -> retry(effect,
+                                                 .then(_ -> retry(effect,
                                                                   policy,
                                                                   new RetryStatus(rs.counter() + 1,
                                                                                   rs.cumulativeDelay()
@@ -612,7 +563,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
                         predicate);
         }
         return sleep(delay)
-                           .then($ -> repeat(exp,
+                           .then(_ -> repeat(exp,
                                              policy,
                                              new RetryStatus(rs.counter() + 1,
                                                              rs.cumulativeDelay()
@@ -657,13 +608,13 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
     })
              .then(event -> this.peek(val -> {
                event.end();
-               builder.updateAndCommit(val,
-                                       event);
+               builder.commitSuccess(val,
+                                     event);
              },
                                       exc -> {
                                         event.end();
-                                        builder.updateAndCommit(exc,
-                                                                event);
+                                        builder.commitFailure(exc,
+                                                              event);
                                       }));
   }
 
@@ -672,7 +623,7 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
     return new Val<>(() -> {
       try {
         Thread.sleep(duration);
-        return get();
+        return call();
       } catch (InterruptedException e) {
         Thread.currentThread()
               .interrupt();
@@ -681,7 +632,14 @@ public sealed abstract class IO<Output> implements Supplier<Result<Output>> perm
         return new Failure<>(e);
       }
     });
+  }
 
+  public Result<Output> result() {
+    try {
+      return call();
+    } catch (Exception e) {
+      return new Failure<>(e);
+    }
   }
 
 }

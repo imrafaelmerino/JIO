@@ -92,4 +92,5 @@ public final class DeleteMany extends Op implements MongoLambda<JsObj, DeleteRes
     this.recordEvents = false;
     return this;
   }
+
 }
