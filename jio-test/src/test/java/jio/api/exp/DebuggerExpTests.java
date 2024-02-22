@@ -42,29 +42,29 @@ public class DebuggerExpTests {
                                      IO.TRUE
                                     )
                                 .debugEach("test")
-                                .call()
-                                .call()
+                                .result()
+                                .isSuccess(isAllTrue -> isAllTrue)
                          );
     Assertions.assertFalse(AllExp.seq(IO.FALSE,
                                       IO.TRUE
                                      )
                                  .debugEach("test1")
-                                 .call()
-                                 .call()
+                                 .result()
+                                 .isSuccess(isAllTrue -> isAllTrue)
                           );
     Assertions.assertFalse(AllExp.par(IO.FALSE,
                                       IO.TRUE
                                      )
                                  .debugEach("test2")
-                                 .call()
-                                 .call()
+                                 .result()
+                                 .isSuccess(isAllTrue -> isAllTrue)
                           );
     Assertions.assertFalse(AllExp.par(IO.FALSE,
                                       IO.TRUE
                                      )
                                  .debugEach("test3")
-                                 .call()
-                                 .call()
+                                 .result()
+                                 .isSuccess(isAllTrue -> isAllTrue)
                           );
 
   }
@@ -387,28 +387,26 @@ public class DebuggerExpTests {
 
   @Test
   public void testTripleExp() throws Exception {
-    Assertions.assertEquals(Triple.of(1,
-                                      2,
-                                      3),
+    Assertions.assertEquals(new Success<>(Triple.of(1,
+                                                    2,
+                                                    3)),
                             TripleExp.seq(IO.succeed(1),
                                           IO.succeed(2),
                                           IO.succeed(3)
                                          )
                                      .debugEach("context")
-                                     .call()
-                                     .call()
+                                     .result()
                            );
 
-    Assertions.assertEquals(Triple.of(1,
-                                      2,
-                                      3),
+    Assertions.assertEquals(new Success<>(Triple.of(1,
+                                                    2,
+                                                    3)),
                             TripleExp.par(IO.succeed(1),
                                           IO.succeed(2),
                                           IO.succeed(3)
                                          )
                                      .debugEach("test2")
-                                     .call()
-                                     .call()
+                                     .result()
                            );
 
   }
@@ -418,9 +416,9 @@ public class DebuggerExpTests {
 
     Assertions.assertEquals(new Success<>("two"),
                             SwitchExp.<Integer, String>eval(IO.succeed(2))
-                                     .match(new Success<>(1),
+                                     .match(1,
                                             _ -> IO.succeed("one"),
-                                            new Success<>(2),
+                                            2,
                                             _ -> IO.succeed("two"),
                                             _ -> IO.succeed("default")
                                            )

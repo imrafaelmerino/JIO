@@ -31,8 +31,12 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+/**
+ * Follow the steps in the file steps-rs.md to deploy a replica set before executing this test
+ * TODO: use testconainers to not to do it manually
+ */
 @Disabled
-public class MongoTest {
+public class MongoTests {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(10));
@@ -48,15 +52,15 @@ public class MongoTest {
                                                                .map(result -> obj.set("id",
                                                                                       Converters.toHexId(result))
                                                                    );
-  MongoLambda<PersonAddress, PersonAddress> insertInCascade = (session,
-                                                               pa) -> insertAndSetId.apply(session,
-                                                                                           pa.person)
-                                                                                    .then(updatedPerson -> insertAndSetId.apply(session,
-                                                                                                                                pa.address.set("person_id",
-                                                                                                                                               updatedPerson.getStr("id")))
-                                                                                                                         .map(updatedAddress -> new PersonAddress(updatedPerson,
-                                                                                                                                                                  updatedAddress))
-                                                                                         );
+  MongoLambda<PersonAddress, PersonAddress> insertInCascade =
+      (session, pa) -> insertAndSetId.apply(session,
+                                            pa.person)
+                                     .then(updatedPerson -> insertAndSetId.apply(session,
+                                                                                 pa.address.set("person_id",
+                                                                                                updatedPerson.getStr("id")))
+                                                                          .map(updatedAddress -> new PersonAddress(updatedPerson,
+                                                                                                                   updatedAddress))
+                                          );
 
   @BeforeAll
   public static void prepare() {
@@ -118,9 +122,7 @@ public class MongoTest {
     System.out.println(findAll.standalone()
                               .apply(FindBuilder.of(JsObj.empty()))
                               .map(Converters::toJsArray)
-                              .result()
-                              .call()
-                              .size());
+                              .result());
 
     List<JsObj> arr = find.result()
                           .call();

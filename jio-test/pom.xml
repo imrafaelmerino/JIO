@@ -76,7 +76,8 @@
           <includes>
             <include>**/*Test.java</include>
             <include>**/*Tests.java</include>
-            <include>**/*TestCase.java</include>
+            <include>**/*Property.java</include>
+            <include>**/*Properties.java</include>
           </includes>
           <failIfNoTests>false</failIfNoTests>
         </configuration>

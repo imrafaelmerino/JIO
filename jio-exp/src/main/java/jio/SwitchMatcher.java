@@ -51,11 +51,11 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> match(final Result<Input> pattern1,
-                                        final Lambda<Result<Input>, Output> lambda1,
-                                        final Result<Input> pattern2,
-                                        final Lambda<Result<Input>, Output> lambda2,
-                                        final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> match(final Input pattern1,
+                                        final Lambda<Input, Output> lambda1,
+                                        final Input pattern2,
+                                        final Lambda<Input, Output> lambda2,
+                                        final Lambda<Input, Output> otherwise
                                        ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -81,10 +81,10 @@ public final class SwitchMatcher<Input, Output> {
    * @param lambda2  the lambda associated to the second value
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> match(final Result<Input> pattern1,
-                                        final Lambda<Result<Input>, Output> lambda1,
-                                        final Result<Input> pattern2,
-                                        final Lambda<Result<Input>, Output> lambda2
+  public SwitchExp<Input, Output> match(final Input pattern1,
+                                        final Lambda<Input, Output> lambda1,
+                                        final Input pattern2,
+                                        final Lambda<Input, Output> lambda2
                                        ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -110,11 +110,11 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> matchPredicate(final Predicate<Result<Input>> pattern1,
-                                                 final Lambda<Result<Input>, Output> lambda1,
-                                                 final Predicate<Result<Input>> pattern2,
-                                                 final Lambda<Result<Input>, Output> lambda2,
-                                                 final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> matchPredicate(final Predicate<Input> pattern1,
+                                                 final Lambda<Input, Output> lambda1,
+                                                 final Predicate<Input> pattern2,
+                                                 final Lambda<Input, Output> lambda2,
+                                                 final Lambda<Input, Output> otherwise
                                                 ) {
 
     return new SwitchExp<>(val,
@@ -141,10 +141,10 @@ public final class SwitchMatcher<Input, Output> {
    * @return a SwitchExp
    * @see #matchPredicate(Predicate, Lambda, Predicate, Lambda, Lambda)
    */
-  public SwitchExp<Input, Output> matchPredicate(final Predicate<Result<Input>> pattern1,
-                                                 final Lambda<Result<Input>, Output> lambda1,
-                                                 final Predicate<Result<Input>> pattern2,
-                                                 final Lambda<Result<Input>, Output> lambda2
+  public SwitchExp<Input, Output> matchPredicate(final Predicate<Input> pattern1,
+                                                 final Lambda<Input, Output> lambda1,
+                                                 final Predicate<Input> pattern2,
+                                                 final Lambda<Input, Output> lambda2
                                                 ) {
 
     return new SwitchExp<>(val,
@@ -170,11 +170,11 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> matchList(final List<? extends Result<Input>> pattern1,
-                                            final Lambda<Result<Input>, Output> lambda1,
-                                            final List<? extends Result<Input>> pattern2,
-                                            final Lambda<Result<Input>, Output> lambda2,
-                                            final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> matchList(final List<? extends Input> pattern1,
+                                            final Lambda<Input, Output> lambda1,
+                                            final List<? extends Input> pattern2,
+                                            final Lambda<Input, Output> lambda2,
+                                            final Lambda<Input, Output> otherwise
                                            ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -202,10 +202,10 @@ public final class SwitchMatcher<Input, Output> {
    * @return a SwitchExp
    * @see #matchList(List, Lambda, List, Lambda, Lambda)
    */
-  public SwitchExp<Input, Output> matchList(final List<? extends Result<Input>> pattern1,
-                                            final Lambda<Result<Input>, Output> lambda1,
-                                            final List<? extends Result<Input>> pattern2,
-                                            final Lambda<Result<Input>, Output> lambda2
+  public SwitchExp<Input, Output> matchList(final List<? extends Input> pattern1,
+                                            final Lambda<Input, Output> lambda1,
+                                            final List<? extends Input> pattern2,
+                                            final Lambda<Input, Output> lambda2
                                            ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -234,13 +234,13 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> matchList(final List<? extends Result<Input>> pattern1,
-                                            final Lambda<Result<Input>, Output> lambda1,
-                                            final List<? extends Result<Input>> pattern2,
-                                            final Lambda<Result<Input>, Output> lambda2,
-                                            final List<? extends Result<Input>> pattern3,
-                                            final Lambda<Result<Input>, Output> lambda3,
-                                            final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> matchList(final List<? extends Input> pattern1,
+                                            final Lambda<Input, Output> lambda1,
+                                            final List<? extends Input> pattern2,
+                                            final Lambda<Input, Output> lambda2,
+                                            final List<? extends Input> pattern3,
+                                            final Lambda<Input, Output> lambda3,
+                                            final Lambda<Input, Output> otherwise
                                            ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -274,12 +274,12 @@ public final class SwitchMatcher<Input, Output> {
    * @return a SwitchExp
    * @see #matchList(List, Lambda, List, Lambda, List, Lambda, Lambda)
    */
-  public SwitchExp<Input, Output> matchList(final List<? extends Result<Input>> pattern1,
-                                            final Lambda<Result<Input>, Output> lambda1,
-                                            final List<? extends Result<Input>> pattern2,
-                                            final Lambda<Result<Input>, Output> lambda2,
-                                            final List<? extends Result<Input>> pattern3,
-                                            final Lambda<Result<Input>, Output> lambda3
+  public SwitchExp<Input, Output> matchList(final List<? extends Input> pattern1,
+                                            final Lambda<Input, Output> lambda1,
+                                            final List<? extends Input> pattern2,
+                                            final Lambda<Input, Output> lambda2,
+                                            final List<? extends Input> pattern3,
+                                            final Lambda<Input, Output> lambda3
                                            ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -312,13 +312,13 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> match(final Result<Input> pattern1,
-                                        final Lambda<Result<Input>, Output> lambda1,
-                                        final Result<Input> pattern2,
-                                        final Lambda<Result<Input>, Output> lambda2,
-                                        final Result<Input> pattern3,
-                                        final Lambda<Result<Input>, Output> lambda3,
-                                        final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> match(final Input pattern1,
+                                        final Lambda<Input, Output> lambda1,
+                                        final Input pattern2,
+                                        final Lambda<Input, Output> lambda2,
+                                        final Input pattern3,
+                                        final Lambda<Input, Output> lambda3,
+                                        final Lambda<Input, Output> otherwise
                                        ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -352,12 +352,12 @@ public final class SwitchMatcher<Input, Output> {
    * @param lambda3  the lambda associated to the third value
    * @return a SwitchExp *
    */
-  public SwitchExp<Input, Output> match(final Result<Input> pattern1,
-                                        final Lambda<Result<Input>, Output> lambda1,
-                                        final Result<Input> pattern2,
-                                        final Lambda<Result<Input>, Output> lambda2,
-                                        final Result<Input> pattern3,
-                                        final Lambda<Result<Input>, Output> lambda3
+  public SwitchExp<Input, Output> match(final Input pattern1,
+                                        final Lambda<Input, Output> lambda1,
+                                        final Input pattern2,
+                                        final Lambda<Input, Output> lambda2,
+                                        final Input pattern3,
+                                        final Lambda<Input, Output> lambda3
                                        ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -391,13 +391,13 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> matchPredicate(final Predicate<Result<Input>> pattern1,
-                                                 final Lambda<Result<Input>, Output> lambda1,
-                                                 final Predicate<Result<Input>> pattern2,
-                                                 final Lambda<Result<Input>, Output> lambda2,
-                                                 final Predicate<Result<Input>> pattern3,
-                                                 final Lambda<Result<Input>, Output> lambda3,
-                                                 final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> matchPredicate(final Predicate<Input> pattern1,
+                                                 final Lambda<Input, Output> lambda1,
+                                                 final Predicate<Input> pattern2,
+                                                 final Lambda<Input, Output> lambda2,
+                                                 final Predicate<Input> pattern3,
+                                                 final Lambda<Input, Output> lambda3,
+                                                 final Lambda<Input, Output> otherwise
                                                 ) {
 
     return new SwitchExp<>(val,
@@ -430,12 +430,12 @@ public final class SwitchMatcher<Input, Output> {
    * @return a SwitchExp
    * @see #matchPredicate(Predicate, Lambda, Predicate, Lambda, Predicate, Lambda, Lambda)
    */
-  public SwitchExp<Input, Output> matchPredicate(final Predicate<Result<Input>> pattern1,
-                                                 final Lambda<Result<Input>, Output> lambda1,
-                                                 final Predicate<Result<Input>> pattern2,
-                                                 final Lambda<Result<Input>, Output> lambda2,
-                                                 final Predicate<Result<Input>> pattern3,
-                                                 final Lambda<Result<Input>, Output> lambda3
+  public SwitchExp<Input, Output> matchPredicate(final Predicate<Input> pattern1,
+                                                 final Lambda<Input, Output> lambda1,
+                                                 final Predicate<Input> pattern2,
+                                                 final Lambda<Input, Output> lambda2,
+                                                 final Predicate<Input> pattern3,
+                                                 final Lambda<Input, Output> lambda3
                                                 ) {
 
     return new SwitchExp<>(val,
@@ -469,15 +469,15 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> match(final Result<Input> pattern1,
-                                        final Lambda<Result<Input>, Output> lambda1,
-                                        final Result<Input> pattern2,
-                                        final Lambda<Result<Input>, Output> lambda2,
-                                        final Result<Input> pattern3,
-                                        final Lambda<Result<Input>, Output> lambda3,
-                                        final Result<Input> pattern4,
-                                        final Lambda<Result<Input>, Output> lambda4,
-                                        final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> match(final Input pattern1,
+                                        final Lambda<Input, Output> lambda1,
+                                        final Input pattern2,
+                                        final Lambda<Input, Output> lambda2,
+                                        final Input pattern3,
+                                        final Lambda<Input, Output> lambda3,
+                                        final Input pattern4,
+                                        final Lambda<Input, Output> lambda4,
+                                        final Lambda<Input, Output> otherwise
                                        ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -516,14 +516,14 @@ public final class SwitchMatcher<Input, Output> {
    * @param lambda4  the lambda associated to the forth value
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> match(final Result<Input> pattern1,
-                                        final Lambda<Result<Input>, Output> lambda1,
-                                        final Result<Input> pattern2,
-                                        final Lambda<Result<Input>, Output> lambda2,
-                                        final Result<Input> pattern3,
-                                        final Lambda<Result<Input>, Output> lambda3,
-                                        final Result<Input> pattern4,
-                                        final Lambda<Result<Input>, Output> lambda4
+  public SwitchExp<Input, Output> match(final Input pattern1,
+                                        final Lambda<Input, Output> lambda1,
+                                        final Input pattern2,
+                                        final Lambda<Input, Output> lambda2,
+                                        final Input pattern3,
+                                        final Lambda<Input, Output> lambda3,
+                                        final Input pattern4,
+                                        final Lambda<Input, Output> lambda4
                                        ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -562,15 +562,15 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> matchPredicate(final Predicate<Result<Input>> pattern1,
-                                                 final Lambda<Result<Input>, Output> lambda1,
-                                                 final Predicate<Result<Input>> pattern2,
-                                                 final Lambda<Result<Input>, Output> lambda2,
-                                                 final Predicate<Result<Input>> pattern3,
-                                                 final Lambda<Result<Input>, Output> lambda3,
-                                                 final Predicate<Result<Input>> pattern4,
-                                                 final Lambda<Result<Input>, Output> lambda4,
-                                                 final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> matchPredicate(final Predicate<Input> pattern1,
+                                                 final Lambda<Input, Output> lambda1,
+                                                 final Predicate<Input> pattern2,
+                                                 final Lambda<Input, Output> lambda2,
+                                                 final Predicate<Input> pattern3,
+                                                 final Lambda<Input, Output> lambda3,
+                                                 final Predicate<Input> pattern4,
+                                                 final Lambda<Input, Output> lambda4,
+                                                 final Lambda<Input, Output> otherwise
                                                 ) {
 
     return new SwitchExp<>(val,
@@ -607,14 +607,14 @@ public final class SwitchMatcher<Input, Output> {
    * @return a SwitchExp
    * @see #matchPredicate(Predicate, Lambda, Predicate, Lambda, Predicate, Lambda, Predicate, Lambda, Lambda)
    */
-  public SwitchExp<Input, Output> matchPredicate(final Predicate<Result<Input>> pattern1,
-                                                 final Lambda<Result<Input>, Output> lambda1,
-                                                 final Predicate<Result<Input>> pattern2,
-                                                 final Lambda<Result<Input>, Output> lambda2,
-                                                 final Predicate<Result<Input>> pattern3,
-                                                 final Lambda<Result<Input>, Output> lambda3,
-                                                 final Predicate<Result<Input>> pattern4,
-                                                 final Lambda<Result<Input>, Output> lambda4
+  public SwitchExp<Input, Output> matchPredicate(final Predicate<Input> pattern1,
+                                                 final Lambda<Input, Output> lambda1,
+                                                 final Predicate<Input> pattern2,
+                                                 final Lambda<Input, Output> lambda2,
+                                                 final Predicate<Input> pattern3,
+                                                 final Lambda<Input, Output> lambda3,
+                                                 final Predicate<Input> pattern4,
+                                                 final Lambda<Input, Output> lambda4
                                                 ) {
 
     return new SwitchExp<>(val,
@@ -650,15 +650,15 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> matchList(final List<? extends Result<Input>> pattern1,
-                                            final Lambda<Result<Input>, Output> lambda1,
-                                            final List<? extends Result<Input>> pattern2,
-                                            final Lambda<Result<Input>, Output> lambda2,
-                                            final List<? extends Result<Input>> pattern3,
-                                            final Lambda<Result<Input>, Output> lambda3,
-                                            final List<? extends Result<Input>> pattern4,
-                                            final Lambda<Result<Input>, Output> lambda4,
-                                            final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> matchList(final List<? extends Input> pattern1,
+                                            final Lambda<Input, Output> lambda1,
+                                            final List<? extends Input> pattern2,
+                                            final Lambda<Input, Output> lambda2,
+                                            final List<? extends Input> pattern3,
+                                            final Lambda<Input, Output> lambda3,
+                                            final List<? extends Input> pattern4,
+                                            final Lambda<Input, Output> lambda4,
+                                            final Lambda<Input, Output> otherwise
                                            ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -697,14 +697,14 @@ public final class SwitchMatcher<Input, Output> {
    * @return a SwitchExp
    * @see #matchList(List, Lambda, List, Lambda, List, Lambda, List, Lambda, Lambda)
    */
-  public SwitchExp<Input, Output> matchList(final List<? extends Result<Input>> pattern1,
-                                            final Lambda<Result<Input>, Output> lambda1,
-                                            final List<? extends Result<Input>> pattern2,
-                                            final Lambda<Result<Input>, Output> lambda2,
-                                            final List<? extends Result<Input>> pattern3,
-                                            final Lambda<Result<Input>, Output> lambda3,
-                                            final List<? extends Result<Input>> pattern4,
-                                            final Lambda<Result<Input>, Output> lambda4
+  public SwitchExp<Input, Output> matchList(final List<? extends Input> pattern1,
+                                            final Lambda<Input, Output> lambda1,
+                                            final List<? extends Input> pattern2,
+                                            final Lambda<Input, Output> lambda2,
+                                            final List<? extends Input> pattern3,
+                                            final Lambda<Input, Output> lambda3,
+                                            final List<? extends Input> pattern4,
+                                            final Lambda<Input, Output> lambda4
                                            ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -744,17 +744,17 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> matchList(final List<? extends Result<Input>> pattern1,
-                                            final Lambda<Result<Input>, Output> lambda1,
-                                            final List<? extends Result<Input>> pattern2,
-                                            final Lambda<Result<Input>, Output> lambda2,
-                                            final List<? extends Result<Input>> pattern3,
-                                            final Lambda<Result<Input>, Output> lambda3,
-                                            final List<? extends Result<Input>> pattern4,
-                                            final Lambda<Result<Input>, Output> lambda4,
-                                            final List<? extends Result<Input>> pattern5,
-                                            final Lambda<Result<Input>, Output> lambda5,
-                                            final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> matchList(final List<? extends Input> pattern1,
+                                            final Lambda<Input, Output> lambda1,
+                                            final List<? extends Input> pattern2,
+                                            final Lambda<Input, Output> lambda2,
+                                            final List<? extends Input> pattern3,
+                                            final Lambda<Input, Output> lambda3,
+                                            final List<? extends Input> pattern4,
+                                            final Lambda<Input, Output> lambda4,
+                                            final List<? extends Input> pattern5,
+                                            final Lambda<Input, Output> lambda5,
+                                            final Lambda<Input, Output> otherwise
 
                                            ) {
     requireNonNull(pattern1);
@@ -799,16 +799,16 @@ public final class SwitchMatcher<Input, Output> {
    * @return a SwitchExp
    * @see #matchList(List, Lambda, List, Lambda, List, Lambda, List, Lambda, List, Lambda, Lambda)
    */
-  public SwitchExp<Input, Output> matchList(final List<? extends Result<Input>> pattern1,
-                                            final Lambda<Result<Input>, Output> lambda1,
-                                            final List<? extends Result<Input>> pattern2,
-                                            final Lambda<Result<Input>, Output> lambda2,
-                                            final List<? extends Result<Input>> pattern3,
-                                            final Lambda<Result<Input>, Output> lambda3,
-                                            final List<? extends Result<Input>> pattern4,
-                                            final Lambda<Result<Input>, Output> lambda4,
-                                            final List<? extends Result<Input>> pattern5,
-                                            final Lambda<Result<Input>, Output> lambda5
+  public SwitchExp<Input, Output> matchList(final List<? extends Input> pattern1,
+                                            final Lambda<Input, Output> lambda1,
+                                            final List<? extends Input> pattern2,
+                                            final Lambda<Input, Output> lambda2,
+                                            final List<? extends Input> pattern3,
+                                            final Lambda<Input, Output> lambda3,
+                                            final List<? extends Input> pattern4,
+                                            final Lambda<Input, Output> lambda4,
+                                            final List<? extends Input> pattern5,
+                                            final Lambda<Input, Output> lambda5
 
                                            ) {
     requireNonNull(pattern1);
@@ -854,19 +854,19 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> matchList(final List<? extends Result<Input>> pattern1,
-                                            final Lambda<Result<Input>, Output> lambda1,
-                                            final List<? extends Result<Input>> pattern2,
-                                            final Lambda<Result<Input>, Output> lambda2,
-                                            final List<? extends Result<Input>> pattern3,
-                                            final Lambda<Result<Input>, Output> lambda3,
-                                            final List<? extends Result<Input>> pattern4,
-                                            final Lambda<Result<Input>, Output> lambda4,
-                                            final List<? extends Result<Input>> pattern5,
-                                            final Lambda<Result<Input>, Output> lambda5,
-                                            final List<? extends Result<Input>> pattern6,
-                                            final Lambda<Result<Input>, Output> lambda6,
-                                            final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> matchList(final List<? extends Input> pattern1,
+                                            final Lambda<Input, Output> lambda1,
+                                            final List<? extends Input> pattern2,
+                                            final Lambda<Input, Output> lambda2,
+                                            final List<? extends Input> pattern3,
+                                            final Lambda<Input, Output> lambda3,
+                                            final List<? extends Input> pattern4,
+                                            final Lambda<Input, Output> lambda4,
+                                            final List<? extends Input> pattern5,
+                                            final Lambda<Input, Output> lambda5,
+                                            final List<? extends Input> pattern6,
+                                            final Lambda<Input, Output> lambda6,
+                                            final Lambda<Input, Output> otherwise
                                            ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -915,18 +915,18 @@ public final class SwitchMatcher<Input, Output> {
    * @return a SwitchExp
    * @see #matchList(List, Lambda, List, Lambda, List, Lambda, List, Lambda, List, Lambda, List, Lambda, Lambda)
    */
-  public SwitchExp<Input, Output> matchList(final List<? extends Result<Input>> pattern1,
-                                            final Lambda<Result<Input>, Output> lambda1,
-                                            final List<? extends Result<Input>> pattern2,
-                                            final Lambda<Result<Input>, Output> lambda2,
-                                            final List<? extends Result<Input>> pattern3,
-                                            final Lambda<Result<Input>, Output> lambda3,
-                                            final List<? extends Result<Input>> pattern4,
-                                            final Lambda<Result<Input>, Output> lambda4,
-                                            final List<? extends Result<Input>> pattern5,
-                                            final Lambda<Result<Input>, Output> lambda5,
-                                            final List<? extends Result<Input>> pattern6,
-                                            final Lambda<Result<Input>, Output> lambda6
+  public SwitchExp<Input, Output> matchList(final List<? extends Input> pattern1,
+                                            final Lambda<Input, Output> lambda1,
+                                            final List<? extends Input> pattern2,
+                                            final Lambda<Input, Output> lambda2,
+                                            final List<? extends Input> pattern3,
+                                            final Lambda<Input, Output> lambda3,
+                                            final List<? extends Input> pattern4,
+                                            final Lambda<Input, Output> lambda4,
+                                            final List<? extends Input> pattern5,
+                                            final Lambda<Input, Output> lambda5,
+                                            final List<? extends Input> pattern6,
+                                            final Lambda<Input, Output> lambda6
                                            ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -972,17 +972,17 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> match(final Result<Input> pattern1,
-                                        final Lambda<Result<Input>, Output> lambda1,
-                                        final Result<Input> pattern2,
-                                        final Lambda<Result<Input>, Output> lambda2,
-                                        final Result<Input> pattern3,
-                                        final Lambda<Result<Input>, Output> lambda3,
-                                        final Result<Input> pattern4,
-                                        final Lambda<Result<Input>, Output> lambda4,
-                                        final Result<Input> pattern5,
-                                        final Lambda<Result<Input>, Output> lambda5,
-                                        final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> match(final Input pattern1,
+                                        final Lambda<Input, Output> lambda1,
+                                        final Input pattern2,
+                                        final Lambda<Input, Output> lambda2,
+                                        final Input pattern3,
+                                        final Lambda<Input, Output> lambda3,
+                                        final Input pattern4,
+                                        final Lambda<Input, Output> lambda4,
+                                        final Input pattern5,
+                                        final Lambda<Input, Output> lambda5,
+                                        final Lambda<Input, Output> otherwise
                                        ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -1024,16 +1024,16 @@ public final class SwitchMatcher<Input, Output> {
    * @param lambda5  the lambda associated to the fifth value
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> match(final Result<Input> pattern1,
-                                        final Lambda<Result<Input>, Output> lambda1,
-                                        final Result<Input> pattern2,
-                                        final Lambda<Result<Input>, Output> lambda2,
-                                        final Result<Input> pattern3,
-                                        final Lambda<Result<Input>, Output> lambda3,
-                                        final Result<Input> pattern4,
-                                        final Lambda<Result<Input>, Output> lambda4,
-                                        final Result<Input> pattern5,
-                                        final Lambda<Result<Input>, Output> lambda5
+  public SwitchExp<Input, Output> match(final Input pattern1,
+                                        final Lambda<Input, Output> lambda1,
+                                        final Input pattern2,
+                                        final Lambda<Input, Output> lambda2,
+                                        final Input pattern3,
+                                        final Lambda<Input, Output> lambda3,
+                                        final Input pattern4,
+                                        final Lambda<Input, Output> lambda4,
+                                        final Input pattern5,
+                                        final Lambda<Input, Output> lambda5
                                        ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -1077,19 +1077,19 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> match(final Result<Input> pattern1,
-                                        final Lambda<Result<Input>, Output> lambda1,
-                                        final Result<Input> pattern2,
-                                        final Lambda<Result<Input>, Output> lambda2,
-                                        final Result<Input> pattern3,
-                                        final Lambda<Result<Input>, Output> lambda3,
-                                        final Result<Input> pattern4,
-                                        final Lambda<Result<Input>, Output> lambda4,
-                                        final Result<Input> pattern5,
-                                        final Lambda<Result<Input>, Output> lambda5,
-                                        final Result<Input> pattern6,
-                                        final Lambda<Result<Input>, Output> lambda6,
-                                        final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> match(final Input pattern1,
+                                        final Lambda<Input, Output> lambda1,
+                                        final Input pattern2,
+                                        final Lambda<Input, Output> lambda2,
+                                        final Input pattern3,
+                                        final Lambda<Input, Output> lambda3,
+                                        final Input pattern4,
+                                        final Lambda<Input, Output> lambda4,
+                                        final Input pattern5,
+                                        final Lambda<Input, Output> lambda5,
+                                        final Input pattern6,
+                                        final Lambda<Input, Output> lambda6,
+                                        final Lambda<Input, Output> otherwise
                                        ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -1136,18 +1136,18 @@ public final class SwitchMatcher<Input, Output> {
    * @param lambda6  the lambda associated to the sixth value
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> match(final Result<Input> pattern1,
-                                        final Lambda<Result<Input>, Output> lambda1,
-                                        final Result<Input> pattern2,
-                                        final Lambda<Result<Input>, Output> lambda2,
-                                        final Result<Input> pattern3,
-                                        final Lambda<Result<Input>, Output> lambda3,
-                                        final Result<Input> pattern4,
-                                        final Lambda<Result<Input>, Output> lambda4,
-                                        final Result<Input> pattern5,
-                                        final Lambda<Result<Input>, Output> lambda5,
-                                        final Result<Input> pattern6,
-                                        final Lambda<Result<Input>, Output> lambda6
+  public SwitchExp<Input, Output> match(final Input pattern1,
+                                        final Lambda<Input, Output> lambda1,
+                                        final Input pattern2,
+                                        final Lambda<Input, Output> lambda2,
+                                        final Input pattern3,
+                                        final Lambda<Input, Output> lambda3,
+                                        final Input pattern4,
+                                        final Lambda<Input, Output> lambda4,
+                                        final Input pattern5,
+                                        final Lambda<Input, Output> lambda5,
+                                        final Input pattern6,
+                                        final Lambda<Input, Output> lambda6
                                        ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
@@ -1192,17 +1192,17 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> matchPredicate(final Predicate<Result<Input>> pattern1,
-                                                 final Lambda<Result<Input>, Output> lambda1,
-                                                 final Predicate<Result<Input>> pattern2,
-                                                 final Lambda<Result<Input>, Output> lambda2,
-                                                 final Predicate<Result<Input>> pattern3,
-                                                 final Lambda<Result<Input>, Output> lambda3,
-                                                 final Predicate<Result<Input>> pattern4,
-                                                 final Lambda<Result<Input>, Output> lambda4,
-                                                 final Predicate<Result<Input>> pattern5,
-                                                 final Lambda<Result<Input>, Output> lambda5,
-                                                 final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> matchPredicate(final Predicate<Input> pattern1,
+                                                 final Lambda<Input, Output> lambda1,
+                                                 final Predicate<Input> pattern2,
+                                                 final Lambda<Input, Output> lambda2,
+                                                 final Predicate<Input> pattern3,
+                                                 final Lambda<Input, Output> lambda3,
+                                                 final Predicate<Input> pattern4,
+                                                 final Lambda<Input, Output> lambda4,
+                                                 final Predicate<Input> pattern5,
+                                                 final Lambda<Input, Output> lambda5,
+                                                 final Lambda<Input, Output> otherwise
                                                 ) {
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
@@ -1242,16 +1242,16 @@ public final class SwitchMatcher<Input, Output> {
    * @see #matchPredicate(Predicate, Lambda, Predicate, Lambda, Predicate, Lambda, Predicate, Lambda, Predicate, Lambda,
    * Lambda)
    */
-  public SwitchExp<Input, Output> matchPredicate(final Predicate<Result<Input>> pattern1,
-                                                 final Lambda<Result<Input>, Output> lambda1,
-                                                 final Predicate<Result<Input>> pattern2,
-                                                 final Lambda<Result<Input>, Output> lambda2,
-                                                 final Predicate<Result<Input>> pattern3,
-                                                 final Lambda<Result<Input>, Output> lambda3,
-                                                 final Predicate<Result<Input>> pattern4,
-                                                 final Lambda<Result<Input>, Output> lambda4,
-                                                 final Predicate<Result<Input>> pattern5,
-                                                 final Lambda<Result<Input>, Output> lambda5
+  public SwitchExp<Input, Output> matchPredicate(final Predicate<Input> pattern1,
+                                                 final Lambda<Input, Output> lambda1,
+                                                 final Predicate<Input> pattern2,
+                                                 final Lambda<Input, Output> lambda2,
+                                                 final Predicate<Input> pattern3,
+                                                 final Lambda<Input, Output> lambda3,
+                                                 final Predicate<Input> pattern4,
+                                                 final Lambda<Input, Output> lambda4,
+                                                 final Predicate<Input> pattern5,
+                                                 final Lambda<Input, Output> lambda5
                                                 ) {
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
@@ -1291,19 +1291,19 @@ public final class SwitchMatcher<Input, Output> {
    * @param otherwise the default lambda, evaluated if no branch is matched
    * @return a SwitchExp
    */
-  public SwitchExp<Input, Output> matchPredicate(final Predicate<Result<Input>> pattern1,
-                                                 final Lambda<Result<Input>, Output> lambda1,
-                                                 final Predicate<Result<Input>> pattern2,
-                                                 final Lambda<Result<Input>, Output> lambda2,
-                                                 final Predicate<Result<Input>> pattern3,
-                                                 final Lambda<Result<Input>, Output> lambda3,
-                                                 final Predicate<Result<Input>> pattern4,
-                                                 final Lambda<Result<Input>, Output> lambda4,
-                                                 final Predicate<Result<Input>> pattern5,
-                                                 final Lambda<Result<Input>, Output> lambda5,
-                                                 final Predicate<Result<Input>> pattern6,
-                                                 final Lambda<Result<Input>, Output> lambda6,
-                                                 final Lambda<Result<Input>, Output> otherwise
+  public SwitchExp<Input, Output> matchPredicate(final Predicate<Input> pattern1,
+                                                 final Lambda<Input, Output> lambda1,
+                                                 final Predicate<Input> pattern2,
+                                                 final Lambda<Input, Output> lambda2,
+                                                 final Predicate<Input> pattern3,
+                                                 final Lambda<Input, Output> lambda3,
+                                                 final Predicate<Input> pattern4,
+                                                 final Lambda<Input, Output> lambda4,
+                                                 final Predicate<Input> pattern5,
+                                                 final Lambda<Input, Output> lambda5,
+                                                 final Predicate<Input> pattern6,
+                                                 final Lambda<Input, Output> lambda6,
+                                                 final Lambda<Input, Output> otherwise
                                                 ) {
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
@@ -1347,18 +1347,18 @@ public final class SwitchMatcher<Input, Output> {
    * @see #matchPredicate(Predicate, Lambda, Predicate, Lambda, Predicate, Lambda, Predicate, Lambda, Predicate, Lambda,
    * Predicate, Lambda, Lambda)
    */
-  public SwitchExp<Input, Output> matchPredicate(final Predicate<Result<Input>> pattern1,
-                                                 final Lambda<Result<Input>, Output> lambda1,
-                                                 final Predicate<Result<Input>> pattern2,
-                                                 final Lambda<Result<Input>, Output> lambda2,
-                                                 final Predicate<Result<Input>> pattern3,
-                                                 final Lambda<Result<Input>, Output> lambda3,
-                                                 final Predicate<Result<Input>> pattern4,
-                                                 final Lambda<Result<Input>, Output> lambda4,
-                                                 final Predicate<Result<Input>> pattern5,
-                                                 final Lambda<Result<Input>, Output> lambda5,
-                                                 final Predicate<Result<Input>> pattern6,
-                                                 final Lambda<Result<Input>, Output> lambda6
+  public SwitchExp<Input, Output> matchPredicate(final Predicate<Input> pattern1,
+                                                 final Lambda<Input, Output> lambda1,
+                                                 final Predicate<Input> pattern2,
+                                                 final Lambda<Input, Output> lambda2,
+                                                 final Predicate<Input> pattern3,
+                                                 final Lambda<Input, Output> lambda3,
+                                                 final Predicate<Input> pattern4,
+                                                 final Lambda<Input, Output> lambda4,
+                                                 final Predicate<Input> pattern5,
+                                                 final Lambda<Input, Output> lambda5,
+                                                 final Predicate<Input> pattern6,
+                                                 final Lambda<Input, Output> lambda6
                                                 ) {
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),

@@ -17,8 +17,12 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 
+/**
+ * Follow the steps in the file steps-rs.md to deploy a replica set before executing this test
+ * TODO: use testconainers to not to do it manually
+ */
 @Disabled
-public class ErrorsTest {
+public class ErrorsTests {
 
   private static FindOne findOne;
 
@@ -88,7 +92,7 @@ public class ErrorsTest {
                                        e -> IO.succeed(MongoFun.HAS_CONNECTION_TIMEOUT
                                                            .test(e))
                                       )
-                                 .call()
+                                 .result()
                                  .call());
 
   }

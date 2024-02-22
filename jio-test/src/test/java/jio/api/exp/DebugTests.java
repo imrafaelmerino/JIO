@@ -4,11 +4,11 @@ import fun.gen.BoolGen;
 import fun.gen.Combinators;
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import jio.IO;
 import jio.IfElseExp;
-import jio.Result.Success;
 import jio.SwitchExp;
 import jio.test.junit.Debugger;
 import org.junit.jupiter.api.Test;
@@ -37,37 +37,35 @@ public class DebugTests {
                                                    "U")
                                             .sample();
 
-    List<Success<String>> xs = Stream.of("a",
-                                         "e",
-                                         "i",
-                                         "o",
-                                         "u")
-                                     .map(Success::new)
-                                     .toList();
-    List<Success<String>> ys = Stream.of("A",
-                                         "E",
-                                         "I",
-                                         "O",
-                                         "U")
-                                     .map(Success::new)
-                                     .toList();
-    SwitchExp<String, String> match = SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
-                                                                              .consequence(() -> IO.lazy(loserCase))
-                                                                              .alternative(() -> IO.lazy(upperCase))
-                                                                    )
-                                               .matchList(xs,
-                                                          _ -> IO.NULL(),
-                                                          /*IO.succeed("%s %s".formatted(s.call(),
-                                                                                        s.call()
-                                                                                         .toUpperCase(Locale.ENGLISH))
-                                                                     ),*/
-                                                          ys,
-                                                          _ -> IO.NULL(),
-                                                          /*       IO.succeed("%s %s".formatted(s.call(),
-                                                                                               s.call().toLowerCase(Locale.ENGLISH))),*/
-                                                          s -> IO.NULL()
-                                                         )
-                                               .debugEach("context");
+    List<String> xs = Stream.of("a",
+                                "e",
+                                "i",
+                                "o",
+                                "u")
+                            .toList();
+    List<String> ys = Stream.of("A",
+                                "E",
+                                "I",
+                                "O",
+                                "U")
+                            .toList();
+    SwitchExp<String, String> match =
+        SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
+                                                .consequence(() -> IO.lazy(loserCase))
+                                                .alternative(() -> IO.lazy(upperCase))
+                                      )
+                 .matchList(xs,
+                            s ->
+                                IO.succeed("%s %s".formatted(s,
+                                                             s.toUpperCase(Locale.ENGLISH))
+                                          ),
+                            ys,
+                            s -> IO.succeed("%s %s".formatted(s,
+                                                              s.toLowerCase(Locale.ENGLISH))
+                                           ),
+                            s -> IO.NULL()
+                           )
+                 .debugEach("context");
 
     System.out.println(match.call());
 

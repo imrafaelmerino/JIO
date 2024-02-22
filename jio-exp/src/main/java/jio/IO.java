@@ -62,8 +62,7 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    */
   public static final IO<Boolean> FALSE = succeed(false);
 
-  IO() {
-  }
+  IO() {}
 
   /**
    * Creates an effect that always produces a result of null. This method is generic and captures the type of the
@@ -114,6 +113,8 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    */
   public static <Output, Input extends AutoCloseable> IO<Output> resource(final Callable<? extends Input> callable,
                                                                           final Lambda<? super Input, Output> map) {
+    requireNonNull(map);
+    requireNonNull(callable);
     return IO.task(callable)
              .then(resource -> map.apply(resource)
                                   .then(success -> {
@@ -264,9 +265,16 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    */
   public <OutputMapped> IO<OutputMapped> map(final Function<? super Output, ? extends OutputMapped> fn) {
     requireNonNull(fn);
-    return new Val<>(() -> switch (call()) {
-      case Success<Output>(Output output) -> new Success<>(fn.apply(output));
-      case Failure<Output>(Exception exception) -> new Failure<>(exception);
+    return new Val<>(() -> {
+      try {
+        Result<Output> result = call();
+        return switch (result) {
+          case Success<Output>(Output output) -> new Success<>(fn.apply(output));
+          case Failure<Output>(Exception exception) -> new Failure<>(exception);
+        };
+      } catch (Exception e) { //fn can fail!
+        return new Failure<>(e);
+      }
     });
   }
 
@@ -288,10 +296,17 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    */
   public IO<Output> mapFailure(final Function<Exception, Exception> fn) {
     requireNonNull(fn);
-    return new Val<>(() -> switch (call()) {
-      case Success<Output> s -> s;
-      case Failure<Output>(Exception exception) -> new Failure<>(fn.apply(exception));
-    });
+    return new Val<>(
+        () -> {
+          try {
+            return switch (call()) {
+              case Success<Output> s -> s;
+              case Failure<Output>(Exception exception) -> new Failure<>(fn.apply(exception));
+            };
+          } catch (Exception e) {
+            return new Failure<>(e);
+          }
+        });
   }
 
   /**
@@ -306,10 +321,16 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    */
   public <Q> IO<Q> then(final Lambda<? super Output, Q> fn) {
     requireNonNull(fn);
-    return new Val<>(() -> switch (call()) {
-      case Success<Output>(Output output) -> fn.apply(output)
-                                               .call();
-      case Failure<Output>(Exception e) -> new Failure<>(e);
+    return new Val<>(() -> {
+      try {
+        return switch (call()) {
+          case Success<Output>(Output output) -> fn.apply(output)
+                                                   .call();
+          case Failure<Output>(Exception e) -> new Failure<>(e);
+        };
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
     });
   }
 
@@ -328,11 +349,18 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
                         final Lambda<? super Exception, Q> failureLambda) {
     requireNonNull(successLambda);
     requireNonNull(failureLambda);
-    return new Val<>(() -> switch (call()) {
-      case Success<Output>(Output output) -> successLambda.apply(output)
-                                                          .call();
-      case Failure<Output>(Exception exception) -> failureLambda.apply(exception)
-                                                                .call();
+    return new Val<>(() -> {
+      try {
+        Result<Output> result = call();
+        return switch (result) {
+          case Success<Output>(Output output) -> successLambda.apply(output)
+                                                              .call();
+          case Failure<Output>(Exception exception) -> failureLambda.apply(exception)
+                                                                    .call();
+        };
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
     });
   }
 
@@ -347,9 +375,15 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    */
   public IO<Output> recover(final Function<? super Exception, Output> fn) {
     requireNonNull(fn);
-    return new Val<>(() -> switch (call()) {
-      case Success<Output> success -> success;
-      case Failure<Output>(Exception exception) -> new Success<>(fn.apply(exception));
+    return new Val<>(() -> {
+      try {
+        return switch (call()) {
+          case Success<Output> success -> success;
+          case Failure<Output>(Exception exception) -> new Success<>(fn.apply(exception));
+        };
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
     });
 
   }
@@ -412,8 +446,7 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    */
   public IO<Output> peekSuccess(final Consumer<? super Output> successConsumer) {
     return peek(successConsumer,
-                _ -> {
-                });
+                _ -> {});
   }
 
   /**

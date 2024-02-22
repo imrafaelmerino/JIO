@@ -11,19 +11,20 @@ public final class EmailDatabaseOps {
   /**
    * customer ID -> email -> email ID
    */
-  public static final LongFunction<ClosableStatement<Email, Long>> insertOne = customerID -> InsertOneEntityBuilder.<Email, Long>of("INSERT INTO email (email_address, customer_id) VALUES (?, ?) RETURNING id;",
-                                                                                                                                    email -> (paramPosition,
-                                                                                                                                              preparedStatement) -> {
-                                                                                                                                      preparedStatement.setString(paramPosition++,
-                                                                                                                                                                  email.address());
-                                                                                                                                      preparedStatement.setLong(paramPosition++,
-                                                                                                                                                                customerID);
-                                                                                                                                      return paramPosition;
-                                                                                                                                    },
-                                                                                                                                    email -> resultSet -> resultSet.getLong("id"),
-                                                                                                                                    Duration.ofSeconds(10000)
-  )
-                                                                                                                   .withEventLabel("insert email")
-                                                                                                                   .buildClosable();
+  public static final LongFunction<ClosableStatement<Email, Long>> insertOne =
+      customerID -> InsertOneEntityBuilder.<Email, Long>of("INSERT INTO email (email_address, customer_id) VALUES (?, ?) RETURNING id;",
+                                                           email -> (paramPosition,
+                                                                     preparedStatement) -> {
+                                                             preparedStatement.setString(paramPosition++,
+                                                                                         email.address());
+                                                             preparedStatement.setLong(paramPosition++,
+                                                                                       customerID);
+                                                             return paramPosition;
+                                                           },
+                                                           email -> resultSet -> resultSet.getLong("id"),
+                                                           Duration.ofSeconds(10000)
+                                                          )
+                                          .withEventLabel("insert email")
+                                          .buildClosable();
 
 }

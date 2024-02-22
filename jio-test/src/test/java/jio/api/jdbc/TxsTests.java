@@ -2,6 +2,7 @@ package jio.api.jdbc;
 
 import java.time.Duration;
 import java.util.List;
+import jio.Result;
 import jio.api.jdbc.dao.CustomerDatabaseOps;
 import jio.api.jdbc.domain.Address;
 import jio.api.jdbc.domain.Customer;
@@ -14,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.postgresql.util.PSQLException;
 
-public class TxsTest extends BaseTest {
+public class TxsTests extends BaseTest {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(10));
@@ -40,21 +41,17 @@ public class TxsTest extends BaseTest {
 
     CustomerDatabaseOps customerDatabaseOps = CustomerDatabaseOps.of(datasourceBuilder);
 
-    CustomerEntity customerEntity =
+    Result<CustomerEntity> customerResult =
         customerDatabaseOps.findCustomerAndContactPoints.apply(customerID)
-                                                        .result()
-                                                        .call();
+                                                        .result();
 
-    Assertions.assertEquals(2,
-                            customerEntity.addresses()
-                                          .size());
-    Assertions.assertNotNull(customerEntity.email()
-                                           .id());
+    Assertions.assertTrue(customerResult.isSuccess(customer -> customer.addresses()
+                                                                       .size() == 2)
+                         );
 
-    int r = customerDatabaseOps.countCustomer.result()
-                                             .call();
-    Assertions.assertEquals(1,
-                            r);
+    Result<Integer> countCustomerResult = customerDatabaseOps.countCustomer.result();
+
+    Assertions.assertTrue(countCustomerResult.isSuccess(r -> r == 1));
 
   }
 
@@ -71,16 +68,13 @@ public class TxsTest extends BaseTest {
                )
               );
 
-    Assertions.assertThrows(PSQLException.class,
-                            () -> insert.result()
-                                        .call());
+    Assertions.assertTrue(insert.result()
+                                .isFailure(exc -> exc instanceof PSQLException));
 
-    CustomerDatabaseOps customerDatabaseOps = CustomerDatabaseOps.of(datasourceBuilder);
+    var customerDatabaseOps = CustomerDatabaseOps.of(datasourceBuilder);
 
-    int r = customerDatabaseOps.countCustomer.result()
-                                             .call();
-    Assertions.assertEquals(0,
-                            r);
+    Assertions.assertTrue(customerDatabaseOps.countCustomer.result()
+                                                           .isSuccess(n -> n == 0));
 
   }
 

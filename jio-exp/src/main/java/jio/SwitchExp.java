@@ -20,14 +20,14 @@ import jio.Result.Failure;
 public final class SwitchExp<Input, Output> extends Exp<Output> {
 
   private final IO<Input> val;
-  private final List<Predicate<Result<Input>>> predicates;
-  private final List<Lambda<Result<Input>, Output>> lambdas;
-  private final Lambda<Result<Input>, Output> otherwise;
+  private final List<Predicate<Input>> predicates;
+  private final List<Lambda<Input, Output>> lambdas;
+  private final Lambda<Input, Output> otherwise;
 
   SwitchExp(final IO<Input> val,
-            final List<Predicate<Result<Input>>> predicates,
-            final List<Lambda<Result<Input>, Output>> lambdas,
-            final Lambda<Result<Input>, Output> otherwise,
+            final List<Predicate<Input>> predicates,
+            final List<Lambda<Input, Output>> lambdas,
+            final Lambda<Input, Output> otherwise,
             final Function<EvalExpEvent, BiConsumer<Output, Throwable>> debugger
            ) {
     super(debugger);
@@ -61,10 +61,10 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
     return new SwitchMatcher<>(requireNonNull(input));
   }
 
-  private static <Input, Output> Result<Output> get(Result<Input> input,
-                                                    List<Predicate<Result<Input>>> tests,
-                                                    List<Lambda<Result<Input>, Output>> lambdas,
-                                                    Lambda<Result<Input>, Output> otherwise,
+  private static <Input, Output> Result<Output> get(Input input,
+                                                    List<Predicate<Input>> tests,
+                                                    List<Lambda<Input, Output>> lambdas,
+                                                    Lambda<Input, Output> otherwise,
                                                     int condTestedSoFar
                                                    ) {
     if (condTestedSoFar == tests.size()) {
@@ -85,7 +85,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
   @Override
   Result<Output> reduceExp() {
     try {
-      return SwitchExp.get(val.result(),
+      return SwitchExp.get(val.call().call(),
                            predicates,
                            lambdas,
                            otherwise,
