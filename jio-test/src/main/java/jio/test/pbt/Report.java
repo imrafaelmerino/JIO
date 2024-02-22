@@ -1,9 +1,5 @@
 package jio.test.pbt;
 
-import jio.time.Fun;
-import jsonvalues.*;
-import org.junit.jupiter.api.Assertions;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -15,6 +11,14 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import jio.time.Fun;
+import jsonvalues.JsArray;
+import jsonvalues.JsInstant;
+import jsonvalues.JsInt;
+import jsonvalues.JsLong;
+import jsonvalues.JsObj;
+import jsonvalues.JsStr;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * Represents the result of the execution of a property-based test ({@link Property}). A report can be serialized into
@@ -441,26 +445,26 @@ public final class Report {
     System.out.println("  Some generated values that caused an exception:");
 
     var failureValues = getExceptions()
-                                       .stream()
-                                       .limit(20)
-                                       .map(it -> addTagToVal(it.context()))
-                                       .collect(Collectors.joining(","));
+        .stream()
+        .limit(20)
+        .map(it -> addTagToVal(it.context()))
+        .collect(Collectors.joining(","));
 
-    System.out.println("   " + failureValues);
+    System.out.println(STR."   \{failureValues}");
     System.out.println();
   }
 
   void classify(final String tags) {
     if (!tags.isEmpty()) {
       tagsCounter.compute(tags,
-                          (key,
+                          (_,
                            value) -> value == null ? 1 : value + 1);
     }
   }
 
   void collect(final String value) {
     valuesCounter.compute(value,
-                          (key,
+                          (_,
                            val) -> val == null ? 1 : val + 1);
   }
 

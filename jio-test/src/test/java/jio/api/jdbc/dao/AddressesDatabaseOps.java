@@ -1,7 +1,6 @@
 package jio.api.jdbc.dao;
 
 import java.time.Duration;
-
 import java.util.List;
 import java.util.function.LongFunction;
 import jio.api.jdbc.domain.Address;

@@ -17,7 +17,7 @@ final class ListExpPar<Elem> extends ListExp<Elem> {
 
   public ListExpPar(final List<IO<Elem>> list,
                     final Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
-  ) {
+                   ) {
     super(list,
           debugger);
   }
@@ -41,15 +41,15 @@ final class ListExpPar<Elem> extends ListExp<Elem> {
   @Override
   public ListExp<Elem> retryEach(final Predicate<? super Throwable> predicate,
                                  final RetryPolicy policy
-  ) {
+                                ) {
     requireNonNull(policy);
     requireNonNull(predicate);
 
     return new ListExpPar<>(list.stream()
                                 .map(it -> it.retry(predicate,
                                                     policy
-                                )
-                                )
+                                                   )
+                                    )
                                 .toList(),
                             jfrPublisher
     );
@@ -79,12 +79,12 @@ final class ListExpPar<Elem> extends ListExp<Elem> {
 
   @Override
   public ListExp<Elem> debugEach(final EventBuilder<List<Elem>> eventBuilder
-  ) {
+                                ) {
     Objects.requireNonNull(eventBuilder);
     return new ListExpPar<>(DebuggerHelper.debugList(list,
                                                      eventBuilder.exp,
                                                      eventBuilder.context
-    ),
+                                                    ),
                             getJFRPublisher(eventBuilder)
     );
   }

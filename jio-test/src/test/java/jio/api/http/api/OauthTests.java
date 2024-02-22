@@ -23,7 +23,7 @@ import jsonvalues.JsStr;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TestOauth {
+public class OauthTests {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
@@ -44,7 +44,7 @@ public class TestOauth {
   )
                                        .start(7777);
 
-  public TestOauth() throws Exception {
+  public OauthTests() throws Exception {
   }
 
   @Test

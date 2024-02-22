@@ -1,11 +1,10 @@
 package jio;
 
-import jdk.jfr.consumer.RecordedEvent;
+import static jio.EvalExpEvent.RESULT;
 
 import java.util.Objects;
 import java.util.function.Function;
-
-import static jio.EvalExpEvent.*;
+import jdk.jfr.consumer.RecordedEvent;
 
 /**
  * A class that converts Java Flight Recorder (JFR) event with the name {@link #EVENT_NAME} to formatted strings. This
@@ -80,6 +79,6 @@ public final class EvalExpEventFormatter implements Function<RecordedEvent, Stri
                          jio.time.Fun.formatTime(event.getDuration()),
                          event.getValue(CONTEXT_FIELD),
                          event.getStartTime()
-    );
+                        );
   }
 }

@@ -20,13 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 @Disabled
-public class TestTx {
+public class TxTest {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
   MongoClient mongoClient = MongoClientBuilder.DEFAULT
-                                                      .build("mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0");
+      .build("mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0");
   DatabaseBuilder database = DatabaseBuilder.of(mongoClient,
                                                 "test");
   CollectionBuilder collectionBuilder = CollectionBuilder.of(database,
@@ -50,8 +50,8 @@ public class TestTx {
                                                  JsStr.of("bye")),
                                         JsObj.of("hi",
                                                  JsStr.of("bye"))
-    )
-    )
+                                       )
+                               )
                          .result()
                          .call());
   }
@@ -59,11 +59,11 @@ public class TestTx {
   @Test
   @Disabled
   public void test_Insert_In_Parallel_In_Tx_Fails() throws Exception {
-    MongoLambda<List<JsObj>, List<String>> insertAll = (session,
-                                                        jsons) -> jsons.stream()
-                                                                       .map(json -> insertOne.apply(session,
-                                                                                                    json))
-                                                                       .collect(ListExp.parCollector());
+    MongoLambda<List<JsObj>, List<String>> insertAll =
+        (session, jsons) -> jsons.stream()
+                                 .map(json -> insertOne.apply(session,
+                                                              json))
+                                 .collect(ListExp.parCollector());
 
     var tx = TxBuilder.of(sessionSupplier)
                       .build(insertAll);
@@ -72,8 +72,8 @@ public class TestTx {
                                                  JsStr.of("bye")),
                                         JsObj.of("hi",
                                                  JsStr.of("bye"))
-    )
-    )
+                                       )
+                               )
                          .result()
                          .call());
   }

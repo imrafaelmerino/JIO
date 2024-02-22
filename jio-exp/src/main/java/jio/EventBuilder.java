@@ -29,7 +29,7 @@ public final class EventBuilder<Output> {
 
   private EventBuilder(final String exp,
                        final String context
-  ) {
+                      ) {
     this.exp = requireNonNull(exp);
     if (exp.isBlank() || exp.isEmpty()) {
       throw new IllegalArgumentException("exp must be a legible string");
@@ -47,7 +47,7 @@ public final class EventBuilder<Output> {
    */
   public static <Output> EventBuilder<Output> of(final String exp,
                                                  final String context
-  ) {
+                                                ) {
     return new EventBuilder<>(exp,
                               context);
   }
@@ -60,7 +60,7 @@ public final class EventBuilder<Output> {
    * @return a new {@code EventBuilder} instance
    */
   public static <O> EventBuilder<O> of(final String exp
-  ) {
+                                      ) {
     return EventBuilder.of(exp,
                            "");
   }

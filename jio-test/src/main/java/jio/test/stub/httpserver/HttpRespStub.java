@@ -1,7 +1,6 @@
 package jio.test.stub.httpserver;
 
 import com.sun.net.httpserver.Headers;
-
 import java.io.InputStream;
 import java.net.URI;
 import java.util.function.Function;
@@ -16,9 +15,9 @@ import java.util.function.IntFunction;
  *            status code (integer).
  */
 sealed interface HttpRespStub<R> extends
-                             IntFunction<Function<InputStream, Function<URI, Function<Headers, R>>>> permits
-    BodyStub,
-    HeadersStub,
-    StatusCodeStub {
+                                 IntFunction<Function<InputStream, Function<URI, Function<Headers, R>>>> permits
+                                                                                                         BodyStub,
+                                                                                                         HeadersStub,
+                                                                                                         StatusCodeStub {
 
 }

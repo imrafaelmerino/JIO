@@ -24,7 +24,7 @@ final class JsArrayExpSeq extends JsArrayExp {
 
   public JsArrayExpSeq(final List<IO<JsValue>> list,
                        final Function<EvalExpEvent, BiConsumer<JsArray, Throwable>> debugger
-  ) {
+                      ) {
     super(list,
           debugger);
   }
@@ -41,7 +41,7 @@ final class JsArrayExpSeq extends JsArrayExp {
       try {
         xs.add(entry.call()
                     .call()
-        );
+              );
       } catch (Exception e) {
         return new Failure<>(e);
       }
@@ -53,16 +53,16 @@ final class JsArrayExpSeq extends JsArrayExp {
   @Override
   public JsArrayExp retryEach(final Predicate<? super Throwable> predicate,
                               final RetryPolicy policy
-  ) {
+                             ) {
     requireNonNull(predicate);
     requireNonNull(policy);
     return new JsArrayExpSeq(
-                             list.stream()
-                                 .map(it -> it.retry(predicate,
-                                                     policy
-                                 ))
-                                 .collect(Collectors.toList()),
-                             jfrPublisher
+        list.stream()
+            .map(it -> it.retry(predicate,
+                                policy
+                               ))
+            .collect(Collectors.toList()),
+        jfrPublisher
     );
   }
 
@@ -71,7 +71,7 @@ final class JsArrayExpSeq extends JsArrayExp {
     Objects.requireNonNull(eventBuilder);
     return new JsArrayExpSeq(debugJsArray(list,
                                           eventBuilder
-    ),
+                                         ),
                              getJFRPublisher(eventBuilder)
     );
 

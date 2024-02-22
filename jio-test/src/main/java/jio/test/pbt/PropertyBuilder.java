@@ -1,11 +1,8 @@
 package jio.test.pbt;
 
-import fun.gen.Gen;
-import jio.BiLambda;
-import jio.IO;
-import jio.Lambda;
-import jsonvalues.JsObj;
+import static java.util.Objects.requireNonNull;
 
+import fun.gen.Gen;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -14,8 +11,10 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
+import jio.BiLambda;
+import jio.IO;
+import jio.Lambda;
+import jsonvalues.JsObj;
 
 /**
  * Represents a builder of Properties. A property of a piece of code or program should always be held and never fails.
@@ -26,8 +25,6 @@ import static java.util.Objects.requireNonNull;
  * <p>The tests are executed by the same thread from the common ForkJoinPool repeatedly, and for
  * each execution, a different value is generated using the specified data generator.</p>
  *
- * <p>The JIO effect is created with the {@link IO#managedLazy(Supplier)} constructor, allowing
- * deferred execution of the property tests.</p>
  *
  * <p>Properties can be created using static factory methods {@link #of(String, Gen, Function)} and
  * {@link #ofLambda(String, Gen, Lambda)}.</p>
@@ -75,7 +72,7 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
   public static <O> PropertyBuilder<O> ofLambda(final String name,
                                                 final Gen<O> gen,
                                                 final BiLambda<JsObj, O, TestResult> property
-  ) {
+                                               ) {
     return new PropertyBuilder<>(name,
                                  gen,
                                  property);
@@ -99,9 +96,8 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
   public static <O> PropertyBuilder<O> ofLambda(String name,
                                                 Gen<O> gen,
                                                 Lambda<O, TestResult> property
-  ) {
-    BiLambda<JsObj, O, TestResult> bfn = (conf,
-                                          o) -> requireNonNull(property).apply(o);
+                                               ) {
+    BiLambda<JsObj, O, TestResult> bfn = (_, o) -> requireNonNull(property).apply(o);
     return new PropertyBuilder<>(name,
                                  gen,
                                  bfn);
@@ -124,7 +120,7 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
   public static <O> PropertyBuilder<O> of(final String name,
                                           final Gen<O> gen,
                                           final BiFunction<JsObj, O, TestResult> property
-  ) {
+                                         ) {
     if (name == null || name.isBlank() || name.isEmpty()) {
       throw new IllegalArgumentException("property name missing");
     }
@@ -153,12 +149,11 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
   public static <O> PropertyBuilder<O> of(final String name,
                                           final Gen<O> gen,
                                           final Function<O, TestResult> property
-  ) {
+                                         ) {
     if (name == null || name.isBlank() || name.isEmpty()) {
       throw new IllegalArgumentException("property name missing");
     }
-    BiLambda<JsObj, O, TestResult> bfn = (conf,
-                                          o) -> IO.succeed(property.apply(o));
+    BiLambda<JsObj, O, TestResult> bfn = (_, o) -> IO.succeed(property.apply(o));
     return new PropertyBuilder<>(name,
                                  gen,
                                  bfn);
@@ -239,7 +234,7 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
    */
   public PropertyBuilder<GenValue> withClassifiers(final Map<String, Predicate<GenValue>> classifiers,
                                                    final String defaultTag
-  ) {
+                                                  ) {
     if (requireNonNull(classifiers).isEmpty()) {
       throw new IllegalArgumentException("classifiers empty");
     }

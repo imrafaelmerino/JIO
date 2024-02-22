@@ -23,7 +23,7 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
 
   JsArrayExp(List<IO<JsValue>> list,
              Function<EvalExpEvent, BiConsumer<JsArray, Throwable>> debugger
-  ) {
+            ) {
     super(debugger);
     this.list = list;
   }
@@ -64,29 +64,29 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
 
   List<IO<JsValue>> debugJsArray(List<IO<JsValue>> exps,
                                  EventBuilder<JsArray> eventBuilder
-  ) {
+                                ) {
     return IntStream.range(0,
                            exps.size())
                     .mapToObj(i -> DebuggerHelper.debugIO(exps.get(i),
                                                           String.format("%s[%s]",
                                                                         eventBuilder.exp,
                                                                         i
-                                                          ),
+                                                                       ),
                                                           eventBuilder.context
 
-                    )
-                    )
+                                                         )
+                             )
                     .collect(Collectors.toList());
   }
 
   @Override
   public abstract JsArrayExp retryEach(final Predicate<? super Throwable> predicate,
                                        final RetryPolicy policy
-  );
+                                      );
 
   @Override
   public abstract JsArrayExp debugEach(final EventBuilder<JsArray> messageBuilder
-  );
+                                      );
 
   @Override
   public abstract JsArrayExp debugEach(final String context);

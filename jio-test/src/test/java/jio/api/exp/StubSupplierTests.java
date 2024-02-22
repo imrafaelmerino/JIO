@@ -41,12 +41,12 @@ public class StubSupplierTests {
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
-                               )
+    )
                             .toSeconds();
 
     Assertions.assertEquals("b",
                             x
-                           );
+    );
     Assertions.assertTrue(duration < 3);
 
   }
@@ -58,21 +58,21 @@ public class StubSupplierTests {
     Triple<String, String, String> triple = TripleExp.seq(A_AFTER_1_SEC.get(),
                                                           B_AFTER_1_SEC.get(),
                                                           C_AFTER_1_SEC.get()
-                                                         )
+    )
                                                      .call()
                                                      .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
-                               )
+    )
                             .toSeconds();
 
     Assertions.assertEquals(Triple.of("a",
                                       "b",
                                       "c"
-                                     ),
+    ),
                             triple
-                           );
+    );
     Assertions.assertTrue(duration >= 3);
 
   }
@@ -83,22 +83,22 @@ public class StubSupplierTests {
     Triple<String, String, String> triple = TripleExp.par(A_AFTER_1_SEC.get(),
                                                           B_AFTER_1_SEC.get(),
                                                           C_AFTER_1_SEC.get()
-                                                         )
+    )
                                                      .debugEach("context")
                                                      .call()
                                                      .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
-                               )
+    )
                             .toSeconds();
 
     Assertions.assertEquals(Triple.of("a",
                                       "b",
                                       "c"
-                                     ),
+    ),
                             triple
-                           );
+    );
     System.out.println(duration);
     Assertions.assertTrue(duration < 3);
 
@@ -114,21 +114,21 @@ public class StubSupplierTests {
                                         "b",
                                         B_AFTER_1_SEC.get()
                                                      .map(JsStr::of)
-                                       ),
+                           ),
                            "b",
                            JsArrayExp.par(A_AFTER_1_SEC.get()
                                                        .map(JsStr::of),
                                           B_AFTER_1_SEC.get()
                                                        .map(JsStr::of)
-                                         )
-                          )
+                           )
+    )
                       .debugEach("context")
                       .call()
                       .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
-                               )
+    )
                             .toSeconds();
 
     Assertions.assertEquals(JsObj.of("a",
@@ -136,14 +136,14 @@ public class StubSupplierTests {
                                               JsStr.of("a"),
                                               "b",
                                               JsStr.of("b")
-                                             ),
+                                     ),
                                      "b",
                                      JsArray.of(JsStr.of("a"),
                                                 JsStr.of("b")
-                                               )
-                                    ),
+                                     )
+    ),
                             obj
-                           );
+    );
     Assertions.assertTrue(duration < 2);
 
   }
@@ -159,14 +159,14 @@ public class StubSupplierTests {
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
-                               )
+    )
                             .toSeconds();
 
     Assertions.assertEquals(Pair.of("a",
                                     "b"
-                                   ),
+    ),
                             pair
-                           );
+    );
     Assertions.assertTrue(duration >= 2);
 
   }
@@ -182,14 +182,14 @@ public class StubSupplierTests {
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
-                               )
+    )
                             .toSeconds();
 
     Assertions.assertEquals(Pair.of("a",
                                     "b"
-                                   ),
+    ),
                             pair
-                           );
+    );
     Assertions.assertTrue(duration < 2,
                           "%s is not lower than two sg".formatted(duration));
 
@@ -202,21 +202,21 @@ public class StubSupplierTests {
                                           .map(JsStr::of),
                              B_AFTER_1_SEC.get()
                                           .map(JsStr::of)
-                            )
+    )
                         .debugEach("context")
                         .call()
                         .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
-                               )
+    )
                             .toSeconds();
 
     Assertions.assertEquals(JsArray.of("a",
                                        "b"
-                                      ),
+    ),
                             arr
-                           );
+    );
     Assertions.assertTrue(duration >= 2);
 
   }
@@ -227,22 +227,22 @@ public class StubSupplierTests {
     List<String> list = ListExp.par(A_AFTER_1_SEC.get(),
                                     B_AFTER_1_SEC.get(),
                                     C_AFTER_1_SEC.get()
-                                   )
+    )
                                .debugEach("context")
                                .call()
                                .call();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
-                               )
+    )
                             .toSeconds();
 
     Assertions.assertEquals(List.of("a",
                                     "b",
                                     "c"
-                                   ),
+    ),
                             list
-                           );
+    );
     Assertions.assertTrue(duration < 3);
   }
 

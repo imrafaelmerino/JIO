@@ -15,7 +15,7 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
 
   public ListExpSeq(final List<IO<Elem>> list,
                     final Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
-  ) {
+                   ) {
     super(list,
           debugger);
   }
@@ -32,7 +32,7 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
   public ListExp<Elem> tail() {
     return new ListExpSeq<>(list.subList(1,
                                          list.size()
-    ),
+                                        ),
                             jfrPublisher
     );
   }
@@ -40,14 +40,14 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
   @Override
   public ListExp<Elem> retryEach(final Predicate<? super Throwable> predicate,
                                  final RetryPolicy policy
-  ) {
+                                ) {
     requireNonNull(policy);
     requireNonNull(predicate);
     return new ListExpSeq<>(list.stream()
                                 .map(it -> it.retry(predicate,
                                                     policy
-                                )
-                                )
+                                                   )
+                                    )
                                 .toList(),
                             jfrPublisher
     );
@@ -60,7 +60,7 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
       try {
         xs.add(entry.call()
                     .call()
-        );
+              );
       } catch (Exception e) {
         return new Failure<>(e);
       }
@@ -75,7 +75,7 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
     return new ListExpSeq<>(DebuggerHelper.debugList(list,
                                                      eventBuilder.exp,
                                                      Objects.requireNonNull(eventBuilder).context
-    ),
+                                                    ),
                             getJFRPublisher(eventBuilder)
     );
   }

@@ -87,7 +87,7 @@ public final class RetryPolicies {
    */
   public static RetryPolicy fullJitter(final Duration base,
                                        final Duration cap
-  ) {
+                                      ) {
     Objects.requireNonNull(base);
     Objects.requireNonNull(cap);
 
@@ -120,18 +120,18 @@ public final class RetryPolicies {
    */
   public static RetryPolicy equalJitter(final Duration base,
                                         final Duration cap
-  ) {
+                                       ) {
     Objects.requireNonNull(base);
     Objects.requireNonNull(cap);
     return rs -> {
       Duration delay = exponentialBackoffDelay(base
-      ).capDelay(cap)
-       .apply(rs);
+                                              ).capDelay(cap)
+                                               .apply(rs);
       return delay != null ? Duration.ofMillis(ThreadLocalRandom.current()
                                                                 .nextLong(delay.dividedBy(2)
                                                                                .toMillis()
-                                                                )
-      ) : null;
+                                                                         )
+                                              ) : null;
 
     };
 
@@ -154,7 +154,7 @@ public final class RetryPolicies {
    */
   public static RetryPolicy decorrelatedJitter(final Duration base,
                                                final Duration cap
-  ) {
+                                              ) {
     Objects.requireNonNull(base);
     Objects.requireNonNull(cap);
     return rs -> {
@@ -168,7 +168,7 @@ public final class RetryPolicies {
       long l = ThreadLocalRandom.current()
                                 .nextLong(base.toMillis(),
                                           upperBound.toMillis()
-                                );
+                                         );
       return l < cap.toMillis() ? Duration.ofMillis(l) : cap;
 
     };
@@ -198,7 +198,7 @@ public final class RetryPolicies {
     public Duration apply(final RetryStatus rs) {
       int multiplicand = (int) Math.pow(2,
                                         rs.counter()
-      );
+                                       );
       return rs.cumulativeDelay()
                .isZero() ? base : base.multipliedBy(multiplicand);
     }

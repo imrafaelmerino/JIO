@@ -1,8 +1,8 @@
 package jio.test.stub.httpserver;
 
-import com.sun.net.httpserver.HttpHandler;
-
 import static java.util.Objects.requireNonNull;
+
+import com.sun.net.httpserver.HttpHandler;
 
 /**
  * Stub that stands in for the {@link HttpHandler} of a PATCH HTTP request.
@@ -12,12 +12,12 @@ public final class PatchStub extends ReqHandlerStub {
   private PatchStub(final BodyStub body,
                     final StatusCodeStub statusCode,
                     final HeadersStub headers
-  ) {
+                   ) {
     super(requireNonNull(body),
           requireNonNull(statusCode),
           requireNonNull(headers),
           "PATCH"
-    );
+         );
   }
 
   /**
@@ -31,7 +31,7 @@ public final class PatchStub extends ReqHandlerStub {
   public static PatchStub of(final BodyStub body,
                              final StatusCodeStub statusCode,
                              final HeadersStub headers
-  ) {
+                            ) {
     return new PatchStub(body,
                          statusCode,
                          headers);
@@ -46,7 +46,7 @@ public final class PatchStub extends ReqHandlerStub {
    */
   public static PatchStub of(final BodyStub body,
                              final StatusCodeStub statusCode
-  ) {
+                            ) {
     return new PatchStub(body,
                          statusCode,
                          HeadersStub.EMPTY);

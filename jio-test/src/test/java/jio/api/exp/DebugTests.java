@@ -14,7 +14,7 @@ import jio.test.junit.Debugger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TestDebug {
+public class DebugTests {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
@@ -54,19 +54,19 @@ public class TestDebug {
     SwitchExp<String, String> match = SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
                                                                               .consequence(() -> IO.lazy(loserCase))
                                                                               .alternative(() -> IO.lazy(upperCase))
-    )
+                                                                    )
                                                .matchList(xs,
-                                                          s -> IO.NULL(),
+                                                          _ -> IO.NULL(),
                                                           /*IO.succeed("%s %s".formatted(s.call(),
                                                                                         s.call()
                                                                                          .toUpperCase(Locale.ENGLISH))
                                                                      ),*/
                                                           ys,
-                                                          s -> IO.NULL(),
+                                                          _ -> IO.NULL(),
                                                           /*       IO.succeed("%s %s".formatted(s.call(),
                                                                                                s.call().toLowerCase(Locale.ENGLISH))),*/
                                                           s -> IO.NULL()
-                                               )
+                                                         )
                                                .debugEach("context");
 
     System.out.println(match.call());

@@ -17,7 +17,7 @@ final class TripleExpPar<First, Second, Third> extends TripleExp<First, Second, 
                       final IO<Second> _2,
                       final IO<Third> _3,
                       final Function<EvalExpEvent, BiConsumer<Triple<First, Second, Third>, Throwable>> debugger
-  ) {
+                     ) {
     super(_1,
           _2,
           _3,
@@ -27,18 +27,18 @@ final class TripleExpPar<First, Second, Third> extends TripleExp<First, Second, 
   @Override
   public TripleExp<First, Second, Third> retryEach(final Predicate<? super Throwable> predicate,
                                                    final RetryPolicy policy
-  ) {
+                                                  ) {
     requireNonNull(predicate);
     requireNonNull(policy);
     return new TripleExpPar<>(_1.retry(predicate,
                                        policy
-    ),
+                                      ),
                               _2.retry(predicate,
                                        policy
-                              ),
+                                      ),
                               _3.retry(predicate,
                                        policy
-                              ),
+                                      ),
                               jfrPublisher
     );
   }
@@ -65,26 +65,26 @@ final class TripleExpPar<First, Second, Third> extends TripleExp<First, Second, 
 
   @Override
   public TripleExp<First, Second, Third> debugEach(final EventBuilder<Triple<First, Second, Third>> eventBuilder
-  ) {
+                                                  ) {
     Objects.requireNonNull(eventBuilder);
     return new TripleExpPar<>(DebuggerHelper.debugIO(_1,
                                                      String.format("%s[1]",
                                                                    eventBuilder.exp
-                                                     ),
+                                                                  ),
                                                      eventBuilder.context
-    ),
+                                                    ),
                               DebuggerHelper.debugIO(_2,
                                                      String.format("%s[2]",
                                                                    eventBuilder.exp
-                                                     ),
+                                                                  ),
                                                      eventBuilder.context
-                              ),
+                                                    ),
                               DebuggerHelper.debugIO(_3,
                                                      String.format("%s[3]",
                                                                    eventBuilder.exp
-                                                     ),
+                                                                  ),
                                                      eventBuilder.context
-                              ),
+                                                    ),
                               getJFRPublisher(eventBuilder)
     );
   }

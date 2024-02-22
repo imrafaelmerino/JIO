@@ -49,13 +49,13 @@ public class AnyExpTest {
   public void test_debug_each() {
     var exp = AnyExp.par(IO.FALSE,
                          IO.TRUE
-    )
+                        )
                     .debugEach("context")
                     .call();
 
     Assertions.assertEquals(Result.TRUE,
                             exp
-    );
+                           );
 
   }
 }

@@ -23,7 +23,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TestRespHandlers {
+public class RespHandlersTests {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));

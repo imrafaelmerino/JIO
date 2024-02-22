@@ -3,10 +3,6 @@ package jio;
 import static java.util.Objects.requireNonNull;
 
 import java.util.concurrent.Callable;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import jio.Result.Failure;
-import jio.Result.Success;
 
 /**
  * Represents a value, which is an irreducible expression. Values of type {@code Val} encapsulate a value of type

@@ -29,7 +29,7 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
 
   AllExp(Function<EvalExpEvent, BiConsumer<Boolean, Throwable>> debugger,
          List<IO<Boolean>> exps
-  ) {
+        ) {
     super(debugger);
     this.exps = exps;
   }
@@ -172,15 +172,15 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
   @SafeVarargs
   public static AllExp par(final IO<Boolean> bool,
                            final IO<Boolean>... others
-  ) {
+                          ) {
     var exps = new ArrayList<IO<Boolean>>();
     exps.add(requireNonNull(bool));
     for (var other : requireNonNull(others)) {
       exps.add(requireNonNull(other));
     }
     return new AllExpPar(
-                         exps,
-                         null
+        exps,
+        null
     );
   }
 
@@ -237,8 +237,8 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
    */
   public static AllExp par(final List<IO<Boolean>> ios) {
     return new AllExpPar(
-                         ios,
-                         null
+        ios,
+        null
     );
   }
 
@@ -252,8 +252,8 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
    */
   public static AllExp seq(final List<IO<Boolean>> ios) {
     return new AllExpSeq(
-                         ios,
-                         null
+        ios,
+        null
     );
   }
 
@@ -269,15 +269,15 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
   @SafeVarargs
   public static AllExp seq(final IO<Boolean> bool,
                            final IO<Boolean>... others
-  ) {
+                          ) {
     var exps = new ArrayList<IO<Boolean>>();
     exps.add(requireNonNull(bool));
     for (var other : requireNonNull(others)) {
       exps.add(requireNonNull(other));
     }
     return new AllExpSeq(
-                         exps,
-                         null
+        exps,
+        null
     );
   }
 
@@ -291,7 +291,7 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
   @Override
   public abstract AllExp retryEach(final Predicate<? super Throwable> predicate,
                                    final RetryPolicy policy
-  );
+                                  );
 
   @Override
   public abstract AllExp debugEach(final EventBuilder<Boolean> builder);
@@ -308,8 +308,8 @@ public abstract sealed class AllExp extends Exp<Boolean> permits AllExpPar, AllE
   @Override
   public AllExp retryEach(RetryPolicy policy) {
     return retryEach(
-                     e -> true,
-                     policy
-    );
+        e -> true,
+        policy
+                    );
   }
 }

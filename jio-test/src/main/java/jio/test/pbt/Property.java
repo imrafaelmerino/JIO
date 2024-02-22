@@ -72,7 +72,7 @@ public non-sealed class Property<GenValue> extends Testable {
     synchronized (Property.class) {
       try {
         Files.writeString(path,
-                          report + "\n");
+                          STR."\{report}\n");
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
@@ -104,14 +104,14 @@ public non-sealed class Property<GenValue> extends Testable {
   }
 
   @Override
-  IO<Report> createTask(final JsObj conf) {
+  IO<Report> create(final JsObj conf) {
     Supplier<Report> task = () -> {
       Report report = new Report(name,
                                  description);
       long seed = seedGen.nextLong();
       Supplier<GenValue> rg = gen.apply(new Random(seed));
       report.setStartTime(Instant.now());
-      for (int i = 1; i<=times;i++) {
+      for (int i = 1; i <= times; i++) {
         report.incTest();
         var tic = Instant.now();
         var generated = rg.get();

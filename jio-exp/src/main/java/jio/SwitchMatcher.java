@@ -56,13 +56,13 @@ public final class SwitchMatcher<Input, Output> {
                                         final Result<Input> pattern2,
                                         final Lambda<Result<Input>, Output> lambda2,
                                         final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                       ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     return new SwitchExp<>(val,
                            List.of(input -> input.equals(pattern1),
                                    input -> input.equals(pattern2)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2)),
                            requireNonNull(otherwise),
@@ -85,13 +85,13 @@ public final class SwitchMatcher<Input, Output> {
                                         final Lambda<Result<Input>, Output> lambda1,
                                         final Result<Input> pattern2,
                                         final Lambda<Result<Input>, Output> lambda2
-  ) {
+                                       ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     return new SwitchExp<>(val,
                            List.of(input -> input.equals(pattern1),
                                    input -> input.equals(pattern2)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2)),
                            _ -> IO.NULL(),
@@ -115,12 +115,12 @@ public final class SwitchMatcher<Input, Output> {
                                                  final Predicate<Result<Input>> pattern2,
                                                  final Lambda<Result<Input>, Output> lambda2,
                                                  final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                                ) {
 
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
                                    requireNonNull(pattern2)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2)),
                            requireNonNull(otherwise),
@@ -145,12 +145,12 @@ public final class SwitchMatcher<Input, Output> {
                                                  final Lambda<Result<Input>, Output> lambda1,
                                                  final Predicate<Result<Input>> pattern2,
                                                  final Lambda<Result<Input>, Output> lambda2
-  ) {
+                                                ) {
 
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
                                    requireNonNull(pattern2)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2)),
                            _ -> IO.NULL(),
@@ -175,13 +175,13 @@ public final class SwitchMatcher<Input, Output> {
                                             final List<? extends Result<Input>> pattern2,
                                             final Lambda<Result<Input>, Output> lambda2,
                                             final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                           ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     return new SwitchExp<>(val,
                            List.of(pattern1::contains,
                                    pattern2::contains
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2)),
                            requireNonNull(otherwise),
@@ -206,13 +206,13 @@ public final class SwitchMatcher<Input, Output> {
                                             final Lambda<Result<Input>, Output> lambda1,
                                             final List<? extends Result<Input>> pattern2,
                                             final Lambda<Result<Input>, Output> lambda2
-  ) {
+                                           ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     return new SwitchExp<>(val,
                            List.of(pattern1::contains,
                                    pattern2::contains
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2)),
                            _ -> IO.NULL(),
@@ -241,7 +241,7 @@ public final class SwitchMatcher<Input, Output> {
                                             final List<? extends Result<Input>> pattern3,
                                             final Lambda<Result<Input>, Output> lambda3,
                                             final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                           ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -249,11 +249,11 @@ public final class SwitchMatcher<Input, Output> {
                            List.of(pattern1::contains,
                                    pattern2::contains,
                                    pattern3::contains
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3)
-                           ),
+                                  ),
                            requireNonNull(otherwise),
                            null
     );
@@ -280,7 +280,7 @@ public final class SwitchMatcher<Input, Output> {
                                             final Lambda<Result<Input>, Output> lambda2,
                                             final List<? extends Result<Input>> pattern3,
                                             final Lambda<Result<Input>, Output> lambda3
-  ) {
+                                           ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -288,11 +288,11 @@ public final class SwitchMatcher<Input, Output> {
                            List.of(pattern1::contains,
                                    pattern2::contains,
                                    pattern3::contains
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3)
-                           ),
+                                  ),
                            _ -> IO.NULL(),
                            null
     );
@@ -319,7 +319,7 @@ public final class SwitchMatcher<Input, Output> {
                                         final Result<Input> pattern3,
                                         final Lambda<Result<Input>, Output> lambda3,
                                         final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                       ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -327,11 +327,11 @@ public final class SwitchMatcher<Input, Output> {
                            List.of(input -> input.equals(pattern1),
                                    input -> input.equals(pattern2),
                                    input -> input.equals(pattern3)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3)
-                           ),
+                                  ),
                            otherwise,
                            null
     );
@@ -358,7 +358,7 @@ public final class SwitchMatcher<Input, Output> {
                                         final Lambda<Result<Input>, Output> lambda2,
                                         final Result<Input> pattern3,
                                         final Lambda<Result<Input>, Output> lambda3
-  ) {
+                                       ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -366,11 +366,11 @@ public final class SwitchMatcher<Input, Output> {
                            List.of(input -> input.equals(pattern1),
                                    input -> input.equals(pattern2),
                                    input -> input.equals(pattern3)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3)
-                           ),
+                                  ),
                            _ -> IO.NULL(),
                            null
     );
@@ -398,17 +398,17 @@ public final class SwitchMatcher<Input, Output> {
                                                  final Predicate<Result<Input>> pattern3,
                                                  final Lambda<Result<Input>, Output> lambda3,
                                                  final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                                ) {
 
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
                                    requireNonNull(pattern2),
                                    requireNonNull(pattern3)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3)
-                           ),
+                                  ),
                            requireNonNull(otherwise),
                            null
     );
@@ -436,17 +436,17 @@ public final class SwitchMatcher<Input, Output> {
                                                  final Lambda<Result<Input>, Output> lambda2,
                                                  final Predicate<Result<Input>> pattern3,
                                                  final Lambda<Result<Input>, Output> lambda3
-  ) {
+                                                ) {
 
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
                                    requireNonNull(pattern2),
                                    requireNonNull(pattern3)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3)
-                           ),
+                                  ),
                            _ -> IO.NULL(),
                            null
     );
@@ -478,7 +478,7 @@ public final class SwitchMatcher<Input, Output> {
                                         final Result<Input> pattern4,
                                         final Lambda<Result<Input>, Output> lambda4,
                                         final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                       ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -489,12 +489,12 @@ public final class SwitchMatcher<Input, Output> {
                                    input -> input.equals(pattern2),
                                    input -> input.equals(pattern3),
                                    input -> input.equals(pattern4)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4)
-                           ),
+                                  ),
                            requireNonNull(otherwise),
                            null
     );
@@ -524,7 +524,7 @@ public final class SwitchMatcher<Input, Output> {
                                         final Lambda<Result<Input>, Output> lambda3,
                                         final Result<Input> pattern4,
                                         final Lambda<Result<Input>, Output> lambda4
-  ) {
+                                       ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -535,12 +535,12 @@ public final class SwitchMatcher<Input, Output> {
                                    input -> input.equals(pattern2),
                                    input -> input.equals(pattern3),
                                    input -> input.equals(pattern4)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4)
-                           ),
+                                  ),
                            _ -> IO.NULL(),
                            null
     );
@@ -571,19 +571,19 @@ public final class SwitchMatcher<Input, Output> {
                                                  final Predicate<Result<Input>> pattern4,
                                                  final Lambda<Result<Input>, Output> lambda4,
                                                  final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                                ) {
 
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
                                    requireNonNull(pattern2),
                                    requireNonNull(pattern3),
                                    requireNonNull(pattern4)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4)
-                           ),
+                                  ),
                            requireNonNull(otherwise),
                            null
     );
@@ -615,19 +615,19 @@ public final class SwitchMatcher<Input, Output> {
                                                  final Lambda<Result<Input>, Output> lambda3,
                                                  final Predicate<Result<Input>> pattern4,
                                                  final Lambda<Result<Input>, Output> lambda4
-  ) {
+                                                ) {
 
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
                                    requireNonNull(pattern2),
                                    requireNonNull(pattern3),
                                    requireNonNull(pattern4)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4)
-                           ),
+                                  ),
                            _ -> IO.NULL(),
                            null
     );
@@ -659,7 +659,7 @@ public final class SwitchMatcher<Input, Output> {
                                             final List<? extends Result<Input>> pattern4,
                                             final Lambda<Result<Input>, Output> lambda4,
                                             final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                           ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -669,12 +669,12 @@ public final class SwitchMatcher<Input, Output> {
                                    pattern2::contains,
                                    pattern3::contains,
                                    pattern4::contains
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4)
-                           ),
+                                  ),
                            requireNonNull(otherwise),
                            null
     );
@@ -705,7 +705,7 @@ public final class SwitchMatcher<Input, Output> {
                                             final Lambda<Result<Input>, Output> lambda3,
                                             final List<? extends Result<Input>> pattern4,
                                             final Lambda<Result<Input>, Output> lambda4
-  ) {
+                                           ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -715,12 +715,12 @@ public final class SwitchMatcher<Input, Output> {
                                    pattern2::contains,
                                    pattern3::contains,
                                    pattern4::contains
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4)
-                           ),
+                                  ),
                            _ -> IO.NULL(),
                            null
     );
@@ -756,7 +756,7 @@ public final class SwitchMatcher<Input, Output> {
                                             final Lambda<Result<Input>, Output> lambda5,
                                             final Lambda<Result<Input>, Output> otherwise
 
-  ) {
+                                           ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -768,13 +768,13 @@ public final class SwitchMatcher<Input, Output> {
                                    pattern3::contains,
                                    pattern4::contains,
                                    pattern5::contains
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4),
                                    requireNonNull(lambda5)
-                           ),
+                                  ),
                            requireNonNull(otherwise),
                            null
     );
@@ -810,7 +810,7 @@ public final class SwitchMatcher<Input, Output> {
                                             final List<? extends Result<Input>> pattern5,
                                             final Lambda<Result<Input>, Output> lambda5
 
-  ) {
+                                           ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -822,13 +822,13 @@ public final class SwitchMatcher<Input, Output> {
                                    pattern3::contains,
                                    pattern4::contains,
                                    pattern5::contains
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4),
                                    requireNonNull(lambda5)
-                           ),
+                                  ),
                            _ -> IO.NULL(),
                            null
     );
@@ -867,7 +867,7 @@ public final class SwitchMatcher<Input, Output> {
                                             final List<? extends Result<Input>> pattern6,
                                             final Lambda<Result<Input>, Output> lambda6,
                                             final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                           ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -881,14 +881,14 @@ public final class SwitchMatcher<Input, Output> {
                                    pattern4::contains,
                                    pattern5::contains,
                                    pattern6::contains
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4),
                                    requireNonNull(lambda5),
                                    requireNonNull(lambda6)
-                           ),
+                                  ),
                            requireNonNull(otherwise),
                            null
     );
@@ -927,7 +927,7 @@ public final class SwitchMatcher<Input, Output> {
                                             final Lambda<Result<Input>, Output> lambda5,
                                             final List<? extends Result<Input>> pattern6,
                                             final Lambda<Result<Input>, Output> lambda6
-  ) {
+                                           ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -941,14 +941,14 @@ public final class SwitchMatcher<Input, Output> {
                                    pattern4::contains,
                                    pattern5::contains,
                                    pattern6::contains
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4),
                                    requireNonNull(lambda5),
                                    requireNonNull(lambda6)
-                           ),
+                                  ),
                            _ -> IO.NULL(),
                            null
     );
@@ -983,7 +983,7 @@ public final class SwitchMatcher<Input, Output> {
                                         final Result<Input> pattern5,
                                         final Lambda<Result<Input>, Output> lambda5,
                                         final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                       ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -994,13 +994,13 @@ public final class SwitchMatcher<Input, Output> {
                                    input -> input.equals(pattern2),
                                    input -> input.equals(pattern3),
                                    input -> input.equals(pattern4)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4),
                                    requireNonNull(lambda5)
-                           ),
+                                  ),
                            requireNonNull(otherwise),
                            null
     );
@@ -1034,7 +1034,7 @@ public final class SwitchMatcher<Input, Output> {
                                         final Lambda<Result<Input>, Output> lambda4,
                                         final Result<Input> pattern5,
                                         final Lambda<Result<Input>, Output> lambda5
-  ) {
+                                       ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -1045,13 +1045,13 @@ public final class SwitchMatcher<Input, Output> {
                                    input -> input.equals(pattern2),
                                    input -> input.equals(pattern3),
                                    input -> input.equals(pattern4)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4),
                                    requireNonNull(lambda5)
-                           ),
+                                  ),
                            _ -> IO.NULL(),
                            null
     );
@@ -1090,7 +1090,7 @@ public final class SwitchMatcher<Input, Output> {
                                         final Result<Input> pattern6,
                                         final Lambda<Result<Input>, Output> lambda6,
                                         final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                       ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -1103,14 +1103,14 @@ public final class SwitchMatcher<Input, Output> {
                                    input -> input.equals(pattern3),
                                    input -> input.equals(pattern4),
                                    input -> input.equals(pattern5)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4),
                                    requireNonNull(lambda5),
                                    requireNonNull(lambda6)
-                           ),
+                                  ),
                            requireNonNull(otherwise),
                            null
     );
@@ -1148,7 +1148,7 @@ public final class SwitchMatcher<Input, Output> {
                                         final Lambda<Result<Input>, Output> lambda5,
                                         final Result<Input> pattern6,
                                         final Lambda<Result<Input>, Output> lambda6
-  ) {
+                                       ) {
     requireNonNull(pattern1);
     requireNonNull(pattern2);
     requireNonNull(pattern3);
@@ -1161,14 +1161,14 @@ public final class SwitchMatcher<Input, Output> {
                                    input -> input.equals(pattern3),
                                    input -> input.equals(pattern4),
                                    input -> input.equals(pattern5)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4),
                                    requireNonNull(lambda5),
                                    requireNonNull(lambda6)
-                           ),
+                                  ),
                            _ -> IO.NULL(),
                            null
     );
@@ -1203,20 +1203,20 @@ public final class SwitchMatcher<Input, Output> {
                                                  final Predicate<Result<Input>> pattern5,
                                                  final Lambda<Result<Input>, Output> lambda5,
                                                  final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                                ) {
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
                                    requireNonNull(pattern2),
                                    requireNonNull(pattern3),
                                    requireNonNull(pattern4),
                                    requireNonNull(pattern5)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4),
                                    requireNonNull(lambda5)
-                           ),
+                                  ),
                            requireNonNull(otherwise),
                            null
     );
@@ -1240,7 +1240,7 @@ public final class SwitchMatcher<Input, Output> {
    * @param lambda5  the lambda associated to the fifth value
    * @return a SwitchExp
    * @see #matchPredicate(Predicate, Lambda, Predicate, Lambda, Predicate, Lambda, Predicate, Lambda, Predicate, Lambda,
-   *      Lambda)
+   * Lambda)
    */
   public SwitchExp<Input, Output> matchPredicate(final Predicate<Result<Input>> pattern1,
                                                  final Lambda<Result<Input>, Output> lambda1,
@@ -1252,20 +1252,20 @@ public final class SwitchMatcher<Input, Output> {
                                                  final Lambda<Result<Input>, Output> lambda4,
                                                  final Predicate<Result<Input>> pattern5,
                                                  final Lambda<Result<Input>, Output> lambda5
-  ) {
+                                                ) {
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
                                    requireNonNull(pattern2),
                                    requireNonNull(pattern3),
                                    requireNonNull(pattern4),
                                    requireNonNull(pattern5)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4),
                                    requireNonNull(lambda5)
-                           ),
+                                  ),
                            _ -> IO.NULL(),
                            null
     );
@@ -1304,7 +1304,7 @@ public final class SwitchMatcher<Input, Output> {
                                                  final Predicate<Result<Input>> pattern6,
                                                  final Lambda<Result<Input>, Output> lambda6,
                                                  final Lambda<Result<Input>, Output> otherwise
-  ) {
+                                                ) {
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
                                    requireNonNull(pattern2),
@@ -1312,14 +1312,14 @@ public final class SwitchMatcher<Input, Output> {
                                    requireNonNull(pattern4),
                                    requireNonNull(pattern5),
                                    requireNonNull(pattern6)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4),
                                    requireNonNull(lambda5),
                                    requireNonNull(lambda6)
-                           ),
+                                  ),
                            requireNonNull(otherwise),
                            null
     );
@@ -1345,7 +1345,7 @@ public final class SwitchMatcher<Input, Output> {
    * @param lambda6  the lambda associated to the sixth value
    * @return a SwitchExp
    * @see #matchPredicate(Predicate, Lambda, Predicate, Lambda, Predicate, Lambda, Predicate, Lambda, Predicate, Lambda,
-   *      Predicate, Lambda, Lambda)
+   * Predicate, Lambda, Lambda)
    */
   public SwitchExp<Input, Output> matchPredicate(final Predicate<Result<Input>> pattern1,
                                                  final Lambda<Result<Input>, Output> lambda1,
@@ -1359,7 +1359,7 @@ public final class SwitchMatcher<Input, Output> {
                                                  final Lambda<Result<Input>, Output> lambda5,
                                                  final Predicate<Result<Input>> pattern6,
                                                  final Lambda<Result<Input>, Output> lambda6
-  ) {
+                                                ) {
     return new SwitchExp<>(val,
                            List.of(requireNonNull(pattern1),
                                    requireNonNull(pattern2),
@@ -1367,14 +1367,14 @@ public final class SwitchMatcher<Input, Output> {
                                    requireNonNull(pattern4),
                                    requireNonNull(pattern5),
                                    requireNonNull(pattern6)
-                           ),
+                                  ),
                            List.of(requireNonNull(lambda1),
                                    requireNonNull(lambda2),
                                    requireNonNull(lambda3),
                                    requireNonNull(lambda4),
                                    requireNonNull(lambda5),
                                    requireNonNull(lambda6)
-                           ),
+                                  ),
                            _ -> IO.NULL(),
                            null
     );

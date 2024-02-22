@@ -28,7 +28,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
 
   ListExp(List<IO<Elem>> list,
           Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
-  ) {
+         ) {
     super(debugger);
     this.list = list;
   }
@@ -232,7 +232,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
   @Override
   public abstract ListExp<Elem> retryEach(final Predicate<? super Throwable> predicate,
                                           final RetryPolicy policy
-  );
+                                         );
 
   @Override
   public ListExp<Elem> retryEach(final RetryPolicy policy) {
@@ -242,7 +242,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
 
   @Override
   public abstract ListExp<Elem> debugEach(final EventBuilder<List<Elem>> messageBuilder
-  );
+                                         );
 
   @Override
   public abstract ListExp<Elem> debugEach(final String context);

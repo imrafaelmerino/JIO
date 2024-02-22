@@ -1,5 +1,6 @@
 package jio;
 
+import java.time.Duration;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -26,5 +27,13 @@ final class Fun {
     event.expression = exp;
     event.commit();
   }
+
+   static void sleep(Duration duration){
+    try {
+      Thread.sleep(duration.toMillis());
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+   }
 
 }

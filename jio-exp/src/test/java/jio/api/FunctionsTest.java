@@ -16,7 +16,7 @@ public class FunctionsTest {
                .map(x -> x * 10)
                .repeat(_ -> true,
                        RetryPolicies.limitRetries(2)
-               )
+                      )
                .result()
                .call();
 
@@ -29,11 +29,11 @@ public class FunctionsTest {
     AtomicLong counter = new AtomicLong(0);
 
     long a = IO.lazy(
-                     counter::incrementAndGet)
+                   counter::incrementAndGet)
                .then(x -> IO.succeed(x * 10))
                .repeat(_ -> true,
                        RetryPolicies.limitRetries(2)
-               )
+                      )
                .result()
                .call();
 

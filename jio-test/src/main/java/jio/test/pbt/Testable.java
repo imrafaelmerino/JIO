@@ -11,20 +11,24 @@ public abstract sealed class Testable permits ParProperty, Property, SeqProperty
   Testable() {
   }
 
-  IO<Report> createTask() {
-    return createTask(JsObj.empty());
+  IO<Report> create() {
+    return create(JsObj.empty());
   }
 
-  abstract IO<Report> createTask(JsObj conf);
+  abstract IO<Report> create(JsObj conf);
 
   /**
    * Executes the property test defined by this Testable instance.
    *
    * @return The result of the test is encapsulated in a Report object.
    */
-  public Report check() throws Exception {
-    return createTask().result()
-                       .call();
+  public Report check() {
+    try {
+      return create().result()
+                     .call();
+    } catch (Exception e) {
+      throw new ReportNotGenerated(e);
+    }
   }
 
   /**
@@ -34,8 +38,12 @@ public abstract sealed class Testable permits ParProperty, Property, SeqProperty
    *             parameters needed for the property test.
    * @return The result of the test is encapsulated in a Report object.
    */
-  public Report check(final JsObj conf) throws Exception {
-    return createTask(conf).result()
-                           .call();
+  public Report check(final JsObj conf) {
+    try {
+      return create(conf).result()
+                         .call();
+    } catch (Exception e) {
+      throw new ReportNotGenerated(e);
+    }
   }
 }

@@ -1,11 +1,10 @@
 package jio.test.pbt;
 
+import java.util.Arrays;
+import java.util.List;
 import jsonvalues.JsArray;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Represents information related to an exception that occurred during the execution of a specific test.
@@ -48,7 +47,7 @@ public record ExceptionContext(Context context,
                                       .getName()),
                     "stacktrace",
                     JsArray.ofIterable(stacktrace)
-    );
+                   );
   }
 
 }

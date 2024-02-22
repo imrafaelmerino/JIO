@@ -6,7 +6,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -118,13 +117,13 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
     return IO.task(callable)
              .then(resource -> map.apply(resource)
                                   .then(success -> {
-                                    try {
-                                      resource.close();
-                                      return IO.succeed(success);
-                                    } catch (Exception e) {
-                                      return IO.fail(e);
-                                    }
-                                  },
+                                          try {
+                                            resource.close();
+                                            return IO.succeed(success);
+                                          } catch (Exception e) {
+                                            return IO.fail(e);
+                                          }
+                                        },
                                         failure -> {
                                           try {
                                             resource.close();
@@ -378,7 +377,7 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    *
    * @param lambda the lambda to apply if this effect fails, producing a new effect.
    * @return a new effect representing either the original value or the result of applying the lambda in case of
-   *         failure.
+   * failure.
    */
   public IO<Output> fallbackTo(final Lambda<? super Throwable, Output> lambda) {
     requireNonNull(lambda);
@@ -386,7 +385,7 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
     return then(IO::succeed,
                 exc -> lambda.apply(exc)
                              .then(IO::succeed,
-                                   exc1 -> fail(exc)));
+                                   _ -> fail(exc)));
 
   }
 
@@ -399,8 +398,7 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    * @return a new effect representing the original value or the failure with the exception passed to the consumer.
    */
   public IO<Output> peekFailure(final Consumer<? super Throwable> failConsumer) {
-    return peek($ -> {
-    },
+    return peek(_ -> {},
                 failConsumer);
   }
 
@@ -427,21 +425,21 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    * @param successConsumer the consumer that takes the successful result.
    * @param failureConsumer the consumer that takes the failure.
    * @return a new effect representing the original value or the result of applying the consumers in case of success or
-   *         failure.
+   * failure.
    */
   public IO<Output> peek(final Consumer<? super Output> successConsumer,
                          final Consumer<? super Throwable> failureConsumer) {
     requireNonNull(successConsumer);
     requireNonNull(failureConsumer);
     return then(it -> {
-      try {
-        successConsumer.accept(it);
-      } catch (Exception exception) {
-        Fun.publishException("peek",
-                             exception);
-      }
-      return succeed(it);
-    },
+                  try {
+                    successConsumer.accept(it);
+                  } catch (Exception exception) {
+                    Fun.publishException("peek",
+                                         exception);
+                  }
+                  return succeed(it);
+                },
                 exc -> {
                   try {
                     failureConsumer.accept(exc);
@@ -509,14 +507,16 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
                                                           Duration.ZERO),
                                           predicate);
                            }
-                           return sleep(duration)
-                                                 .then(_ -> retry(effect,
-                                                                  policy,
-                                                                  new RetryStatus(rs.counter() + 1,
-                                                                                  rs.cumulativeDelay()
-                                                                                    .plus(duration),
-                                                                                  duration),
-                                                                  predicate));
+                           Fun.sleep(duration);
+                           return retry(effect,
+                                        policy,
+                                        new RetryStatus(rs.counter() + 1,
+                                                        rs.cumulativeDelay()
+                                                          .plus(duration),
+                                                        duration),
+                                        predicate
+
+                                       );
                          }
                          return fail(exc);
                        });
@@ -562,16 +562,16 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
                                         Duration.ZERO),
                         predicate);
         }
-        return sleep(delay)
-                           .then(_ -> repeat(exp,
-                                             policy,
-                                             new RetryStatus(rs.counter() + 1,
-                                                             rs.cumulativeDelay()
-                                                               .plus(delay),
-                                                             delay),
-                                             predicate)
+        Fun.sleep(delay);
+        return repeat(exp,
+                      policy,
+                      new RetryStatus(rs.counter() + 1,
+                                      rs.cumulativeDelay()
+                                        .plus(delay),
+                                      delay),
+                      predicate
 
-                           );
+                     );
       }
       return succeed(output);
     });
@@ -602,15 +602,15 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   public IO<Output> debug(final EventBuilder<Output> builder) {
     requireNonNull(builder);
     return IO.lazy(() -> {
-      EvalExpEvent expEvent = new EvalExpEvent();
-      expEvent.begin();
-      return expEvent;
-    })
+               EvalExpEvent expEvent = new EvalExpEvent();
+               expEvent.begin();
+               return expEvent;
+             })
              .then(event -> this.peek(val -> {
-               event.end();
-               builder.commitSuccess(val,
-                                     event);
-             },
+                                        event.end();
+                                        builder.commitSuccess(val,
+                                                              event);
+                                      },
                                       exc -> {
                                         event.end();
                                         builder.commitFailure(exc,
@@ -618,21 +618,6 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
                                       }));
   }
 
-  public IO<Output> sleep(final Duration duration) {
-    Objects.requireNonNull(duration);
-    return new Val<>(() -> {
-      try {
-        Thread.sleep(duration);
-        return call();
-      } catch (InterruptedException e) {
-        Thread.currentThread()
-              .interrupt();
-        return new Failure<>(e);
-      } catch (Exception e) {
-        return new Failure<>(e);
-      }
-    });
-  }
 
   public Result<Output> result() {
     try {

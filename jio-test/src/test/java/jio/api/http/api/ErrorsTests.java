@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TestErrors {
+public class ErrorsTests {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
@@ -35,7 +35,7 @@ public class TestErrors {
                                                       8000,
                                                       9000);
 
-  public TestErrors() throws Exception {
+  public ErrorsTests() throws Exception {
   }
 
   @Test

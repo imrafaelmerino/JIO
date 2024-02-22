@@ -13,7 +13,7 @@ import jio.test.stub.httpserver.HeadersStub;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TestRetryWhile {
+public class RetryWhileTests {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));

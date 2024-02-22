@@ -14,23 +14,23 @@ final class AllExpSeq extends AllExp {
 
   public AllExpSeq(List<IO<Boolean>> exps,
                    Function<EvalExpEvent, BiConsumer<Boolean, Throwable>> debugger
-  ) {
+                  ) {
     super(debugger,
           exps
-    );
+         );
   }
 
   @Override
   public AllExp retryEach(final Predicate<? super Throwable> predicate,
                           final RetryPolicy policy
-  ) {
+                         ) {
     requireNonNull(predicate);
     requireNonNull(policy);
 
     return new AllExpSeq(exps.stream()
                              .map(it -> it.retry(predicate,
                                                  policy
-                             ))
+                                                ))
                              .toList(),
                          jfrPublisher
     );
@@ -65,7 +65,7 @@ final class AllExpSeq extends AllExp {
     Objects.requireNonNull(builder);
     return new AllExpSeq(DebuggerHelper.debugConditions(exps,
                                                         builder
-    ),
+                                                       ),
                          getJFRPublisher(builder)
     );
   }
@@ -75,7 +75,7 @@ final class AllExpSeq extends AllExp {
     return debugEach(EventBuilder.of(this.getClass()
                                          .getSimpleName(),
                                      context
-    ));
+                                    ));
 
   }
 }

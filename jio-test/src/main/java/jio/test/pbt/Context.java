@@ -1,8 +1,11 @@
 package jio.test.pbt;
 
-import jsonvalues.*;
-
 import java.time.Instant;
+import jsonvalues.JsInstant;
+import jsonvalues.JsInt;
+import jsonvalues.JsLong;
+import jsonvalues.JsObj;
+import jsonvalues.JsStr;
 
 /**
  * Represents information related to a specific test execution.
@@ -48,6 +51,6 @@ record Context(Instant start,
                     JsStr.of(input.toString()),
                     "tags",
                     JsStr.of(tags)
-    );
+                   );
   }
 }

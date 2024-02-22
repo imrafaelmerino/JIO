@@ -14,15 +14,15 @@ public class JsArrayExpTest {
   public void test_parallel_constructors() {
     Assertions.assertEquals(new Success<>(JsArray.of(JsStr.of("a"),
                                                      JsStr.of("b")
-    )),
+                                                    )),
                             JsArrayExp.par(IO.succeed("a")
                                              .map(JsStr::of),
                                            IO.succeed("b")
                                              .map(JsStr::of)
-                            )
+                                          )
                                       .debugEach("array")
                                       .call()
-    );
+                           );
   }
 
 }

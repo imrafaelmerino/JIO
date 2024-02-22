@@ -1,8 +1,8 @@
 package jio.test.stub.httpserver;
 
-import com.sun.net.httpserver.HttpHandler;
-
 import static java.util.Objects.requireNonNull;
+
+import com.sun.net.httpserver.HttpHandler;
 
 /**
  * Stub that stands in for the {@link HttpHandler} of a POST HTTP request.
@@ -12,12 +12,12 @@ public final class PostStub extends ReqHandlerStub {
   private PostStub(final BodyStub body,
                    final StatusCodeStub statusCode,
                    final HeadersStub headers
-  ) {
+                  ) {
     super(requireNonNull(body),
           requireNonNull(statusCode),
           requireNonNull(headers),
           "POST"
-    );
+         );
   }
 
   /**
@@ -31,7 +31,7 @@ public final class PostStub extends ReqHandlerStub {
   public static PostStub of(final BodyStub body,
                             final StatusCodeStub statusCode,
                             final HeadersStub headers
-  ) {
+                           ) {
     return new PostStub(body,
                         statusCode,
                         headers);
@@ -46,7 +46,7 @@ public final class PostStub extends ReqHandlerStub {
    */
   public static PostStub of(final BodyStub body,
                             final StatusCodeStub statusCode
-  ) {
+                           ) {
     return new PostStub(body,
                         statusCode,
                         HeadersStub.EMPTY);

@@ -9,8 +9,9 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
-import jio.IO;
 import jio.Lambda;
+import jio.Result.Failure;
+import jio.Result.Success;
 import jio.test.pbt.Command;
 import jio.test.pbt.Property;
 import jio.test.pbt.PropertyBuilder;
@@ -28,7 +29,7 @@ public class TestProperties {
   static Property<Pair<Integer, Integer>> mediumProperty = PropertyBuilder.of("medium",
                                                                               PairGen.of(IntGen.biased(0),
                                                                                          IntGen.biased(0)
-                                                                              )
+                                                                                        )
                                                                                      .suchThat(pair -> pair.first()
                                                                                                        <= pair.second()),
                                                                               pair -> {
@@ -44,28 +45,28 @@ public class TestProperties {
                                                                                 }
                                                                                 return TestResult.SUCCESS;
                                                                               }
-  )
+                                                                             )
                                                                           .withClassifiers(Map.of("both",
                                                                                                   p -> p.first()
                                                                                                        >
                                                                                                        Integer.MAX_VALUE
-                                                                                                         / 2
+                                                                                                       / 2
                                                                                                        && p.second()
                                                                                                           >
                                                                                                           Integer.MAX_VALUE
-                                                                                                            / 2,
+                                                                                                          / 2,
                                                                                                   "none",
                                                                                                   p -> p.first()
                                                                                                        <
                                                                                                        Integer.MAX_VALUE
-                                                                                                         / 2
+                                                                                                       / 2
                                                                                                        && p.second()
                                                                                                           <
                                                                                                           Integer.MAX_VALUE
-                                                                                                            / 2
-                                                                          ),
+                                                                                                          / 2
+                                                                                                 ),
                                                                                            "one"
-                                                                          )
+                                                                                          )
 
                                                                           .get();
 
@@ -80,12 +81,13 @@ public class TestProperties {
     Gen<Duration> delayGen = Gen.cons(1)
                                 .map(Duration::ofSeconds);
 
-    Lambda<Void, Integer> unused = $ -> StubBuilder.ofGen(Gen.seq(n -> n <= 4 ? IO.fail(new RuntimeException(n + ""))
-        : IO.succeed(n)
-    )
-    )
-                                                   .withDelays(delayGen)
-                                                   .get();
+    Lambda<Void, Integer> unused = _ ->
+        StubBuilder.ofGen(Gen.seq(n -> n <= 4 ? new Failure<>(new RuntimeException(STR."\{n}"))
+                                              : new Success<>(n)
+                                 )
+                         )
+                   .withDelays(delayGen)
+                   .get();
 
     mediumProperty.check()
                   .assertAllSuccess();

@@ -1,7 +1,6 @@
 package jio.test.stub.httpserver;
 
 import fun.gen.Gen;
-
 import java.util.Objects;
 import java.util.function.Supplier;
 

@@ -54,29 +54,10 @@
     <LOGBACK-CLASSIC.VERSION>1.4.12</LOGBACK-CLASSIC.VERSION>
     <FLYWAY-CORE.VERSION>7.7.3</FLYWAY-CORE.VERSION>
     <MONGODB-DRIVER-SYNC.VERSION>4.11.0</MONGODB-DRIVER-SYNC.VERSION>
-    <FORMATTER-MAVEN-PLUGIN.VERSION>2.23.0</FORMATTER-MAVEN-PLUGIN.VERSION>
-
   </properties>
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>net.revelc.code.formatter</groupId>
-        <artifactId>formatter-maven-plugin</artifactId>
-        <version>${FORMATTER-MAVEN-PLUGIN.VERSION}</version>
-        <configuration>
-          <configFile>../MyGoogleStyle.xml</configFile>
-        </configuration>
-        <executions>
-          <execution>
-            <id>format</id>
-            <goals>
-              <goal>format</goal>
-            </goals>
-            <phase>process-sources</phase>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -245,12 +226,7 @@
       <version>${JIO-MONGODB-VERSION}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.github.imrafaelmerino</groupId>
-      <artifactId>java-fun</artifactId>
-      <version>2.1.0</version>
-      <scope>compile</scope>
-    </dependency>
+
 
   </dependencies>
   <profiles>

@@ -14,6 +14,8 @@ import jio.JsArrayExp;
 import jio.JsObjExp;
 import jio.ListExp;
 import jio.PairExp;
+import jio.Result;
+import jio.Result.Failure;
 import jio.Result.Success;
 import jio.RetryPolicies;
 import jio.SwitchExp;
@@ -28,7 +30,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TestDebuggerExp {
+public class DebuggerExpTests {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
@@ -38,95 +40,99 @@ public class TestDebuggerExp {
 
     Assertions.assertTrue(AllExp.seq(IO.TRUE,
                                      IO.TRUE
-    )
+                                    )
                                 .debugEach("test")
                                 .call()
                                 .call()
-    );
+                         );
     Assertions.assertFalse(AllExp.seq(IO.FALSE,
                                       IO.TRUE
-    )
+                                     )
                                  .debugEach("test1")
                                  .call()
                                  .call()
-    );
+                          );
     Assertions.assertFalse(AllExp.par(IO.FALSE,
                                       IO.TRUE
-    )
+                                     )
                                  .debugEach("test2")
                                  .call()
                                  .call()
-    );
+                          );
     Assertions.assertFalse(AllExp.par(IO.FALSE,
                                       IO.TRUE
-    )
+                                     )
                                  .debugEach("test3")
                                  .call()
                                  .call()
-    );
+                          );
 
   }
 
   @Test
   public void testAllExpSeqRetries() throws Exception {
 
-    StubBuilder<Boolean> trueAfterFailure = StubBuilder.ofGen(Gen.seq(n -> n <= 1
-        ? IO.fail(new RuntimeException(Integer.toString(n)))
-        : IO.TRUE));
+    StubBuilder<Boolean> trueAfterFailure =
+        StubBuilder.ofGen(Gen.seq(n -> n <= 1
+                                       ? new Failure<>(new RuntimeException(Integer.toString(n)))
+                                       : Result.TRUE));
 
     Assertions.assertTrue(AllExp.seq(trueAfterFailure.get(),
                                      trueAfterFailure.get()
-    )
+                                    )
                                 .debugEach("test")
                                 .retryEach(RetryPolicies.limitRetries(1))
                                 .call()
                                 .call()
-    );
+                         );
 
-    StubBuilder<Boolean> falseAfterFailure = StubBuilder.ofGen(Gen.seq(n -> n <= 1
-        ? IO.fail(new RuntimeException(Integer.toString(n)))
-        : IO.FALSE));
+    StubBuilder<Boolean> falseAfterFailure =
+        StubBuilder.ofGen(Gen.seq(n -> n <= 1
+                                       ? new Failure<>(new RuntimeException(Integer.toString(n)))
+                                       : Result.FALSE));
 
     // second effect is not evaluated since the first one is false
     Assertions.assertFalse(AllExp.seq(falseAfterFailure.get(),
                                       falseAfterFailure.get()
-    )
+                                     )
                                  .debugEach("test1")
                                  .retryEach(RetryPolicies.limitRetries(1))
                                  .call()
                                  .call()
-    );
+                          );
 
   }
 
   @Test
   public void testAllExpParRetries() throws Exception {
-    StubBuilder<Boolean> trueAfterFailure = StubBuilder.ofGen(Gen.seq(n -> n <= 1
-        ? IO.fail(new RuntimeException(Integer.toString(n)))
-        : IO.TRUE));
+    StubBuilder<Boolean> trueAfterFailure =
+        StubBuilder.ofGen(Gen.seq(n -> n <= 1
+                                       ? new Failure<>(new RuntimeException(Integer.toString(n)))
+                                       : Result.TRUE));
 
     Assertions.assertTrue(AllExp.par(trueAfterFailure.get(),
                                      trueAfterFailure.get()
-    )
+                                    )
                                 .debugEach("test")
                                 .retryEach(RetryPolicies.limitRetries(1))
                                 .call()
                                 .call()
-    );
+                         );
 
-    StubBuilder<Boolean> falseAfterFailure = StubBuilder.ofGen(Gen.seq(n -> n <= 1
-        ? IO.fail(new RuntimeException(Integer.toString(n)))
-        : IO.FALSE));
+    StubBuilder<Boolean> falseAfterFailure =
+        StubBuilder.ofGen(Gen.seq(n -> n <= 1
+                                       ? new Failure<>(new RuntimeException(Integer.toString(n)))
+                                       : Result.FALSE));
 
     // all effects are evaluated even the first one is false,not like with the seq constructor
     Assertions.assertFalse(AllExp.par(falseAfterFailure.get(),
                                       falseAfterFailure.get()
-    )
+                                     )
                                  .debugEach("test1")
                                  .retryEach(RetryPolicies.limitRetries(1))
                                  .call()
                                  .call()
-    );
+                          );
   }
 
   @Test
@@ -165,11 +171,11 @@ public class TestDebuggerExp {
                                         IO.TRUE,
                                         () -> IO.succeed("b"),
                                         () -> IO.succeed("default")
-                            )
+                                       )
                                    .debugEach("test")
                                    .call()
                                    .call()
-    );
+                           );
 
     Assertions.assertEquals("b",
                             CondExp.par(IO.FALSE,
@@ -177,11 +183,11 @@ public class TestDebuggerExp {
                                         IO.TRUE,
                                         () -> IO.succeed("b"),
                                         () -> IO.succeed("default")
-                            )
+                                       )
                                    .debugEach("test")
                                    .call()
                                    .call()
-    );
+                           );
 
     Assertions.assertEquals("a",
                             CondExp.seq(IO.TRUE,
@@ -189,11 +195,11 @@ public class TestDebuggerExp {
                                         IO.TRUE,
                                         () -> IO.succeed("b"),
                                         () -> IO.succeed("default")
-                            )
+                                       )
                                    .debugEach("test1")
                                    .call()
                                    .call()
-    );
+                           );
 
     Assertions.assertEquals("a",
                             CondExp.par(IO.TRUE,
@@ -201,11 +207,11 @@ public class TestDebuggerExp {
                                         IO.TRUE,
                                         () -> IO.succeed("b"),
                                         () -> IO.succeed("default")
-                            )
+                                       )
                                    .debugEach("test2")
                                    .call()
                                    .call()
-    );
+                           );
 
   }
 
@@ -218,7 +224,7 @@ public class TestDebuggerExp {
                                      .debugEach("test1")
                                      .call()
                                      .call()
-    );
+                           );
     Assertions.assertEquals("b",
                             IfElseExp.predicate(IO.TRUE)
                                      .consequence(() -> IO.succeed("b"))
@@ -226,7 +232,7 @@ public class TestDebuggerExp {
                                      .debugEach("test2")
                                      .call()
                                      .call()
-    );
+                           );
 
   }
 
@@ -239,11 +245,11 @@ public class TestDebuggerExp {
                                              .map(JsStr::of),
                                            IO.succeed("b")
                                              .map(JsStr::of)
-                            )
+                                          )
                                       .debugEach("test")
                                       .call()
                                       .call()
-    );
+                           );
 
     Assertions.assertEquals(JsArray.of("a",
                                        "b"),
@@ -251,11 +257,11 @@ public class TestDebuggerExp {
                                              .map(JsStr::of),
                                            IO.succeed("b")
                                              .map(JsStr::of)
-                            )
+                                          )
                                       .debugEach("test")
                                       .call()
                                       .call()
-    );
+                           );
   }
 
   @Test
@@ -266,11 +272,11 @@ public class TestDebuggerExp {
                                               JsInt.of(1),
                                               "b",
                                               JsInt.of(2)
-                                     ),
+                                             ),
                                      "b",
                                      JsArray.of("a",
                                                 "b")
-    ),
+                                    ),
                             JsObjExp.seq("a",
                                          JsObjExp.seq("a",
                                                       IO.succeed(1)
@@ -278,30 +284,30 @@ public class TestDebuggerExp {
                                                       "b",
                                                       IO.succeed(2)
                                                         .map(JsInt::of)
-                                         ),
+                                                     ),
                                          "b",
                                          JsArrayExp.seq(IO.succeed("a")
                                                           .map(JsStr::of),
                                                         IO.succeed("b")
                                                           .map(JsStr::of)
-                                         )
+                                                       )
 
-                            )
+                                        )
                                     .debugEach("test")
                                     .call()
                                     .call()
-    );
+                           );
 
     Assertions.assertEquals(JsObj.of("a",
                                      JsObj.of("a",
                                               JsInt.of(1),
                                               "b",
                                               JsInt.of(2)
-                                     ),
+                                             ),
                                      "b",
                                      JsArray.of("a",
                                                 "b")
-    ),
+                                    ),
                             JsObjExp.par("a",
                                          JsObjExp.par("a",
                                                       IO.succeed(1)
@@ -309,19 +315,19 @@ public class TestDebuggerExp {
                                                       "b",
                                                       IO.succeed(2)
                                                         .map(JsInt::of)
-                                         ),
+                                                     ),
                                          "b",
                                          JsArrayExp.par(IO.succeed("a")
                                                           .map(JsStr::of),
                                                         IO.succeed("b")
                                                           .map(JsStr::of)
-                                         )
+                                                       )
 
-                            )
+                                        )
                                     .debugEach("test")
                                     .call()
                                     .call()
-    );
+                           );
 
   }
 
@@ -334,11 +340,11 @@ public class TestDebuggerExp {
                             ListExp.seq(IO.succeed(1),
                                         IO.succeed(2),
                                         IO.succeed(3)
-                            )
+                                       )
                                    .debugEach("test")
                                    .call()
                                    .call()
-    );
+                           );
 
     Assertions.assertEquals(List.of(1,
                                     2,
@@ -346,11 +352,11 @@ public class TestDebuggerExp {
                             ListExp.par(IO.succeed(1),
                                         IO.succeed(2),
                                         IO.succeed(3)
-                            )
+                                       )
                                    .debugEach("test1")
                                    .call()
                                    .call()
-    );
+                           );
 
   }
 
@@ -361,21 +367,21 @@ public class TestDebuggerExp {
                                     2),
                             PairExp.seq(IO.succeed(1),
                                         IO.succeed(2)
-                            )
+                                       )
                                    .debugEach("test1")
                                    .call()
                                    .call()
-    );
+                           );
 
     Assertions.assertEquals(Pair.of(1,
                                     2),
                             PairExp.par(IO.succeed(1),
                                         IO.succeed(2)
-                            )
+                                       )
                                    .debugEach("test2")
                                    .call()
                                    .call()
-    );
+                           );
 
   }
 
@@ -387,11 +393,11 @@ public class TestDebuggerExp {
                             TripleExp.seq(IO.succeed(1),
                                           IO.succeed(2),
                                           IO.succeed(3)
-                            )
+                                         )
                                      .debugEach("context")
                                      .call()
                                      .call()
-    );
+                           );
 
     Assertions.assertEquals(Triple.of(1,
                                       2,
@@ -399,11 +405,11 @@ public class TestDebuggerExp {
                             TripleExp.par(IO.succeed(1),
                                           IO.succeed(2),
                                           IO.succeed(3)
-                            )
+                                         )
                                      .debugEach("test2")
                                      .call()
                                      .call()
-    );
+                           );
 
   }
 
@@ -417,10 +423,10 @@ public class TestDebuggerExp {
                                             new Success<>(2),
                                             _ -> IO.succeed("two"),
                                             _ -> IO.succeed("default")
-                                     )
+                                           )
                                      .debugEach("testSwitchExp")
                                      .result()
-    );
+                           );
 
   }
 

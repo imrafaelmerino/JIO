@@ -67,7 +67,7 @@ sealed abstract class Exp<Output> extends IO<Output>
    */
   abstract Exp<Output> retryEach(final Predicate<? super Throwable> predicate,
                                  final RetryPolicy policy
-  );
+                                );
 
   /**
    * Defines a strategy for retrying each operand of this expression based on the given retry policy.

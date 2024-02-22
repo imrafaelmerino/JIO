@@ -13,14 +13,14 @@ public class PairExpTest {
 
     PairExp<String, String> pair = PairExp.seq(IO.succeed("a"),
                                                IO.succeed("b")
-    );
+                                              );
 
     Assertions.assertEquals(Pair.of("a",
                                     "b"
-    ),
+                                   ),
                             pair.call()
                                 .call()
-    );
+                           );
   }
 
 }

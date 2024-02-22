@@ -1,8 +1,8 @@
 package jio.test.stub.httpserver;
 
-import com.sun.net.httpserver.HttpHandler;
-
 import static java.util.Objects.requireNonNull;
+
+import com.sun.net.httpserver.HttpHandler;
 
 /**
  * Stub that stands in for the {@link HttpHandler} of an OPTIONS HTTP request.
@@ -12,12 +12,12 @@ public final class OptionsStub extends ReqHandlerStub {
   private OptionsStub(final BodyStub body,
                       final StatusCodeStub statusCode,
                       final HeadersStub headers
-  ) {
+                     ) {
     super(requireNonNull(body),
           requireNonNull(statusCode),
           requireNonNull(headers),
           "options"
-    );
+         );
   }
 
   /**
@@ -31,7 +31,7 @@ public final class OptionsStub extends ReqHandlerStub {
   public static OptionsStub of(final BodyStub body,
                                final StatusCodeStub statusCode,
                                final HeadersStub headers
-  ) {
+                              ) {
     return new OptionsStub(body,
                            statusCode,
                            headers);
@@ -46,7 +46,7 @@ public final class OptionsStub extends ReqHandlerStub {
    */
   public static OptionsStub of(final BodyStub body,
                                final StatusCodeStub statusCode
-  ) {
+                              ) {
     return new OptionsStub(body,
                            statusCode,
                            HeadersStub.EMPTY);

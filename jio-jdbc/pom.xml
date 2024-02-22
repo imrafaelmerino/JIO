@@ -43,7 +43,6 @@
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
     <JSON-VALUES.VERSION>13.4.0</JSON-VALUES.VERSION>
     <JUNIT-JUPITER-ENGINE.VERSION>5.1.1</JUNIT-JUPITER-ENGINE.VERSION>
-    <FORMATTER-MAVEN-PLUGIN.VERSION>2.23.0</FORMATTER-MAVEN-PLUGIN.VERSION>
     <POSTGRESQL.VERSION>42.7.1</POSTGRESQL.VERSION>
     <JIO-EXP-VERSION>3.0.0</JIO-EXP-VERSION>
   </properties>
@@ -51,23 +50,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>net.revelc.code.formatter</groupId>
-        <artifactId>formatter-maven-plugin</artifactId>
-        <version>${FORMATTER-MAVEN-PLUGIN.VERSION}</version>
-        <configuration>
-          <configFile>../MyGoogleStyle.xml</configFile>
-        </configuration>
-        <executions>
-          <execution>
-            <id>format</id>
-            <goals>
-              <goal>format</goal>
-            </goals>
-            <phase>process-sources</phase>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

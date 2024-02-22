@@ -26,7 +26,7 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
 
   AnyExp(Function<EvalExpEvent, BiConsumer<Boolean, Throwable>> debugger,
          List<IO<Boolean>> exps
-  ) {
+        ) {
     super(debugger);
     this.exps = exps;
   }
@@ -175,7 +175,7 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
   @SafeVarargs
   public static AnyExp par(final IO<Boolean> bool,
                            final IO<Boolean>... others
-  ) {
+                          ) {
     var exps = new ArrayList<IO<Boolean>>();
     exps.add(requireNonNull(bool));
     for (IO<Boolean> other : requireNonNull(others)) {
@@ -199,7 +199,7 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
   @SafeVarargs
   public static AnyExp seq(final IO<Boolean> bool,
                            final IO<Boolean>... others
-  ) {
+                          ) {
     var exps = new ArrayList<IO<Boolean>>();
     exps.add(requireNonNull(bool));
     for (IO<Boolean> other : requireNonNull(others)) {
@@ -289,7 +289,7 @@ public abstract sealed class AnyExp extends Exp<Boolean> permits AnyExpPar, AnyE
   @Override
   public abstract AnyExp retryEach(final Predicate<? super Throwable> predicate,
                                    final RetryPolicy policy
-  );
+                                  );
 
   @Override
   public abstract AnyExp debugEach(final EventBuilder<Boolean> messageBuilder);

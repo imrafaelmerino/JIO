@@ -1,6 +1,11 @@
 package jio;
 
-import jdk.jfr.*;
+import jdk.jfr.Category;
+import jdk.jfr.Description;
+import jdk.jfr.Event;
+import jdk.jfr.Label;
+import jdk.jfr.Name;
+import jdk.jfr.StackTrace;
 
 @Label("Expression Evaluation Info")
 @Name("jio.exp.EvalExp")

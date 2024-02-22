@@ -19,11 +19,11 @@ non-sealed class SeqProperty<GenValue> extends Testable {
   }
 
   @Override
-  IO<Report> createTask(JsObj conf) {
+  IO<Report> create(JsObj conf) {
     if (executionTimes < 1) {
       throw new IllegalArgumentException("n < 1");
     }
-    final IO<Report> test = prop.createTask(Objects.requireNonNull(conf));
+    final IO<Report> test = prop.create(Objects.requireNonNull(conf));
     var result = ListExp.seq(test);
     for (int i = 1; i < executionTimes; i++) {
       result = result.append(test);

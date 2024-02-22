@@ -17,11 +17,11 @@ non-sealed class ParProperty<GenValue> extends Testable {
   }
 
   @Override
-  IO<Report> createTask(JsObj conf) {
+  IO<Report> create(JsObj conf) {
     if (executionTimes < 1) {
       throw new IllegalArgumentException("n < 1");
     }
-    IO<Report> test = prop.createTask(conf);
+    IO<Report> test = prop.create(conf);
     var result = ListExp.par(test);
     for (int i = 1; i < executionTimes; i++) {
       result = result.append(test);

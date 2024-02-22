@@ -19,8 +19,8 @@ import java.util.function.Predicate;
  * @param <Third>  the type of the third computation
  */
 public abstract sealed class TripleExp<First, Second, Third> extends Exp<Triple<First, Second, Third>> permits
-    TripleExpPar,
-    TripleExpSeq {
+                                                                                                       TripleExpPar,
+                                                                                                       TripleExpSeq {
 
   final IO<First> _1;
   final IO<Second> _2;
@@ -30,7 +30,7 @@ public abstract sealed class TripleExp<First, Second, Third> extends Exp<Triple<
             final IO<Second> _2,
             final IO<Third> _3,
             final Function<EvalExpEvent, BiConsumer<Triple<First, Second, Third>, Throwable>> debugger
-  ) {
+           ) {
     super(debugger);
     this._1 = _1;
     this._2 = _2;
@@ -52,7 +52,7 @@ public abstract sealed class TripleExp<First, Second, Third> extends Exp<Triple<
   public static <A, B, C> TripleExp<A, B, C> seq(final IO<A> first,
                                                  final IO<B> second,
                                                  final IO<C> third
-  ) {
+                                                ) {
     return new TripleExpSeq<>(requireNonNull(first),
                               requireNonNull(second),
                               requireNonNull(third),
@@ -75,7 +75,7 @@ public abstract sealed class TripleExp<First, Second, Third> extends Exp<Triple<
   public static <A, B, C> TripleExp<A, B, C> par(final IO<A> first,
                                                  final IO<B> second,
                                                  final IO<C> third
-  ) {
+                                                ) {
     return new TripleExpPar<>(requireNonNull(first),
                               requireNonNull(second),
                               requireNonNull(third),
@@ -113,18 +113,18 @@ public abstract sealed class TripleExp<First, Second, Third> extends Exp<Triple<
   @Override
   public abstract TripleExp<First, Second, Third> retryEach(final Predicate<? super Throwable> predicate,
                                                             final RetryPolicy policy
-  );
+                                                           );
 
   @Override
   public TripleExp<First, Second, Third> retryEach(final RetryPolicy policy) {
     return retryEach(e -> true,
                      policy
-    );
+                    );
   }
 
   @Override
   public abstract TripleExp<First, Second, Third> debugEach(final EventBuilder<Triple<First, Second, Third>> messageBuilder
-  );
+                                                           );
 
   @Override
   public abstract TripleExp<First, Second, Third> debugEach(final String context);

@@ -56,8 +56,8 @@ public class SignupTests {
 
     final Lambda<JsObj, Void> persistLDAP = a -> IO.NULL();
     final Lambda<String, JsArray> normalizeAddresses = a -> IO.succeed(
-                                                                       JsArray.of("address1",
-                                                                                  "address2"));
+        JsArray.of("address1",
+                   "address2"));
     final Lambda<Void, Integer> countUsers = a -> IO.succeed(3);
     final Lambda<JsObj, String> persistMongo = a -> IO.succeed("id");
     final Lambda<JsObj, Void> sendEmail = a -> IO.NULL();
@@ -67,7 +67,7 @@ public class SignupTests {
                           JsStr.of("imrafaelmerino@gmail.com"),
                           "address",
                           JsStr.of("Elm's Street")
-    );
+                         );
 
     var resp = new SignupService(persistLDAP,
                                  normalizeAddresses,
@@ -75,8 +75,7 @@ public class SignupTests {
                                  persistMongo,
                                  sendEmail,
                                  existsInLDAP,
-                                 Clock.realTime)
-                                                .apply(user)
+                                 Clock.realTime).apply(user)
                                                 .result()
                                                 .call();
 

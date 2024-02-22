@@ -20,7 +20,7 @@ public class IfElseExpTest {
     Assertions.assertEquals(new Success<>(1),
                             a.debugEach("ifelse")
                              .call()
-    );
+                           );
 
     Assertions.assertEquals(new Success<>(1),
                             a.call());

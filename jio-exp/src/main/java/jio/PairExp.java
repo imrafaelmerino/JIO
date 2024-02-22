@@ -1,12 +1,11 @@
 package jio;
 
-import fun.tuple.Pair;
+import static java.util.Objects.requireNonNull;
 
+import fun.tuple.Pair;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents an expression that is reduced to a pair. Their elements can be evaluated either in parallel or
@@ -43,7 +42,7 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
    */
   public static <A, B> PairExp<A, B> seq(final IO<A> first,
                                          final IO<B> second
-  ) {
+                                        ) {
     return new PairExpSeq<>(requireNonNull(first),
                             requireNonNull(second),
                             null
@@ -62,7 +61,7 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
    */
   public static <A, B> PairExp<A, B> par(final IO<A> first,
                                          final IO<B> second
-  ) {
+                                        ) {
     return new PairExpPar<>(requireNonNull(first),
                             requireNonNull(second),
                             null
@@ -90,7 +89,7 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
   @Override
   public abstract PairExp<First, Second> retryEach(final Predicate<? super Throwable> predicate,
                                                    final RetryPolicy policy
-  );
+                                                  );
 
   @Override
   public PairExp<First, Second> retryEach(final RetryPolicy policy) {
@@ -100,7 +99,7 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
 
   @Override
   public abstract PairExp<First, Second> debugEach(final EventBuilder<Pair<First, Second>> messageBuilder
-  );
+                                                  );
 
   @Override
   public abstract PairExp<First, Second> debugEach(final String context);

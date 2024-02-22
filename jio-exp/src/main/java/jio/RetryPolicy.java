@@ -37,15 +37,15 @@ public interface RetryPolicy extends Function<RetryStatus, Duration> {
   default RetryPolicy append(final RetryPolicy other) {
     Objects.requireNonNull(other);
     return retryStatus -> {
-      Duration aDelay = RetryPolicy.this.apply(retryStatus);
-      if (aDelay == null) {
+      Duration thisDelay = RetryPolicy.this.apply(retryStatus);
+      if (thisDelay == null) {
         return null;
       }
-      Duration bDelay = other.apply(retryStatus);
-      if (bDelay == null) {
+      Duration otherDelay = other.apply(retryStatus);
+      if (otherDelay == null) {
         return null;
       }
-      return aDelay.compareTo(bDelay) >= 0 ? aDelay : bDelay;
+      return thisDelay.compareTo(otherDelay) >= 0 ? thisDelay : otherDelay;
     };
   }
 
@@ -112,7 +112,8 @@ public interface RetryPolicy extends Function<RetryStatus, Duration> {
   default RetryPolicy limitRetriesByCumulativeDelay(final Duration max) {
     Objects.requireNonNull(max);
     return rs -> rs.cumulativeDelay()
-                   .compareTo(max) <= 0 ? this.apply(rs) : null;
+                   .compareTo(max) <= 0 ?
+                 this.apply(rs) : null;
   }
 
   /**

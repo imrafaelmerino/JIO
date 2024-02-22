@@ -35,8 +35,8 @@ public class ConstructorsTest {
     IO<Instant> now = IO.lazy(Instant::now);
 
     Assertions.assertTrue(
-                          before.isBefore(now.result()
-                                             .call()));
+        before.isBefore(now.result()
+                           .call()));
 
   }
 
@@ -69,68 +69,68 @@ public class ConstructorsTest {
                                      .alternative(() -> IO.succeed("alternative"))
                                      .debugEach("my-op")
                                      .result()
-    );
+                           );
   }
 
   @Test
   public void testJsObj() {
     Assertions.assertEquals(
-                            new Success<>(JsObj.of("a",
-                                                   JsInt.of(1),
-                                                   "b",
-                                                   JsInt.of(2),
-                                                   "c",
-                                                   JsInt.of(3),
-                                                   "d",
-                                                   JsObj.of("e",
-                                                            JsInt.of(4),
-                                                            "f",
-                                                            JsInt.of(5),
-                                                            "g",
-                                                            JsArray.of(true,
-                                                                       false)
-                                                   )
-                            )),
-                            JsObjExp.par("a",
-                                         IO.succeed(1)
-                                           .map(JsInt::of),
-                                         "b",
-                                         IO.succeed(2)
-                                           .map(JsInt::of),
-                                         "c",
-                                         IO.succeed(3)
-                                           .map(JsInt::of),
-                                         "d",
-                                         JsObjExp.seq("e",
-                                                      IO.succeed(4)
-                                                        .map(JsInt::of),
-                                                      "f",
-                                                      IO.succeed(5)
-                                                        .map(JsInt::of),
-                                                      "g",
-                                                      JsArrayExp.seq(IO.TRUE.map(JsBool::of),
-                                                                     IO.FALSE.map(JsBool::of)
-                                                      )
-                                         )
-                            )
-                                    .debugEach("my-op")
-                                    .result()
+        new Success<>(JsObj.of("a",
+                               JsInt.of(1),
+                               "b",
+                               JsInt.of(2),
+                               "c",
+                               JsInt.of(3),
+                               "d",
+                               JsObj.of("e",
+                                        JsInt.of(4),
+                                        "f",
+                                        JsInt.of(5),
+                                        "g",
+                                        JsArray.of(true,
+                                                   false)
+                                       )
+                              )),
+        JsObjExp.par("a",
+                     IO.succeed(1)
+                       .map(JsInt::of),
+                     "b",
+                     IO.succeed(2)
+                       .map(JsInt::of),
+                     "c",
+                     IO.succeed(3)
+                       .map(JsInt::of),
+                     "d",
+                     JsObjExp.seq("e",
+                                  IO.succeed(4)
+                                    .map(JsInt::of),
+                                  "f",
+                                  IO.succeed(5)
+                                    .map(JsInt::of),
+                                  "g",
+                                  JsArrayExp.seq(IO.TRUE.map(JsBool::of),
+                                                 IO.FALSE.map(JsBool::of)
+                                                )
+                                 )
+                    )
+                .debugEach("my-op")
+                .result()
 
-    );
+                           );
   }
 
   @Test
   public void testResource() {
 
     Result<String> a = IO.resource(() -> {
-      File file = File.createTempFile("example",
-                                      "text");
-      Files.writeString(file.toPath(),
-                        "hi");
-      return new BufferedReader(
-                                new FileReader(file,
-                                               StandardCharsets.UTF_8));
-    },
+                                     File file = File.createTempFile("example",
+                                                                     "text");
+                                     Files.writeString(file.toPath(),
+                                                       "hi");
+                                     return new BufferedReader(
+                                         new FileReader(file,
+                                                        StandardCharsets.UTF_8));
+                                   },
                                    it -> IO.succeed(it.lines()
                                                       .collect(Collectors.joining())))
                          .result();
@@ -144,8 +144,8 @@ public class ConstructorsTest {
 
     try {
       IO.task(() -> {
-        throw new IllegalArgumentException("hi");
-      })
+          throw new IllegalArgumentException("hi");
+        })
         .debug()
         .result()
         .call();
@@ -156,9 +156,9 @@ public class ConstructorsTest {
 
     try {
       IO.task(() -> {
-        throw new IllegalArgumentException("hi");
-      }
-      )
+                throw new IllegalArgumentException("hi");
+              }
+             )
         .debug()
         .result()
         .call();

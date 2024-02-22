@@ -6,7 +6,7 @@ import jio.time.Clock;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestClock {
+public class ClockTests {
 
   @Test
   public void testMock() throws InterruptedException {
@@ -18,7 +18,7 @@ public class TestClock {
     long epochMilli = base.toEpochMilli();
     Assertions.assertEquals(tick,
                             epochMilli
-    );
+                           );
 
     System.out.println(base);
 

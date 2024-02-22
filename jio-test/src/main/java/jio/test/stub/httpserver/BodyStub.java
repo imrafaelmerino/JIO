@@ -1,7 +1,6 @@
 package jio.test.stub.httpserver;
 
 import fun.gen.Gen;
-
 import java.time.Duration;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -46,7 +45,7 @@ public non-sealed interface BodyStub extends HttpRespStub<String> {
    */
   static BodyStub consAfter(final String body,
                             final Duration delay
-  ) {
+                           ) {
     Objects.requireNonNull(body);
     Objects.requireNonNull(delay);
     return n -> reqBody -> uri -> headers -> {

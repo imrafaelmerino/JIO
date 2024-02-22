@@ -1,9 +1,9 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a function that takes two inputs of types 'A' and 'B' and produces an 'IO' effect with a result of type

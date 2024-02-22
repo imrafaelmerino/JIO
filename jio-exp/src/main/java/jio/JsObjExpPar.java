@@ -27,7 +27,7 @@ final class JsObjExpPar extends JsObjExp {
 
   public JsObjExpPar(Map<String, IO<? extends JsValue>> bindings,
                      Function<EvalExpEvent, BiConsumer<JsObj, Throwable>> debugger
-  ) {
+                    ) {
     super(bindings,
           debugger);
   }
@@ -47,11 +47,11 @@ final class JsObjExpPar extends JsObjExp {
   @Override
   public JsObjExpPar set(final String key,
                          final IO<? extends JsValue> exp
-  ) {
+                        ) {
     var xs = new HashMap<>(bindings);
     xs.put(requireNonNull(key),
            requireNonNull(exp)
-    );
+          );
     return new JsObjExpPar(xs,
                            jfrPublisher);
   }
@@ -72,7 +72,7 @@ final class JsObjExpPar extends JsObjExp {
       Map<String, Subtask<Result<? extends JsValue>>> tasks = keys.stream()
                                                                   .collect(Collectors.toMap(it -> it,
                                                                                             it -> scope.fork(bindings.get(it))
-                                                                  ));
+                                                                                           ));
 
       try {
         scope.join()
@@ -96,7 +96,7 @@ final class JsObjExpPar extends JsObjExp {
   @Override
   public JsObjExp retryEach(final Predicate<? super Throwable> predicate,
                             final RetryPolicy policy
-  ) {
+                           ) {
     Objects.requireNonNull(predicate);
     Objects.requireNonNull(policy);
 
@@ -106,20 +106,20 @@ final class JsObjExpPar extends JsObjExp {
                                                              e -> e.getValue()
                                                                    .retry(predicate,
                                                                           policy
-                                                                   )
-                                   )
-                                   ),
+                                                                         )
+                                                            )
+                                           ),
                            jfrPublisher
     );
   }
 
   @Override
   public JsObjExp debugEach(EventBuilder<JsObj> eventBuilder
-  ) {
+                           ) {
     Objects.requireNonNull(eventBuilder);
     return new JsObjExpPar(debugJsObj(bindings,
                                       eventBuilder
-    ),
+                                     ),
                            getJFRPublisher(eventBuilder)
     );
   }

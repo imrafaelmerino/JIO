@@ -15,14 +15,14 @@ public class TripleExpTest {
     TripleExp<String, String, String> triple = TripleExp.seq(IO.succeed("a"),
                                                              IO.succeed("b"),
                                                              IO.succeed("c")
-    );
+                                                            );
 
     Assertions.assertEquals(
-                            new Success<>(Triple.of("a",
-                                                    "b",
-                                                    "c"
-                            )),
-                            triple.call());
+        new Success<>(Triple.of("a",
+                                "b",
+                                "c"
+                               )),
+        triple.call());
   }
 
   @Test
@@ -31,15 +31,15 @@ public class TripleExpTest {
     TripleExp<String, String, String> triple = TripleExp.par(IO.succeed("a"),
                                                              IO.succeed("b"),
                                                              IO.succeed("c")
-    );
+                                                            );
 
     Assertions.assertEquals(
-                            new Success<>(Triple.of("a",
-                                                    "b",
-                                                    "c"
-                            )),
-                            triple.call()
-    );
+        new Success<>(Triple.of("a",
+                                "b",
+                                "c"
+                               )),
+        triple.call()
+                           );
   }
 
 }
