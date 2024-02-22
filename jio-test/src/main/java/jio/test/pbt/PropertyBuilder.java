@@ -1,11 +1,8 @@
 package jio.test.pbt;
 
-import fun.gen.Gen;
-import jio.BiLambda;
-import jio.IO;
-import jio.Lambda;
-import jsonvalues.JsObj;
+import static java.util.Objects.requireNonNull;
 
+import fun.gen.Gen;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -14,8 +11,10 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
+import jio.BiLambda;
+import jio.IO;
+import jio.Lambda;
+import jsonvalues.JsObj;
 
 /**
  * Represents a builder of Properties. A property of a piece of code or program should always be held and never fails.
@@ -75,7 +74,7 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
   public static <O> PropertyBuilder<O> ofLambda(final String name,
                                                 final Gen<O> gen,
                                                 final BiLambda<JsObj, O, TestResult> property
-  ) {
+                                               ) {
     return new PropertyBuilder<>(name,
                                  gen,
                                  property);
@@ -99,7 +98,7 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
   public static <O> PropertyBuilder<O> ofLambda(String name,
                                                 Gen<O> gen,
                                                 Lambda<O, TestResult> property
-  ) {
+                                               ) {
     BiLambda<JsObj, O, TestResult> bfn = (conf,
                                           o) -> requireNonNull(property).apply(o);
     return new PropertyBuilder<>(name,
@@ -124,7 +123,7 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
   public static <O> PropertyBuilder<O> of(final String name,
                                           final Gen<O> gen,
                                           final BiFunction<JsObj, O, TestResult> property
-  ) {
+                                         ) {
     if (name == null || name.isBlank() || name.isEmpty()) {
       throw new IllegalArgumentException("property name missing");
     }
@@ -153,7 +152,7 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
   public static <O> PropertyBuilder<O> of(final String name,
                                           final Gen<O> gen,
                                           final Function<O, TestResult> property
-  ) {
+                                         ) {
     if (name == null || name.isBlank() || name.isEmpty()) {
       throw new IllegalArgumentException("property name missing");
     }
@@ -239,7 +238,7 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
    */
   public PropertyBuilder<GenValue> withClassifiers(final Map<String, Predicate<GenValue>> classifiers,
                                                    final String defaultTag
-  ) {
+                                                  ) {
     if (requireNonNull(classifiers).isEmpty()) {
       throw new IllegalArgumentException("classifiers empty");
     }

@@ -1,11 +1,10 @@
 package jio.api;
 
+import java.time.Duration;
+import java.time.Instant;
 import jio.time.Clock;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
-import java.time.Instant;
 
 public class TestClock {
 
@@ -33,15 +32,15 @@ public class TestClock {
     Assertions.assertEquals(0,
                             Duration.between(Instant.ofEpochMilli(realTime.get()),
                                              Instant.now()
-                            )
+                                            )
                                     .toDays()
-    );
+                           );
     Assertions.assertEquals(0,
                             Duration.between(Instant.ofEpochMilli(realTime.get()),
                                              Instant.now()
-                            )
+                                            )
                                     .toHours()
-    );
+                           );
 
   }
 

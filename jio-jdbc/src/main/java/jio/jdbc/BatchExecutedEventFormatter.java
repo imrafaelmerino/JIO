@@ -1,8 +1,7 @@
 package jio.jdbc;
 
-import jdk.jfr.consumer.RecordedEvent;
-
 import java.util.function.Function;
+import jdk.jfr.consumer.RecordedEvent;
 import jio.time.Fun;
 
 /**
@@ -72,18 +71,18 @@ public final class BatchExecutedEventFormatter implements Function<RecordedEvent
                                      Fun.formatTime(event.getDuration()),
                                      event.getValue(BatchExecutedEvent.ROWS_AFFECTED_FIELD),
                                      event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD)
-    ) : String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
-                      event.getStartTime(),
-                      label,
-                      result,
-                      Fun.formatTime(event.getDuration()),
-                      event.getValue(BatchExecutedEvent.ROWS_AFFECTED_FIELD),
-                      event.getValue(BatchExecutedEvent.EXECUTED_BATCHES_FIELD),
-                      event.getValue(BatchExecutedEvent.BATCH_SIZE_FIELD),
-                      event.getValue(BatchExecutedEvent.STM_SIZE_FIELD),
-                      event.getValue(BatchExecutedEvent.SQL_FIELD),
-                      event.getValue(BatchExecutedEvent.EXCEPTION_FIELD),
-                      event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD)
-    );
+                                    ) : String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
+                                                      event.getStartTime(),
+                                                      label,
+                                                      result,
+                                                      Fun.formatTime(event.getDuration()),
+                                                      event.getValue(BatchExecutedEvent.ROWS_AFFECTED_FIELD),
+                                                      event.getValue(BatchExecutedEvent.EXECUTED_BATCHES_FIELD),
+                                                      event.getValue(BatchExecutedEvent.BATCH_SIZE_FIELD),
+                                                      event.getValue(BatchExecutedEvent.STM_SIZE_FIELD),
+                                                      event.getValue(BatchExecutedEvent.SQL_FIELD),
+                                                      event.getValue(BatchExecutedEvent.EXCEPTION_FIELD),
+                                                      event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD)
+                                                     );
   }
 }

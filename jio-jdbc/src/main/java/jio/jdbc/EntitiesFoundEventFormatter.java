@@ -1,8 +1,7 @@
 package jio.jdbc;
 
-import jdk.jfr.consumer.RecordedEvent;
-
 import java.util.function.Function;
+import jdk.jfr.consumer.RecordedEvent;
 import jio.time.Fun;
 
 /**
@@ -72,15 +71,15 @@ public final class EntitiesFoundEventFormatter implements Function<RecordedEvent
                                      fetchSize,
                                      event.getValue(EntitiesFoundEvent.QUERY_COUNTER_FIELD)
 
-    ) : String.format(FAILURE_FORMAT,
-                      event.getStartTime(),
-                      label,
-                      result,
-                      event.getValue(EntitiesFoundEvent.EXCEPTION_FIELD),
-                      Fun.formatTime(event.getDuration()),
-                      fetchSize,
-                      event.getValue(EntitiesFoundEvent.SQL_FIELD),
-                      event.getValue(EntitiesFoundEvent.QUERY_COUNTER_FIELD)
-    );
+                                    ) : String.format(FAILURE_FORMAT,
+                                                      event.getStartTime(),
+                                                      label,
+                                                      result,
+                                                      event.getValue(EntitiesFoundEvent.EXCEPTION_FIELD),
+                                                      Fun.formatTime(event.getDuration()),
+                                                      fetchSize,
+                                                      event.getValue(EntitiesFoundEvent.SQL_FIELD),
+                                                      event.getValue(EntitiesFoundEvent.QUERY_COUNTER_FIELD)
+                                                     );
   }
 }

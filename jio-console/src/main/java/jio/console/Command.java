@@ -1,13 +1,12 @@
 package jio.console;
 
-import jio.IO;
-import jsonvalues.JsObj;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import jio.IO;
+import jsonvalues.JsObj;
 
 /**
  * Represents a command that is modeled with a function that takes three parameters:
@@ -55,7 +54,7 @@ public abstract class Command implements BiFunction<JsObj, State, Function<Strin
   public Command(final String name,
                  final String description,
                  final Predicate<String[]> isCommand
-  ) {
+                ) {
     this.description = Objects.requireNonNull(description);
     this.name = Objects.requireNonNull(name);
     this.isCommand = Objects.requireNonNull(isCommand);
@@ -70,11 +69,11 @@ public abstract class Command implements BiFunction<JsObj, State, Function<Strin
    */
   public Command(final String name,
                  final String description
-  ) {
+                ) {
     this(name,
          description,
          tokens -> name.equalsIgnoreCase(tokens[0])
-    );
+        );
   }
 
   /**
@@ -103,7 +102,7 @@ public abstract class Command implements BiFunction<JsObj, State, Function<Strin
    * @param conf  the configuration
    * @param state the state
    * @return a function that takes the array of tokens typed in by the client and returns the command action wrapped
-   *         into an optional. If the optional is empty, it means the user input doesn't correspond to this command.
+   * into an optional. If the optional is empty, it means the user input doesn't correspond to this command.
    */
   Function<String[], Optional<IO<String>>> executeIfMatch(JsObj conf,
                                                           State state) {

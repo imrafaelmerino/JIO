@@ -1,11 +1,10 @@
 package jio.test.stub;
 
-import jio.time.Clock;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Function;
+import jio.time.Clock;
 
 /**
  * Class to create different kinds of stubs that stand in for {@link Clock clocks}. These clock stubs are useful for
@@ -13,9 +12,9 @@ import java.util.function.Function;
  */
 public final class ClockStub {
 
+  final Clock clock;
   private final long lastTick;
   private final Function<Integer, Long> tickCounter;
-  final Clock clock;
   private volatile int counter;
 
   private ClockStub(final Instant base) {

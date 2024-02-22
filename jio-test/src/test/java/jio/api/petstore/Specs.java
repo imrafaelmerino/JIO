@@ -11,13 +11,13 @@ public class Specs {
                                                                JsSpecs.str(),
                                                                "message",
                                                                JsSpecs.str()
-  );
+                                                              );
 
   public static final JsObjSpec categorySpec = JsObjSpec.of("id",
                                                             JsSpecs.longInteger(),
                                                             "name",
                                                             JsSpecs.str()
-  );
+                                                           );
 
   public static final JsObjSpec userSpec = JsObjSpec.of("id",
                                                         JsSpecs.longInteger(),
@@ -35,7 +35,7 @@ public class Specs {
                                                         JsSpecs.str(),
                                                         "userStatus",
                                                         JsSpecs.integer()
-  );
+                                                       );
 
   public static final JsObjSpec orderSpec = JsObjSpec.of("id",
                                                          JsSpecs.longInteger(),
@@ -49,16 +49,16 @@ public class Specs {
                                                          JsSpecs.oneStringOf("placed",
                                                                              "approved",
                                                                              "delivered"
-                                                         ),
+                                                                            ),
                                                          "complete",
                                                          JsSpecs.bool()
-  );
+                                                        );
 
   public static final JsObjSpec tagSpec = JsObjSpec.of("id",
                                                        JsSpecs.longInteger(),
                                                        "name",
                                                        JsSpecs.str()
-  );
+                                                      );
 
   public static final JsObjSpec petSpec = JsObjSpec.of("id",
                                                        JsSpecs.longInteger(),
@@ -74,14 +74,14 @@ public class Specs {
                                                                                         JsSpecs.longInteger(),
                                                                                         "name",
                                                                                         JsSpecs.str()
-                                                       )
-                                                       ),
+                                                                                       )
+                                                                          ),
                                                        // Reference to the "Tag" definition
                                                        "status",
                                                        JsSpecs.oneStringOf("available",
                                                                            "pending",
                                                                            "sold"))
-                                                   .
+                                                       .
 
                                                    withReqKeys(Fields.REQ_PET_FIELDS);
 

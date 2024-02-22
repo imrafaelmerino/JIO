@@ -22,7 +22,7 @@ final class CondExpPar<Output> extends CondExp<Output> {
                     final List<Supplier<IO<Output>>> consequences,
                     final Supplier<IO<Output>> otherwise,
                     final Function<EvalExpEvent, BiConsumer<Output, Throwable>> debugger
-  ) {
+                   ) {
     super(debugger);
     this.tests = tests;
     this.consequences = consequences;
@@ -56,19 +56,19 @@ final class CondExpPar<Output> extends CondExp<Output> {
   @Override
   public CondExp<Output> retryEach(final Predicate<? super Throwable> predicate,
                                    final RetryPolicy policy
-  ) {
+                                  ) {
     requireNonNull(predicate);
     requireNonNull(policy);
     return new CondExpPar<>(tests.stream()
                                  .map(it -> it.retry(predicate,
                                                      policy
-                                 ))
+                                                    ))
                                  .collect(Collectors.toList()),
                             consequences
-                                        .stream()
-                                        .map(Fun.mapSupplier(it -> it.retry(predicate,
-                                                                            policy)))
-                                        .toList(),
+                                .stream()
+                                .map(Fun.mapSupplier(it -> it.retry(predicate,
+                                                                    policy)))
+                                .toList(),
                             otherwise,
                             jfrPublisher
     );
@@ -76,21 +76,21 @@ final class CondExpPar<Output> extends CondExp<Output> {
 
   @Override
   public CondExp<Output> debugEach(final EventBuilder<Output> eventBuilder
-  ) {
+                                  ) {
     Objects.requireNonNull(eventBuilder);
     return new CondExpPar<>(DebuggerHelper.debugConditions(tests,
                                                            EventBuilder.of("%s-test".formatted(eventBuilder.exp),
                                                                            eventBuilder.context)
-    ),
+                                                          ),
                             DebuggerHelper.debugSuppliers(consequences,
                                                           "%s-consequence".formatted(eventBuilder.exp),
                                                           eventBuilder.context
-                            ),
+                                                         ),
                             DebuggerHelper.debugSupplier(
-                                                         otherwise,
-                                                         "%s-otherwise".formatted(eventBuilder.exp),
-                                                         eventBuilder.context
-                            ),
+                                otherwise,
+                                "%s-otherwise".formatted(eventBuilder.exp),
+                                eventBuilder.context
+                                                        ),
                             getJFRPublisher(eventBuilder)
     );
   }

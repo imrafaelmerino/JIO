@@ -46,7 +46,7 @@ public non-sealed interface BodyStub extends HttpRespStub<String> {
    */
   static BodyStub consAfter(final String body,
                             final Duration delay
-  ) {
+                           ) {
     Objects.requireNonNull(body);
     Objects.requireNonNull(delay);
     return n -> reqBody -> uri -> headers -> {

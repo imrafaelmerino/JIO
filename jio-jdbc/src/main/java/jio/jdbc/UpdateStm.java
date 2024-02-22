@@ -1,11 +1,11 @@
 package jio.jdbc;
 
-import jio.IO;
-import jio.Lambda;
-
+import java.sql.Connection;
 import java.time.Duration;
 import java.util.Objects;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Callable;
+import jio.IO;
+import jio.Lambda;
 
 /**
  * A class representing a generic update statement in a relational database using JDBC. The class is designed to execute
@@ -13,9 +13,8 @@ import java.util.concurrent.Executors;
  * Flight Recorder (JFR) event.
  *
  * @param <Params> The type of the input object for setting parameters in the SQL.
- *
- * @see InsertOneEntity for using insert operationg that insert at most one row into the database and
- *      may generate some keys like ids or timestamps that can be returned
+ * @see InsertOneEntity for using insert operationg that insert at most one row into the database and may generate some
+ * keys like ids or timestamps that can be returned
  */
 final class UpdateStm<Params> {
 
@@ -78,24 +77,37 @@ final class UpdateStm<Params> {
    */
 
   Lambda<Params, Integer> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
-    return params -> IO.managedTask(() -> JfrEventDecorator.decorateUpdateStm(
-                                                                              () -> {
-                                                                                try (var connection = datasourceBuilder.get()
-                                                                                                                       .getConnection()
-                                                                                ) {
-                                                                                  try (var statement = connection.prepareStatement(sql)
-                                                                                  ) {
-                                                                                    statement.setQueryTimeout((int) timeout.toSeconds());
-                                                                                    int unused = setter.apply(params)
-                                                                                                       .apply(statement);
-                                                                                    assert unused > 0;
-                                                                                    return statement.executeUpdate();
-                                                                                  }
-                                                                                }
-                                                                              },
-                                                                              sql,
-                                                                              enableJFR,
-                                                                              label));
+    return params -> {
+      Callable<Integer> callable = () -> {
+        try (var connection = datasourceBuilder.get()
+                                               .getConnection()
+        ) {
+          return updateStm(params,
+                           connection);
+        }
+      };
+      return IO.managedTask(callable);
+    };
+  }
+
+  private int updateStm(final Params params,
+                        final Connection connection) throws Exception {
+    try (var statement = connection.prepareStatement(sql)
+    ) {
+      return JfrEventDecorator.decorateUpdateStm(
+          () -> {
+
+            statement.setQueryTimeout((int) timeout.toSeconds());
+            int unused = setter.apply(params)
+                               .apply(statement);
+            assert unused > 0;
+            return statement.executeUpdate();
+
+          },
+          sql,
+          enableJFR,
+          label);
+    }
   }
 
   /**
@@ -104,24 +116,15 @@ final class UpdateStm<Params> {
    * parameters to its SQL, execute the update statement, and return the affected rows as a result.
    *
    * @return A {@code ClosableStatement} representing the update statement. Note: The operations are performed by
-   *         virtual threads.
+   * virtual threads.
    */
   ClosableStatement<Params, Integer> buildClosable() {
     return (params,
-            connection) -> IO.managedTask(() -> JfrEventDecorator.decorateUpdateStm(
-                                                                                    () -> {
-                                                                                      try (var statement = connection.prepareStatement(sql)
-                                                                                      ) {
-                                                                                        statement.setQueryTimeout((int) timeout.toSeconds());
-                                                                                        int unused = setter.apply(params)
-                                                                                                           .apply(statement);
-                                                                                        assert unused > 0;
-                                                                                        return statement.executeUpdate();
-                                                                                      }
+            connection) -> {
+      Callable<Integer> callable = () -> updateStm(params,
+                                                   connection);
 
-                                                                                    },
-                                                                                    sql,
-                                                                                    enableJFR,
-                                                                                    label));
+      return IO.managedTask(callable);
+    };
   }
 }

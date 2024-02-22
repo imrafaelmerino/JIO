@@ -1,11 +1,10 @@
 package jio.api;
 
+import java.util.List;
 import jio.IO;
 import jio.SwitchExp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 public class TestSwitchExp {
 
@@ -18,7 +17,7 @@ public class TestSwitchExp {
                                    "b",
                                    x -> Constants.B,
                                    x -> Constants.C
-                            )
+                                  )
                             .debugEach("1")
                             .map(String::toUpperCase);
 
@@ -30,9 +29,9 @@ public class TestSwitchExp {
                                           x -> Constants.A,
                                           "b",
                                           x -> Constants.B
-                                   )
+                                         )
                                    .join()
-    );
+                         );
 
     IO<String> b = SwitchExp.<String, String>eval("b")
                             .match("a",
@@ -42,7 +41,7 @@ public class TestSwitchExp {
                                    "c",
                                    x -> Constants.C,
                                    x -> Constants.C
-                            )
+                                  )
                             .debugEach("2")
                             .map(String::toUpperCase);
 
@@ -59,7 +58,7 @@ public class TestSwitchExp {
                                    "d",
                                    x -> Constants.D,
                                    x -> Constants.C
-                            )
+                                  )
                             .debugEach("3")
                             .map(String::toUpperCase);
 
@@ -78,7 +77,7 @@ public class TestSwitchExp {
                                    "e",
                                    x -> Constants.A,
                                    x -> Constants.C
-                            )
+                                  )
                             .debugEach("4")
                             .map(String::toUpperCase);
 
@@ -99,7 +98,7 @@ public class TestSwitchExp {
                                                          "f",
                                                          x -> Constants.B,
                                                          x -> Constants.C
-                                                  );
+                                                        );
     IO<String> e = patterns.debugEach("5")
                            .map(String::toUpperCase);
 
@@ -120,7 +119,7 @@ public class TestSwitchExp {
                                    "f",
                                    x -> Constants.B,
                                    IO::succeed
-                            )
+                                  )
                             .debugEach("6")
                             .map(String::toUpperCase);
 
@@ -139,7 +138,7 @@ public class TestSwitchExp {
                                    List.of("b"),
                                    x -> Constants.B,
                                    x -> Constants.C
-                            )
+                                  )
                             .map(String::toUpperCase);
 
     Assertions.assertEquals("A",
@@ -151,9 +150,9 @@ public class TestSwitchExp {
                                           x -> Constants.A,
                                           List.of("b"),
                                           x -> Constants.B
-                                   )
+                                         )
                                    .join()
-    );
+                         );
 
     IO<String> b = SwitchExp.<String, String>eval("b")
                             .match(List.of("a"),
@@ -163,7 +162,7 @@ public class TestSwitchExp {
                                    List.of("c"),
                                    x -> Constants.C,
                                    x -> Constants.C
-                            )
+                                  )
                             .map(String::toUpperCase);
 
     Assertions.assertEquals("B",
@@ -179,7 +178,7 @@ public class TestSwitchExp {
                                    List.of("d"),
                                    x -> Constants.D,
                                    x -> Constants.C
-                            )
+                                  )
                             .map(String::toUpperCase);
 
     Assertions.assertEquals("C",
@@ -197,7 +196,7 @@ public class TestSwitchExp {
                                    List.of("e"),
                                    x -> Constants.A,
                                    x -> Constants.C
-                            )
+                                  )
                             .map(String::toUpperCase);
 
     Assertions.assertEquals("D",
@@ -221,7 +220,7 @@ public class TestSwitchExp {
                                            "g"),
                                    x -> Constants.B,
                                    x -> Constants.C
-                            )
+                                  )
                             .map(String::toUpperCase);
 
     Assertions.assertEquals("A",
@@ -241,7 +240,7 @@ public class TestSwitchExp {
                                    List.of("f"),
                                    x -> Constants.B,
                                    IO::succeed
-                            )
+                                  )
                             .map(String::toUpperCase);
 
     Assertions.assertEquals("H",
@@ -258,7 +257,7 @@ public class TestSwitchExp {
                                    x -> x.equals("b"),
                                    x -> Constants.B,
                                    x -> Constants.C
-                            )
+                                  )
                             .map(String::toUpperCase);
 
     Assertions.assertEquals("A",
@@ -269,7 +268,7 @@ public class TestSwitchExp {
                                           x -> Constants.A,
                                           x -> x.equals("b"),
                                           x -> Constants.B
-                                   )
+                                         )
                                    .join());
 
     IO<String> b = SwitchExp.<String, String>eval("b")
@@ -280,7 +279,7 @@ public class TestSwitchExp {
                                    x -> x.equals("c"),
                                    x -> Constants.C,
                                    x -> Constants.C
-                            )
+                                  )
                             .map(String::toUpperCase);
 
     Assertions.assertEquals("B",
@@ -296,7 +295,7 @@ public class TestSwitchExp {
                                    x -> x.equals("d"),
                                    x -> Constants.D,
                                    x -> Constants.C
-                            )
+                                  )
                             .map(String::toUpperCase);
 
     Assertions.assertEquals("C",
@@ -314,7 +313,7 @@ public class TestSwitchExp {
                                    x -> x.equals("e"),
                                    x -> Constants.A,
                                    x -> Constants.C
-                            )
+                                  )
                             .map(String::toUpperCase);
 
     Assertions.assertEquals("D",
@@ -334,7 +333,7 @@ public class TestSwitchExp {
                                    x -> x.equals("f"),
                                    x -> Constants.B,
                                    x -> Constants.C
-                            )
+                                  )
                             .map(String::toUpperCase);
 
     Assertions.assertEquals("A",
@@ -354,7 +353,7 @@ public class TestSwitchExp {
                                    x -> x.equals("f"),
                                    x -> Constants.B,
                                    IO::succeed
-                            )
+                                  )
                             .map(String::toUpperCase);
 
     Assertions.assertEquals("H",
@@ -370,13 +369,13 @@ public class TestSwitchExp {
                               2,
                               i -> IO.succeed("two"),
                               i -> IO.succeed("default")
-                       )
+                             )
                        .debugEach("context")
                        .join();
 
     Assertions.assertEquals("two",
                             exp
-    );
+                           );
 
   }
 }

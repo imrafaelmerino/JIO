@@ -1,11 +1,10 @@
 package jio.mongodb;
 
-import com.mongodb.client.ChangeStreamIterable;
-import jsonvalues.JsObj;
-
-import java.util.function.Consumer;
-
 import static java.util.Objects.requireNonNull;
+
+import com.mongodb.client.ChangeStreamIterable;
+import java.util.function.Consumer;
+import jsonvalues.JsObj;
 
 /**
  * A class for watching changes in a MongoDB collection.

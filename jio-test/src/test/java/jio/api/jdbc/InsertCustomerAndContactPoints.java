@@ -15,18 +15,18 @@ public class InsertCustomerAndContactPoints implements Lambda<Customer, Long> {
 
   final ClosableStatement<Customer, Long> insertContactPoints = (customer,
                                                                  connection) -> CustomerDatabaseOps.insertOne
-                                                                                                             .then(customerID -> PairExp.par(
-                                                                                                                                             EmailDatabaseOps.insertOne.apply(customerID)
-                                                                                                                                                                       .apply(customer.email(),
-                                                                                                                                                                              connection),
-                                                                                                                                             AddressesDatabaseOps.insertMany.apply(customerID)
-                                                                                                                                                                            .apply(customer.addresses(),
-                                                                                                                                                                                   connection)
-                                                                                                             )
-                                                                                                                                        .map(it -> customerID)
-                                                                                                             )
-                                                                                                             .apply(customer,
-                                                                                                                    connection);
+      .then(customerID -> PairExp.par(
+                                     EmailDatabaseOps.insertOne.apply(customerID)
+                                                               .apply(customer.email(),
+                                                                      connection),
+                                     AddressesDatabaseOps.insertMany.apply(customerID)
+                                                                    .apply(customer.addresses(),
+                                                                           connection)
+                                     )
+                                 .map(it -> customerID)
+           )
+      .apply(customer,
+             connection);
 
   private final Lambda<Customer, Long> tx;
 

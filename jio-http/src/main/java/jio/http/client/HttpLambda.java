@@ -1,9 +1,8 @@
 package jio.http.client;
 
-import jio.Lambda;
-
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import jio.Lambda;
 
 /**
  * Represents a lambda function that takes an HTTP request builder and returns an HTTP response.

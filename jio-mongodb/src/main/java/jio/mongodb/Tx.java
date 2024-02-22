@@ -1,12 +1,12 @@
 package jio.mongodb;
 
+import static java.util.Objects.requireNonNull;
+
 import com.mongodb.TransactionOptions;
 import com.mongodb.client.ClientSession;
 import jio.ExceptionFun;
 import jio.IO;
 import jio.Lambda;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a MongoDB transaction that can be applied within a MongoDB client session.
@@ -35,7 +35,7 @@ public final class Tx<Input, Output> implements Lambda<Input, Output> {
   Tx(final ClientSessionBuilder sessionBuilder,
      final MongoLambda<Input, Output> mongoLambda,
      final TransactionOptions transactionOptions
-  ) {
+    ) {
     this.sessionBuilder = requireNonNull(sessionBuilder);
     this.mongoLambda = requireNonNull(mongoLambda);
     this.transactionOptions = requireNonNull(transactionOptions);
@@ -105,11 +105,11 @@ public final class Tx<Input, Output> implements Lambda<Input, Output> {
                           ClientSession session) {
 
     return IO.lazy(() -> {
-      var event = new MongoOpEvent(MongoOpEvent.OP.TX);
-      event.begin();
-      session.startTransaction(transactionOptions);
-      return event;
-    })
+               var event = new MongoOpEvent(MongoOpEvent.OP.TX);
+               event.begin();
+               session.startTransaction(transactionOptions);
+               return event;
+             })
              .then(event -> mongoLambda.apply(session,
                                               input)
                                        .peekSuccess(it -> commit(session,

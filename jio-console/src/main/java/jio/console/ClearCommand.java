@@ -1,9 +1,8 @@
 package jio.console;
 
+import java.util.function.Function;
 import jio.IO;
 import jsonvalues.JsObj;
-
-import java.util.function.Function;
 
 /**
  * Represents a command that clears the console screen. When executed, this command clears the console and returns an
@@ -25,7 +24,7 @@ class ClearCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> {
       int nArgs = tokens.length - 1;
       if (nArgs > 1) {

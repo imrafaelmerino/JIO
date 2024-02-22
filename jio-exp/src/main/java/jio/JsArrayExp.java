@@ -1,7 +1,6 @@
 package jio;
 
-import jsonvalues.JsArray;
-import jsonvalues.JsValue;
+import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +9,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static java.util.Objects.requireNonNull;
+import jsonvalues.JsArray;
+import jsonvalues.JsValue;
 
 /**
  * Represents a sequence of effects that produce JSON values ({@link JsValue}) and combines them into a JSON array. This
@@ -24,7 +23,7 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
 
   JsArrayExp(List<IO<? extends JsValue>> list,
              Function<EvalExpEvent, BiConsumer<JsArray, Throwable>> debugger
-  ) {
+            ) {
     super(debugger);
     this.list = list;
   }
@@ -65,29 +64,29 @@ public abstract sealed class JsArrayExp extends Exp<JsArray> permits JsArrayExpP
 
   List<IO<? extends JsValue>> debugJsArray(List<IO<? extends JsValue>> exps,
                                            EventBuilder<JsArray> eventBuilder
-  ) {
+                                          ) {
     return IntStream.range(0,
                            exps.size())
                     .mapToObj(i -> DebuggerHelper.debugIO(exps.get(i),
                                                           String.format("%s[%s]",
                                                                         eventBuilder.exp,
                                                                         i
-                                                          ),
+                                                                       ),
                                                           eventBuilder.context
 
-                    )
-                    )
+                                                         )
+                             )
                     .collect(Collectors.toList());
   }
 
   @Override
   public abstract JsArrayExp retryEach(final Predicate<? super Throwable> predicate,
                                        final RetryPolicy policy
-  );
+                                      );
 
   @Override
   public abstract JsArrayExp debugEach(final EventBuilder<JsArray> messageBuilder
-  );
+                                      );
 
   @Override
   public abstract JsArrayExp debugEach(final String context);

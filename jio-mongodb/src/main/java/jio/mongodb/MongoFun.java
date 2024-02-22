@@ -32,9 +32,6 @@ import jio.ExceptionFun;
  */
 public final class MongoFun {
 
-  private MongoFun() {
-  }
-
   /**
    * Predicate to check if the given throwable or its causes contains an instance of
    * {@link MongoSocketReadTimeoutException}. This predicate is used to identify exceptions related to read timeouts
@@ -45,7 +42,6 @@ public final class MongoFun {
   public static final Predicate<Throwable> HAS_READ_TIMEOUT = exc -> ExceptionFun.findCauseRecursively(cause -> cause instanceof MongoSocketReadTimeoutException)
                                                                                  .apply(exc)
                                                                                  .isPresent();
-
   /**
    * Predicate to check if the given throwable or its causes contains an instance of {@link MongoTimeoutException}. This
    * predicate is used to identify exceptions related to connection timeouts during MongoDB operations.
@@ -55,6 +51,9 @@ public final class MongoFun {
   public static final Predicate<Throwable> HAS_CONNECTION_TIMEOUT = exc -> ExceptionFun.findCauseRecursively(cause -> cause instanceof MongoTimeoutException)
                                                                                        .apply(exc)
                                                                                        .isPresent();
+
+  private MongoFun() {
+  }
 
   /**
    * Predicate to check if the given throwable or its causes contains a specific {@link MongoException} with a specified

@@ -1,16 +1,19 @@
 package jio;
 
-import jsonvalues.JsObj;
-import jsonvalues.JsValue;
+import static java.util.Objects.requireNonNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jsonvalues.JsObj;
+import jsonvalues.JsValue;
 
 /**
  * Represents a supplier of a completable future which result is a json object. It has the same recursive structure as a
@@ -21,7 +24,7 @@ final class JsObjExpPar extends JsObjExp {
 
   public JsObjExpPar(Map<String, IO<? extends JsValue>> bindings,
                      Function<EvalExpEvent, BiConsumer<JsObj, Throwable>> debugger
-  ) {
+                    ) {
     super(bindings,
           debugger);
   }
@@ -41,11 +44,11 @@ final class JsObjExpPar extends JsObjExp {
   @Override
   public JsObjExpPar set(final String key,
                          final IO<? extends JsValue> exp
-  ) {
+                        ) {
     var xs = new HashMap<>(bindings);
     xs.put(requireNonNull(key),
            requireNonNull(exp)
-    );
+          );
     return new JsObjExpPar(xs,
                            jfrPublisher);
   }
@@ -67,7 +70,7 @@ final class JsObjExpPar extends JsObjExp {
                                                                     .collect(Collectors.toMap(it -> it,
                                                                                               it -> bindings.get(it)
                                                                                                             .get()
-                                                                    ));
+                                                                                             ));
 
     CompletableFuture<? extends JsValue>[] cfs = futures.values()
                                                         .toArray(CompletableFuture[]::new);
@@ -86,7 +89,7 @@ final class JsObjExpPar extends JsObjExp {
   @Override
   public JsObjExp retryEach(final Predicate<? super Throwable> predicate,
                             final RetryPolicy policy
-  ) {
+                           ) {
     Objects.requireNonNull(predicate);
     Objects.requireNonNull(policy);
 
@@ -96,20 +99,20 @@ final class JsObjExpPar extends JsObjExp {
                                                              e -> e.getValue()
                                                                    .retry(predicate,
                                                                           policy
-                                                                   )
-                                   )
-                                   ),
+                                                                         )
+                                                            )
+                                           ),
                            jfrPublisher
     );
   }
 
   @Override
   public JsObjExp debugEach(EventBuilder<JsObj> eventBuilder
-  ) {
+                           ) {
     Objects.requireNonNull(eventBuilder);
     return new JsObjExpPar(debugJsObj(bindings,
                                       eventBuilder
-    ),
+                                     ),
                            getJFRPublisher(eventBuilder)
     );
   }

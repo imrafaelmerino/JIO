@@ -14,17 +14,15 @@ import jio.Lambda;
  */
 public final class InsertOneEntityBuilder<Params, Output> {
 
+  private static final String INSERT_REGEX = "\\s*INSERT\\s+INTO\\s+.*";
+  private static final Pattern pattern = Pattern.compile(INSERT_REGEX,
+                                                         Pattern.CASE_INSENSITIVE);
   private final String sql;
-
   private final Duration timeout;
-
   private final ParamsSetter<Params> setParams;
   private final Function<Params, ResultSetMapper<Output>> mapResult;
   private boolean enableJFR = true;
   private String label;
-  private static final String INSERT_REGEX = "\\s*INSERT\\s+INTO\\s+.*";
-  private static final Pattern pattern = Pattern.compile(INSERT_REGEX,
-                                                         Pattern.CASE_INSENSITIVE);
 
   private InsertOneEntityBuilder(String sql,
                                  Duration timeout,
@@ -93,7 +91,7 @@ public final class InsertOneEntityBuilder<Params, Output> {
    *
    * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} representing the JDBC insert operation with a duration, input, and output. Note: The
-   *         operations are performed on virtual threads for improved concurrency and resource utilization.
+   * operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see InsertOneEntity#buildAutoClosable(DatasourceBuilder)
    */
 
@@ -104,7 +102,7 @@ public final class InsertOneEntityBuilder<Params, Output> {
                                  mapResult,
                                  enableJFR,
                                  label)
-                                       .buildAutoClosable(datasourceBuilder);
+        .buildAutoClosable(datasourceBuilder);
   }
 
   /**
@@ -114,7 +112,7 @@ public final class InsertOneEntityBuilder<Params, Output> {
    * performed on virtual threads for improved concurrency and resource utilization.
    *
    * @return A {@code ClosableStatement} representing the JDBC insert operation with a duration, input, and output.
-   *         Note: The operations are performed on virtual threads for improved concurrency and resource utilization.
+   * Note: The operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see InsertOneEntity#buildClosable()
    */
   public ClosableStatement<Params, Output> buildClosable() {
@@ -123,7 +121,8 @@ public final class InsertOneEntityBuilder<Params, Output> {
                                  setParams,
                                  mapResult,
                                  enableJFR,
-                                 label)
-                                       .buildClosable();
+                                 label
+    )
+        .buildClosable();
   }
 }

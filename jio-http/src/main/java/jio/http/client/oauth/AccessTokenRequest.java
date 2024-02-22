@@ -1,15 +1,14 @@
 package jio.http.client.oauth;
 
-import jio.IO;
-import jio.Lambda;
+import static java.util.Objects.requireNonNull;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-
-import static java.util.Objects.requireNonNull;
+import jio.IO;
+import jio.Lambda;
 
 /**
  * Represents a function that takes a http client and send a predefined request to get the access token to the server,
@@ -36,7 +35,7 @@ public final class AccessTokenRequest implements Lambda<OauthHttpClient, HttpRes
   private AccessTokenRequest(final String clientId,
                              final String clientSecret,
                              final URI uri
-  ) {
+                            ) {
 
     String credentials = requireNonNull(clientId) + ":" + requireNonNull(clientSecret);
     this.authorizationHeader = Base64.getEncoder()
@@ -66,7 +65,7 @@ public final class AccessTokenRequest implements Lambda<OauthHttpClient, HttpRes
   public static AccessTokenRequest of(final String clientId,
                                       final String clientSecret,
                                       final URI uri
-  ) {
+                                     ) {
     return new AccessTokenRequest(clientId,
                                   clientSecret,
                                   uri);
@@ -79,15 +78,15 @@ public final class AccessTokenRequest implements Lambda<OauthHttpClient, HttpRes
                                  .apply(HttpRequest.newBuilder()
                                                    .header("Accept",
                                                            "application/json"
-                                                   )
+                                                          )
                                                    .header("Authorization",
                                                            String.format("Basic %s",
                                                                          authorizationHeader
-                                                           )
-                                                   )
+                                                                        )
+                                                          )
                                                    .header("Content-Type",
                                                            "application/x-www-form-urlencoded"
-                                                   )
+                                                          )
                                                    .uri(uri)
                                                    .POST(HttpRequest.BodyPublishers.ofString(body)));
 

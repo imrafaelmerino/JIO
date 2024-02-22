@@ -33,6 +33,6 @@ public record FailureContext(Context context,
                     context.toJson(),
                     "reason",
                     JsStr.of(failure.getMessage())
-    );
+                   );
   }
 }

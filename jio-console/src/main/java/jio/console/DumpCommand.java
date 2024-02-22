@@ -1,16 +1,15 @@
 package jio.console;
 
-import jio.IO;
-import jio.RetryPolicies;
-import jio.console.Programs.AskForInputParams;
-import jsonvalues.JsObj;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.function.Function;
+import jio.IO;
+import jio.RetryPolicies;
+import jio.console.Programs.AskForInputParams;
+import jsonvalues.JsObj;
 
 /**
  * Represents a command that writes the content of the output variable into the specified file. If the file exists, it
@@ -35,14 +34,14 @@ class DumpCommand extends Command {
               Examples:
                   $command /Users/rmerinogarcia/dump.txt""".replace("$command",
                                                                     COMMAND_NAME)
-    );
+         );
   }
 
   @Override
 
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> {
       int nArgs = tokens.length - 1;
       if (nArgs == 0) {
@@ -53,8 +52,8 @@ class DumpCommand extends Command {
                                                                          .isDirectory(),
                                                             "Folder not found",
                                                             RetryPolicies.limitRetries(3)
-        )
-        )
+                                      )
+                                     )
                        .then(path -> dumpToFile(state,
                                                 path));
       }
@@ -81,7 +80,7 @@ class DumpCommand extends Command {
                                                      "") + "\n",
                         StandardOpenOption.CREATE,
                         StandardOpenOption.APPEND
-      );
+                       );
     } catch (IOException e) {
       return IO.fail(e);
     }

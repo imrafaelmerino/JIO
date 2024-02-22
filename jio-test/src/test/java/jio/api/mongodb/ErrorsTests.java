@@ -17,8 +17,12 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 
+/**
+ * Follow the steps in the file steps-rs.md to deploy a replica set before executing this test
+ * TODO: use testconainers to not to do it manually
+ */
 @Disabled
-public class TestErrors {
+public class ErrorsTests {
 
   private static FindOne findOne;
 
@@ -50,15 +54,15 @@ public class TestErrors {
                        JsStr.of("a"),
                        "b",
                        JsInt.of(1)
-    );
+                      );
     // "java.util.concurrent.CompletionException: jio.JioFailure: Timeout while receiving message"
     Assertions.assertTrue(findOne.standalone()
                                  .apply(FindBuilder.of(obj))
                                  .then(o -> IO.FALSE,
                                        e -> IO.succeed(MongoFun.HAS_READ_TIMEOUT.test(e))
-                                 )
+                                      )
                                  .result()
-    );
+                         );
 
   }
 
@@ -76,7 +80,7 @@ public class TestErrors {
                          JsStr.of("a"),
                          "b",
                          JsInt.of(1)
-    );
+                        );
     //   "Timed out after 10 ms while waiting to connect. Client view of cluster state is {type=UNKNOWN, " +
     //   "servers=[{address=localhost:27017, type=UNKNOWN, " +
     //   "state=CONNECTING, exception={com.mongodb.MongoSocketReadTimeoutException: " +
@@ -85,8 +89,8 @@ public class TestErrors {
                                  .apply(FindBuilder.of(obj))
                                  .then(o -> IO.TRUE,
                                        e -> IO.succeed(MongoFun.HAS_CONNECTION_TIMEOUT
-                                                                                      .test(e))
-                                 )
+                                                           .test(e))
+                                      )
                                  .result());
 
   }

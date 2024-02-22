@@ -1,10 +1,9 @@
 package jio.mongodb;
 
-import jsonvalues.JsObj;
+import static java.util.Objects.requireNonNull;
 
 import java.util.concurrent.TimeUnit;
-
-import static java.util.Objects.requireNonNull;
+import jsonvalues.JsObj;
 
 /**
  * Builder class for creating {@link FindOptions} objects with customizable query options for MongoDB find operations.

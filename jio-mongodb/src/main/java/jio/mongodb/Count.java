@@ -61,17 +61,18 @@ public final class Count extends Op implements MongoLambda<JsObj, Long> {
   @Override
   public IO<Long> apply(final ClientSession session,
                         final JsObj query
-  ) {
+                       ) {
     Objects.requireNonNull(query);
-    Supplier<Long> supplier = decorateWithEvent(() -> {
-      var queryBson = Converters.toBson(requireNonNull(query));
-      var collection = requireNonNull(this.collection.get());
-      return session == null ? collection.countDocuments(queryBson,
-                                                         options) : collection.countDocuments(session,
-                                                                                              queryBson,
-                                                                                              options);
-    },
-                                                COUNT);
+    Supplier<Long> supplier =
+        decorateWithEvent(() -> {
+                            var queryBson = Converters.toBson(requireNonNull(query));
+                            var collection = requireNonNull(this.collection.get());
+                            return session == null ? collection.countDocuments(queryBson,
+                                                                               options) : collection.countDocuments(session,
+                                                                                                                    queryBson,
+                                                                                                                    options);
+                          },
+                          COUNT);
     return IO.managedLazy(supplier);
   }
 

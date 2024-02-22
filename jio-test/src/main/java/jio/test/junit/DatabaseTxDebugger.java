@@ -20,7 +20,6 @@ final class DatabaseTxDebugger implements Consumer<RecordedEvent> {
       |  Event Start Time: %s
       ----------------------
       """;
-
   private static final String FAILURE_OR_PARTIAL_SUCCESS_FORMAT = """
       ------ jdbc-client transaction -----
       |  Label: %s
@@ -51,18 +50,18 @@ final class DatabaseTxDebugger implements Consumer<RecordedEvent> {
                                             event.getStartTime()
                                                  .atZone(ZoneId.systemDefault())
                                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-    ) : String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
-                      label,
-                      event.getValue(EventFields.RESULT),
-                      Fun.formatTime(event.getDuration()
-                                          .toNanos()),
-                      event.getValue(EventFields.EXCEPTION),
-                      event.getValue("txCounter"),
-                      Utils.getThreadName(event.getThread()),
-                      event.getStartTime()
-                           .atZone(ZoneId.systemDefault())
-                           .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-    );
+                                           ) : String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
+                                                             label,
+                                                             event.getValue(EventFields.RESULT),
+                                                             Fun.formatTime(event.getDuration()
+                                                                                 .toNanos()),
+                                                             event.getValue(EventFields.EXCEPTION),
+                                                             event.getValue("txCounter"),
+                                                             Utils.getThreadName(event.getThread()),
+                                                             event.getStartTime()
+                                                                  .atZone(ZoneId.systemDefault())
+                                                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                                                            );
     synchronized (System.out) {
       System.out.println(message);
       System.out.flush();

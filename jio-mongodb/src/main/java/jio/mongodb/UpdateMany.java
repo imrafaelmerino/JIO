@@ -1,16 +1,15 @@
 package jio.mongodb;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.result.UpdateResult;
-import jio.IO;
-
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.Converters.toBson;
 import static jio.mongodb.MongoOpEvent.OP.UPDATE_MANY;
+
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
+import java.util.Objects;
+import java.util.function.Supplier;
+import jio.IO;
 
 /**
  * A class for performing updateCommands many operations on a MongoDB collection.
@@ -25,9 +24,9 @@ import static jio.mongodb.MongoOpEvent.OP.UPDATE_MANY;
  * can use the provided `QueryUpdate` object to define the query and updateCommands criteria for the operation.
  *
  * @see CollectionBuilder
- * @see QueryUpdate
+ * @see QueryAndCommand
  */
-public final class UpdateMany extends Op implements MongoLambda<QueryUpdate, UpdateResult> {
+public final class UpdateMany extends Op implements MongoLambda<QueryAndCommand, UpdateResult> {
 
   private static final UpdateOptions DEFAULT_OPTIONS = new UpdateOptions();
   private UpdateOptions options = DEFAULT_OPTIONS;
@@ -72,21 +71,22 @@ public final class UpdateMany extends Op implements MongoLambda<QueryUpdate, Upd
    */
   @Override
   public IO<UpdateResult> apply(final ClientSession session,
-                                final QueryUpdate queryUpdate) {
+                                final QueryAndCommand queryUpdate) {
     Objects.requireNonNull(queryUpdate);
 
-    Supplier<UpdateResult> supplier = decorateWithEvent(() -> {
-      var collection = requireNonNull(this.collection.get());
-      return session == null ? collection.updateMany(toBson(queryUpdate.query()),
-                                                     toBson(queryUpdate.updateCommands()),
-                                                     options
-      ) : collection.updateMany(session,
-                                toBson(queryUpdate.query()),
-                                toBson(queryUpdate.updateCommands()),
-                                options
-      );
-    },
-                                                        UPDATE_MANY);
+    Supplier<UpdateResult> supplier =
+        decorateWithEvent(() -> {
+                            var collection = requireNonNull(this.collection.get());
+                            return session == null ? collection.updateMany(toBson(queryUpdate.query()),
+                                                                           toBson(queryUpdate.updateCommands()),
+                                                                           options
+                                                                          ) : collection.updateMany(session,
+                                                                                                    toBson(queryUpdate.query()),
+                                                                                                    toBson(queryUpdate.updateCommands()),
+                                                                                                    options
+                                                                                                   );
+                          },
+                          UPDATE_MANY);
     return IO.managedLazy(supplier);
   }
 

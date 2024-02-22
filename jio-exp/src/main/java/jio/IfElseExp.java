@@ -1,12 +1,12 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents an expression that combines a predicate effect with two alternative effect suppliers, one for the
@@ -23,7 +23,7 @@ public final class IfElseExp<Output> extends Exp<Output> {
 
   private IfElseExp(final IO<Boolean> predicate,
                     final Function<EvalExpEvent, BiConsumer<Output, Throwable>> debugger
-  ) {
+                   ) {
     super(debugger);
     this.predicate = predicate;
   }
@@ -71,20 +71,20 @@ public final class IfElseExp<Output> extends Exp<Output> {
   @Override
   public IfElseExp<Output> retryEach(final Predicate<? super Throwable> predicate,
                                      final RetryPolicy policy
-  ) {
+                                    ) {
     return new IfElseExp<>(this.predicate.retry(requireNonNull(predicate),
                                                 requireNonNull(policy)
-    ),
+                                               ),
                            jfrPublisher
     )
-     .consequence(() -> consequence.get()
-                                   .retry(predicate,
-                                          policy)
-     )
-     .alternative(() -> alternative.get()
-                                   .retry(predicate,
-                                          policy)
-     );
+        .consequence(() -> consequence.get()
+                                      .retry(predicate,
+                                             policy)
+                    )
+        .alternative(() -> alternative.get()
+                                      .retry(predicate,
+                                             policy)
+                    );
   }
 
   @Override
@@ -94,7 +94,7 @@ public final class IfElseExp<Output> extends Exp<Output> {
                     .thenCompose(bool -> bool ? consequence.get()
                                                            .get() : alternative.get()
                                                                                .get()
-                    );
+                                );
   }
 
   @Override
@@ -102,28 +102,28 @@ public final class IfElseExp<Output> extends Exp<Output> {
     return new IfElseExp<>(DebuggerHelper.debugIO(predicate,
                                                   String.format("%s-predicate",
                                                                 eventBuilder.exp
-                                                  ),
+                                                               ),
 
                                                   eventBuilder.context
-    ),
+                                                 ),
                            getJFRPublisher(eventBuilder)
     )
-     .consequence(() -> DebuggerHelper.debugIO(consequence.get(),
-                                               String.format("%s-consequence",
-                                                             eventBuilder.exp
-                                               ),
-                                               eventBuilder.context
-     )
+        .consequence(() -> DebuggerHelper.debugIO(consequence.get(),
+                                                  String.format("%s-consequence",
+                                                                eventBuilder.exp
+                                                               ),
+                                                  eventBuilder.context
+                                                 )
 
-     )
-     .alternative(() -> DebuggerHelper.debugIO(alternative.get(),
-                                               String.format("%s-alternative",
-                                                             eventBuilder.exp
-                                               ),
-                                               eventBuilder.context
-     )
+                    )
+        .alternative(() -> DebuggerHelper.debugIO(alternative.get(),
+                                                  String.format("%s-alternative",
+                                                                eventBuilder.exp
+                                                               ),
+                                                  eventBuilder.context
+                                                 )
 
-     );
+                    );
   }
 
   @Override
@@ -137,7 +137,7 @@ public final class IfElseExp<Output> extends Exp<Output> {
     return debugEach(EventBuilder.of(this.getClass()
                                          .getSimpleName(),
                                      context)
-    );
+                    );
   }
 
 }

@@ -1,7 +1,12 @@
 package jio.jdbc;
 
 import java.util.concurrent.atomic.AtomicLong;
-import jdk.jfr.*;
+import jdk.jfr.Category;
+import jdk.jfr.Description;
+import jdk.jfr.Event;
+import jdk.jfr.Label;
+import jdk.jfr.Name;
+import jdk.jfr.StackTrace;
 
 /**
  * Event that is created and written to the Flight Recorder system when a request response is received or an exception
@@ -18,17 +23,14 @@ final class EntitiesFoundEvent extends Event {
   static final String QUERY_COUNTER_FIELD = "queryCounter";
   static final String ROWS_RETURNED_FIELD = "rowsReturned";
   static final String FETCH_SIZE_FIELD = "fetchSize";
-  public int fetchSize;
-  int rowsReturned;
   static final AtomicLong counter = new AtomicLong(0);
-
-  long queryCounter = counter.incrementAndGet();
-
   static final String RESULT_FIELD = "result";
   static final String SQL_FIELD = "sql";
   static final String EXCEPTION_FIELD = "exception";
   static final String LABEL_FIELD = "label";
-
+  public int fetchSize;
+  int rowsReturned;
+  long queryCounter = counter.incrementAndGet();
   /**
    * the method of the request
    */

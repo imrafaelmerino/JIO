@@ -1,13 +1,12 @@
 package jio.http.client.oauth;
 
+import java.net.http.HttpResponse;
+import java.util.Objects;
 import jio.IO;
 import jio.Lambda;
 import jsonvalues.JsObj;
-import jsonvalues.spec.JsParserException;
 import jsonvalues.JsPath;
-
-import java.net.http.HttpResponse;
-import java.util.Objects;
+import jsonvalues.spec.JsParserException;
 
 /**
  * Lambda that takes the access token request response, parses into a JsObj and returns the access token located at the
@@ -39,9 +38,9 @@ public final class GetAccessToken implements Lambda<HttpResponse<String>, String
         return IO.fail(new AccessTokenNotFound(String.format("Response: %s. Expected a string located at the path: %s.",
                                                              body,
                                                              ACCESS_TOKEN_PATH
-        )
-        )
-        );
+                                                            )
+                       )
+                      );
       }
       return IO.succeed(token);
     } catch (JsParserException malformedJson) {

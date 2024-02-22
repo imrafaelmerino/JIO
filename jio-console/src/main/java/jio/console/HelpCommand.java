@@ -1,10 +1,9 @@
 package jio.console;
 
-import jio.IO;
-import jsonvalues.JsObj;
-
 import java.util.List;
 import java.util.function.Function;
+import jio.IO;
+import jsonvalues.JsObj;
 
 /**
  * Represents a command that provides descriptions of other commands. Usage: {@code help command_name}
@@ -43,7 +42,7 @@ class HelpCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> {
       int nArgs = tokens.length - 1;
       if (nArgs == 0) {

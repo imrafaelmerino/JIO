@@ -1,10 +1,9 @@
 package jio.test.pbt;
 
+import java.util.Objects;
 import jio.IO;
 import jio.ListExp;
 import jsonvalues.JsObj;
-
-import java.util.Objects;
 
 non-sealed class SeqProperty<GenValue> extends Testable {
 

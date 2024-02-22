@@ -3,7 +3,6 @@ package jio.http.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 import java.util.Objects;
@@ -31,7 +30,7 @@ public final class MultipartForm {
   public static String createContentTypeHeader(final String boundary) {
     return String.format("multipart/form-data; boundary=%s",
                          Objects.requireNonNull(boundary)
-    );
+                        );
   }
 
   /**
@@ -48,7 +47,7 @@ public final class MultipartForm {
   public static String createBody(final Map<String, String> fields,
                                   final Map<String, File> files,
                                   final String boundary
-  ) throws UncheckedIOException {
+                                 ) throws UncheckedIOException {
     try {
 
       StringBuilder builder = new StringBuilder();
@@ -81,8 +80,8 @@ public final class MultipartForm {
                .append("\"\r\n")
                .append("\r\n")
                .append(
-                       Files.readString(file.getValue()
-                                            .toPath()))
+                   Files.readString(file.getValue()
+                                        .toPath()))
                .append("\r\n");
       }
 

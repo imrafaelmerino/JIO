@@ -12,12 +12,12 @@ public final class PutStub extends ReqHandlerStub {
   private PutStub(final BodyStub body,
                   final StatusCodeStub statusCode,
                   final HeadersStub headers
-  ) {
+                 ) {
     super(requireNonNull(body),
           requireNonNull(statusCode),
           requireNonNull(headers),
           "PUT"
-    );
+         );
   }
 
   /**
@@ -31,7 +31,7 @@ public final class PutStub extends ReqHandlerStub {
   public static PutStub of(final BodyStub body,
                            final StatusCodeStub statusCode,
                            final HeadersStub headers
-  ) {
+                          ) {
     return new PutStub(body,
                        statusCode,
                        headers);
@@ -46,7 +46,7 @@ public final class PutStub extends ReqHandlerStub {
    */
   public static PutStub of(final BodyStub body,
                            final StatusCodeStub statusCode
-  ) {
+                          ) {
     return new PutStub(body,
                        statusCode,
                        HeadersStub.EMPTY);

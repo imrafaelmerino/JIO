@@ -1,14 +1,14 @@
 package jio.test.stub;
 
-import fun.gen.Gen;
-import jio.IO;
-import jio.Lambda;
+import static java.util.Objects.requireNonNull;
 
+import fun.gen.Gen;
 import java.time.Duration;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
+import jio.Delay;
+import jio.IO;
+import jio.Lambda;
 
 /**
  * A builder for building `IO` stubs instances using generators of IO effects. class, where delays and failures can be
@@ -95,7 +95,8 @@ public final class StubBuilder<GenValue> implements Supplier<IO<GenValue>> {
   @Override
   public IO<GenValue> get() {
     Lambda<IO<GenValue>, GenValue> delay = it -> delayGen == null ? it : IO.lazy(delayGen.sample())
-                                                                           .then(it::sleep);
+                                                                           .then(duration -> Delay.of(duration,executor)
+                                                                                                  .then(n->it));
     return executor == null ? IO.lazy(gen.sample())
                                 .then(delay) : IO.lazy(gen.sample(),
                                                        executor)

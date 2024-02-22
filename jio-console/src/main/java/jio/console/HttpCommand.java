@@ -1,15 +1,18 @@
 package jio.console;
 
-import jio.IO;
-import jio.time.Clock;
-import jsonvalues.*;
-
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import jio.IO;
+import jio.time.Clock;
+import jsonvalues.JsArray;
+import jsonvalues.JsInt;
+import jsonvalues.JsLong;
+import jsonvalues.JsObj;
+import jsonvalues.JsStr;
 
 /**
  * Represents a command that allows users to execute interactive programs that send HTTP requests and receive HTTP
@@ -41,16 +44,16 @@ public class HttpCommand extends Command {
   public HttpCommand(final String name,
                      final String description,
                      final BiFunction<JsObj, String[], IO<HttpResponse<String>>> req
-  ) {
+                    ) {
     super(String.format("%s %s",
                         PREFIX_COMMAND,
                         name
-    ),
+                       ),
           description,
           tokens -> tokens[0].equals(PREFIX_COMMAND)
                     && tokens.length > 1
                     && name.equalsIgnoreCase(Functions.joinTail(tokens))
-    );
+         );
     this.request = req;
   }
 
@@ -64,7 +67,7 @@ public class HttpCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> IO.lazy(Clock.realTime)
                        .then(tic -> request.apply(conf,
                                                   tokens)
@@ -84,9 +87,9 @@ public class HttpCommand extends Command {
                                                                  "headers",
                                                                  headers2Obj(resp.headers()
                                                                                  .map())
-                                           )
+                                                                )
                                                              .toString()
-                                           ));
+                                               ));
   }
 
   private JsObj headers2Obj(final Map<String, List<String>> map) {
@@ -97,7 +100,7 @@ public class HttpCommand extends Command {
                                               .stream()
                                               .map(JsStr::of)
                                               .collect(Collectors.toList()))
-      );
+                     );
     }
     return json;
   }

@@ -1,6 +1,11 @@
 package jio.api.exp;
 
+import static jio.RetryPolicies.incrementalDelay;
+
 import fun.gen.Gen;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.CompletableFuture;
 import jio.IO;
 import jio.RetryPolicies;
 import jio.RetryPolicy;
@@ -11,14 +16,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-
-import static jio.RetryPolicies.incrementalDelay;
-
-public class TestRetries {
+public class RetriesTests {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
@@ -30,7 +28,7 @@ public class TestRetries {
   public void testRetryLimits() {
 
     Gen<IO<Integer>> gen = Gen.seq(n -> n < 3500 ? IO.fail(new RuntimeException()) : IO.succeed(1)
-    );
+                                  );
     StubBuilder<Integer> stub = StubBuilder.ofGen(gen);
 
     CompletableFuture<Integer> future = stub.get()
@@ -56,15 +54,15 @@ public class TestRetries {
                             val.get()
                                .retry(RetryPolicies.limitRetries(3))
                                .join()
-    );
+                           );
 
     Assertions.assertEquals("a",
                             val.get()
                                .retry(e -> e instanceof RuntimeException,
                                       RetryPolicies.limitRetries(3)
-                               )
+                                     )
                                .join()
-    );
+                           );
   }
 
   @Test
@@ -78,7 +76,7 @@ public class TestRetries {
                             () -> val.get()
                                      .retry(RetryPolicies.limitRetries(2))
                                      .result()
-    );
+                           );
   }
 
   @Test
@@ -96,7 +94,7 @@ public class TestRetries {
                        .join();
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
-    )
+                               )
                             .toSeconds();
 
     Assertions.assertTrue(duration >= 6);
@@ -119,10 +117,10 @@ public class TestRetries {
     Assertions.assertThrows(RuntimeException.class,
                             () -> val.retry(retryPolicy)
                                      .result()
-    );
+                           );
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
-    )
+                               )
                             .toSeconds();
 
     Assertions.assertTrue(duration >= 3);

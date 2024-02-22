@@ -1,20 +1,17 @@
 package jio.http.client;
 
-import java.net.http.HttpConnectTimeoutException;
-import jio.ExceptionFun;
-import jio.http.client.oauth.AccessTokenNotFound;
 import java.net.ConnectException;
+import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpTimeoutException;
 import java.util.function.Predicate;
+import jio.ExceptionFun;
+import jio.http.client.oauth.AccessTokenNotFound;
 
 /**
  * A utility class containing predicates to identify specific exceptions that may occur when connecting to a server.
  * These predicates help you classify exceptions, such as timeouts, unresolved hosts, network issues, and more.
  */
 public final class HttpExceptionFun {
-
-  private HttpExceptionFun() {
-  }
 
   /**
    * Predicate to check if the given throwable indicates a request timeout. This predicate can be used to filter or
@@ -28,7 +25,6 @@ public final class HttpExceptionFun {
   public static final Predicate<Throwable> HAS_REQUEST_TIMEOUT = e -> ExceptionFun.findCauseRecursively(cause -> cause instanceof HttpTimeoutException)
                                                                                   .apply(e)
                                                                                   .isPresent();
-
   /**
    * Predicate to check if the given throwable indicates a connection timeout. This predicate can be used to filter or
    * handle exceptions related to connection timeouts during HTTP requests.
@@ -41,7 +37,6 @@ public final class HttpExceptionFun {
   public static final Predicate<Throwable> HAS_CONNECTION_TIMEOUT = exc -> ExceptionFun.findCauseRecursively(it -> it instanceof HttpConnectTimeoutException)
                                                                                        .apply(exc)
                                                                                        .isPresent();
-
   /**
    * Predicate to check if the given throwable indicates that an OAuth token was not found. This predicate can be used
    * to filter or handle exceptions related to missing OAuth tokens.
@@ -53,5 +48,8 @@ public final class HttpExceptionFun {
   public static final Predicate<Throwable> HAS_OAUTH_TOKEN_NOT_FOUND = exc -> ExceptionFun.findCauseRecursively(it -> it instanceof AccessTokenNotFound)
                                                                                           .apply(exc)
                                                                                           .isPresent();
+
+  private HttpExceptionFun() {
+  }
 
 }

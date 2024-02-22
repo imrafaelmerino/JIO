@@ -1,14 +1,13 @@
 package jio.mongodb;
 
+import static java.util.Objects.requireNonNull;
+
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import mongovalues.JsValuesRegistry;
-
 import java.util.function.Function;
-
-import static java.util.Objects.requireNonNull;
+import mongovalues.JsValuesRegistry;
 
 /**
  * A builder class for creating MongoDB client instances with custom configurations. This class provides flexibility in
@@ -30,10 +29,10 @@ public final class MongoClientBuilder {
    * Default builder with the default configuration and the codecs to work with JSON from json-values.
    */
   public static final MongoClientBuilder DEFAULT = new MongoClientBuilder(
-                                                                          con -> MongoClientSettings.builder()
-                                                                                                    .applyConnectionString(con)
-                                                                                                    .codecRegistry(JsValuesRegistry.INSTANCE)
-                                                                                                    .build()
+      con -> MongoClientSettings.builder()
+                                .applyConnectionString(con)
+                                .codecRegistry(JsValuesRegistry.INSTANCE)
+                                .build()
   );
 
   final Function<String, ConnectionString> buildConnection;
@@ -62,7 +61,7 @@ public final class MongoClientBuilder {
    */
   public static MongoClientBuilder of(final Function<String, ConnectionString> buildConnection,
                                       final Function<ConnectionString, MongoClientSettings> buildSettings
-  ) {
+                                     ) {
     return new MongoClientBuilder(requireNonNull(buildConnection),
                                   requireNonNull(buildSettings));
   }
@@ -91,6 +90,6 @@ public final class MongoClientBuilder {
   public MongoClient build(final String connection) {
     return MongoClients.create(buildConnection.andThen(buildSettings)
                                               .apply(requireNonNull(connection))
-    );
+                              );
   }
 }

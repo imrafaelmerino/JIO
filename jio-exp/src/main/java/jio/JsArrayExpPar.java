@@ -1,7 +1,6 @@
 package jio;
 
-import jsonvalues.JsArray;
-import jsonvalues.JsValue;
+import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -10,14 +9,14 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jsonvalues.JsArray;
+import jsonvalues.JsValue;
 
 final class JsArrayExpPar extends JsArrayExp {
 
   public JsArrayExpPar(List<IO<? extends JsValue>> list,
                        Function<EvalExpEvent, BiConsumer<JsArray, Throwable>> debugger
-  ) {
+                      ) {
     super(list,
           debugger);
   }
@@ -34,7 +33,7 @@ final class JsArrayExpPar extends JsArrayExp {
     for (final IO<? extends JsValue> future : list) {
       result = result.thenCombine(future.get(),
                                   JsArray::append
-      );
+                                 );
     }
     return result;
   }
@@ -42,15 +41,15 @@ final class JsArrayExpPar extends JsArrayExp {
   @Override
   public JsArrayExp retryEach(final Predicate<? super Throwable> predicate,
                               final RetryPolicy policy
-  ) {
+                             ) {
     requireNonNull(predicate);
     requireNonNull(policy);
 
     return new JsArrayExpPar(list.stream()
                                  .map(it -> it.retry(predicate,
                                                      policy
-                                 )
-                                 )
+                                                    )
+                                     )
                                  .collect(Collectors.toList()),
                              jfrPublisher
     );
@@ -58,11 +57,11 @@ final class JsArrayExpPar extends JsArrayExp {
 
   @Override
   public JsArrayExp debugEach(final EventBuilder<JsArray> eventBuilder
-  ) {
+                             ) {
     Objects.requireNonNull(eventBuilder);
     return new JsArrayExpPar(debugJsArray(list,
                                           eventBuilder
-    ),
+                                         ),
                              getJFRPublisher(eventBuilder)
     );
   }

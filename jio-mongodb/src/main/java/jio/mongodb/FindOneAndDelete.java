@@ -77,14 +77,14 @@ public final class FindOneAndDelete extends Op implements MongoLambda<JsObj, JsO
                          final JsObj query) {
     Objects.requireNonNull(query);
     Supplier<JsObj> supplier = decorateWithEvent(() -> {
-      var collection = requireNonNull(this.collection.get());
-      return session == null ? collection.findOneAndDelete(toBson(query),
-                                                           options) : collection.findOneAndDelete(session,
-                                                                                                  toBson(query),
-                                                                                                  options);
-    },
+                                                   var collection = requireNonNull(this.collection.get());
+                                                   return session == null ? collection.findOneAndDelete(toBson(query),
+                                                                                                        options) : collection.findOneAndDelete(session,
+                                                                                                                                               toBson(query),
+                                                                                                                                               options);
+                                                 },
                                                  FIND_ONE_AND_DELETE
-    );
+                                                );
     return IO.managedLazy(supplier);
   }
 

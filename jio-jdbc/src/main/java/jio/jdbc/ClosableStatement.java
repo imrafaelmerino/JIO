@@ -73,7 +73,7 @@ public interface ClosableStatement<Params, Output> extends BiLambda<Params, Conn
    * @param failureMap The Function to map the failure.
    * @return A new ClosableStatement with the mapped failure.
    */
-  default ClosableStatement<Params, Output> mapFailure(Function<Throwable, Throwable> failureMap) {
+  default ClosableStatement<Params, Output> mapFailure(Function<? super Throwable, ? extends Throwable> failureMap) {
     return (params,
             connection) -> this.apply(params,
                                       connection)

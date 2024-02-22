@@ -1,15 +1,14 @@
 package jio.console;
 
-import jio.IO;
-import jio.RetryPolicies;
-import jsonvalues.JsObj;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Function;
+import jio.IO;
+import jio.RetryPolicies;
+import jsonvalues.JsObj;
 
 /**
  * Command to read the content from a file with the command:
@@ -40,14 +39,14 @@ class ReadFileCommand extends Command {
                   $command /Users/username/json.txt
                   $command $var""".replace("$command",
                                            COMMAND_NAME)
-    );
+         );
   }
 
   @Override
 
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> {
       int nArgs = tokens.length - 1;
       if (nArgs == 0) {
@@ -57,8 +56,8 @@ class ReadFileCommand extends Command {
                                                                                   .isFile(),
                                                                      "File not found",
                                                                      RetryPolicies.limitRetries(3)
-        )
-        )
+                                      )
+                                     )
                        .then(this::readFile);
       }
       return readFile(Functions.joinTail(tokens));
@@ -80,8 +79,8 @@ class ReadFileCommand extends Command {
     } catch (IOException e) {
       return IO.fail(new InvalidCommand(this,
                                         e.getMessage()
-      )
-      );
+                     )
+                    );
     }
 
   }

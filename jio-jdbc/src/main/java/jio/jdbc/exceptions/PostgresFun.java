@@ -2,10 +2,9 @@ package jio.jdbc.exceptions;
 
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import jio.ExceptionFun;
 import org.postgresql.util.PSQLException;
-
-import java.util.function.Predicate;
 import org.postgresql.util.PSQLState;
 
 /**
@@ -51,34 +50,6 @@ public final class PostgresFun {
   public static final Function<Throwable, Optional<PSQLException>> findPSQLExceptionRecursively = e -> ExceptionFun.findCauseRecursively(exc -> exc instanceof PSQLException)
                                                                                                                    .apply(e)
                                                                                                                    .map(it -> ((PSQLException) it));
-
-  /**
-   * Predicate to check if the given exception is a {@link PSQLException} with a specified SQL state.
-   *
-   * @param sqlStatePredicate The predicate to test the SQL state of the {@link PSQLException}.
-   * @return A predicate that checks if the SQL state of the {@link PSQLException} satisfies the provided predicate.
-   * @see PSQLException
-   * @see PSQLState
-   */
-  public static Predicate<Throwable> findPSQLExceptionRecursively(Predicate<String> sqlStatePredicate) {
-    return e -> findPSQLExceptionRecursively.apply(e)
-                                            .map(exc -> sqlStatePredicate.test(exc.getSQLState()))
-                                            .orElse(false);
-  }
-
-  private static final String QUERY_CANCELED_CODE = "57014";
-
-  /**
-   * Predicate for identifying exceptions related to statement timeout. Turns out the server cancels the query when the
-   * query timeout expires.
-   *
-   * @see PSQLException
-   */
-  public static final Predicate<Throwable> HAS_QUERY_CANCELED = findPSQLExceptionRecursively(QUERY_CANCELED_CODE::equals);
-
-  private PostgresFun() {
-  }
-
   /**
    * Predicate to check if the given exception is a connection error specific to PostgreSQL. This predicate can be used
    * to filter or handle exceptions related to database connections.
@@ -97,5 +68,31 @@ public final class PostgresFun {
    * @see ExceptionFun#findUltimateCause(Throwable)
    */
   public final static Predicate<Throwable> HAS_CONNECTION_ERROR = findPSQLExceptionRecursively(PSQLState::isConnectionError);
+  private static final String QUERY_CANCELED_CODE = "57014";
+
+  /**
+   * Predicate for identifying exceptions related to statement timeout. Turns out the server cancels the query when the
+   * query timeout expires.
+   *
+   * @see PSQLException
+   */
+  public static final Predicate<Throwable> HAS_QUERY_CANCELED = findPSQLExceptionRecursively(QUERY_CANCELED_CODE::equals);
+
+  private PostgresFun() {
+  }
+
+  /**
+   * Predicate to check if the given exception is a {@link PSQLException} with a specified SQL state.
+   *
+   * @param sqlStatePredicate The predicate to test the SQL state of the {@link PSQLException}.
+   * @return A predicate that checks if the SQL state of the {@link PSQLException} satisfies the provided predicate.
+   * @see PSQLException
+   * @see PSQLState
+   */
+  public static Predicate<Throwable> findPSQLExceptionRecursively(Predicate<String> sqlStatePredicate) {
+    return e -> findPSQLExceptionRecursively.apply(e)
+                                            .map(exc -> sqlStatePredicate.test(exc.getSQLState()))
+                                            .orElse(false);
+  }
 
 }

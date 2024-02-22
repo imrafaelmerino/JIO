@@ -3,7 +3,6 @@ package jio.mongodb;
 import com.mongodb.ClientSessionOptions;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
-
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -33,7 +32,7 @@ public final class ClientSessionBuilder implements Supplier<ClientSession> {
    */
   ClientSessionBuilder(final MongoClient client,
                        final ClientSessionOptions options
-  ) {
+                      ) {
     this.client = Objects.requireNonNull(client);
     this.options = Objects.requireNonNull(options);
   }
@@ -47,7 +46,7 @@ public final class ClientSessionBuilder implements Supplier<ClientSession> {
    */
   public static ClientSessionBuilder of(final MongoClient client,
                                         final ClientSessionOptions options
-  ) {
+                                       ) {
     return new ClientSessionBuilder(client,
                                     options);
   }

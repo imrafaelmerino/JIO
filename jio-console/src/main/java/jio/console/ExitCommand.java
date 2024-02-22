@@ -1,9 +1,8 @@
 package jio.console;
 
+import java.util.function.Function;
 import jio.IO;
 import jsonvalues.JsObj;
-
-import java.util.function.Function;
 
 /**
  * Represents a command that shuts down the console. Usage: {@code exit}
@@ -22,7 +21,7 @@ class ExitCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     System.out.println("bye bye");
     System.exit(0);
     return null;

@@ -1,10 +1,10 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a function that takes an input and produces an IO effect.
@@ -13,20 +13,6 @@ import static java.util.Objects.requireNonNull;
  * @param <Output> the type of the effect
  */
 public interface Lambda<Input, Output> extends Function<Input, IO<Output>> {
-
-  /**
-   * Composes this Lambda with another Lambda, producing a new Lambda. The resulting Lambda, when applied to an input,
-   * will execute this Lambda followed by the other Lambda, creating a sequence of effects.
-   *
-   * @param <FinalOutput> the type of the result produced by the other Lambda
-   * @param other         the other Lambda to be executed after this Lambda
-   * @return a new Lambda that represents the composed effects
-   */
-  default <FinalOutput> Lambda<Input, FinalOutput> then(final Lambda<Output, FinalOutput> other) {
-    Objects.requireNonNull(other);
-    return i -> this.apply(i)
-                    .then(other);
-  }
 
   /**
    * Transforms a Predicate into a Lambda, producing boolean effects.
@@ -63,6 +49,20 @@ public interface Lambda<Input, Output> extends Function<Input, IO<Output>> {
         return IO.fail(e);
       }
     };
+  }
+
+  /**
+   * Composes this Lambda with another Lambda, producing a new Lambda. The resulting Lambda, when applied to an input,
+   * will execute this Lambda followed by the other Lambda, creating a sequence of effects.
+   *
+   * @param <FinalOutput> the type of the result produced by the other Lambda
+   * @param other         the other Lambda to be executed after this Lambda
+   * @return a new Lambda that represents the composed effects
+   */
+  default <FinalOutput> Lambda<Input, FinalOutput> then(final Lambda<Output, FinalOutput> other) {
+    Objects.requireNonNull(other);
+    return i -> this.apply(i)
+                    .then(other);
   }
 
   /**

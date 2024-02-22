@@ -4,20 +4,24 @@ import fun.gen.Gen;
 import fun.gen.IntGen;
 import fun.gen.PairGen;
 import fun.tuple.Pair;
-import jio.IO;
-import jio.Lambda;
-import jio.test.pbt.*;
-import jio.test.stub.StubBuilder;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
+import jio.IO;
+import jio.Lambda;
+import jio.test.pbt.Command;
+import jio.test.pbt.Property;
+import jio.test.pbt.PropertyBuilder;
+import jio.test.pbt.PropertyConsole;
+import jio.test.pbt.TestFailure;
+import jio.test.pbt.TestResult;
+import jio.test.stub.StubBuilder;
+import org.junit.jupiter.api.Test;
 
-public class TestProperties {
+public class ExampleProperties {
 
   static BiFunction<Integer, Integer, Integer> medium = (a,
                                                          b) -> (a + b) >>> 1;
@@ -25,7 +29,7 @@ public class TestProperties {
   static Property<Pair<Integer, Integer>> mediumProperty = PropertyBuilder.of("medium",
                                                                               PairGen.of(IntGen.biased(0),
                                                                                          IntGen.biased(0)
-                                                                              )
+                                                                                        )
                                                                                      .suchThat(pair -> pair.first()
                                                                                                        <= pair.second()),
                                                                               pair -> {
@@ -41,29 +45,33 @@ public class TestProperties {
                                                                                 }
                                                                                 return TestResult.SUCCESS;
                                                                               }
-  )
+                                                                             )
                                                                           .withClassifiers(Map.of("both",
                                                                                                   p -> p.first()
-                                                                                                       > Integer.MAX_VALUE
-                                                                                                         / 2
+                                                                                                       >
+                                                                                                       Integer.MAX_VALUE
+                                                                                                       / 2
                                                                                                        && p.second()
-                                                                                                          > Integer.MAX_VALUE
-                                                                                                            / 2,
+                                                                                                          >
+                                                                                                          Integer.MAX_VALUE
+                                                                                                          / 2,
                                                                                                   "none",
                                                                                                   p -> p.first()
-                                                                                                       < Integer.MAX_VALUE
-                                                                                                         / 2
+                                                                                                       <
+                                                                                                       Integer.MAX_VALUE
+                                                                                                       / 2
                                                                                                        && p.second()
-                                                                                                          < Integer.MAX_VALUE
-                                                                                                            / 2
-                                                                          ),
+                                                                                                          <
+                                                                                                          Integer.MAX_VALUE
+                                                                                                          / 2
+                                                                                                 ),
                                                                                            "one"
-                                                                          )
+                                                                                          )
 
                                                                           .get();
 
   public static void main(String[] args) throws IOException {
-    new PropertyConsole(List.of(TestProperties.class)).start(args);
+    new PropertyConsole(List.of(ExampleProperties.class)).start(args);
   }
 
   @Test
@@ -74,9 +82,9 @@ public class TestProperties {
                                 .map(Duration::ofSeconds);
 
     Lambda<Void, Integer> unused = $ -> StubBuilder.ofGen(Gen.seq(n -> n <= 4 ? IO.fail(new RuntimeException(n + ""))
-        : IO.succeed(n)
-    )
-    )
+                                                                              : IO.succeed(n)
+                                                                 )
+                                                         )
                                                    .withDelays(delayGen)
                                                    .withExecutor(Executors.newCachedThreadPool())
                                                    .get();

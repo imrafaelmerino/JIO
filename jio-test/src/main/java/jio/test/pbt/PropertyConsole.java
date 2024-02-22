@@ -1,10 +1,5 @@
 package jio.test.pbt;
 
-import jio.console.Command;
-import jio.console.Console;
-import jsonvalues.JsObj;
-import jsonvalues.spec.JsParserException;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +8,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import jio.console.Command;
+import jio.console.Console;
+import jsonvalues.JsObj;
+import jsonvalues.spec.JsParserException;
 
 /**
  * The `PropertyConsole` class is responsible for managing and interacting with properties using a console interface. It
@@ -76,7 +75,7 @@ public final class PropertyConsole {
     }
     if (args.length > 1) {
       System.out.println(
-                         "Only an argument with the absolute path to the configuration file is required");
+          "Only an argument with the absolute path to the configuration file is required");
     }
     console.eval(getConf(args[0]));
   }
@@ -98,8 +97,8 @@ public final class PropertyConsole {
       return JsObj.parse(conf);
     } catch (JsParserException e) {
       throw new IllegalArgumentException(
-                                         String.format("The content of the file %s is not a Json object",
-                                                       path));
+          String.format("The content of the file %s is not a Json object",
+                        path));
     }
 
   }
@@ -114,7 +113,7 @@ public final class PropertyConsole {
                                                .filter(f -> f.getType()
                                                              .equals(Property.class)
                                                             && f.isAnnotationPresent(jio.test.pbt.Command.class))
-                          )
+                                  )
                           .filter(f -> {
                             try {
                               //if f is not static it throws a NullPointerException
@@ -122,8 +121,8 @@ public final class PropertyConsole {
                               return true;
                             } catch (Exception e) {
                               System.out.printf(
-                                                "Property %s need to be static to be converted in a command callable from the console%n",
-                                                f.getName());
+                                  "Property %s need to be static to be converted in a command callable from the console%n",
+                                  f.getName());
                               return false;
                             }
                           })

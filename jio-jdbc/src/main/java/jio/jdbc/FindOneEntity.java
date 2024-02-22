@@ -1,6 +1,8 @@
 package jio.jdbc;
 
+import java.sql.Connection;
 import java.time.Duration;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import jio.IO;
 import jio.Lambda;
@@ -87,30 +89,22 @@ final class FindOneEntity<Filter, Entity> {
    *
    * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} that, when invoked, performs the query operation. Note: The operations are performed by
-   *         virtual threads.
+   * virtual threads.
    * @see #buildClosable() for using query statements during transactions
    */
   Lambda<Filter, Entity> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
-    return input -> IO.managedTask(() -> {
-      try (var connection = datasourceBuilder.get()
-                                             .getConnection()
-      ) {
-        try (var ps = connection.prepareStatement(sql)) {
-          return JfrEventDecorator.decorateQueryOneStm(
-                                                       () -> {
-                                                         var unused = setter.apply(input)
-                                                                            .apply(ps);
-                                                         ps.setQueryTimeout((int) timeout.toSeconds());
-                                                         ps.setFetchSize(fetchSize);
-                                                         var rs = ps.executeQuery();
-                                                         return mapper.apply(rs);
-                                                       },
-                                                       sql,
-                                                       enableJFR,
-                                                       label);
+    return input -> {
+      Callable<Entity> callable = () -> {
+        try (var connection = datasourceBuilder.get()
+                                               .getConnection()
+        ) {
+          return findOne(connection,
+                         input,
+                         fetchSize);
         }
-      }
-    });
+      };
+      return IO.managedTask(callable);
+    };
   }
 
   /**
@@ -119,26 +113,34 @@ final class FindOneEntity<Filter, Entity> {
    * its SQL, execute the query, and map the result.
    *
    * @return A {@code ClosableStatement} representing the query operation with a duration, input, and output. Note: The
-   *         operations are performed by virtual threads.
+   * operations are performed by virtual threads.
    */
   ClosableStatement<Filter, Entity> buildClosable() {
     return (filters,
-            connection) -> IO.managedTask(() -> {
-              try (var ps = connection.prepareStatement(sql)) {
-                return JfrEventDecorator.decorateQueryOneStm(
-                                                             () -> {
-                                                               var unused = setter.apply(filters)
-                                                                                  .apply(ps);
-                                                               ps.setQueryTimeout((int) timeout.toSeconds());
-                                                               ps.setFetchSize(1);
-                                                               var rs = ps.executeQuery();
-                                                               return rs.next() ? mapper.apply(rs) : null;
-                                                             },
-                                                             sql,
-                                                             enableJFR,
-                                                             label);
+            connection) -> {
+      Callable<Entity> callable = () -> findOne(connection,
+                                                filters,
+                                                1);
+      return IO.managedTask(callable);
+    };
+  }
 
-              }
-            });
+  private Entity findOne(final Connection connection,
+                         final Filter input,
+                         final int fetchSize) throws Exception {
+    try (var ps = connection.prepareStatement(sql)) {
+      return JfrEventDecorator.decorateQueryOneStm(
+          () -> {
+            var unused = setter.apply(input)
+                               .apply(ps);
+            ps.setQueryTimeout((int) timeout.toSeconds());
+            ps.setFetchSize(fetchSize);
+            var rs = ps.executeQuery();
+            return mapper.apply(rs);
+          },
+          sql,
+          enableJFR,
+          label);
+    }
   }
 }

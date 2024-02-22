@@ -1,14 +1,13 @@
 package jio.test.stub.httpserver;
 
+import static java.util.Objects.requireNonNull;
+
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * An abstract base class for implementing request handler stubs for HTTP server testing. This class allows you to
@@ -36,7 +35,7 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
                                 final Function<HttpExchange, Integer> code,
                                 final Function<HttpExchange, String> body,
                                 final String method
-  ) {
+                               ) {
     this.headers = requireNonNull(headers);
     this.code = requireNonNull(code);
     this.method = requireNonNull(method);
@@ -64,7 +63,7 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
           for (final String value : values) {
             headers.add(key,
                         value
-            );
+                       );
           }
         }
 
@@ -73,7 +72,7 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
                                  .getBytes(StandardCharsets.UTF_8);
           exchange.sendResponseHeaders(code.apply(exchange),
                                        bodyBytes.length
-          );
+                                      );
           outputStream.write(bodyBytes);
           outputStream.flush();
         }
@@ -81,7 +80,7 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
       } catch (Exception e) {
         returnExceptionMessageError(exchange,
                                     e
-        );
+                                   );
       }
     } else {
       returnUnexpectedHttpMethodError(exchange,
@@ -92,13 +91,13 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
 
   private void returnExceptionMessageError(HttpExchange exchange,
                                            Exception e
-  ) throws IOException {
+                                          ) throws IOException {
     var outputStream = exchange.getResponseBody();
     var response = e.getMessage();
     byte[] bytesResponse = response.getBytes(StandardCharsets.UTF_8);
     exchange.sendResponseHeaders(500,
                                  bytesResponse.length
-    );
+                                );
     outputStream.write(bytesResponse);
     outputStream.flush();
     outputStream.close();
@@ -111,7 +110,7 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
       byte[] bytesResponse = response.getBytes(StandardCharsets.UTF_8);
       exchange.sendResponseHeaders(500,
                                    bytesResponse.length
-      );
+                                  );
       outputStream.write(bytesResponse);
       outputStream.flush();
     }

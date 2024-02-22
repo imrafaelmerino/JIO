@@ -1,6 +1,10 @@
 package jio.mongodb;
 
-import jdk.jfr.*;
+import jdk.jfr.Category;
+import jdk.jfr.Description;
+import jdk.jfr.Event;
+import jdk.jfr.Label;
+import jdk.jfr.Name;
 
 @Label("MongoDB Operation")
 @Name("jio.mongodb.Op")

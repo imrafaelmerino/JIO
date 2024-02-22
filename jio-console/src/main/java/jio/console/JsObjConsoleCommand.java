@@ -1,11 +1,10 @@
 package jio.console;
 
+import java.util.function.Function;
 import jio.IO;
 import jsonvalues.JsObj;
 import jsonvalues.JsPath;
 import jsonvalues.Json;
-
-import java.util.function.Function;
 
 /**
  * Class to create different commands to execute interactive programs that allow the user to compose a JSON given a
@@ -39,7 +38,7 @@ public class JsObjConsoleCommand extends Command {
   public JsObjConsoleCommand(final String name,
                              final String description,
                              final JsObjConsole objConsole
-  ) {
+                            ) {
     super(String.format("%s %s",
                         COMMAND_NAME,
                         name),
@@ -53,7 +52,7 @@ public class JsObjConsoleCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> program.apply(JsPath.empty())
                             .map(Json::toPrettyString);
   }

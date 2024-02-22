@@ -16,14 +16,14 @@ public class InvalidCommand extends Exception {
    */
   public InvalidCommand(final Command command,
                         final String reason
-  ) {
+                       ) {
     super(ControlChars.RED.code +
           String.format("Invalid command.\nReason: %s.\nCommand description: %s",
                         reason,
                         command.description
-          )
+                       )
           + ControlChars.RESET.code
-    );
+         );
 
   }
 }

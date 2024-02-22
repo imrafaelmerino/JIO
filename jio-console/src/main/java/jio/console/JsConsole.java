@@ -1,5 +1,8 @@
 package jio.console;
 
+import static jio.console.Functions.indent;
+
+import java.util.Objects;
 import jio.IO;
 import jio.Lambda;
 import jio.RetryPolicies;
@@ -8,10 +11,6 @@ import jsonvalues.JsPath;
 import jsonvalues.JsValue;
 import jsonvalues.spec.JsParserException;
 import jsonvalues.spec.JsSpec;
-
-import java.util.Objects;
-
-import static jio.console.Functions.indent;
 
 /**
  * Represents a lambda that takes a JsPath and returns a JIO effect that executes an interactive program to compose the
@@ -38,20 +37,20 @@ public interface JsConsole<Output extends JsValue> extends Lambda<JsPath, Output
     return path -> Programs.PRINT_LINE(String.format("%s%s -> ",
                                                      indent(path),
                                                      path
-    )
-    )
+                                                    )
+                                      )
                            .then(__ -> Programs.READ_LINE)
                            .then(s -> {
-                             try {
-                               if (s.isEmpty()) {
-                                 return IO.succeed(JsNothing.NOTHING);
-                               }
-                               return IO.succeed(spec.parse(s));
-                             } catch (JsParserException e) {
-                               return IO.fail(e);
-                             }
-                           }
-                           )
+                                   try {
+                                     if (s.isEmpty()) {
+                                       return IO.succeed(JsNothing.NOTHING);
+                                     }
+                                     return IO.succeed(spec.parse(s));
+                                   } catch (JsParserException e) {
+                                     return IO.fail(e);
+                                   }
+                                 }
+                                )
                            .peekFailure(exc -> System.out.println(indent(path) + "Error: " + exc.getMessage()))
                            .retry(RetryPolicies.limitRetries(3));
   }

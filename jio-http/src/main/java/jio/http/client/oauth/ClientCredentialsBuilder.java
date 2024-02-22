@@ -1,16 +1,15 @@
 package jio.http.client.oauth;
 
-import jio.IO;
-import jio.Lambda;
-import jio.http.client.JioHttpClientBuilder;
+import static java.util.Objects.requireNonNull;
 
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
+import jio.IO;
+import jio.Lambda;
+import jio.http.client.JioHttpClientBuilder;
 
 /**
  * Builder to create a http client with OAuth Client Credentials Grant support. The following options can be
@@ -38,13 +37,13 @@ public final class ClientCredentialsBuilder implements Supplier<OauthHttpClient>
   String authorizationHeaderName = "Authorization";
   Function<String, String> authorizationHeaderValue = token -> String.format("Bearer %s",
                                                                              token
-  );
+                                                                            );
 
   private ClientCredentialsBuilder(final JioHttpClientBuilder builder,
                                    final Lambda<OauthHttpClient, HttpResponse<String>> accessTokenReq,
                                    final Lambda<HttpResponse<String>, String> getAccessToken,
                                    final Predicate<HttpResponse<?>> refreshTokenPredicate
-  ) {
+                                  ) {
     this.client = builder;
     this.accessTokenReq = requireNonNull(accessTokenReq);
     this.getAccessToken = requireNonNull(getAccessToken);
@@ -84,7 +83,7 @@ public final class ClientCredentialsBuilder implements Supplier<OauthHttpClient>
                                             final Lambda<OauthHttpClient, HttpResponse<String>> accessTokenReq,
                                             final Lambda<HttpResponse<String>, String> getAccessToken,
                                             final Predicate<HttpResponse<?>> refreshTokenPredicate
-  ) {
+                                           ) {
     return new ClientCredentialsBuilder(builder,
                                         accessTokenReq,
                                         getAccessToken,

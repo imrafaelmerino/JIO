@@ -1,9 +1,8 @@
 package jio.http.client.oauth;
 
+import java.net.http.HttpResponse;
 import jio.http.client.HttpLambda;
 import jio.http.client.JioHttpClient;
-
-import java.net.http.HttpResponse;
 
 /**
  * An HTTP client with support for OAuth Client Credentials Grant. This client allows you to make HTTP requests with

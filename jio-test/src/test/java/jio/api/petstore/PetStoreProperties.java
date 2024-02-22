@@ -7,6 +7,16 @@ import fun.gen.Combinators;
 import fun.gen.Gen;
 import fun.gen.IntGen;
 import fun.tuple.Pair;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import jio.BiLambda;
 import jio.IO;
 import jio.ListExp;
@@ -18,7 +28,12 @@ import jio.http.client.oauth.GetAccessToken;
 import jio.http.client.oauth.OauthHttpClient;
 import jio.http.server.HttpServerBuilder;
 import jio.test.junit.Debugger;
-import jio.test.pbt.*;
+import jio.test.pbt.Group;
+import jio.test.pbt.Property;
+import jio.test.pbt.PropertyBuilder;
+import jio.test.pbt.TestFailure;
+import jio.test.pbt.TestResult;
+import jio.test.pbt.TestSuccess;
 import jio.test.pbt.rest.CRDPropBuilder;
 import jio.test.stub.httpserver.BodyStub;
 import jio.test.stub.httpserver.GetStub;
@@ -32,19 +47,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
 @Disabled
-public class TestPetStoreProperties {
+public class PetStoreProperties {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
@@ -56,23 +60,23 @@ public class TestPetStoreProperties {
                                                                         .withRetryPredicate(HAS_CONNECTION_TIMEOUT);
 
   static HttpServer server = HttpServerBuilder.of(Map.of(
-                                                         "/token",
-                                                         PostStub.of(BodyStub.gen(
-                                                                                  JsObjGen.of("access_token",
-                                                                                              JsStrGen.alphanumeric(10,
-                                                                                                                    10))
-                                                                                          .map(JsObj::toString)),
-                                                                     StatusCodeStub.cons(200)),
-                                                         "/thanks",
-                                                         GetStub.of(BodyStub.cons("your welcome!"),
-                                                                    StatusCodeStub.gen(Combinators.freq(Pair.of(5,
-                                                                                                                IntGen.arbitrary(200,
-                                                                                                                                 299)),
-                                                                                                        Pair.of(1,
-                                                                                                                Gen.cons(401))))
-                                                         )
-  )
-  )
+                                                  "/token",
+                                                  PostStub.of(BodyStub.gen(
+                                                                  JsObjGen.of("access_token",
+                                                                              JsStrGen.alphanumeric(10,
+                                                                                                    10))
+                                                                          .map(JsObj::toString)),
+                                                              StatusCodeStub.cons(200)),
+                                                  "/thanks",
+                                                  GetStub.of(BodyStub.cons("your welcome!"),
+                                                             StatusCodeStub.gen(Combinators.freq(Pair.of(5,
+                                                                                                         IntGen.arbitrary(200,
+                                                                                                                          299)),
+                                                                                                 Pair.of(1,
+                                                                                                         Gen.cons(401))))
+                                                            )
+                                                        )
+                                                 )
                                               .startAtRandom(8000,
                                                              9000);
 
@@ -94,10 +98,10 @@ public class TestPetStoreProperties {
 
   static {
     PostStub.of(BodyStub.gen(
-                             JsObjGen.of("access_token",
-                                         JsStrGen.alphanumeric(10,
-                                                               10))
-                                     .map(JsObj::toString)),
+                    JsObjGen.of("access_token",
+                                JsStrGen.alphanumeric(10,
+                                                      10))
+                            .map(JsObj::toString)),
                 StatusCodeStub.cons(200));
     GetStub.of(BodyStub.cons("your welcome!"),
                StatusCodeStub.gen(Combinators.freq(Pair.of(5,
@@ -105,41 +109,41 @@ public class TestPetStoreProperties {
                                                                             299)),
                                                    Pair.of(1,
                                                            Gen.cons(401))))
-    );
+              );
 
   }
 
   static Function<HttpResponse<String>, TestResult> assertResp(
-                                                               Predicate<HttpResponse<String>> predicate,
-                                                               String failureMessage
-  ) {
+      Predicate<HttpResponse<String>> predicate,
+      String failureMessage
+                                                              ) {
     return resp -> predicate.test(resp) ? TestSuccess.SUCCESS : TestFailure.reason(
-                                                                                   failureMessage + "." + "Response: "
-                                                                                   + resp.statusCode() + ", " + resp
-                                                                                                                    .body());
+        failureMessage + "." + "Response: "
+        + resp.statusCode() + ", " + resp
+            .body());
   }
 
   static BiLambda<JsObj, JsObj, HttpResponse<String>> post(String entity) {
     return (conf,
             body) -> oauthClient
-                                .ofString()
-                                .apply(HttpRequest.newBuilder()
-                                                  .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
-                                                  .uri(URI.create("https://petstore.swagger.io/v2/" + entity))
-                                                  .header("Content-Type",
-                                                          "application/json")
-                                );
+        .ofString()
+        .apply(HttpRequest.newBuilder()
+                          .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
+                          .uri(URI.create("https://petstore.swagger.io/v2/" + entity))
+                          .header("Content-Type",
+                                  "application/json")
+              );
   }
 
   static BiLambda<JsObj, String, HttpResponse<String>> get(String entity) {
 
     return (conf,
             id) -> oauthClient
-                              .ofString()
-                              .apply(HttpRequest.newBuilder()
-                                                .GET()
-                                                .uri(URI.create("https://petstore.swagger.io/v2/" + entity + "/" + id))
-                              );
+        .ofString()
+        .apply(HttpRequest.newBuilder()
+                          .GET()
+                          .uri(URI.create("https://petstore.swagger.io/v2/" + entity + "/" + id))
+              );
   }
 
   static BiLambda<JsObj, String, HttpResponse<String>> delete(String entity) {
@@ -148,8 +152,8 @@ public class TestPetStoreProperties {
                               .apply(HttpRequest.newBuilder()
                                                 .DELETE()
                                                 .uri(URI.create(
-                                                                "https://petstore.swagger.io/v2/" + entity + "/" + id))
-                              );
+                                                    "https://petstore.swagger.io/v2/" + entity + "/" + id))
+                                    );
   }
 
   public static void main(String[] args) {
@@ -171,7 +175,7 @@ public class TestPetStoreProperties {
                                   .map(responses -> responses.stream()
                                                              .map(HttpResponse::statusCode)
                                                              .toList()
-                                  )
+                                      )
                                   .join();
 
   }
@@ -187,7 +191,7 @@ public class TestPetStoreProperties {
                                                                            .map(resp -> assertResp(is400,
                                                                                                    "4XX status code was expected").apply(resp))
 
-    )
+                                                     )
                                             .withTimes(100)
                                             .get();
   }
@@ -203,7 +207,7 @@ public class TestPetStoreProperties {
                                                                                   body)
                                                                            .map(resp -> assertResp(is400,
                                                                                                    "4XX status code was expected").apply(resp))
-    )
+                                                     )
                                             .withTimes(100)
                                             .get();
 
@@ -231,7 +235,7 @@ public class TestPetStoreProperties {
     var report = Group.of("petstore",
                           List.of(crudPetFlow,
                                   userPetFlow)
-    )
+                         )
                       .par()
                       .join();
 
@@ -245,9 +249,9 @@ public class TestPetStoreProperties {
                                                                              .GET()
                                                                              .uri(URI.create("https://petstore.swagger.io/v2/%s/%s".formatted(entity,
                                                                                                                                               id
-                                                                             )
-                                                                             )
-                                                                             );
+                                                                                                                                             )
+                                                                                            )
+                                                                                 );
 
     IO<HttpResponse<String>> getPet = oauthClient.ofString()
                                                  .apply(GET.apply("pet",
@@ -261,7 +265,7 @@ public class TestPetStoreProperties {
                                   .map(responses -> responses.stream()
                                                              .map(HttpResponse::statusCode)
                                                              .toList()
-                                  )
+                                      )
                                   .join();
 
     System.out.println(status);

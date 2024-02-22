@@ -1,15 +1,14 @@
 package jio.test.pbt;
 
-import jio.IO;
-import jio.console.Command;
-import jio.console.State;
-import jsonvalues.JsObj;
+import static java.util.Objects.requireNonNull;
 
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-
-import static java.util.Objects.requireNonNull;
+import jio.IO;
+import jio.console.Command;
+import jio.console.State;
+import jsonvalues.JsObj;
 
 /**
  * Command to execute {@link Property properties} with the command:
@@ -40,11 +39,11 @@ class PropertyCommand extends Command {
     super(String.format("%s %s",
                         PREFIX_COMMAND,
                         requireNonNull(prop).name
-    ),
+                       ),
           prop.description,
           tokens -> tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
                     && tokens[1].equalsIgnoreCase(prop.name)
-    );
+         );
     this.prop = requireNonNull(prop);
   }
 
@@ -60,7 +59,7 @@ class PropertyCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> {
       String command = String.join(" ",
                                    Arrays.stream(tokens)

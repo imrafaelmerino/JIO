@@ -1,12 +1,11 @@
 package jio.test.junit;
 
-import jdk.jfr.consumer.RecordedEvent;
-import jio.test.Utils;
-import jio.time.Fun;
-
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
+import jdk.jfr.consumer.RecordedEvent;
+import jio.test.Utils;
+import jio.time.Fun;
 
 @SuppressWarnings("InlineFormatString")
 final class EvalExpDebugger implements Consumer<RecordedEvent> {
@@ -41,7 +40,7 @@ final class EvalExpDebugger implements Consumer<RecordedEvent> {
                                  .atZone(ZoneId.systemDefault())
                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 
-    );
+                           );
     synchronized (System.out) {
       System.out.println(str);
       System.out.flush();

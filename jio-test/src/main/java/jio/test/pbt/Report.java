@@ -1,9 +1,5 @@
 package jio.test.pbt;
 
-import jio.time.Fun;
-import jsonvalues.*;
-import org.junit.jupiter.api.Assertions;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -15,6 +11,14 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import jio.time.Fun;
+import jsonvalues.JsArray;
+import jsonvalues.JsInstant;
+import jsonvalues.JsInt;
+import jsonvalues.JsLong;
+import jsonvalues.JsObj;
+import jsonvalues.JsStr;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * Represents the result of the execution of a property-based test ({@link Property}). A report can be serialized into
@@ -69,7 +73,7 @@ public final class Report {
 
   Report(final String name,
          final String description
-  ) {
+        ) {
     this.propName = name;
     this.propDescription = description;
   }
@@ -244,38 +248,38 @@ public final class Report {
    */
   public JsObj toJson() {
     return JsObj.of(
-                    "name",
-                    JsStr.of(propName),
-                    "n_tests",
-                    JsInt.of(tests),
-                    "n_failures",
-                    JsInt.of(failures.size()),
-                    "n_exceptions",
-                    JsInt.of(exceptions.size()),
-                    "description",
-                    JsStr.of(propDescription),
-                    "start_time",
-                    JsInstant.of(startTime),
-                    "end_time",
-                    JsInstant.of(endTime),
-                    "avg_time",
-                    JsLong.of(avgTime),
-                    "max_time",
-                    JsLong.of(maxTime),
-                    "min_time",
-                    JsLong.of(minTime),
-                    "accumulative_time",
-                    JsLong.of(accumulativeTime),
-                    "failures",
-                    JsArray.ofIterable(failures.stream()
-                                               .map(FailureContext::toJson)
-                                               .toList()
-                    ),
-                    "exceptions",
-                    JsArray.ofIterable(exceptions.stream()
-                                                 .map(ExceptionContext::toJson)
-                                                 .toList())
-    );
+        "name",
+        JsStr.of(propName),
+        "n_tests",
+        JsInt.of(tests),
+        "n_failures",
+        JsInt.of(failures.size()),
+        "n_exceptions",
+        JsInt.of(exceptions.size()),
+        "description",
+        JsStr.of(propDescription),
+        "start_time",
+        JsInstant.of(startTime),
+        "end_time",
+        JsInstant.of(endTime),
+        "avg_time",
+        JsLong.of(avgTime),
+        "max_time",
+        JsLong.of(maxTime),
+        "min_time",
+        JsLong.of(minTime),
+        "accumulative_time",
+        JsLong.of(accumulativeTime),
+        "failures",
+        JsArray.ofIterable(failures.stream()
+                                   .map(FailureContext::toJson)
+                                   .toList()
+                          ),
+        "exceptions",
+        JsArray.ofIterable(exceptions.stream()
+                                     .map(ExceptionContext::toJson)
+                                     .toList())
+                   );
   }
 
   Report aggregatePar(Report other) {
@@ -332,7 +336,7 @@ public final class Report {
                             return String.format("Property %s with failures and exceptions. JSON report: ",
                                                  propName) + this.toJson();
                           }
-    );
+                         );
   }
 
   /**
@@ -342,10 +346,10 @@ public final class Report {
   public void assertNoFailures() {
 
     Assertions.assertTrue(getFailures()
-                                       .isEmpty(),
+                              .isEmpty(),
                           () -> String.format("Property %s with failures: ",
                                               propName) + this.toJson()
-    );
+                         );
   }
 
   /**
@@ -356,11 +360,11 @@ public final class Report {
    */
   public void assertThat(Predicate<Report> condition,
                          Supplier<String> message
-  ) {
+                        ) {
 
     Assertions.assertTrue(condition.test(this),
                           message
-    );
+                         );
   }
 
   /**
@@ -380,14 +384,14 @@ public final class Report {
       if (getExceptions().isEmpty() && getFailures().isEmpty()) {
         System.out.printf("  + OK, passed %d tests.\n",
                           tests
-        );
+                         );
       } else if (getExceptions().isEmpty()) {
         System.out.printf("  ! KO, passed %d tests (%s) and %d (%s) ended with a failure.\n",
                           tests - getFailures().size(),
                           calculatePer(tests - getFailures().size()),
                           getFailures().size(),
                           calculatePer(getFailures().size())
-        );
+                         );
         printFailuresValues();
       } else if (getFailures().isEmpty()) {
         System.out.printf("  ! KO, passed %d tests (%s) and %d (%s) ended with a exception.\n",
@@ -395,18 +399,18 @@ public final class Report {
                           calculatePer(tests),
                           getExceptions().size(),
                           0
-        );
+                         );
         printExceptionsValues();
       } else {
         System.out.printf(
-                          "  ! KO, passed %d tests (%s), %d (%s) ended with a failure and %d (%s) ended with a exception.\n",
-                          tests - getExceptions().size() - getFailures().size(),
-                          calculatePer(tests - getExceptions().size() - getFailures().size()),
-                          getFailures().size(),
-                          calculatePer(getFailures().size()),
-                          getExceptions().size(),
-                          calculatePer(getExceptions().size())
-        );
+            "  ! KO, passed %d tests (%s), %d (%s) ended with a failure and %d (%s) ended with a exception.\n",
+            tests - getExceptions().size() - getFailures().size(),
+            calculatePer(tests - getExceptions().size() - getFailures().size()),
+            getFailures().size(),
+            calculatePer(getFailures().size()),
+            getExceptions().size(),
+            calculatePer(getExceptions().size())
+                         );
         printFailuresValues();
         printExceptionsValues();
       }
@@ -429,10 +433,10 @@ public final class Report {
   private void printFailuresValues() {
     System.out.println("  Some generated values that caused a failure:");
     var failureValues = getFailures()
-                                     .stream()
-                                     .limit(20)
-                                     .map(it -> addTagToVal(it.context()))
-                                     .collect(Collectors.joining(","));
+        .stream()
+        .limit(20)
+        .map(it -> addTagToVal(it.context()))
+        .collect(Collectors.joining(","));
 
     System.out.println("   " + failureValues);
   }
@@ -441,10 +445,10 @@ public final class Report {
     System.out.println("  Some generated values that caused an exception:");
 
     var failureValues = getExceptions()
-                                       .stream()
-                                       .limit(20)
-                                       .map(it -> addTagToVal(it.context()))
-                                       .collect(Collectors.joining(","));
+        .stream()
+        .limit(20)
+        .map(it -> addTagToVal(it.context()))
+        .collect(Collectors.joining(","));
 
     System.out.println("   " + failureValues);
     System.out.println();
@@ -469,7 +473,7 @@ public final class Report {
                  value) -> System.out.printf("     %s %s%n",
                                              calculatePer(value),
                                              key
-                 ));
+                                            ));
   }
 
   private String calculatePer(long n) {

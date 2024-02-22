@@ -1,16 +1,19 @@
 package jio.test.pbt;
 
-import jio.IO;
-import jio.ListExp;
-import jsonvalues.JsObj;
+import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-
-import static java.util.Objects.requireNonNull;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import jio.IO;
+import jio.ListExp;
+import jsonvalues.JsObj;
 
 /**
  * Represents a group of testable properties to be executed together. Properties can be executed sequentially or in

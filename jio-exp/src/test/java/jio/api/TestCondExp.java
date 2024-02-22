@@ -11,204 +11,204 @@ public class TestCondExp {
   public void sequential_constructors() {
 
     Assertions.assertEquals(
-                            "B",
-                            CondExp.seq(IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.TRUE,
-                                        () -> Constants.B,
-                                        () -> Constants.C
-                            )
-                                   .map(String::toUpperCase)
-                                   .join());
+        "B",
+        CondExp.seq(IO.FALSE,
+                    () -> Constants.A,
+                    IO.TRUE,
+                    () -> Constants.B,
+                    () -> Constants.C
+                   )
+               .map(String::toUpperCase)
+               .join());
 
     Assertions.assertNull(
-                          CondExp.seq(IO.FALSE,
-                                      () -> Constants.A,
-                                      IO.FALSE,
-                                      () -> Constants.B
-                          )
-                                 .join());
+        CondExp.seq(IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B
+                   )
+               .join());
 
     Assertions.assertEquals(
-                            "C",
-                            CondExp.seq(IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.FALSE,
-                                        () -> Constants.B,
-                                        IO.TRUE,
-                                        () -> Constants.C,
-                                        () -> Constants.C
-                            )
-                                   .map(String::toUpperCase)
-                                   .join());
+        "C",
+        CondExp.seq(IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B,
+                    IO.TRUE,
+                    () -> Constants.C,
+                    () -> Constants.C
+                   )
+               .map(String::toUpperCase)
+               .join());
 
     Assertions.assertEquals(
-                            "D",
-                            CondExp.seq(IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.FALSE,
-                                        () -> Constants.B,
-                                        IO.FALSE,
-                                        () -> Constants.C,
-                                        IO.TRUE,
-                                        () -> Constants.D,
-                                        () -> Constants.C
-                            )
-                                   .map(String::toUpperCase)
-                                   .join());
+        "D",
+        CondExp.seq(IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B,
+                    IO.FALSE,
+                    () -> Constants.C,
+                    IO.TRUE,
+                    () -> Constants.D,
+                    () -> Constants.C
+                   )
+               .map(String::toUpperCase)
+               .join());
 
     Assertions.assertEquals(
-                            "A",
-                            CondExp.seq(IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.FALSE,
-                                        () -> Constants.B,
-                                        IO.FALSE,
-                                        () -> Constants.C,
-                                        IO.FALSE,
-                                        () -> Constants.D,
-                                        IO.TRUE,
-                                        () -> Constants.A,
-                                        () -> Constants.C
-                            )
-                                   .map(String::toUpperCase)
-                                   .join());
+        "A",
+        CondExp.seq(IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B,
+                    IO.FALSE,
+                    () -> Constants.C,
+                    IO.FALSE,
+                    () -> Constants.D,
+                    IO.TRUE,
+                    () -> Constants.A,
+                    () -> Constants.C
+                   )
+               .map(String::toUpperCase)
+               .join());
 
     Assertions.assertEquals(
-                            "B",
-                            CondExp.seq(IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.FALSE,
-                                        () -> Constants.B,
-                                        IO.FALSE,
-                                        () -> Constants.C,
-                                        IO.FALSE,
-                                        () -> Constants.D,
-                                        IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.TRUE,
-                                        () -> Constants.B,
-                                        () -> Constants.C
-                            )
-                                   .map(String::toUpperCase)
-                                   .join());
+        "B",
+        CondExp.seq(IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B,
+                    IO.FALSE,
+                    () -> Constants.C,
+                    IO.FALSE,
+                    () -> Constants.D,
+                    IO.FALSE,
+                    () -> Constants.A,
+                    IO.TRUE,
+                    () -> Constants.B,
+                    () -> Constants.C
+                   )
+               .map(String::toUpperCase)
+               .join());
 
     Assertions.assertEquals(
-                            "C",
-                            CondExp.seq(IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.FALSE,
-                                        () -> Constants.B,
-                                        IO.FALSE,
-                                        () -> Constants.C,
-                                        IO.FALSE,
-                                        () -> Constants.D,
-                                        IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.FALSE,
-                                        () -> Constants.B,
-                                        () -> Constants.C
-                            )
-                                   .map(String::toUpperCase)
-                                   .join());
+        "C",
+        CondExp.seq(IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B,
+                    IO.FALSE,
+                    () -> Constants.C,
+                    IO.FALSE,
+                    () -> Constants.D,
+                    IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B,
+                    () -> Constants.C
+                   )
+               .map(String::toUpperCase)
+               .join());
   }
 
   @Test
   public void parallel_constructors() {
 
     Assertions.assertEquals(
-                            "B",
-                            CondExp.par(IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.TRUE,
-                                        () -> Constants.B,
-                                        () -> Constants.C
-                            )
-                                   .map(String::toUpperCase)
-                                   .join());
+        "B",
+        CondExp.par(IO.FALSE,
+                    () -> Constants.A,
+                    IO.TRUE,
+                    () -> Constants.B,
+                    () -> Constants.C
+                   )
+               .map(String::toUpperCase)
+               .join());
 
     Assertions.assertEquals(
-                            "C",
-                            CondExp.par(IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.FALSE,
-                                        () -> Constants.B,
-                                        IO.TRUE,
-                                        () -> Constants.C,
-                                        () -> Constants.C
-                            )
-                                   .map(String::toUpperCase)
-                                   .join());
+        "C",
+        CondExp.par(IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B,
+                    IO.TRUE,
+                    () -> Constants.C,
+                    () -> Constants.C
+                   )
+               .map(String::toUpperCase)
+               .join());
 
     Assertions.assertEquals(
-                            "D",
-                            CondExp.par(IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.FALSE,
-                                        () -> Constants.B,
-                                        IO.FALSE,
-                                        () -> Constants.C,
-                                        IO.TRUE,
-                                        () -> Constants.D,
-                                        () -> Constants.C
-                            )
-                                   .map(String::toUpperCase)
-                                   .join());
+        "D",
+        CondExp.par(IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B,
+                    IO.FALSE,
+                    () -> Constants.C,
+                    IO.TRUE,
+                    () -> Constants.D,
+                    () -> Constants.C
+                   )
+               .map(String::toUpperCase)
+               .join());
 
     Assertions.assertEquals(
-                            "A",
-                            CondExp.par(IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.FALSE,
-                                        () -> Constants.B,
-                                        IO.FALSE,
-                                        () -> Constants.C,
-                                        IO.FALSE,
-                                        () -> Constants.D,
-                                        IO.TRUE,
-                                        () -> Constants.A,
-                                        () -> Constants.C
-                            )
-                                   .map(String::toUpperCase)
-                                   .join());
+        "A",
+        CondExp.par(IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B,
+                    IO.FALSE,
+                    () -> Constants.C,
+                    IO.FALSE,
+                    () -> Constants.D,
+                    IO.TRUE,
+                    () -> Constants.A,
+                    () -> Constants.C
+                   )
+               .map(String::toUpperCase)
+               .join());
 
     Assertions.assertEquals(
-                            "B",
-                            CondExp.par(IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.FALSE,
-                                        () -> Constants.B,
-                                        IO.FALSE,
-                                        () -> Constants.C,
-                                        IO.FALSE,
-                                        () -> Constants.D,
-                                        IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.TRUE,
-                                        () -> Constants.B,
-                                        () -> Constants.C
-                            )
-                                   .map(String::toUpperCase)
-                                   .join());
+        "B",
+        CondExp.par(IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B,
+                    IO.FALSE,
+                    () -> Constants.C,
+                    IO.FALSE,
+                    () -> Constants.D,
+                    IO.FALSE,
+                    () -> Constants.A,
+                    IO.TRUE,
+                    () -> Constants.B,
+                    () -> Constants.C
+                   )
+               .map(String::toUpperCase)
+               .join());
 
     Assertions.assertEquals(
-                            "C",
-                            CondExp.par(IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.FALSE,
-                                        () -> Constants.B,
-                                        IO.FALSE,
-                                        () -> Constants.C,
-                                        IO.FALSE,
-                                        () -> Constants.D,
-                                        IO.FALSE,
-                                        () -> Constants.A,
-                                        IO.FALSE,
-                                        () -> Constants.B,
-                                        () -> Constants.C
-                            )
-                                   .map(String::toUpperCase)
-                                   .join());
+        "C",
+        CondExp.par(IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B,
+                    IO.FALSE,
+                    () -> Constants.C,
+                    IO.FALSE,
+                    () -> Constants.D,
+                    IO.FALSE,
+                    () -> Constants.A,
+                    IO.FALSE,
+                    () -> Constants.B,
+                    () -> Constants.C
+                   )
+               .map(String::toUpperCase)
+               .join());
   }
 
   @Test
@@ -218,13 +218,13 @@ public class TestCondExp {
                           IO.FALSE,
                           () -> IO.succeed("b"),
                           () -> IO.succeed("default")
-    )
+                         )
                      .debugEach("context")
                      .join();
 
     Assertions.assertEquals("default",
                             exp
-    );
+                           );
 
   }
 

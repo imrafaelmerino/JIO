@@ -15,11 +15,11 @@ public final class BatchOfOneEntityBuilder<Params> {
 
   private final ParamsSetter<Params> setter;
   private final String sql;
-
-  private boolean enableJFR = true;
   private final Duration timeout;
+  private boolean enableJFR = true;
   private String label;
-
+  private boolean continueOnError = false; // Indicates whether to continue inserting other batches if one fails.
+  private int batchSize = 100; // The size of each batch.
   private BatchOfOneEntityBuilder(ParamsSetter<Params> setter,
                                   String sql,
                                   Duration timeout) {
@@ -27,9 +27,6 @@ public final class BatchOfOneEntityBuilder<Params> {
     this.sql = Objects.requireNonNull(sql);
     this.timeout = Objects.requireNonNull(timeout);
   }
-
-  private boolean continueOnError = false; // Indicates whether to continue inserting other batches if one fails.
-  private int batchSize = 100; // The size of each batch.
 
   /**
    * Creates a new instance of BatchStmBuilder with the specified SQL statement and setter function.
@@ -100,7 +97,7 @@ public final class BatchOfOneEntityBuilder<Params> {
    *
    * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} representing the JDBC batch operation with a duration, input, and output. Note: The
-   *         operations are performed on virtual threads for improved concurrency and resource utilization.
+   * operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see BatchOfOneEntity#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<List<Params>, BatchResult> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
@@ -120,7 +117,7 @@ public final class BatchOfOneEntityBuilder<Params> {
    * performed on virtual threads for improved concurrency and resource utilization.
    *
    * @return A {@code ClosableStatement} representing the JDBC batch operation with a duration, input, and output. Note:
-   *         The operations are performed on virtual threads for improved concurrency and resource utilization.
+   * The operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see BatchOfOneEntity#buildClosable()
    */
   public ClosableStatement<List<Params>, BatchResult> buildClosable() {

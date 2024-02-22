@@ -1,10 +1,9 @@
 package jio.console;
 
-import jio.IO;
-import jsonvalues.JsObj;
-
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import jio.IO;
+import jsonvalues.JsObj;
 
 class JsPairsCommand extends Command {
 
@@ -19,38 +18,38 @@ class JsPairsCommand extends Command {
                   $command
                   $command email""".replace("$command",
                                             COMMAND_NAME)
-    );
+         );
   }
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
 
     return tokens -> {
       int nArgs = tokens.length - 1;
 
       return nArgs > 0 ? IO.lazy(
-                                 () -> Functions.toJson.apply(state.variables.get("output"))
-                                                       .stream()
-                                                       .filter(it -> it.path()
-                                                                       .toString()
-                                                                       .contains(Functions.joinTail(tokens)))
-                                                       .map(it -> String.format("%s -> %s",
-                                                                                it.path(),
-                                                                                it.value()
-                                                       ))
-                                                       .collect(Collectors.joining("\n"))
-      ) : IO.lazy(
-                  () -> Functions.toJson.apply(state.variables.get("output"))
-                                        .stream()
-                                        .map(it -> String.format("%s -> %s",
-                                                                 it.path(),
-                                                                 it.value()
-                                        )
-                                        )
-                                        .collect(Collectors.joining("\n"))
-      );
+          () -> Functions.toJson.apply(state.variables.get("output"))
+                                .stream()
+                                .filter(it -> it.path()
+                                                .toString()
+                                                .contains(Functions.joinTail(tokens)))
+                                .map(it -> String.format("%s -> %s",
+                                                         it.path(),
+                                                         it.value()
+                                                        ))
+                                .collect(Collectors.joining("\n"))
+                                ) : IO.lazy(
+          () -> Functions.toJson.apply(state.variables.get("output"))
+                                .stream()
+                                .map(it -> String.format("%s -> %s",
+                                                         it.path(),
+                                                         it.value()
+                                                        )
+                                    )
+                                .collect(Collectors.joining("\n"))
+                                           );
     };
   }
 }

@@ -17,7 +17,6 @@ import jio.mongodb.FindOne;
 import jio.mongodb.InsertOne;
 import jio.mongodb.MongoClientBuilder;
 import jio.mongodb.MongoLambda;
-import jio.mongodb.TxBuilder;
 import jio.test.junit.Debugger;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
@@ -30,9 +29,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-
+/**
+ * Follow the steps in the file steps-rs.md to deploy a replica set before executing this test
+ * TODO: use testconainers to not to do it manually
+ */
 @Disabled
-public class TestMongo {
+public class MongoTests {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(10));
@@ -47,7 +49,7 @@ public class TestMongo {
                                                                       obj)
                                                                .map(result -> obj.set("id",
                                                                                       Converters.toHexId(result))
-                                                               );
+                                                                   );
   MongoLambda<PersonAddress, PersonAddress> insertInCascade = (session,
                                                                pa) -> insertAndSetId.apply(session,
                                                                                            pa.person)
@@ -56,13 +58,13 @@ public class TestMongo {
                                                                                                                                                updatedPerson.getStr("id")))
                                                                                                                          .map(updatedAddress -> new PersonAddress(updatedPerson,
                                                                                                                                                                   updatedAddress))
-                                                                                    );
+                                                                                         );
 
   @BeforeAll
   public static void prepare() {
 
     MongoClient mongoClient = MongoClientBuilder.DEFAULT
-                                                        .build("mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0");
+        .build("mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0");
     DatabaseBuilder database = DatabaseBuilder.of(mongoClient,
                                                   "test");
     var dataCollection = CollectionBuilder.of(database,
@@ -94,13 +96,13 @@ public class TestMongo {
                           "b",
                           JsIntGen.arbitrary(0,
                                              10)
-    );
+                         );
 
     Supplier<JsObj> supplier = gen.apply(new Random());
 
     IntStream.range(0,
                     1000
-    )
+                   )
              .parallel()
              .forEach(i -> {
                JsObj obj = supplier.get();
@@ -112,7 +114,7 @@ public class TestMongo {
                                                                    .apply(FindBuilder.of(Converters.toObjId(id))))
                                                 .map(it -> it.delete("_id"))
                                                 .join()
-               );
+                                      );
              });
 
     System.out.println(findAll.standalone()

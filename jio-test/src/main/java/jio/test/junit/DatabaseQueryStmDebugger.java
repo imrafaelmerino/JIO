@@ -1,12 +1,11 @@
 package jio.test.junit;
 
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.function.Consumer;
 import jdk.jfr.consumer.RecordedEvent;
 import jio.test.Utils;
 import jio.time.Fun;
-
-import java.time.format.DateTimeFormatter;
-import java.util.function.Consumer;
 
 @SuppressWarnings("InlineFormatString")
 final class DatabaseQueryStmDebugger implements Consumer<RecordedEvent> {
@@ -23,7 +22,6 @@ final class DatabaseQueryStmDebugger implements Consumer<RecordedEvent> {
       |  Event Start Time: %s
       ----------------------
       """;
-
   private static final String FORMAT_ERR = """
       ------ jdbc-client query -----
       |  Label: %s
@@ -61,21 +59,21 @@ final class DatabaseQueryStmDebugger implements Consumer<RecordedEvent> {
                                             event.getStartTime()
                                                  .atZone(ZoneOffset.UTC)
                                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-    ) : String.format(FORMAT_ERR,
-                      label,
-                      event.getValue(EventFields.RESULT),
-                      Fun.formatTime(event.getDuration()
-                                          .toNanos()),
-                      event.getValue(EventFields.EXCEPTION),
-                      event.getValue(EventFields.SQL),
-                      fetchSize,
-                      event.getValue(EventFields.ROW_RETURNED),
-                      event.getValue("queryCounter"),
-                      Utils.getThreadName(event.getThread()),
-                      event.getStartTime()
-                           .atZone(ZoneOffset.UTC)
-                           .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-    );
+                                           ) : String.format(FORMAT_ERR,
+                                                             label,
+                                                             event.getValue(EventFields.RESULT),
+                                                             Fun.formatTime(event.getDuration()
+                                                                                 .toNanos()),
+                                                             event.getValue(EventFields.EXCEPTION),
+                                                             event.getValue(EventFields.SQL),
+                                                             fetchSize,
+                                                             event.getValue(EventFields.ROW_RETURNED),
+                                                             event.getValue("queryCounter"),
+                                                             Utils.getThreadName(event.getThread()),
+                                                             event.getStartTime()
+                                                                  .atZone(ZoneOffset.UTC)
+                                                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                                                            );
     synchronized (System.out) {
       System.out.println(message);
       System.out.flush();

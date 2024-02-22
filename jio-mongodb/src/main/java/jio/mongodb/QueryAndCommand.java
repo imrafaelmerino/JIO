@@ -13,8 +13,8 @@ import jsonvalues.JsObj;
  * @param query          The query document that identifies the documents to be updated.
  * @param updateCommands The updateCommands document specifying the changes to be made to the matched documents.
  */
-public record QueryUpdate(JsObj query,
-                          JsObj updateCommands) {
+public record QueryAndCommand(JsObj query,
+                              JsObj updateCommands) {
 
   /**
    * Creates a query and a new obj with the update commands
@@ -22,7 +22,7 @@ public record QueryUpdate(JsObj query,
    * @param query          the query
    * @param updateCommands the new doc to replace the one found by the query
    */
-  public QueryUpdate {
+  public QueryAndCommand {
     if (query == null) {
       throw new IllegalArgumentException("query is null");
     }

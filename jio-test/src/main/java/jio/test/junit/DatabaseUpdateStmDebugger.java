@@ -1,12 +1,11 @@
 package jio.test.junit;
 
-import jdk.jfr.consumer.RecordedEvent;
-import jio.test.Utils;
-import jio.time.Fun;
-
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
+import jdk.jfr.consumer.RecordedEvent;
+import jio.test.Utils;
+import jio.time.Fun;
 
 @SuppressWarnings("InlineFormatString")
 final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
@@ -22,7 +21,6 @@ final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
       |  Event Start Time: %s
       ----------------------
       """;
-
   private static final String FORMAT_ERR = """
       ------ jdbc-client update statement -----
       |  Label: %s
@@ -56,20 +54,20 @@ final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
                                             event.getStartTime()
                                                  .atZone(ZoneId.systemDefault())
                                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-    ) : String.format(FORMAT_ERR,
-                      label,
-                      event.getValue(EventFields.RESULT),
-                      Fun.formatTime(event.getDuration()
-                                          .toNanos()),
-                      event.getValue(EventFields.EXCEPTION),
-                      event.getValue(EventFields.SQL),
-                      event.getValue(EventFields.ROWS_AFFECTED),
-                      event.getValue("updateCounter"),
-                      Utils.getThreadName(event.getThread()),
-                      event.getStartTime()
-                           .atZone(ZoneId.systemDefault())
-                           .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-    );
+                                           ) : String.format(FORMAT_ERR,
+                                                             label,
+                                                             event.getValue(EventFields.RESULT),
+                                                             Fun.formatTime(event.getDuration()
+                                                                                 .toNanos()),
+                                                             event.getValue(EventFields.EXCEPTION),
+                                                             event.getValue(EventFields.SQL),
+                                                             event.getValue(EventFields.ROWS_AFFECTED),
+                                                             event.getValue("updateCounter"),
+                                                             Utils.getThreadName(event.getThread()),
+                                                             event.getStartTime()
+                                                                  .atZone(ZoneId.systemDefault())
+                                                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                                                            );
     synchronized (System.out) {
       System.out.println(message);
       System.out.flush();

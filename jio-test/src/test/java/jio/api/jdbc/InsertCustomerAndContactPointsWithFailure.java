@@ -15,18 +15,18 @@ public class InsertCustomerAndContactPointsWithFailure implements Lambda<Custome
 
   final ClosableStatement<Customer, Long> insertContactPoints = (customer,
                                                                  connection) -> CustomerDatabaseOps.insertOne
-                                                                                                             .then(customerID -> PairExp.seq(
-                                                                                                                                             EmailDatabaseOps.insertOne.apply(Integer.MAX_VALUE)//fk reference error
-                                                                                                                                                                       .apply(customer.email(),
-                                                                                                                                                                              connection),
-                                                                                                                                             AddressesDatabaseOps.insertMany.apply(customerID)
-                                                                                                                                                                            .apply(customer.addresses(),
-                                                                                                                                                                                   connection)
-                                                                                                             )
-                                                                                                                                        .map(it -> customerID)
-                                                                                                             )
-                                                                                                             .apply(customer,
-                                                                                                                    connection);
+      .then(customerID -> PairExp.seq(
+                                     EmailDatabaseOps.insertOne.apply(Integer.MAX_VALUE)//fk reference error
+                                                               .apply(customer.email(),
+                                                                      connection),
+                                     AddressesDatabaseOps.insertMany.apply(customerID)
+                                                                    .apply(customer.addresses(),
+                                                                           connection)
+                                     )
+                                 .map(it -> customerID)
+           )
+      .apply(customer,
+             connection);
 
   private final Lambda<Customer, Long> tx;
 
@@ -34,7 +34,7 @@ public class InsertCustomerAndContactPointsWithFailure implements Lambda<Custome
                                                    TxBuilder.TX_ISOLATION isolation) {
     this.tx = TxBuilder.of(datasourceBuilder,
                            isolation
-    )
+                          )
                        .withEventLabel("insert customer and contact points")
                        .build(insertContactPoints);
 

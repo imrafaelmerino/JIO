@@ -47,14 +47,14 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final IO<Boolean> predicate2,
                                    final Supplier<IO<O>> effect2,
                                    final Supplier<IO<O>> otherwise
-  ) {
+                                  ) {
 
     return new CondExpPar<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2)
-                            ),
+                                   ),
                             requireNonNull(otherwise),
                             null
     );
@@ -83,14 +83,14 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final Supplier<IO<O>> effect1,
                                    final IO<Boolean> predicate2,
                                    final Supplier<IO<O>> effect2
-  ) {
+                                  ) {
 
     return new CondExpPar<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2)
-                            ),
+                                   ),
                             IO::NULL,
                             null
     );
@@ -123,16 +123,16 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final IO<Boolean> predicate3,
                                    final Supplier<IO<O>> effect3,
                                    final Supplier<IO<O>> otherwise
-  ) {
+                                  ) {
 
     return new CondExpPar<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3)
-                            ),
+                                   ),
                             requireNonNull(otherwise),
                             null
     );
@@ -166,16 +166,16 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final Supplier<IO<O>> effect2,
                                    final IO<Boolean> predicate3,
                                    final Supplier<IO<O>> effect3
-  ) {
+                                  ) {
 
     return new CondExpPar<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3)
-                            ),
+                                   ),
                             IO::NULL,
                             null
     );
@@ -212,18 +212,18 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final IO<Boolean> predicate4,
                                    final Supplier<IO<O>> effect4,
                                    final Supplier<IO<O>> otherwise
-  ) {
+                                  ) {
 
     return new CondExpPar<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3),
                                     requireNonNull(predicate4)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3),
                                     requireNonNull(effect4)
-                            ),
+                                   ),
                             requireNonNull(otherwise),
                             null
     );
@@ -259,18 +259,18 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final Supplier<IO<O>> effect3,
                                    final IO<Boolean> predicate4,
                                    final Supplier<IO<O>> effect4
-  ) {
+                                  ) {
 
     return new CondExpPar<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3),
                                     requireNonNull(predicate4)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3),
                                     requireNonNull(effect4)
-                            ),
+                                   ),
                             IO::NULL,
                             null
     );
@@ -310,19 +310,19 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final IO<Boolean> predicate5,
                                    final Supplier<IO<O>> effect5,
                                    final Supplier<IO<O>> otherwise
-  ) {
+                                  ) {
     return new CondExpPar<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3),
                                     requireNonNull(predicate4),
                                     requireNonNull(predicate5)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3),
                                     requireNonNull(effect4),
                                     requireNonNull(effect5)
-                            ),
+                                   ),
                             requireNonNull(otherwise),
                             null
     );
@@ -363,19 +363,19 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final Supplier<IO<O>> effect4,
                                    final IO<Boolean> predicate5,
                                    final Supplier<IO<O>> effect5
-  ) {
+                                  ) {
     return new CondExpPar<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3),
                                     requireNonNull(predicate4),
                                     requireNonNull(predicate5)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3),
                                     requireNonNull(effect4),
                                     requireNonNull(effect5)
-                            ),
+                                   ),
                             IO::NULL,
                             null
     );
@@ -420,21 +420,21 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final IO<Boolean> predicate6,
                                    final Supplier<IO<O>> effect6,
                                    final Supplier<IO<O>> otherwise
-  ) {
+                                  ) {
     return new CondExpPar<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3),
                                     requireNonNull(predicate4),
                                     requireNonNull(predicate5),
                                     requireNonNull(predicate6)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3),
                                     requireNonNull(effect4),
                                     requireNonNull(effect5),
                                     requireNonNull(effect6)
-                            ),
+                                   ),
                             requireNonNull(otherwise),
                             null
     );
@@ -479,21 +479,21 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final Supplier<IO<O>> effect5,
                                    final IO<Boolean> predicate6,
                                    final Supplier<IO<O>> effect6
-  ) {
+                                  ) {
     return new CondExpPar<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3),
                                     requireNonNull(predicate4),
                                     requireNonNull(predicate5),
                                     requireNonNull(predicate6)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3),
                                     requireNonNull(effect4),
                                     requireNonNull(effect5),
                                     requireNonNull(effect6)
-                            ),
+                                   ),
                             IO::NULL,
                             null
     );
@@ -519,14 +519,14 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final IO<Boolean> predicate2,
                                    final Supplier<IO<O>> effect2,
                                    final Supplier<IO<O>> otherwise
-  ) {
+                                  ) {
 
     return new CondExpSeq<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2)
-                            ),
+                                   ),
                             requireNonNull(otherwise),
                             null
     );
@@ -552,14 +552,14 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final Supplier<IO<O>> effect1,
                                    final IO<Boolean> predicate2,
                                    final Supplier<IO<O>> effect2
-  ) {
+                                  ) {
 
     return new CondExpSeq<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2)
-                            ),
+                                   ),
                             IO::NULL,
                             null
     );
@@ -589,16 +589,16 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final IO<Boolean> predicate3,
                                    final Supplier<IO<O>> effect3,
                                    final Supplier<IO<O>> otherwise
-  ) {
+                                  ) {
 
     return new CondExpSeq<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3)
-                            ),
+                                   ),
                             requireNonNull(otherwise),
                             null
     );
@@ -628,16 +628,16 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final Supplier<IO<O>> effect2,
                                    final IO<Boolean> predicate3,
                                    final Supplier<IO<O>> effect3
-  ) {
+                                  ) {
 
     return new CondExpSeq<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3)
-                            ),
+                                   ),
                             IO::NULL,
                             null
     );
@@ -671,18 +671,18 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final IO<Boolean> predicate4,
                                    final Supplier<IO<O>> effect4,
                                    final Supplier<IO<O>> otherwise
-  ) {
+                                  ) {
 
     return new CondExpSeq<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3),
                                     requireNonNull(predicate4)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3),
                                     requireNonNull(effect4)
-                            ),
+                                   ),
                             requireNonNull(otherwise),
                             null
     );
@@ -716,18 +716,18 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final Supplier<IO<O>> effect3,
                                    final IO<Boolean> predicate4,
                                    final Supplier<IO<O>> effect4
-  ) {
+                                  ) {
 
     return new CondExpSeq<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3),
                                     requireNonNull(predicate4)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3),
                                     requireNonNull(effect4)
-                            ),
+                                   ),
                             IO::NULL,
                             null
     );
@@ -765,20 +765,20 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final IO<Boolean> predicate5,
                                    final Supplier<IO<O>> effect5,
                                    final Supplier<IO<O>> otherwise
-  ) {
+                                  ) {
 
     return new CondExpSeq<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3),
                                     requireNonNull(predicate4),
                                     requireNonNull(predicate5)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3),
                                     requireNonNull(effect4),
                                     requireNonNull(effect5)
-                            ),
+                                   ),
                             requireNonNull(otherwise),
                             null
     );
@@ -816,20 +816,20 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final Supplier<IO<O>> effect4,
                                    final IO<Boolean> predicate5,
                                    final Supplier<IO<O>> effect5
-  ) {
+                                  ) {
 
     return new CondExpSeq<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
                                     requireNonNull(predicate3),
                                     requireNonNull(predicate4),
                                     requireNonNull(predicate5)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3),
                                     requireNonNull(effect4),
                                     requireNonNull(effect5)
-                            ),
+                                   ),
                             IO::NULL,
                             null
     );
@@ -872,7 +872,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final IO<Boolean> predicate6,
                                    final Supplier<IO<O>> effect6,
                                    final Supplier<IO<O>> otherwise
-  ) {
+                                  ) {
 
     return new CondExpSeq<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
@@ -880,14 +880,14 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                     requireNonNull(predicate4),
                                     requireNonNull(predicate5),
                                     requireNonNull(predicate6)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3),
                                     requireNonNull(effect4),
                                     requireNonNull(effect5),
                                     requireNonNull(effect6)
-                            ),
+                                   ),
                             requireNonNull(otherwise),
                             null
     );
@@ -929,7 +929,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                    final Supplier<IO<O>> effect5,
                                    final IO<Boolean> predicate6,
                                    final Supplier<IO<O>> effect6
-  ) {
+                                  ) {
 
     return new CondExpSeq<>(List.of(requireNonNull(predicate1),
                                     requireNonNull(predicate2),
@@ -937,14 +937,14 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
                                     requireNonNull(predicate4),
                                     requireNonNull(predicate5),
                                     requireNonNull(predicate6)
-    ),
+                                   ),
                             List.of(requireNonNull(effect1),
                                     requireNonNull(effect2),
                                     requireNonNull(effect3),
                                     requireNonNull(effect4),
                                     requireNonNull(effect5),
                                     requireNonNull(effect6)
-                            ),
+                                   ),
                             IO::NULL,
                             null
     );
@@ -953,7 +953,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
   @Override
   public abstract CondExp<Output> retryEach(final Predicate<? super Throwable> predicate,
                                             final RetryPolicy policy
-  );
+                                           );
 
   @Override
   public abstract CondExp<Output> debugEach(final EventBuilder<Output> messageBuilder);

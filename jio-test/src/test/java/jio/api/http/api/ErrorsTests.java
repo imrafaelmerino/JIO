@@ -1,6 +1,12 @@
 package jio.api.http.api;
 
 import com.sun.net.httpserver.HttpServer;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import jio.ExceptionFun;
 import jio.IO;
 import jio.http.client.HttpExceptionFun;
@@ -16,14 +22,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.Map;
-
-public class TestErrors {
+public class ErrorsTests {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));

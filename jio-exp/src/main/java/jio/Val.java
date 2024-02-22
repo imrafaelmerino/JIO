@@ -1,9 +1,9 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a value, which is an irreducible expression. Values of type {@code Val} encapsulate a value of type

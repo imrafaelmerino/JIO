@@ -1,12 +1,11 @@
 package jio.console;
 
+import java.util.function.Function;
 import jio.IO;
 import jio.Lambda;
 import jio.RetryPolicies;
 import jio.console.Programs.AskForInputParams;
 import jsonvalues.JsObj;
-
-import java.util.function.Function;
 
 /**
  * Command to read the content of a specified variable with the command:
@@ -38,13 +37,13 @@ class ReadVarCommand extends Command {
                   $command age
                   $command $var""".replace("$command",
                                            COMMAND_NAME)
-    );
+         );
   }
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     Lambda<String, String> program = var -> IO.lazy(() -> {
       var value = state.variables.get(var);
       if (value != null) {
@@ -67,8 +66,8 @@ class ReadVarCommand extends Command {
                                                                     state.listsVariables.containsKey(name),
                                                             "The variable doesn't exist",
                                                             RetryPolicies.limitRetries(3)
-        )
-        )
+                                      )
+                                     )
                        .then(program);
       }
 

@@ -2,7 +2,10 @@ package jio.api.exp;
 
 import fun.gen.BoolGen;
 import fun.gen.Combinators;
+import java.time.Duration;
+import java.util.List;
 import java.util.Locale;
+import java.util.function.Supplier;
 import jio.IO;
 import jio.IfElseExp;
 import jio.SwitchExp;
@@ -10,11 +13,7 @@ import jio.test.junit.Debugger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.function.Supplier;
-
-public class TestDebug {
+public class DebugTests {
 
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
@@ -40,7 +39,7 @@ public class TestDebug {
     SwitchExp<String, String> match = SwitchExp.<String, String>eval(IfElseExp.<String>predicate(IO.lazy(isLowerCase))
                                                                               .consequence(() -> IO.lazy(loserCase))
                                                                               .alternative(() -> IO.lazy(upperCase))
-    )
+                                                                    )
                                                .match(List.of("a",
                                                               "e",
                                                               "i",
@@ -56,7 +55,7 @@ public class TestDebug {
                                                       s -> IO.succeed("%s %s".formatted(s,
                                                                                         s.toLowerCase(Locale.ENGLISH))),
                                                       s -> IO.NULL()
-                                               )
+                                                     )
                                                .debugEach("context");
 
     System.out.println(match.join());

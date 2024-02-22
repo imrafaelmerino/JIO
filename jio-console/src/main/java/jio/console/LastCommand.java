@@ -1,16 +1,15 @@
 package jio.console;
 
-import jio.IO;
-import jio.ListExp;
-import jio.RetryPolicies;
-import jsonvalues.JsObj;
+import static java.lang.Integer.parseInt;
+import static java.time.Duration.ofMillis;
 
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-
-import static java.lang.Integer.parseInt;
-import static java.time.Duration.ofMillis;
+import jio.IO;
+import jio.ListExp;
+import jio.RetryPolicies;
+import jsonvalues.JsObj;
 
 /**
  * Represents a command to execute the last command one or more times, optionally with a repetition interval or
@@ -42,13 +41,13 @@ class LastCommand extends Command {
                   $command every 100
                   $command every 100 for 1000""".replace("$command",
                                                          COMMAND_NAME)
-    );
+         );
   }
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> {
       if (state.historyCommands.isEmpty()) {
         return IO.succeed("The history stack is empty!");
@@ -77,18 +76,18 @@ class LastCommand extends Command {
                                              .map(it -> s))
                           .repeat(s -> true,
                                   RetryPolicies.constantDelay(ofMillis(parseInt(tokens[2])))
-                          );
+                                 );
       }
 
       if (pattern3.matcher(command)
                   .matches()) {
         return lastCommand.then(s -> Programs.PRINT_NEW_LINE(s)
                                              .map(it -> s)
-        )
+                               )
                           .repeat(s -> true,
                                   RetryPolicies.constantDelay(ofMillis(parseInt(tokens[2])))
                                                .limitRetriesByCumulativeDelay(ofMillis(parseInt(tokens[4])))
-                          );
+                                 );
       }
       return IO.fail(new InvalidCommand(this,
                                         "Not a expected pattern"));

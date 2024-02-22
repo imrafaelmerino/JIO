@@ -1,14 +1,18 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents an expression that is reduced to a list of values. You can create ListExp expressions using the 'seq'
@@ -23,7 +27,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
 
   ListExp(List<IO<Elem>> list,
           Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
-  ) {
+         ) {
     super(debugger);
     this.list = list;
   }
@@ -189,7 +193,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
                                                        .map(Supplier::get)
                                                        .toArray(CompletableFuture[]::new))
                                             .thenApply(it -> ((Elem) it))
-    );
+                    );
   }
 
   /**
@@ -220,7 +224,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
   @Override
   public abstract ListExp<Elem> retryEach(final Predicate<? super Throwable> predicate,
                                           final RetryPolicy policy
-  );
+                                         );
 
   @Override
   public ListExp<Elem> retryEach(final RetryPolicy policy) {
@@ -230,7 +234,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
 
   @Override
   public abstract ListExp<Elem> debugEach(final EventBuilder<List<Elem>> messageBuilder
-  );
+                                         );
 
   @Override
   public abstract ListExp<Elem> debugEach(final String context);

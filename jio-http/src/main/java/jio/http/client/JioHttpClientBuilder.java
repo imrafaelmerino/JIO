@@ -1,12 +1,10 @@
 package jio.http.client;
 
-import java.util.concurrent.Executors;
-import jio.RetryPolicy;
-
 import java.net.http.HttpClient;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import jio.RetryPolicy;
 
 /**
  * Builder for creating custom {@link JioHttpClient} instances with configurable options. This builder allows you to

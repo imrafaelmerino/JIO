@@ -2,10 +2,9 @@ package jio.jdbc;
 
 import java.util.List;
 import java.util.Objects;
-import jio.ExceptionFun;
-
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import jio.ExceptionFun;
 import jio.IO;
 import jio.jdbc.TxExecutedEvent.RESULT;
 
@@ -270,19 +269,19 @@ class JfrEventDecorator {
                               boolean enableJFR) {
     if (enableJFR) {
       return IO.lazy(() -> {
-        var event = new TxExecutedEvent();
-        event.begin();
-        return event;
-      })
+                 var event = new TxExecutedEvent();
+                 event.begin();
+                 return event;
+               })
                .then(event -> tx.then(txResult -> {
-                 event.end();
-                 if (event.shouldCommit()) {
-                   event.label = label;
-                   event.result = RESULT.SUCCESS.name();
-                   event.commit();
-                 }
-                 return IO.succeed(txResult);
-               },
+                                        event.end();
+                                        if (event.shouldCommit()) {
+                                          event.label = label;
+                                          event.result = RESULT.SUCCESS.name();
+                                          event.commit();
+                                        }
+                                        return IO.succeed(txResult);
+                                      },
                                       exc -> {
                                         event.end();
                                         if (event.shouldCommit()) {
@@ -304,28 +303,28 @@ class JfrEventDecorator {
                                                boolean enableJFR) {
     if (enableJFR) {
       return IO.lazy(() -> {
-        var event = new TxExecutedEvent();
-        event.begin();
-        return event;
-      })
+                 var event = new TxExecutedEvent();
+                 event.begin();
+                 return event;
+               })
                .then(event -> tx.then(txResult -> {
-                 event.end();
-                 if (event.shouldCommit()) {
-                   event.label = label;
-                   if (txResult instanceof TxPartialSuccess partialSuccess) {
-                     event.savePoint = partialSuccess.savePointName();
-                     event.exception = ExceptionFun.findUltimateCause(partialSuccess.cause())
-                                                   .toString();
-                     event.result = RESULT.PARTIAL_SUCCESS.name();
+                                        event.end();
+                                        if (event.shouldCommit()) {
+                                          event.label = label;
+                                          if (txResult instanceof TxPartialSuccess partialSuccess) {
+                                            event.savePoint = partialSuccess.savePointName();
+                                            event.exception = ExceptionFun.findUltimateCause(partialSuccess.cause())
+                                                                          .toString();
+                                            event.result = RESULT.PARTIAL_SUCCESS.name();
 
-                   } else {
-                     event.result = RESULT.SUCCESS.name();
-                   }
+                                          } else {
+                                            event.result = RESULT.SUCCESS.name();
+                                          }
 
-                   event.commit();
-                 }
-                 return IO.succeed(txResult);
-               },
+                                          event.commit();
+                                        }
+                                        return IO.succeed(txResult);
+                                      },
                                       exc -> {
                                         event.end();
                                         if (event.shouldCommit()) {
@@ -334,7 +333,6 @@ class JfrEventDecorator {
                                           event.exception = ExceptionFun.findUltimateCause(exc)
                                                                         .toString();
                                           event.commit();
-                                          ;
                                         }
                                         return IO.fail(exc);
                                       }));

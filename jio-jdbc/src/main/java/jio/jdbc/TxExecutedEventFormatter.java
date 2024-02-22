@@ -70,7 +70,7 @@ public final class TxExecutedEventFormatter implements Function<RecordedEvent, S
                            result,
                            Fun.formatTime(event.getDuration()),
                            event.getValue(TxExecutedEvent.TX_COUNTER_FIELD)
-      );
+                          );
     }
     if (isSuccessWithSavePoint) {
       return String.format(SUCCESS_WITH_SAVEPOINT_FORMAT,
@@ -81,7 +81,7 @@ public final class TxExecutedEventFormatter implements Function<RecordedEvent, S
                            event.getValue(TxExecutedEvent.SAVEPOINT_FIELD),
                            event.getValue(TxExecutedEvent.EXCEPTION_FIELD),
                            event.getValue(TxExecutedEvent.TX_COUNTER_FIELD)
-      );
+                          );
     }
     return String.format(FAILURE_FORMAT,
                          event.getStartTime(),
@@ -90,6 +90,6 @@ public final class TxExecutedEventFormatter implements Function<RecordedEvent, S
                          event.getValue(TxExecutedEvent.EXCEPTION_FIELD),
                          Fun.formatTime(event.getDuration()),
                          event.getValue(TxExecutedEvent.TX_COUNTER_FIELD)
-    );
+                        );
   }
 }

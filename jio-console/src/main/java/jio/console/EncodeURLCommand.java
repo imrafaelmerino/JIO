@@ -1,11 +1,10 @@
 package jio.console;
 
-import jio.IO;
-import jsonvalues.JsObj;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
+import jio.IO;
+import jsonvalues.JsObj;
 
 /**
  * Represents a command that translates a string into application/x-www-form-urlencoded format. Usage:
@@ -25,13 +24,13 @@ class EncodeURLCommand extends Command {
               Examples:
                   $command hi, how are you doing""".replace("$command",
                                                             COMMAND_NAME)
-    );
+         );
   }
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> {
       int nArgs = tokens.length - 1;
       if (nArgs == 0) {

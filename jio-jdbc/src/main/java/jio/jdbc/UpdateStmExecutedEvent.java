@@ -1,8 +1,12 @@
-
 package jio.jdbc;
 
 import java.util.concurrent.atomic.AtomicLong;
-import jdk.jfr.*;
+import jdk.jfr.Category;
+import jdk.jfr.Description;
+import jdk.jfr.Event;
+import jdk.jfr.Label;
+import jdk.jfr.Name;
+import jdk.jfr.StackTrace;
 
 /**
  * Event that is created and written to the Flight Recorder system when a request response is received or an exception
@@ -17,17 +21,13 @@ final class UpdateStmExecutedEvent extends Event {
 
   static final String UPDATE_COUNTER_FIELD = "updateCounter";
   static final String ROWS_AFFECTED_FIELD = "rowsAffected";
-  int rowsAffected;
-
   static final AtomicLong counter = new AtomicLong(0);
-
-  long updateCounter = counter.incrementAndGet();
-
   static final String RESULT_FIELD = "result";
   static final String SQL_FIELD = "sql";
   static final String EXCEPTION_FIELD = "exception";
   static final String LABEL_FIELD = "label";
-
+  int rowsAffected;
+  long updateCounter = counter.incrementAndGet();
   /**
    * the method of the request
    */

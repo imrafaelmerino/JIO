@@ -1,5 +1,11 @@
 package jio.test.junit;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
 import jdk.jfr.Configuration;
 import jdk.jfr.consumer.EventStream;
 import jdk.jfr.consumer.RecordedEvent;
@@ -8,13 +14,6 @@ import jio.time.Fun;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
 
 /**
  * JUnit's extension for enabling debugging of various JIO components in tests.

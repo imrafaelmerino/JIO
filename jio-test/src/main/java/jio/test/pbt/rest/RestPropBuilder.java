@@ -1,6 +1,11 @@
 package jio.test.pbt.rest;
 
+import static java.util.Objects.requireNonNull;
+
 import fun.gen.Gen;
+import java.net.http.HttpResponse;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import jio.BiLambda;
 import jio.IO;
 import jio.Lambda;
@@ -8,14 +13,11 @@ import jio.test.pbt.Property;
 import jio.test.pbt.PropertyBuilder;
 import jio.test.pbt.TestFailure;
 import jio.test.pbt.TestResult;
-import jsonvalues.*;
+import jsonvalues.JsNothing;
+import jsonvalues.JsObj;
+import jsonvalues.JsPath;
+import jsonvalues.JsValue;
 import jsonvalues.spec.JsParserException;
-
-import java.net.http.HttpResponse;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * An abstract base class for building property tests for RESTful APIs. This class provides a flexible framework for
@@ -28,7 +30,10 @@ abstract class RestPropBuilder<GenReqBody, PropBuilder extends RestPropBuilder<G
 
   @SuppressWarnings("UnnecessaryLambda")
   final static Function<HttpResponse<String>, TestResult> DEFAULT_RESP_ASSERT = resp -> resp.statusCode() < 300
-      ? TestResult.SUCCESS : TestFailure.reason("Expected status code < 300, but got a " + resp.statusCode());
+                                                                                        ? TestResult.SUCCESS
+                                                                                        : TestFailure.reason(
+                                                                                            "Expected status code < 300, but got a "
+                                                                                            + resp.statusCode());
   final String name;
   final BiLambda<JsObj, GenReqBody, HttpResponse<String>> post;
   final BiLambda<JsObj, String, HttpResponse<String>> get;
@@ -41,8 +46,8 @@ abstract class RestPropBuilder<GenReqBody, PropBuilder extends RestPropBuilder<G
       JsObj respBody = JsObj.parse(resp.body());
       JsValue id = respBody.get(path);
       return id == JsNothing.NOTHING ? IO.fail(TestFailure.reason(path + " not found in the following json: " + resp
-                                                                                                                    .body()))
-          : IO.succeed(id.toString());
+          .body()))
+                                     : IO.succeed(id.toString());
     } catch (JsParserException e) {
       return IO.fail(TestFailure.reason("resp body is not a Json well-formed: " + resp.body()));
     }
@@ -66,7 +71,7 @@ abstract class RestPropBuilder<GenReqBody, PropBuilder extends RestPropBuilder<G
                          BiLambda<JsObj, GenReqBody, HttpResponse<String>> p_post,
                          BiLambda<JsObj, String, HttpResponse<String>> p_get,
                          BiLambda<JsObj, String, HttpResponse<String>> p_delete
-  ) {
+                        ) {
     this.post = requireNonNull(p_post);
     this.get = requireNonNull(p_get);
     this.delete = requireNonNull(p_delete);
@@ -159,9 +164,9 @@ abstract class RestPropBuilder<GenReqBody, PropBuilder extends RestPropBuilder<G
   }
 
   Lambda<HttpResponse<String>, IdResp> assertResp(
-                                                  Function<HttpResponse<String>, TestResult> assertResp,
-                                                  String id
-  ) {
+      Function<HttpResponse<String>, TestResult> assertResp,
+      String id
+                                                 ) {
     return resp -> {
       TestResult result = assertResp.apply(resp);
       if (result instanceof TestFailure f) {

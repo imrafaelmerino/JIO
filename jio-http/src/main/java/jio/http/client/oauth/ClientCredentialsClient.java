@@ -1,15 +1,14 @@
 package jio.http.client.oauth;
 
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import jio.IO;
 import jio.Lambda;
 import jio.http.client.HttpLambda;
 import jio.http.client.JioHttpClient;
 import jio.http.client.JioHttpClientBuilder;
-
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * An HTTP client with support for OAuth Client Credentials Grant. This client allows you to make HTTP requests with
@@ -39,7 +38,7 @@ final class ClientCredentialsClient implements OauthHttpClient {
                           final Function<String, String> authorizationHeaderValue,
                           final Lambda<HttpResponse<String>, String> getAccessToken,
                           final Predicate<HttpResponse<?>> refreshTokenPredicate
-  ) {
+                         ) {
     this.httpClient = client.get();
     this.accessTokenReq = accessTokenReq;
     this.authorizationHeaderName = authorizationHeaderName;
@@ -53,17 +52,17 @@ final class ClientCredentialsClient implements OauthHttpClient {
                                                          builder,
                                                          false,
                                                          0
-    );
+                                                        );
     this.oauthStringLambda = builder -> oauthRequest(ofStringLambda,
                                                      builder,
                                                      false,
                                                      0
-    );
+                                                    );
     this.oauthBytesLambda = builder -> oauthRequest(ofBytesLambda,
                                                     builder,
                                                     false,
                                                     0
-    );
+                                                   );
   }
 
   @Override
@@ -87,7 +86,7 @@ final class ClientCredentialsClient implements OauthHttpClient {
                                    builder,
                                    false,
                                    0
-    );
+                                  );
   }
 
   @Override
@@ -114,7 +113,7 @@ final class ClientCredentialsClient implements OauthHttpClient {
                                                final HttpRequest.Builder builder,
                                                final boolean refreshToken,
                                                final int deep
-  ) {
+                                              ) {
     if (deep == MAX_REFRESH_TOKEN_LOOP_SIZE) {
       return IO.fail(new RefreshTokenLoop(deep));
     }
@@ -122,19 +121,20 @@ final class ClientCredentialsClient implements OauthHttpClient {
     IO<String> getToken = (refreshToken || this.accessToken == null) ? accessTokenReq.apply(this)
                                                                                      .then(getAccessToken)
                                                                                      .peekSuccess(newToken -> this.accessToken = newToken)
-        : IO.succeed(this.accessToken);
+                                                                     : IO.succeed(this.accessToken);
 
     return getToken.then(token -> httpLambda.apply(builder.setHeader(authorizationHeaderName,
                                                                      authorizationHeaderValue.apply(token)
-    )
-    )
+                                                                    )
+                                                  )
                                             .then(resp -> refreshTokenPredicate.test(resp) ? oauthRequest(httpLambda,
                                                                                                           builder,
                                                                                                           true,
                                                                                                           deep + 1
-                                            ) : IO.succeed(resp)
-                                            )
-    );
+                                                                                                         )
+                                                                                           : IO.succeed(resp)
+                                                 )
+                        );
   }
 
 }

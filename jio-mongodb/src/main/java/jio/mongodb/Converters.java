@@ -1,25 +1,29 @@
 package jio.mongodb;
 
+import static java.util.Objects.requireNonNull;
+
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
-import jsonvalues.*;
-import jsonvalues.spec.JsSpecs;
-import mongovalues.JsValuesRegistry;
-import org.bson.BsonDocumentWrapper;
-import org.bson.BsonValue;
-import org.bson.conversions.Bson;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jsonvalues.JsArray;
+import jsonvalues.JsBool;
+import jsonvalues.JsLong;
+import jsonvalues.JsNull;
+import jsonvalues.JsObj;
+import jsonvalues.JsStr;
+import jsonvalues.spec.JsSpecs;
+import mongovalues.JsValuesRegistry;
+import org.bson.BsonDocumentWrapper;
+import org.bson.BsonValue;
+import org.bson.conversions.Bson;
 
 /**
  * Utility class containing a collection of converters and transformation functions between JSON values ({@link JsObj},
@@ -224,7 +228,7 @@ public final class Converters {
                     TYPE_FIELD,
                     JsStr.of(result.getClass()
                                    .getSimpleName())
-    );
+                   );
   }
 
   /**
@@ -240,7 +244,7 @@ public final class Converters {
                     JsLong.of(result.getDeletedCount()),
                     WAS_ACKNOWLEDGED_FIELD,
                     JsBool.of(result.wasAcknowledged())
-    );
+                   );
   }
 
   /**
@@ -263,6 +267,6 @@ public final class Converters {
                     TYPE_FIELD,
                     JsStr.of(result.getClass()
                                    .getSimpleName())
-    );
+                   );
   }
 }

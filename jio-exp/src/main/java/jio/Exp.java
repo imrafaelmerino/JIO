@@ -12,9 +12,9 @@ import java.util.function.Predicate;
  * @param <Output> the type of the result returned by this expression when it succeeds
  */
 sealed abstract class Exp<Output> extends
-                         IO<Output> permits AllExp, AnyExp, CondExp, IfElseExp, JsArrayExp, JsObjExp, ListExp,
-    PairExp,
-    SwitchExp, TripleExp {
+                                  IO<Output> permits AllExp, AnyExp, CondExp, IfElseExp, JsArrayExp, JsObjExp, ListExp,
+                                                     PairExp,
+                                                     SwitchExp, TripleExp {
 
   final Function<EvalExpEvent, BiConsumer<Output, Throwable>> jfrPublisher;
 
@@ -58,7 +58,7 @@ sealed abstract class Exp<Output> extends
    */
   abstract Exp<Output> retryEach(final Predicate<? super Throwable> predicate,
                                  final RetryPolicy policy
-  );
+                                );
 
   /**
    * Defines a strategy for retrying each operand of this expression based on the given retry policy.

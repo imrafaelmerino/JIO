@@ -1,12 +1,11 @@
 package jio.api;
 
+import java.time.Duration;
+import java.util.List;
 import jio.RetryPolicies;
 import jio.RetryStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
-import java.util.List;
 
 public class TestPolicies {
 
@@ -18,13 +17,13 @@ public class TestPolicies {
                                                 .simulate(20);
     Assertions.assertEquals(5,
                             simulation.size()
-    );
+                           );
     Assertions.assertEquals(new RetryStatus(4,
                                             Duration.ofMillis(100),
                                             Duration.ofMillis(40)
-    ),
+                            ),
                             simulation.get(simulation.size() - 1)
-    );
+                           );
 
   }
 
@@ -38,7 +37,7 @@ public class TestPolicies {
                                                 .simulate(20);
     Assertions.assertEquals(20,
                             simulation.size()
-    );
+                           );
     Assertions.assertTrue(simulation.stream()
                                     .allMatch(rs -> rs.previousDelay()
                                                       .compareTo(cap) <= 0));
@@ -54,7 +53,7 @@ public class TestPolicies {
                                                 .simulate(20);
     Assertions.assertEquals(6,
                             simulation.size()
-    );
+                           );
     Assertions.assertTrue(simulation.stream()
                                     .allMatch(rs -> rs.cumulativeDelay()
                                                       .compareTo(acc) <= 0));
@@ -71,7 +70,7 @@ public class TestPolicies {
                                                 .simulate(20);
     Assertions.assertEquals(9,
                             simulation.size()
-    );
+                           );
     Assertions.assertTrue(simulation.stream()
                                     .allMatch(rs -> rs.previousDelay()
                                                       .compareTo(cap) <= 0));
@@ -85,30 +84,30 @@ public class TestPolicies {
                                                 .append(RetryPolicies.limitRetries(2))
                                                 .followedBy(RetryPolicies.constantDelay(tenMillis)
                                                                          .limitRetriesByCumulativeDelay(Duration.ofMillis(200)
-                                                                         )
-                                                )
+                                                                                                       )
+                                                           )
                                                 .simulate(20);
     Assertions.assertEquals(20,
                             simulation.size()
-    );
+                           );
     Assertions.assertEquals(10,
                             simulation.get(1)
                                       .previousDelay()
                                       .toMillis()
-    );
+                           );
     Assertions.assertEquals(20,
                             simulation.get(2)
                                       .previousDelay()
                                       .toMillis()
-    );
+                           );
     Assertions.assertEquals(200,
                             simulation.get(simulation.size() - 1)
                                       .cumulativeDelay()
                                       .toMillis()
-    );
+                           );
     Assertions.assertTrue(simulation.subList(3,
                                              simulation.size()
-    )
+                                            )
                                     .stream()
                                     .allMatch(rs -> rs.previousDelay()
                                                       .compareTo(tenMillis) == 0));

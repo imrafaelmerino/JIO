@@ -16,19 +16,16 @@ import jio.Lambda;
 public final class FindOneEntityBuilder<Filter, Entity> {
 
   private static final int DEFAULT_FETCH_SIZE = 1000;
-
-  private final String sqlQuery;
-  private int fetchSize = DEFAULT_FETCH_SIZE;
-  private final Duration timeout;
-  private final ParamsSetter<Filter> setter;
-
-  private final ResultSetMapper<Entity> mapper;
-  private boolean enableJFR = true;
-  private String label;
-
   private static final String SELECT_REGEX = "\\s*SELECT\\s+.*";
   private static final Pattern PATTERN = Pattern.compile(SELECT_REGEX,
                                                          Pattern.CASE_INSENSITIVE);
+  private final String sqlQuery;
+  private final Duration timeout;
+  private final ParamsSetter<Filter> setter;
+  private final ResultSetMapper<Entity> mapper;
+  private int fetchSize = DEFAULT_FETCH_SIZE;
+  private boolean enableJFR = true;
+  private String label;
 
   private FindOneEntityBuilder(String sqlQuery,
                                Duration timeout,
@@ -111,7 +108,7 @@ public final class FindOneEntityBuilder<Filter, Entity> {
    *
    * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} representing the JDBC query operation with a duration, input, and output. Note: The
-   *         operations are performed on virtual threads for improved concurrency and resource utilization.
+   * operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see FindOneEntity#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<Filter, Entity> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
@@ -121,7 +118,8 @@ public final class FindOneEntityBuilder<Filter, Entity> {
                                mapper,
                                fetchSize,
                                enableJFR,
-                               label).buildAutoClosable(datasourceBuilder);
+                               label)
+        .buildAutoClosable(datasourceBuilder);
   }
 
   /**
@@ -131,7 +129,7 @@ public final class FindOneEntityBuilder<Filter, Entity> {
    * virtual threads for improved concurrency and resource utilization.
    *
    * @return A {@code ClosableStatement} representing the JDBC query operation with a duration, input, and output. Note:
-   *         The operations are performed on virtual threads for improved concurrency and resource utilization.
+   * The operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see FindOneEntity#buildClosable()
    */
   public ClosableStatement<Filter, Entity> buildClosable() {

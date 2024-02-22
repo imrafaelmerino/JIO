@@ -1,8 +1,7 @@
 package jio.jdbc;
 
-import jdk.jfr.consumer.RecordedEvent;
-
 import java.util.function.Function;
+import jdk.jfr.consumer.RecordedEvent;
 import jio.time.Fun;
 
 /**
@@ -68,14 +67,14 @@ public final class UpdateStmExecutedEventFormatter implements Function<RecordedE
                                      event.getValue(UpdateStmExecutedEvent.ROWS_AFFECTED_FIELD),
                                      Fun.formatTime(event.getDuration()),
                                      event.getValue(UpdateStmExecutedEvent.UPDATE_COUNTER_FIELD)
-    ) : String.format(FAILURE_FORMAT,
-                      event.getStartTime(),
-                      label,
-                      result,
-                      event.getValue(UpdateStmExecutedEvent.EXCEPTION_FIELD),
-                      Fun.formatTime(event.getDuration()),
-                      event.getValue(UpdateStmExecutedEvent.SQL_FIELD),
-                      event.getValue(UpdateStmExecutedEvent.UPDATE_COUNTER_FIELD)
-    );
+                                    ) : String.format(FAILURE_FORMAT,
+                                                      event.getStartTime(),
+                                                      label,
+                                                      result,
+                                                      event.getValue(UpdateStmExecutedEvent.EXCEPTION_FIELD),
+                                                      Fun.formatTime(event.getDuration()),
+                                                      event.getValue(UpdateStmExecutedEvent.SQL_FIELD),
+                                                      event.getValue(UpdateStmExecutedEvent.UPDATE_COUNTER_FIELD)
+                                                     );
   }
 }

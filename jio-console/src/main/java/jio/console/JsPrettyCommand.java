@@ -1,9 +1,8 @@
 package jio.console;
 
+import java.util.function.Function;
 import jio.IO;
 import jsonvalues.JsObj;
-
-import java.util.function.Function;
 
 class JsPrettyCommand extends Command {
 
@@ -12,16 +11,16 @@ class JsPrettyCommand extends Command {
   public JsPrettyCommand() {
     super(COMMAND_NAME,
           "Returns the json placed at the output variable in a pretty format"
-    );
+         );
   }
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> IO.lazy(() -> Functions.toJson
-                                                   .apply(state.variables.get("output"))
-                                                   .toPrettyString()
-    );
+                                 .apply(state.variables.get("output"))
+                                 .toPrettyString()
+                            );
   }
 }

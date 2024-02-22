@@ -14,9 +14,9 @@ public final class AccessTokenNotFound extends Exception {
 
   AccessTokenNotFound(String message,
                       Throwable cause
-  ) {
+                     ) {
     super(Objects.requireNonNull(message),
           Objects.requireNonNull(cause)
-    );
+         );
   }
 }

@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.imrafaelmerino</groupId>
   <artifactId>jio-http</artifactId>
-  <version>3.0.0</version>
+  <version>1.3.0</version>
   <name>jio-http</name>
   <description>Functional and reactive http client in Java</description>
   <url>https://github.com/imrafaelmerino/jio</url>
@@ -28,7 +28,7 @@
   </scm>
 
   <properties>
-    <error-prone.version>2.24.1</error-prone.version>
+    <error-prone.version>2.25.0</error-prone.version>
     <NEXUS-STAGING-MAVEN-PLUGIN.VERSION>1.6.12</NEXUS-STAGING-MAVEN-PLUGIN.VERSION>
     <MAVEN-GPG-PLUGIN.VERSION>1.6</MAVEN-GPG-PLUGIN.VERSION>
     <MAVEN-SOURCE-PLUGIN.VERSION>3.0.1</MAVEN-SOURCE-PLUGIN.VERSION>
@@ -40,30 +40,12 @@
     <MAVEN-SUREFIRE-PLUGIN.VERSION>3.0.0-M6</MAVEN-SUREFIRE-PLUGIN.VERSION>
     <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
-    <JIO-EXP-VERSION>3.0.0</JIO-EXP-VERSION>
+    <JIO-EXP-VERSION>1.3.0</JIO-EXP-VERSION>
     <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
-    <FORMATTER-MAVEN-PLUGIN.VERSION>2.23.0</FORMATTER-MAVEN-PLUGIN.VERSION>
   </properties>
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>net.revelc.code.formatter</groupId>
-        <artifactId>formatter-maven-plugin</artifactId>
-        <version>${FORMATTER-MAVEN-PLUGIN.VERSION}</version>
-        <configuration>
-          <configFile>../MyGoogleStyle.xml</configFile>
-        </configuration>
-        <executions>
-          <execution>
-            <id>format</id>
-            <goals>
-              <goal>format</goal>
-            </goals>
-            <phase>process-sources</phase>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>

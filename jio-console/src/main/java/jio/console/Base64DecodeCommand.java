@@ -1,12 +1,11 @@
 package jio.console;
 
-import jio.IO;
-import jio.RetryPolicies;
-import jsonvalues.JsObj;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.function.Function;
+import jio.IO;
+import jio.RetryPolicies;
+import jsonvalues.JsObj;
 
 /**
  * Represents a command that decodes a base64 encoded string into a new string using the Base64 encoding scheme. The
@@ -23,52 +22,52 @@ class Base64DecodeCommand extends Command {
 
   public Base64DecodeCommand() {
     super(
-          COMMAND_NAME,
-          """
-              Decodes a base64 encoded string into a new string using the Base64 encoding scheme.
-              Usage: $command {encoded}
-              Examples:
-                  $command aGkhIGknbGwgYmUgZW5jb2RlZCBpbnRvIGJhc2UgNjQ=""".replace(
-                                                                                   "$command",
-                                                                                   COMMAND_NAME
-          )
-    );
+        COMMAND_NAME,
+        """
+            Decodes a base64 encoded string into a new string using the Base64 encoding scheme.
+            Usage: $command {encoded}
+            Examples:
+                $command aGkhIGknbGwgYmUgZW5jb2RlZCBpbnRvIGJhc2UgNjQ=""".replace(
+            "$command",
+            COMMAND_NAME
+                                                                                )
+         );
   }
 
   @Override
   public Function<String[], IO<String>> apply(
-                                              final JsObj conf,
-                                              final State state
-  ) {
+      final JsObj conf,
+      final State state
+                                             ) {
     return tokens -> {
       int nTokens = tokens.length;
       if (nTokens == 1) {
         return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams(
-                                                                     "Type the string encoded in base64",
-                                                                     e -> e.length() == 1,
-                                                                     "Space blank is not a valid base64 scheme",
-                                                                     RetryPolicies.limitRetries(3)
-        ))
+                           "Type the string encoded in base64",
+                           e -> e.length() == 1,
+                           "Space blank is not a valid base64 scheme",
+                           RetryPolicies.limitRetries(3)
+                       ))
                        .then(encoded -> IO.succeed(new String(
-                                                              decoder.decode(encoded),
-                                                              StandardCharsets.UTF_8
+                           decoder.decode(encoded),
+                           StandardCharsets.UTF_8
                        )));
       }
 
       if (nTokens == 2) {
         return IO.succeed(
-                          new String(
-                                     decoder.decode(tokens[1]),
-                                     StandardCharsets.UTF_8
-                          )
-        );
+            new String(
+                decoder.decode(tokens[1]),
+                StandardCharsets.UTF_8
+            )
+                         );
       }
 
       return IO.fail(
-                     new InvalidCommand(
-                                        this,
-                                        "Space blank is not a valid base64 character"
-                     ));
+          new InvalidCommand(
+              this,
+              "Space blank is not a valid base64 character"
+          ));
 
     };
   }

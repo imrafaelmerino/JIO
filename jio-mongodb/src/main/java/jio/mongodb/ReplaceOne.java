@@ -24,9 +24,9 @@ import jio.IO;
  * can use the provided `QueryReplace` object to define the query and the new document for the operation.
  *
  * @see CollectionBuilder
- * @see QueryReplace
+ * @see QueryAndCommand
  */
-public final class ReplaceOne extends Op implements MongoLambda<QueryReplace, UpdateResult> {
+public final class ReplaceOne extends Op implements MongoLambda<QueryAndDoc, UpdateResult> {
 
   static final ReplaceOptions DEFAULT_OPTIONS = new ReplaceOptions();
   private ReplaceOptions options = DEFAULT_OPTIONS;
@@ -72,21 +72,22 @@ public final class ReplaceOne extends Op implements MongoLambda<QueryReplace, Up
    */
   @Override
   public IO<UpdateResult> apply(final ClientSession session,
-                                final QueryReplace queryReplace) {
+                                final QueryAndDoc queryReplace) {
     Objects.requireNonNull(queryReplace);
 
-    Supplier<UpdateResult> supplier = decorateWithEvent(() -> {
-      var collection = requireNonNull(this.collection.get());
-      return session == null ? collection.replaceOne(toBson(queryReplace.query()),
-                                                     queryReplace.newDoc(),
-                                                     options
-      ) : collection.replaceOne(session,
-                                toBson(queryReplace.query()),
-                                queryReplace.newDoc(),
-                                options
-      );
-    },
-                                                        REPLACE_ONE);
+    Supplier<UpdateResult> supplier =
+        decorateWithEvent(() -> {
+                            var collection = requireNonNull(this.collection.get());
+                            return session == null ? collection.replaceOne(toBson(queryReplace.query()),
+                                                                           queryReplace.newDoc(),
+                                                                           options
+                                                                          ) : collection.replaceOne(session,
+                                                                                                    toBson(queryReplace.query()),
+                                                                                                    queryReplace.newDoc(),
+                                                                                                    options
+                                                                                                   );
+                          },
+                          REPLACE_ONE);
     return IO.managedLazy(supplier);
   }
 

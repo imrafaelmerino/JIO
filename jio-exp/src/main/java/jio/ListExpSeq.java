@@ -1,5 +1,7 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -8,13 +10,11 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static java.util.Objects.requireNonNull;
-
 final class ListExpSeq<Elem> extends ListExp<Elem> {
 
   public ListExpSeq(final List<IO<Elem>> list,
                     final Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
-  ) {
+                   ) {
     super(list,
           debugger);
   }
@@ -31,7 +31,7 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
   public ListExp<Elem> tail() {
     return new ListExpSeq<>(list.subList(1,
                                          list.size()
-    ),
+                                        ),
                             jfrPublisher
     );
   }
@@ -39,14 +39,14 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
   @Override
   public ListExp<Elem> retryEach(final Predicate<? super Throwable> predicate,
                                  final RetryPolicy policy
-  ) {
+                                ) {
     requireNonNull(policy);
     requireNonNull(predicate);
     return new ListExpSeq<>(list.stream()
                                 .map(it -> it.retry(predicate,
                                                     policy
-                                )
-                                )
+                                                   )
+                                    )
                                 .toList(),
                             jfrPublisher
     );
@@ -61,7 +61,7 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
                                       l.add(it);
                                       return l;
                                     })
-      );
+                           );
     }
 
     return acc;
@@ -73,7 +73,7 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
     return new ListExpSeq<>(DebuggerHelper.debugList(list,
                                                      eventBuilder.exp,
                                                      Objects.requireNonNull(eventBuilder).context
-    ),
+                                                    ),
                             getJFRPublisher(eventBuilder)
     );
   }

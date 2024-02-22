@@ -3,8 +3,7 @@ package jio.http.client.oauth;
 /**
  * This exception happens when the predicate to check when refreshing the oauth token, that is specified in
  * {@link ClientCredentialsBuilder}, is evaluated to true for a predefined number of times in a row, producing the
- * following
- * loop:
+ * following loop:
  *
  * <pre>
  *

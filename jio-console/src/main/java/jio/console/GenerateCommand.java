@@ -2,11 +2,10 @@ package jio.console;
 
 import fun.gen.Gen;
 import java.util.Random;
-import jio.IO;
-import jsonvalues.JsObj;
-
 import java.util.function.Function;
 import java.util.function.Supplier;
+import jio.IO;
+import jsonvalues.JsObj;
 
 /**
  * Represents a command that generates random data using a provided generator. Usage: {@code gen command_name}
@@ -42,16 +41,16 @@ public class GenerateCommand extends Command {
   public GenerateCommand(final String name,
                          final String description,
                          final Gen<String> gen
-  ) {
+                        ) {
     super(String.format("%s %s",
                         PREFIX_COMMAND,
                         name
-    ),
+                       ),
           description,
           tokens -> tokens.length == 2
                     && tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
                     && tokens[1].equalsIgnoreCase(name)
-    );
+         );
     this.gen = gen.apply(new Random());
   }
 
@@ -66,7 +65,7 @@ public class GenerateCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> IO.lazy(gen);
 
   }

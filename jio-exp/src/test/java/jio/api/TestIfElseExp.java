@@ -16,13 +16,15 @@ public class TestIfElseExp {
                                     .consequence(() -> IO.succeed(1 / 0))
                                     .alternative(() -> Constants.ONE);
 
+    int r = a.debugEach("ifelse")
+             .join();
     Assertions.assertEquals(1,
-                            a.debugEach("ifelse")
-                             .join()
-    );
+                            r
+                           );
 
+    r = a.join();
     Assertions.assertEquals(1,
-                            a.join());
+                            r);
 
   }
 

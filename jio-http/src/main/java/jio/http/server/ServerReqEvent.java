@@ -1,6 +1,11 @@
 package jio.http.server;
 
-import jdk.jfr.*;
+import jdk.jfr.Category;
+import jdk.jfr.Description;
+import jdk.jfr.Event;
+import jdk.jfr.Label;
+import jdk.jfr.Name;
+import jdk.jfr.StackTrace;
 
 @Label("jio-httpserver-req")
 @Name("jio.http.server.Req")

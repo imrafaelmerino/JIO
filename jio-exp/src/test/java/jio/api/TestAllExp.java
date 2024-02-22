@@ -45,13 +45,13 @@ public class TestAllExp {
   public void test_debugeach() {
     var exp = AllExp.par(IO.TRUE,
                          IO.TRUE
-    )
+                        )
                     .debugEach("context")
                     .join();
 
     Assertions.assertEquals(true,
                             exp
-    );
+                           );
 
   }
 

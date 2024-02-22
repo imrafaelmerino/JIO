@@ -1,12 +1,11 @@
 package jio.test.junit;
 
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.function.Consumer;
 import jdk.jfr.consumer.RecordedEvent;
 import jio.test.Utils;
 import jio.time.Fun;
-
-import java.time.format.DateTimeFormatter;
-import java.util.function.Consumer;
 
 @SuppressWarnings("InlineFormatString")
 final class DatabaseBatchDebugger implements Consumer<RecordedEvent> {
@@ -25,7 +24,6 @@ final class DatabaseBatchDebugger implements Consumer<RecordedEvent> {
       |  Event Start Time: %s
       -------------------------------
       """;
-
   private static final String FAILURE_OR_PARTIAL_SUCCESS_FORMAT = """
       ------ jdbc-client batch -----
       |  Label: %s
@@ -65,22 +63,22 @@ final class DatabaseBatchDebugger implements Consumer<RecordedEvent> {
                                             event.getStartTime()
                                                  .atZone(ZoneOffset.UTC)
                                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-    ) : String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
-                      label,
-                      event.getValue(EventFields.RESULT),
-                      Fun.formatTime(event.getDuration()),
-                      event.getValue(EventFields.ROWS_AFFECTED),
-                      event.getValue(EventFields.EXECUTED_BATCHES),
-                      event.getValue(EventFields.BATCH_SIZE),
-                      event.getValue(EventFields.TOTAL_STMS),
-                      event.getValue(EventFields.SQL),
-                      event.getValue(EventFields.EXCEPTION),
-                      event.getValue("batchCounter"),
-                      Utils.getThreadName(event.getThread()),
-                      event.getStartTime()
-                           .atZone(ZoneOffset.UTC)
-                           .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-    );
+                                           ) : String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
+                                                             label,
+                                                             event.getValue(EventFields.RESULT),
+                                                             Fun.formatTime(event.getDuration()),
+                                                             event.getValue(EventFields.ROWS_AFFECTED),
+                                                             event.getValue(EventFields.EXECUTED_BATCHES),
+                                                             event.getValue(EventFields.BATCH_SIZE),
+                                                             event.getValue(EventFields.TOTAL_STMS),
+                                                             event.getValue(EventFields.SQL),
+                                                             event.getValue(EventFields.EXCEPTION),
+                                                             event.getValue("batchCounter"),
+                                                             Utils.getThreadName(event.getThread()),
+                                                             event.getStartTime()
+                                                                  .atZone(ZoneOffset.UTC)
+                                                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                                                            );
     synchronized (System.out) {
       System.out.println(message);
       System.out.flush();

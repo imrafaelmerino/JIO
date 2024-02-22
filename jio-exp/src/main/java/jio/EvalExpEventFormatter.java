@@ -38,16 +38,16 @@ public final class EvalExpEventFormatter implements Function<RecordedEvent, Stri
   private static final String CONTEXT_FIELD = "context";
   private static final String RESULT_FIELD = "result";
   private static final String EXCEPTION_FIELD = "exception";
-  /**
-   * The function used to format the output string.
-   */
-  public final Function<String, String> formatOutput;
   private static final String FORMAT = """
       event: eval-exp; exp: %s; result: %s;
       output: %s; duration: %s; context: %s;
       start_time: %s""".replace("\n",
                                 " ");
   private static final String EVENT_NAME = "jio.exp.EvalExp";
+  /**
+   * The function used to format the output string.
+   */
+  public final Function<String, String> formatOutput;
 
   /**
    * Constructs an ExpEventFormatter with a custom output formatter.
@@ -79,6 +79,6 @@ public final class EvalExpEventFormatter implements Function<RecordedEvent, Stri
                          jio.time.Fun.formatTime(event.getDuration()),
                          event.getValue(CONTEXT_FIELD),
                          event.getStartTime()
-    );
+                        );
   }
 }

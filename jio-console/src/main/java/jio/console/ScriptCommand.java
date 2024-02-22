@@ -1,10 +1,6 @@
 package jio.console;
 
 import fun.tuple.Pair;
-import jio.IO;
-import jio.RetryPolicies;
-import jsonvalues.JsObj;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,6 +10,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import jio.IO;
+import jio.RetryPolicies;
+import jsonvalues.JsObj;
 
 /**
  * Represents a command to execute a script file containing multiple commands. It reads the specified file and executes
@@ -31,15 +30,15 @@ class ScriptCommand extends Command {
               Examples:
                   $command /Users/username/myscript.txt""".replace("$command",
                                                                    COMMAND_NAME
-          )
-    );
+                                                                  )
+         );
     this.console = console;
   }
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> {
       int nArgs = tokens.length - 1;
       if (nArgs == 0) {
@@ -49,8 +48,8 @@ class ScriptCommand extends Command {
                                                                                   .isFile(),
                                                                      "Script not found",
                                                                      RetryPolicies.limitRetries(3)
-        )
-        )
+                                      )
+                                     )
                        .then(path -> execScript(conf,
                                                 Paths.get(path)));
       }
@@ -73,25 +72,25 @@ class ScriptCommand extends Command {
       List<IO<String>> list = lines.stream()
                                    .filter(line -> !line.isBlank())
                                    .map(line -> {
-                                     Optional<Pair<Command, IO<String>>> opt = console.parse(conf,
-                                                                                             line.trim());
-                                     if (opt.isPresent()) {
-                                       return opt.get()
-                                                 .second();
-                                     }
-                                     return IO.succeed(String.format("The line %s is not a supported command",
-                                                                     line
-                                     )
-                                     );
-                                   }
-                                   )
+                                          Optional<Pair<Command, IO<String>>> opt = console.parse(conf,
+                                                                                                  line.trim());
+                                          if (opt.isPresent()) {
+                                            return opt.get()
+                                                      .second();
+                                          }
+                                          return IO.succeed(String.format("The line %s is not a supported command",
+                                                                          line
+                                                                         )
+                                                           );
+                                        }
+                                       )
                                    .toList();
 
       return list.stream()
                  .reduce(IO.succeed(""),
                          (a,
                           b) -> a.then(as -> b.map(bs -> as + "\n" + bs))
-                 );
+                        );
     } catch (IOException e) {
       return IO.fail(new InvalidCommand(this,
                                         e.getMessage()));

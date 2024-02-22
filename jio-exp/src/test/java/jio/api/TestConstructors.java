@@ -1,13 +1,5 @@
 package jio.api;
 
-import jio.*;
-import jsonvalues.JsArray;
-import jsonvalues.JsBool;
-import jsonvalues.JsInt;
-import jsonvalues.JsObj;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -19,6 +11,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import jio.AllExp;
+import jio.IO;
+import jio.IfElseExp;
+import jio.JsArrayExp;
+import jio.JsObjExp;
+import jsonvalues.JsArray;
+import jsonvalues.JsBool;
+import jsonvalues.JsInt;
+import jsonvalues.JsObj;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestConstructors {
 
@@ -41,19 +44,19 @@ public class TestConstructors {
   public void computation_constructor() {
 
     String forkJoinPoolThreadName = IO.lazy(
-                                            () -> Thread.currentThread()
-                                                        .getName(),
-                                            ForkJoinPool.commonPool()
-    )
+                                          () -> Thread.currentThread()
+                                                      .getName(),
+                                          ForkJoinPool.commonPool()
+                                           )
                                       .join();
 
     Assertions.assertTrue(forkJoinPoolThreadName.startsWith("ForkJoinPool.commonPool-worker-"));
 
     String executorThreadName = IO.lazy(
-                                        () -> Thread.currentThread()
-                                                    .getName(),
-                                        Executors.newSingleThreadExecutor()
-    )
+                                      () -> Thread.currentThread()
+                                                  .getName(),
+                                      Executors.newSingleThreadExecutor()
+                                       )
                                   .join();
 
     System.out.println("----------" + executorThreadName);
@@ -106,7 +109,7 @@ public class TestConstructors {
                                      .alternative(() -> IO.succeed("alternative"))
                                      .debugEach("my-op")
                                      .join()
-    );
+                           );
   }
 
   @Test
@@ -125,8 +128,8 @@ public class TestConstructors {
                                               "g",
                                               JsArray.of(true,
                                                          false)
-                                     )
-    ),
+                                             )
+                                    ),
                             JsObjExp.par("a",
                                          IO.succeed(1)
                                            .map(JsInt::of),
@@ -146,28 +149,28 @@ public class TestConstructors {
                                                       "g",
                                                       JsArrayExp.seq(IO.TRUE.map(JsBool::of),
                                                                      IO.FALSE.map(JsBool::of)
-                                                      )
-                                         )
-                            )
+                                                                    )
+                                                     )
+                                        )
                                     .debugEach("my-op")
                                     .join()
 
-    );
+                           );
   }
 
   @Test
   public void testResource() {
 
     String a = IO.resource(() -> {
-      File file = File.createTempFile("example",
-                                      "text");
-      Files.writeString(file.toPath(),
-                        "hola");
-      BufferedReader bufferedReader = new BufferedReader(
-                                                         new FileReader(file,
-                                                                        StandardCharsets.UTF_8));
-      return bufferedReader;
-    },
+                             File file = File.createTempFile("example",
+                                                             "text");
+                             Files.writeString(file.toPath(),
+                                               "hola");
+                             BufferedReader bufferedReader = new BufferedReader(
+                                 new FileReader(file,
+                                                StandardCharsets.UTF_8));
+                             return bufferedReader;
+                           },
                            it -> IO.succeed(it.lines()
                                               .collect(Collectors.joining())))
                  .join();
@@ -181,8 +184,8 @@ public class TestConstructors {
 
     try {
       IO.task(() -> {
-        throw new IllegalArgumentException("hola");
-      })
+          throw new IllegalArgumentException("hola");
+        })
         .debug()
         .join();
     } catch (Exception e) {
@@ -193,10 +196,10 @@ public class TestConstructors {
 
     try {
       IO.task(() -> {
-        throw new IllegalArgumentException("hola");
-      },
+                throw new IllegalArgumentException("hola");
+              },
               Executors.newCachedThreadPool()
-      )
+             )
         .debug()
         .join();
     } catch (Exception e) {

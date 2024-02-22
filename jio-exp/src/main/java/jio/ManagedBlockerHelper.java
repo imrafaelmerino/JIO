@@ -50,7 +50,7 @@ final class ManagedBlockerHelper {
    * pool.
    */
   private static class ManagedBlockerSupplier<Output>
-                                             implements ForkJoinPool.ManagedBlocker {
+      implements ForkJoinPool.ManagedBlocker {
 
     /**
      * The blocking task.
@@ -105,7 +105,7 @@ final class ManagedBlockerHelper {
    * pool.
    */
   private static class TaskManagedBlockerTask<Output>
-                                             implements ForkJoinPool.ManagedBlocker {
+      implements ForkJoinPool.ManagedBlocker {
 
     /**
      * The blocking task.

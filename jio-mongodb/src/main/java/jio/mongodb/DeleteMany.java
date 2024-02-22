@@ -1,18 +1,16 @@
 package jio.mongodb;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.model.DeleteOptions;
-import com.mongodb.client.result.DeleteResult;
-import java.util.concurrent.Executors;
-import jio.IO;
-import jsonvalues.JsObj;
-
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.Converters.toBson;
 import static jio.mongodb.MongoOpEvent.OP.DELETE_MANY;
+
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.model.DeleteOptions;
+import com.mongodb.client.result.DeleteResult;
+import java.util.Objects;
+import java.util.function.Supplier;
+import jio.IO;
+import jsonvalues.JsObj;
 
 /**
  * Represents an operation to delete multiple documents from a MongoDB collection. This class provides flexibility in
@@ -68,19 +66,19 @@ public final class DeleteMany extends Op implements MongoLambda<JsObj, DeleteRes
   @Override
   public IO<DeleteResult> apply(final ClientSession session,
                                 final JsObj query
-  ) {
+                               ) {
     Objects.requireNonNull(query);
     Supplier<DeleteResult> supplier = decorateWithEvent(() -> {
-      var collection = requireNonNull(this.collection.get());
-      return session == null ? collection.deleteMany(toBson(query),
-                                                     options
-      ) : collection.deleteMany(session,
-                                toBson(query),
-                                options
-      );
-    },
+                                                          var collection = requireNonNull(this.collection.get());
+                                                          return session == null ? collection.deleteMany(toBson(query),
+                                                                                                         options
+                                                                                                        ) : collection.deleteMany(session,
+                                                                                                                                  toBson(query),
+                                                                                                                                  options
+                                                                                                                                 );
+                                                        },
                                                         DELETE_MANY
-    );
+                                                       );
     return IO.managedLazy(supplier);
   }
 

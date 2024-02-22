@@ -1,10 +1,9 @@
 package jio.mongodb;
 
 import com.mongodb.client.MongoCollection;
-import jsonvalues.JsObj;
-
 import java.util.Objects;
 import java.util.function.Supplier;
+import jsonvalues.JsObj;
 
 /**
  * A builder that provides a MongoDB collection of JSON objects ({@link JsObj}). This builder ensures that the MongoDB
@@ -29,7 +28,7 @@ public final class CollectionBuilder implements Supplier<MongoCollection<JsObj>>
 
   CollectionBuilder(final DatabaseBuilder database,
                     final String name
-  ) {
+                   ) {
     this.database = Objects.requireNonNull(database);
     this.name = Objects.requireNonNull(name);
   }
@@ -44,7 +43,7 @@ public final class CollectionBuilder implements Supplier<MongoCollection<JsObj>>
    */
   public static CollectionBuilder of(final DatabaseBuilder database,
                                      final String name
-  ) {
+                                    ) {
     return new CollectionBuilder(database,
                                  name);
   }

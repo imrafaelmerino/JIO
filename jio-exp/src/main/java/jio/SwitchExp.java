@@ -29,7 +29,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
             final List<Lambda<Input, Output>> lambdas,
             final Lambda<Input, Output> otherwise,
             final Function<EvalExpEvent, BiConsumer<Output, Throwable>> debugger
-  ) {
+           ) {
     super(debugger);
     this.val = val;
     this.predicates = predicates;
@@ -68,21 +68,21 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
                                                  List<Lambda<I, O>> lambdas,
                                                  Lambda<I, O> otherwise,
                                                  int condTestedSoFar
-  ) {
+                                                ) {
     return condTestedSoFar == tests.size() ? val.thenCompose(i -> otherwise.apply(i)
                                                                            .get()) : val.thenCompose(i -> tests.get(
-                                                                                                                    condTestedSoFar)
+                                                                                                                   condTestedSoFar)
                                                                                                                .test(i)
-                                                                                                                   ? lambdas.get(condTestedSoFar)
-                                                                                                                            .apply(i)
-                                                                                                                            .get()
-                                                                                                                   : get(val,
-                                                                                                                         tests,
-                                                                                                                         lambdas,
-                                                                                                                         otherwise,
-                                                                                                                         condTestedSoFar
-                                                                                                                                    + 1)
-                                                                           );
+                                                                                                          ? lambdas.get(condTestedSoFar)
+                                                                                                                   .apply(i)
+                                                                                                                   .get()
+                                                                                                          : get(val,
+                                                                                                                tests,
+                                                                                                                lambdas,
+                                                                                                                otherwise,
+                                                                                                                condTestedSoFar
+                                                                                                                + 1)
+                                                                                                    );
 
   }
 
@@ -93,7 +93,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
                          lambdas,
                          otherwise,
                          0
-    );
+                        );
   }
 
   /**
@@ -107,7 +107,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
   @Override
   public SwitchExp<Input, Output> retryEach(final Predicate<? super Throwable> predicate,
                                             final RetryPolicy policy
-  ) {
+                                           ) {
     requireNonNull(predicate);
     requireNonNull(policy);
     return new SwitchExp<>(val.retry(predicate,
@@ -126,20 +126,20 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
 
   @Override
   public SwitchExp<Input, Output> debugEach(final EventBuilder<Output> eventBuilder
-  ) {
+                                           ) {
     return new SwitchExp<>(DebuggerHelper.debugIO(val,
                                                   "%s-eval".formatted(eventBuilder.exp),
                                                   eventBuilder.context
-    ),
+                                                 ),
                            predicates,
                            DebuggerHelper.debugLambdas(lambdas,
                                                        "%s-branch".formatted(eventBuilder.exp),
                                                        eventBuilder.context
-                           ),
+                                                      ),
                            DebuggerHelper.debugLambda(otherwise,
                                                       "%s-otherwise".formatted(eventBuilder.exp),
                                                       eventBuilder.context
-                           ),
+                                                     ),
                            getJFRPublisher(eventBuilder)
 
     );

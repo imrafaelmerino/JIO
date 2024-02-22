@@ -1,11 +1,10 @@
 package jio.console;
 
-import jio.IO;
-import jsonvalues.JsObj;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Function;
+import jio.IO;
+import jsonvalues.JsObj;
 
 class AddToListCommand extends Command {
 
@@ -21,13 +20,13 @@ class AddToListCommand extends Command {
                   $command names Rafa
                   $command numbers $counter""".replace("$command",
                                                        COMMAND_NAME)
-    );
+         );
   }
 
   private static IO<String> addValueToList(State state,
                                            String varName,
                                            String newValue
-  ) {
+                                          ) {
 
     return IO.lazy(() -> {
       if (!state.listsVariables.containsKey(varName)) {
@@ -45,14 +44,14 @@ class AddToListCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> {
       int nTokens = tokens.length;
 
       if (nTokens == 1) {
         return Programs.ASK_FOR_PAIR(new Programs.AskForInputParams("Type the name of the list"),
                                      new Programs.AskForInputParams("Type the value to be added")
-        )
+                                    )
                        .then(pair -> addValueToList(state,
                                                     pair.first(),
                                                     pair.second()));
@@ -60,10 +59,10 @@ class AddToListCommand extends Command {
 
       if (nTokens == 2) {
         return Programs
-                       .ASK_FOR_INPUT(new Programs.AskForInputParams("Type the value to be added"))
-                       .then(value -> addValueToList(state,
-                                                     tokens[1],
-                                                     value));
+            .ASK_FOR_INPUT(new Programs.AskForInputParams("Type the value to be added"))
+            .then(value -> addValueToList(state,
+                                          tokens[1],
+                                          value));
       }
 
       return addValueToList(state,
@@ -73,7 +72,7 @@ class AddToListCommand extends Command {
                                               .toList()
                                               .subList(2,
                                                        tokens.length))
-      );
+                           );
 
     };
   }

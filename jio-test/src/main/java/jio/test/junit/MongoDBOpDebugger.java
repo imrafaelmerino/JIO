@@ -1,11 +1,11 @@
 package jio.test.junit;
 
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.function.Consumer;
 import jdk.jfr.consumer.RecordedEvent;
 import jio.test.Utils;
 import jio.time.Fun;
-import java.time.format.DateTimeFormatter;
-import java.util.function.Consumer;
 
 @SuppressWarnings("InlineFormatString")
 final class MongoDBOpDebugger implements Consumer<RecordedEvent> {
@@ -19,7 +19,6 @@ final class MongoDBOpDebugger implements Consumer<RecordedEvent> {
       |  Event Start Time: %s
       ----------------------
       """;
-
   private static final String FORMAT_ERR = """
       ------ mongodb op -----
       |  Operation: %s
@@ -46,16 +45,16 @@ final class MongoDBOpDebugger implements Consumer<RecordedEvent> {
                                         event.getStartTime()
                                              .atZone(ZoneOffset.UTC)
                                              .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-    ) : String.format(FORMAT_ERR,
-                      event.getValue(EventFields.OPERATION),
-                      result,
-                      Fun.formatTime(event.getDuration()),
-                      event.getValue(EventFields.EXCEPTION),
-                      Utils.getThreadName(event.getThread()),
-                      event.getStartTime()
-                           .atZone(ZoneOffset.UTC)
-                           .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-    );
+                                       ) : String.format(FORMAT_ERR,
+                                                         event.getValue(EventFields.OPERATION),
+                                                         result,
+                                                         Fun.formatTime(event.getDuration()),
+                                                         event.getValue(EventFields.EXCEPTION),
+                                                         Utils.getThreadName(event.getThread()),
+                                                         event.getStartTime()
+                                                              .atZone(ZoneOffset.UTC)
+                                                              .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                                                        );
     synchronized (System.out) {
       System.out.println(str);
       System.out.flush();

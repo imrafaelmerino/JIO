@@ -1,10 +1,8 @@
 package jio.test.pbt;
 
-import fun.gen.Gen;
-import jio.BiLambda;
-import jio.IO;
-import jsonvalues.JsObj;
+import static java.util.Objects.requireNonNull;
 
+import fun.gen.Gen;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -17,8 +15,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jio.BiLambda;
+import jio.IO;
+import jsonvalues.JsObj;
 
 /**
  * Represents a property of a piece of code or program that should always be held and never fails.
@@ -80,8 +79,8 @@ public non-sealed class Property<GenValue> extends Testable {
   }
 
   /**
-   * Returns a new testable instance that represents the property and will be executed in parallel
-   * for the specified number of times, using multiple threads from the common ForkJoinPool.
+   * Returns a new testable instance that represents the property and will be executed in parallel for the specified
+   * number of times, using multiple threads from the common ForkJoinPool.
    *
    * @param n the number of parallel executions for the property
    * @return a new testable instance with parallel execution
@@ -92,8 +91,8 @@ public non-sealed class Property<GenValue> extends Testable {
   }
 
   /**
-   * Returns a new testable instance that represents the property and will be executed sequentially
-   * for the specified number of times.
+   * Returns a new testable instance that represents the property and will be executed sequentially for the specified
+   * number of times.
    *
    * @param n the number of sequential executions for the property
    * @return a new testable instance with sequential execution
@@ -130,12 +129,12 @@ public non-sealed class Property<GenValue> extends Testable {
         property.apply(conf,
                        generated)
                 .onResult(tr -> {
-                  report.tac(tic);
-                  if (tr instanceof TestFailure tf) {
-                    report.addFailure(new FailureContext(context,
-                                                         tf));
-                  }
-                },
+                            report.tac(tic);
+                            if (tr instanceof TestFailure tf) {
+                              report.addFailure(new FailureContext(context,
+                                                                   tf));
+                            }
+                          },
                           exc -> {
                             report.tac(tic);
                             if (requireNonNull(exc) instanceof TestFailure tf) {

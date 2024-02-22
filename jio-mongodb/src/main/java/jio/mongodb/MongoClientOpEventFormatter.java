@@ -1,14 +1,13 @@
 package jio.mongodb;
 
-import jdk.jfr.consumer.RecordedEvent;
-
-import java.util.function.Function;
-import jio.mongodb.MongoOpEvent.RESULT;
-import jio.time.Fun;
-
 import static jio.mongodb.MongoOpEvent.EXCEPTION_FIELD;
 import static jio.mongodb.MongoOpEvent.OPERATION_FIELD;
 import static jio.mongodb.MongoOpEvent.RESULT_FIELD;
+
+import java.util.function.Function;
+import jdk.jfr.consumer.RecordedEvent;
+import jio.mongodb.MongoOpEvent.RESULT;
+import jio.time.Fun;
 
 /**
  * Formats recorded events from a jio-mongodb operation into a human-readable string. Since it's just a function you can
@@ -48,13 +47,13 @@ public final class MongoClientOpEventFormatter implements Function<RecordedEvent
                                      result,
                                      Fun.formatTime(event.getDuration()),
                                      event.getStartTime()
-    ) : String.format(FAILURE_FORMAT,
-                      event.getValue(OPERATION_FIELD),
-                      result,
-                      Fun.formatTime(event.getDuration()),
-                      event.getValue(EXCEPTION_FIELD),
-                      event.getStartTime()
-    );
+                                    ) : String.format(FAILURE_FORMAT,
+                                                      event.getValue(OPERATION_FIELD),
+                                                      result,
+                                                      Fun.formatTime(event.getDuration()),
+                                                      event.getValue(EXCEPTION_FIELD),
+                                                      event.getStartTime()
+                                                     );
 
   }
 }

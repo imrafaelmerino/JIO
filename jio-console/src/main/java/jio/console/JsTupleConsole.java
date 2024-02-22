@@ -1,15 +1,14 @@
 package jio.console;
 
-import jio.IO;
-import jsonvalues.JsArray;
-import jsonvalues.JsPath;
+import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
-import static java.util.Objects.requireNonNull;
+import jio.IO;
+import jsonvalues.JsArray;
+import jsonvalues.JsPath;
 
 /**
  * Represents a {@link JsConsole console} program to compose a json array from the user inputs. It has the same
@@ -41,7 +40,7 @@ public class JsTupleConsole implements JsConsole<JsArray> {
    */
   public static JsTupleConsole of(final JsConsole<?> head,
                                   final JsConsole<?>... tail
-  ) {
+                                 ) {
     var array = new JsTupleConsole();
     array.seq.add(requireNonNull(head));
     array.seq.addAll(Arrays.asList(requireNonNull(tail)));
@@ -63,7 +62,7 @@ public class JsTupleConsole implements JsConsole<JsArray> {
         result = result.thenCombine(io.apply(p)
                                       .get(),
                                     JsArray::append
-        );
+                                   );
       }
 
       return result;

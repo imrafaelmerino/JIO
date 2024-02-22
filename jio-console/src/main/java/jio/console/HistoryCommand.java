@@ -1,13 +1,12 @@
 package jio.console;
 
-import jio.IO;
-import jio.ListExp;
-import jsonvalues.JsObj;
-
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import jio.IO;
+import jio.ListExp;
+import jsonvalues.JsObj;
 
 /**
  * Represents a command that lists executed commands and their positions in the command history. Users can execute
@@ -27,6 +26,10 @@ import java.util.stream.IntStream;
  */
 class HistoryCommand extends Command {
 
+  static final String intervalRegex = "\\d+\\.\\.\\d+";
+  static final Pattern interval = Pattern.compile(intervalRegex);
+  static final String someRegex = "-?\\d+(,-?\\d+)?";
+  static final Pattern some = Pattern.compile(someRegex);
   private static final String COMMAND_NAME = "history";
 
   public HistoryCommand() {
@@ -42,17 +45,10 @@ class HistoryCommand extends Command {
                                             COMMAND_NAME));
   }
 
-  static final String intervalRegex = "\\d+\\.\\.\\d+";
-  static final Pattern interval = Pattern.compile(intervalRegex);
-
-  static final String someRegex = "-?\\d+(,-?\\d+)?";
-
-  static final Pattern some = Pattern.compile(someRegex);
-
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
 
     return tokens -> {
       int nArgs = tokens.length - 1;
@@ -64,12 +60,12 @@ class HistoryCommand extends Command {
       if (nArgs == 0) {
         int n = state.historyResults.size();
         return n == 0 ? IO.succeed("stack is empty!") : IO.succeed(
-                                                                   IntStream.range(0,
-                                                                                   n)
-                                                                            .mapToObj(i -> i + " -> "
-                                                                                           + state.historyResults.get(i))
-                                                                            .collect(Collectors.joining("\n"))
-        );
+            IntStream.range(0,
+                            n)
+                     .mapToObj(i -> i + " -> "
+                                    + state.historyResults.get(i))
+                     .collect(Collectors.joining("\n"))
+                                                                  );
       } else {
         int size = state.historyCommands.size();
         String token = tokens[1];
@@ -106,7 +102,7 @@ class HistoryCommand extends Command {
         } else {
           return IO.fail(new InvalidCommand(this,
                                             "argument doesnt follow the allowed patterns: " + intervalRegex + ", "
-                                                  + someRegex));
+                                            + someRegex));
         }
 
       }

@@ -1,12 +1,11 @@
 package jio.test.junit;
 
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.function.Consumer;
 import jdk.jfr.consumer.RecordedEvent;
 import jio.test.Utils;
 import jio.time.Fun;
-
-import java.time.format.DateTimeFormatter;
-import java.util.function.Consumer;
 
 @SuppressWarnings("InlineFormatString")
 final class HttpClientReqDebugger implements Consumer<RecordedEvent> {
@@ -24,7 +23,6 @@ final class HttpClientReqDebugger implements Consumer<RecordedEvent> {
       |  Event Start Time: %s
       ----------------------
       """;
-
   private static final String FORMAT_ERR = """
       ------ httpclient-req -----
       |  Result: %s
@@ -48,7 +46,7 @@ final class HttpClientReqDebugger implements Consumer<RecordedEvent> {
     boolean isSuccess = "SUCCESS".equals(result);
     var str = String.format(isSuccess ? FORMAT_SUC : FORMAT_ERR,
                             isSuccess ? Utils.categorizeHttpStatusCode(event.getValue(EventFields.STATUS_CODE))
-                                : result,
+                                      : result,
                             isSuccess ? event.getValue(EventFields.STATUS_CODE) : event.getValue(EventFields.EXCEPTION),
                             Fun.formatTime(event.getDuration()
                                                 .toNanos()),
@@ -60,7 +58,7 @@ final class HttpClientReqDebugger implements Consumer<RecordedEvent> {
                             event.getStartTime()
                                  .atZone(ZoneOffset.UTC)
                                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-    );
+                           );
     synchronized (System.out) {
       System.out.println(str);
       System.out.flush();

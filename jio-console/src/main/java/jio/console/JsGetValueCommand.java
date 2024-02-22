@@ -1,12 +1,11 @@
 package jio.console;
 
+import java.util.function.Function;
 import jio.IO;
 import jio.RetryPolicies;
 import jsonvalues.JsObj;
 import jsonvalues.JsPath;
 import jsonvalues.UserError;
-
-import java.util.function.Function;
 
 class JsGetValueCommand extends Command {
 
@@ -19,23 +18,23 @@ class JsGetValueCommand extends Command {
               jio.chatgpt.Examples:
                        $command /phones/0/number""".replace("$command",
                                                             COMMAND_NAME
-          )
-    );
+                                                           )
+         );
   }
 
   private static IO<String> getValue(State state,
                                      String path) {
     JsPath jsPath = JsPath.path(path);
     return IO.lazy(() -> Functions.toJson
-                                         .apply(state.variables.get("output"))
-                                         .get(jsPath)
-                                         .toString());
+        .apply(state.variables.get("output"))
+        .get(jsPath)
+        .toString());
   }
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-  ) {
+                                             ) {
     return tokens -> {
       int nArgs = tokens.length - 1;
       if (nArgs == 0) {
@@ -50,8 +49,8 @@ class JsGetValueCommand extends Command {
                                                                      },
                                                                      "Type a valid path (starting with /)",
                                                                      RetryPolicies.limitRetries(3)
-        )
-        )
+                                      )
+                                     )
                        .then(path -> getValue(state,
                                               path));
       }

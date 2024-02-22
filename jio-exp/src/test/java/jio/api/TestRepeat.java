@@ -40,12 +40,12 @@ public class TestRepeat {
     int max = 10;
     IO<Pair<Integer, Integer>> pair = PairExp.par(IO.managedLazy(() -> sleepRandom(max)),
                                                   IO.managedLazy(() -> sleepRandom(max))
-    )
+                                                 )
                                              .debugEach("pair")
                                              .repeat(e -> true,
                                                      RetryPolicies.constantDelay(Duration.ofMillis(100))
                                                                   .limitRetriesByCumulativeDelay(Duration.ofSeconds(1))
-                                             );
+                                                    );
     try {
       ListExp<Pair<Integer, Integer>> exp = ListExp.par();
       for (int i = 0; i < 500; i++) {

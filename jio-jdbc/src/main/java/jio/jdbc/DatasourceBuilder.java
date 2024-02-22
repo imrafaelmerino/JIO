@@ -2,17 +2,32 @@ package jio.jdbc;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import javax.sql.DataSource;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javax.sql.DataSource;
 
 /**
  * A builder class for creating and configuring a {@link javax.sql.DataSource} using HikariCP. The creation of the
  * DataSource is lazy, and a double-check idiom is used to ensure thread safety during creation.
  */
 public final class DatasourceBuilder implements Supplier<DataSource> {
+
+  private static final VarHandle DATASOURCE;
+
+  static {
+    try {
+      MethodHandles.Lookup lookup = MethodHandles.lookup();
+      DATASOURCE = lookup.findVarHandle(DatasourceBuilder.class,
+                                        "dataSource",
+                                        HikariDataSource.class);
+    } catch (ReflectiveOperationException e) {
+      throw new ExceptionInInitializerError(e);
+    }
+  }
 
   private final String user;
   private final byte[] sec;
@@ -22,7 +37,6 @@ public final class DatasourceBuilder implements Supplier<DataSource> {
   private int connectionTimeout;
   private int maxPoolSize = DEFAULT_MAX_POOL_SIZE;
   private Consumer<HikariConfig> addProps;
-
   /**
    * Constructs a {@code DatasourceBuilder} with the specified user, password, and JDBC URL.
    *
@@ -34,7 +48,7 @@ public final class DatasourceBuilder implements Supplier<DataSource> {
   public DatasourceBuilder(final String user,
                            final byte[] sec,
                            final String url
-  ) {
+                          ) {
     this.user = Objects.requireNonNull(user);
     this.sec = Objects.requireNonNull(sec);
     this.url = Objects.requireNonNull(url);
@@ -47,11 +61,22 @@ public final class DatasourceBuilder implements Supplier<DataSource> {
     }
     Runtime.getRuntime()
            .addShutdownHook(new Thread(() -> {
-             if (dataSource != null) {
-               dataSource.close();
+             HikariDataSource ref = getDatasourceAcquire();
+             if (ref != null) {
+               ref.close();
              }
            }));
 
+  }
+
+  private HikariDataSource getDatasourceAcquire() {
+    return (HikariDataSource) DATASOURCE.getAcquire(this);
+  }
+
+  private void setDatasourceRelease(HikariDataSource value) {
+    DATASOURCE.setRelease(this,
+                          value);
+    assert (dataSource != null);
   }
 
   /**
@@ -63,7 +88,7 @@ public final class DatasourceBuilder implements Supplier<DataSource> {
    */
   public DatasourceBuilder setConnectionTimeout(final int connectionTimeout) {
     if (maxPoolSize <= 0) {
-      throw new IllegalArgumentException("connectionTimeoutMs <= 0");
+      throw new IllegalArgumentException("connectionTimeout <= 0");
     }
     this.connectionTimeout = connectionTimeout;
     return this;
@@ -102,14 +127,13 @@ public final class DatasourceBuilder implements Supplier<DataSource> {
    */
   @Override
   public DataSource get() {
-    var localRef = dataSource;
+    HikariDataSource localRef = getDatasourceAcquire();
     if (localRef == null) {
       synchronized (this) {
-        localRef = dataSource;
+        localRef = getDatasourceAcquire();
         if (localRef == null) {
-          HikariConfig config = getHikariConfig();
-          dataSource = localRef = new HikariDataSource(config);
-
+          localRef = new HikariDataSource(getHikariConfig());
+          setDatasourceRelease(localRef);
         }
       }
     }

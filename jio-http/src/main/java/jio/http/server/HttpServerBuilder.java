@@ -1,8 +1,12 @@
 package jio.http.server;
 
-import com.sun.net.httpserver.*;
-import jio.IO;
+import static java.util.Objects.requireNonNull;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -12,8 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jio.IO;
 
 /**
  * Builder to create {@link HttpServer http servers}. The start method of the server is wrapped into a {@link IO}. It
@@ -51,8 +54,8 @@ public final class HttpServerBuilder {
                                           e.getValue()
                                            .size() == 1 ? e.getValue()
                                                            .get(0) : e.getValue()
-                  )
-                  )
+                                         )
+                      )
                   .collect(Collectors.joining(", "));
   }
 
@@ -65,6 +68,17 @@ public final class HttpServerBuilder {
    */
   public static HttpServerBuilder of(final Map<String, HttpHandler> handlers) {
     return new HttpServerBuilder(requireNonNull(handlers));
+  }
+
+  private static Throwable findUltimateCause(Throwable exception) {
+    Throwable ultimateCause = exception;
+
+    // Iterate through the exception chain until the ultimate cause is found
+    while (ultimateCause.getCause() != null) {
+      ultimateCause = ultimateCause.getCause();
+    }
+
+    return ultimateCause;
   }
 
   /**
@@ -126,12 +140,12 @@ public final class HttpServerBuilder {
    */
   public HttpServer startAtRandom(final int start,
                                   final int end
-  ) {
+                                 ) {
     return buildAtRandomRec("localhost",
                             start,
                             end
-    )
-     .join();
+                           )
+        .join();
   }
 
   /**
@@ -148,7 +162,7 @@ public final class HttpServerBuilder {
   public HttpServer startAtRandom(final String host,
                                   final int start,
                                   final int end
-  ) {
+                                 ) {
     if (start <= 0) {
       throw new IllegalArgumentException("start <= 0");
     }
@@ -158,22 +172,22 @@ public final class HttpServerBuilder {
     return buildAtRandomRec(host,
                             start,
                             end
-    )
-     .join();
+                           )
+        .join();
   }
 
   private IO<HttpServer> buildAtRandomRec(final String host,
                                           final int start,
                                           final int end
-  ) {
+                                         ) {
     if (start == end) {
       throw new IllegalArgumentException("range of ports exhausted");
     }
     return build(requireNonNull(host),
                  start
-    ).recoverWith(error -> buildAtRandomRec(host,
-                                            start + 1,
-                                            end));
+                ).recoverWith(error -> buildAtRandomRec(host,
+                                                        start + 1,
+                                                        end));
   }
 
   /**
@@ -188,7 +202,7 @@ public final class HttpServerBuilder {
    */
   private IO<HttpServer> build(final String host,
                                final int port
-  ) {
+                              ) {
     if (port <= 0) {
       throw new IllegalArgumentException("port <= 0");
     }
@@ -223,7 +237,7 @@ public final class HttpServerBuilder {
                                            .handle(exchange);
                                  }
                                }
-          );
+                              );
         }
         server.start();
         return CompletableFuture.completedFuture(server);
@@ -235,7 +249,7 @@ public final class HttpServerBuilder {
 
   private void jfrHandle(String key,
                          HttpExchange exchange
-  ) {
+                        ) {
     ServerReqEvent event = new ServerReqEvent();
     event.reqCounter = counter.incrementAndGet();
     event.remoteHostAddress = exchange.getRemoteAddress()
@@ -259,22 +273,11 @@ public final class HttpServerBuilder {
                                       cause.getClass()
                                            .getName(),
                                       cause.getMessage()
-      );
+                                     );
       event.result = ServerReqEvent.RESULT.FAILURE.name();
     } finally {
       event.commit();
     }
-  }
-
-  private static Throwable findUltimateCause(Throwable exception) {
-    Throwable ultimateCause = exception;
-
-    // Iterate through the exception chain until the ultimate cause is found
-    while (ultimateCause.getCause() != null) {
-      ultimateCause = ultimateCause.getCause();
-    }
-
-    return ultimateCause;
   }
 
   /**
@@ -289,7 +292,7 @@ public final class HttpServerBuilder {
   public HttpServer start(final int port) {
     return build("localhost",
                  port
-    ).join();
+                ).join();
   }
 
   /**
@@ -305,8 +308,8 @@ public final class HttpServerBuilder {
                           final int port) {
     return build(host,
                  port
-    )
-     .join();
+                )
+        .join();
   }
 
 }

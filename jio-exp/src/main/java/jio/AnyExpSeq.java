@@ -13,7 +13,7 @@ final class AnyExpSeq extends AnyExp {
 
   public AnyExpSeq(final List<IO<Boolean>> exps,
                    final Function<EvalExpEvent, BiConsumer<Boolean, Throwable>> debugger
-  ) {
+                  ) {
     super(debugger,
           exps);
   }
@@ -21,13 +21,13 @@ final class AnyExpSeq extends AnyExp {
   @Override
   public AnyExp retryEach(final Predicate<? super Throwable> predicate,
                           final RetryPolicy policy
-  ) {
+                         ) {
     requireNonNull(predicate);
     requireNonNull(policy);
     return new AnyExpSeq(exps.stream()
                              .map(it -> it.retry(predicate,
                                                  policy
-                             ))
+                                                ))
                              .toList(),
                          jfrPublisher
     );
@@ -44,8 +44,8 @@ final class AnyExpSeq extends AnyExp {
                                   .get() : exps.get(0)
                                                .get()
                                                .thenCompose(bool -> bool ? CompletableFuture.completedFuture(true)
-                                                   : get(exps.subList(1,
-                                                                      exps.size())));
+                                                                         : get(exps.subList(1,
+                                                                                            exps.size())));
   }
 
   @Override
@@ -53,7 +53,7 @@ final class AnyExpSeq extends AnyExp {
     Objects.requireNonNull(eventBuilder);
     return new AnyExpSeq(DebuggerHelper.debugConditions(exps,
                                                         eventBuilder
-    ),
+                                                       ),
                          getJFRPublisher(eventBuilder)
     );
   }

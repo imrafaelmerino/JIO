@@ -42,7 +42,7 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
    */
   public static <A, B> PairExp<A, B> seq(final IO<A> first,
                                          final IO<B> second
-  ) {
+                                        ) {
     return new PairExpSeq<>(requireNonNull(first),
                             requireNonNull(second),
                             null
@@ -61,7 +61,7 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
    */
   public static <A, B> PairExp<A, B> par(final IO<A> first,
                                          final IO<B> second
-  ) {
+                                        ) {
     return new PairExpPar<>(requireNonNull(first),
                             requireNonNull(second),
                             null
@@ -89,7 +89,7 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
   @Override
   public abstract PairExp<First, Second> retryEach(final Predicate<? super Throwable> predicate,
                                                    final RetryPolicy policy
-  );
+                                                  );
 
   @Override
   public PairExp<First, Second> retryEach(final RetryPolicy policy) {
@@ -99,7 +99,7 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
 
   @Override
   public abstract PairExp<First, Second> debugEach(final EventBuilder<Pair<First, Second>> messageBuilder
-  );
+                                                  );
 
   @Override
   public abstract PairExp<First, Second> debugEach(final String context);

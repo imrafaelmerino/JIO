@@ -1,16 +1,15 @@
 package jio.console;
 
 import fun.tuple.Pair;
-import jio.IO;
-import jio.time.Clock;
-import jsonvalues.JsObj;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import jio.IO;
+import jio.time.Clock;
+import jsonvalues.JsObj;
 
 /**
  * Creates a REPL (read eval print loop) program from a list of user commands. It's executed with the method
@@ -95,69 +94,69 @@ public final class Console {
    */
   public void eval(JsObj conf) {
     System.out.println("""
-             ___ ___ _______      _______ _______ __    _ _______ _______ ___     _______\s
-            |   |   |       |    |       |       |  |  | |       |       |   |   |       |
-            |   |   |   _   |____|       |   _   |   |_| |  _____|   _   |   |   |    ___|
-            |   |   |  | |  |____|       |  | |  |       | |_____|  | |  |   |   |   |___\s
-         ___|   |   |  |_|  |    |      _|  |_|  |  _    |_____  |  |_|  |   |___|    ___|
-        |       |   |       |    |     |_|       | | |   |_____| |       |       |   |___\s
-        |_______|___|_______|    |_______|_______|_|  |__|_______|_______|_______|_______|""");
-    for (;;) {
+                                ___ ___ _______      _______ _______ __    _ _______ _______ ___     _______\s
+                               |   |   |       |    |       |       |  |  | |       |       |   |   |       |
+                               |   |   |   _   |____|       |   _   |   |_| |  _____|   _   |   |   |    ___|
+                               |   |   |  | |  |____|       |  | |  |       | |_____|  | |  |   |   |   |___\s
+                            ___|   |   |  |_|  |    |      _|  |_|  |  _    |_____  |  |_|  |   |___|    ___|
+                           |       |   |       |    |     |_|       | | |   |_____| |       |       |   |___\s
+                           |_______|___|_______|    |_______|_______|_|  |__|_______|_______|_______|_______|""");
+    for (; ; ) {
       Programs.READ_LINE
-                        .then(line -> {
-                          if (line.isBlank()) {
-                            return IO.NULL();
-                          }
-                          String trimmedLine = line.trim();
-                          Optional<Pair<Command, IO<String>>> opt = parse(conf,
-                                                                          trimmedLine);
-                          if (opt.isPresent()) {
-                            IO<String> command = opt.get()
-                                                    .second()
-                                                    .peekSuccess(output -> {
-                                                      if (output != null && opt.get()
-                                                                               .first().isSaveOutput) {
-                                                        state.variables.put("output",
-                                                                            output
-                                                        );
-                                                      }
-                                                    }
-                                                    );
+          .then(line -> {
+            if (line.isBlank()) {
+              return IO.NULL();
+            }
+            String trimmedLine = line.trim();
+            Optional<Pair<Command, IO<String>>> opt = parse(conf,
+                                                            trimmedLine);
+            if (opt.isPresent()) {
+              IO<String> command = opt.get()
+                                      .second()
+                                      .peekSuccess(output -> {
+                                                     if (output != null && opt.get()
+                                                                              .first().isSaveOutput) {
+                                                       state.variables.put("output",
+                                                                           output
+                                                                          );
+                                                     }
+                                                   }
+                                                  );
 
-                            state.historyCommands.add(command);
-                            return IO.lazy(Clock.realTime)
-                                     .then(tic -> command.map(result -> Pair.of(tic,
-                                                                                result)))
-                                     .peek(pair -> state.historyResults
-                                                                       .add(String.format("%s, OK, %s ms, %s ",
-                                                                                          trimmedLine,
-                                                                                          Duration.ofMillis(System.currentTimeMillis()
-                                                                                                            - pair.first())
-                                                                                                  .toMillis(),
-                                                                                          Instant.ofEpochMilli(pair.first())
-                                                                       )
-                                                                       ),
-                                           error -> state.historyResults.add(String.format("%s, KO, %s",
-                                                                                           trimmedLine,
-                                                                                           Instant.now()
-                                           )
-                                           )
-                                     )
-                                     .map(Pair::second);
-                          }
-                          return IO.fail(new CommandNotFoundException(line));
-                        })
-                        .then(it -> it != null ? Programs.PRINT_NEW_LINE(it + "\n") : IO.NULL(),
-                              e -> Programs.PRINT_NEW_LINE(e.getMessage() + "\n")
-                        )
-                        .join();
+              state.historyCommands.add(command);
+              return IO.lazy(Clock.realTime)
+                       .then(tic -> command.map(result -> Pair.of(tic,
+                                                                  result)))
+                       .peek(pair -> state.historyResults
+                                 .add(String.format("%s, OK, %s ms, %s ",
+                                                    trimmedLine,
+                                                    Duration.ofMillis(System.currentTimeMillis()
+                                                                      - pair.first())
+                                                            .toMillis(),
+                                                    Instant.ofEpochMilli(pair.first())
+                                                   )
+                                     ),
+                             error -> state.historyResults.add(String.format("%s, KO, %s",
+                                                                             trimmedLine,
+                                                                             Instant.now()
+                                                                            )
+                                                              )
+                            )
+                       .map(Pair::second);
+            }
+            return IO.fail(new CommandNotFoundException(line));
+          })
+          .then(it -> it != null ? Programs.PRINT_NEW_LINE(it + "\n") : IO.NULL(),
+                e -> Programs.PRINT_NEW_LINE(e.getMessage() + "\n")
+               )
+          .join();
     }
 
   }
 
   private String[] replaceVars(final State state,
                                final String[] tokens
-  ) {
+                              ) {
     for (int i = 1; i < tokens.length; i++) {
       var token = tokens[i];
       if (token.startsWith("$")) {
@@ -172,7 +171,7 @@ public final class Console {
 
   Optional<Pair<Command, IO<String>>> parse(JsObj conf,
                                             String line
-  ) {
+                                           ) {
     for (Command command : commands) {
       try {
         Optional<IO<String>> opt = command.executeIfMatch(conf,

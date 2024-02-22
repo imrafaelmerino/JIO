@@ -1,11 +1,10 @@
 package jio.mongodb;
 
 import com.mongodb.client.ClientSession;
-import jio.BiLambda;
-import jio.Lambda;
-
 import java.util.Objects;
 import java.util.function.Function;
+import jio.BiLambda;
+import jio.Lambda;
 
 /**
  * Represents a function that takes an input and produces an IO effect within a MongoDB client session. Using
