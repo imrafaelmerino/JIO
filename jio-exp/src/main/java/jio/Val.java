@@ -5,15 +5,15 @@ import static java.util.Objects.requireNonNull;
 import java.util.concurrent.Callable;
 
 /**
- * Represents a value, which is an irreducible expression. Values of type {@code Val} encapsulate a value of type
+ * Represents a output, which is an irreducible expression. Values of type {@code Val} encapsulate a output of type
  * {@code O}. These values are terminal and represent the end result of an effectful computation.
  *
  * <p>It's important to note that in the context of effectful computations, the {@code IO} type can
  * be either {@code Val} (irreducible) or {@code Exp} (composable expressions made up of different operations). While
- * {@code Val} represents a final value, {@code Exp} expressions are composable and can involve multiple sub-effects
+ * {@code Val} represents a final output, {@code Exp} expressions are composable and can involve multiple sub-effects
  * that need to be executed in a specific order.
  *
- * @param <Output> the type of the value encapsulated by this {@code Val}.
+ * @param <Output> the type of the output encapsulated by this {@code Val}.
  */
 final class Val<Output> extends IO<Output> {
 

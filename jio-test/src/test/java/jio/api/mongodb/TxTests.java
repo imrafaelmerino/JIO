@@ -61,7 +61,7 @@ public class TxTests {
                                           )
                                   )
                             .result()
-                            .call();
+                            .tryGet();
 
     Assertions.assertEquals(2,
                             result.size());

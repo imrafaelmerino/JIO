@@ -66,10 +66,10 @@ public final class EventBuilder<Output> {
   }
 
   /**
-   * Set the function that takes the result of the expression and produces the event value. By default, the value of the
+   * Set the function that takes the result of the expression and produces the event output. By default, the output of the
    * event is <code>result.toString()</code>.
    *
-   * @param successValue a function that takes the result of the expression and produces the event value
+   * @param successValue a function that takes the result of the expression and produces the event output
    * @return this event builder
    */
   public EventBuilder<Output> withSuccessOutput(final Function<Output, String> successValue) {

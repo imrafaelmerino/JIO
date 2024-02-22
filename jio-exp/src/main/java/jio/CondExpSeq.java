@@ -41,9 +41,9 @@ final class CondExpSeq<Output> extends CondExp<Output> {
       }
       return tests.get(condTestedSoFar)
                   .call()
-                  .call() ? consequences.get(condTestedSoFar)
-                                        .get()
-                                        .call() : get(tests,
+                  .tryGet() ? consequences.get(condTestedSoFar)
+                                          .get()
+                                          .call() : get(tests,
                                                       consequences,
                                                       otherwise,
                                                       condTestedSoFar + 1);

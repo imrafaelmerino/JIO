@@ -79,7 +79,7 @@ public class RespHandlersTests {
                                              );
 
     HttpResponse<String> resp = val.result()
-                                   .call();
+                                   .tryGet();
     Assertions.assertEquals("foo",
                             resp.body()
     );
@@ -103,7 +103,7 @@ public class RespHandlersTests {
                                              );
 
     HttpResponse<String> resp = val.result()
-                                   .call();
+                                   .tryGet();
     Assertions.assertEquals(JsObj.of("a",
                                      JsStr.of("b")
     ),

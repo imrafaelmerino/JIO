@@ -137,11 +137,11 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * Creates an effect that always succeeds and returns the same value.
+   * Creates an effect that always succeeds and returns the same output.
    *
-   * @param val      the value to be returned by the effect. Null values are allowed.
+   * @param val      the output to be returned by the effect. Null values are allowed.
    * @param <Output> the type parameter representing the result type of the effect.
-   * @return an IO effect that always succeeds with the specified value.
+   * @return an IO effect that always succeeds with the specified output.
    */
   public static <Output> IO<Output> succeed(final Output val) {
     return new Val<>(() -> new Success<>(val));
@@ -256,7 +256,7 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * Creates a new effect that, when this succeeds, maps the computed value into another value using the specified
+   * Creates a new effect that, when this succeeds, maps the computed output into another output using the specified
    * function.
    *
    * @param fn             the mapping function that transforms the result of this effect.
@@ -366,12 +366,12 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
 
   /**
    * Creates a new effect that will handle any failure that this effect might contain and will be recovered with the
-   * value evaluated by the specified function. If this effect succeeds, the new effect will also succeed with the same
-   * value. If this effect fails, the specified function is applied to the exception to produce a new value for the new
+   * output evaluated by the specified function. If this effect succeeds, the new effect will also succeed with the same
+   * output. If this effect fails, the specified function is applied to the exception to produce a new output for the new
    * effect.
    *
    * @param fn the function to apply if this effect fails, taking the exception as input.
-   * @return a new effect representing the original value or the result of applying the function in case of failure.
+   * @return a new effect representing the original output or the result of applying the function in case of failure.
    */
   public IO<Output> recover(final Function<? super Exception, Output> fn) {
     requireNonNull(fn);
@@ -391,11 +391,11 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   /**
    * Creates a new effect that will handle any failure that this effect might contain and will be recovered with the
    * effect evaluated by the specified lambda. If this effect succeeds, the new effect will also succeed with the same
-   * value. If this effect fails, the specified lambda is applied to the exception to produce a new effect for the new
+   * output. If this effect fails, the specified lambda is applied to the exception to produce a new effect for the new
    * effect.
    *
    * @param lambda the lambda to apply if this effect fails, taking the exception as input and producing a new effect.
-   * @return a new effect representing the original value or the result of applying the lambda in case of failure.
+   * @return a new effect representing the original output or the result of applying the lambda in case of failure.
    */
   public IO<Output> recoverWith(final Lambda<? super Throwable, Output> lambda) {
     requireNonNull(lambda);
@@ -410,7 +410,7 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    * the new failure).
    *
    * @param lambda the lambda to apply if this effect fails, producing a new effect.
-   * @return a new effect representing either the original value or the result of applying the lambda in case of
+   * @return a new effect representing either the original output or the result of applying the lambda in case of
    * failure.
    */
   public IO<Output> fallbackTo(final Lambda<? super Throwable, Output> lambda) {
@@ -429,7 +429,7 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    * out on the console or handled in another appropriate manner.
    *
    * @param failConsumer the consumer that takes the exception in case of failure.
-   * @return a new effect representing the original value or the failure with the exception passed to the consumer.
+   * @return a new effect representing the original output or the failure with the exception passed to the consumer.
    */
   public IO<Output> peekFailure(final Consumer<? super Throwable> failConsumer) {
     return peek(_ -> {},
@@ -437,12 +437,12 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * Creates a new effect that passes the computed value to the specified successConsumer in case of success. The given
-   * consumer is responsible for handling the value and can't fail itself. If it fails, the exception would be just
+   * Creates a new effect that passes the computed output to the specified successConsumer in case of success. The given
+   * consumer is responsible for handling the output and can't fail itself. If it fails, the exception would be just
    * printed out on the console or handled in another appropriate manner.
    *
    * @param successConsumer the consumer that takes the successful result in case of success.
-   * @return a new effect representing the original value or the result of applying the consumer in case of success.
+   * @return a new effect representing the original output or the result of applying the consumer in case of success.
    */
   public IO<Output> peekSuccess(final Consumer<? super Output> successConsumer) {
     return peek(successConsumer,
@@ -450,14 +450,14 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * Creates a new effect that passes the computed value to the specified successConsumer and any possible failure to
-   * the specified failureConsumer. The given consumers are responsible for handling the value and failure,
+   * Creates a new effect that passes the computed output to the specified successConsumer and any possible failure to
+   * the specified failureConsumer. The given consumers are responsible for handling the output and failure,
    * respectively, and they can't fail themselves. If they fail, the exception would be just printed out on the console
    * or handled in another appropriate manner.
    *
    * @param successConsumer the consumer that takes the successful result.
    * @param failureConsumer the consumer that takes the failure.
-   * @return a new effect representing the original value or the result of applying the consumers in case of success or
+   * @return a new effect representing the original output or the result of applying the consumers in case of success or
    * failure.
    */
   public IO<Output> peek(final Consumer<? super Output> successConsumer,
@@ -658,6 +658,10 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
     } catch (Exception e) {
       return new Failure<>(e);
     }
+  }
+
+  public Output tryGet() throws Exception {
+    return call().tryGet();
   }
 
 }

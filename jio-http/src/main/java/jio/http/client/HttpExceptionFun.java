@@ -1,11 +1,11 @@
 package jio.http.client;
 
-import java.net.http.HttpConnectTimeoutException;
-import jio.ExceptionFun;
-import jio.http.client.oauth.AccessTokenNotFound;
 import java.net.ConnectException;
+import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpTimeoutException;
 import java.util.function.Predicate;
+import jio.ExceptionFun;
+import jio.http.client.oauth.AccessTokenNotFound;
 
 /**
  * A utility class containing predicates to identify specific exceptions that may occur when connecting to a server.

@@ -16,7 +16,7 @@ import jsonvalues.spec.JsSpec;
  * Represents a lambda that takes a JsPath and returns a JIO effect that executes an interactive program to compose the
  * associated JsValue to that path.
  * <p>
- * Use the static method {@link #of(JsSpec)} to create JsConsole programs from the spec the value introduced by the use
+ * Use the static method {@link #of(JsSpec)} to create JsConsole programs from the spec the output introduced by the use
  * has to conform to.
  *
  * @param <Output> type of the JsValue returned
@@ -26,10 +26,10 @@ import jsonvalues.spec.JsSpec;
 public interface JsConsole<Output extends JsValue> extends Lambda<JsPath, Output> {
 
   /**
-   * Factory method to create console programs that ask for the user to type in a json value that conforms to the given
+   * Factory method to create console programs that ask for the user to type in a json output that conforms to the given
    * spec
    *
-   * @param spec the spec the value has to conform to
+   * @param spec the spec the output has to conform to
    * @return JsConsole program
    */
   static JsConsole<JsValue> of(final JsSpec spec) {

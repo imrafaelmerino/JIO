@@ -21,10 +21,10 @@ public final class MultipartForm {
   }
 
   /**
-   * Creates a Content-Type header value for a multipart/form-data request with the specified boundary.
+   * Creates a Content-Type header output for a multipart/form-data request with the specified boundary.
    *
    * @param boundary The boundary string used to separate different parts of the multipart request.
-   * @return A string representing the Content-Type header value.
+   * @return A string representing the Content-Type header output.
    * @throws NullPointerException If the provided boundary is null.
    */
   public static String createContentTypeHeader(final String boundary) {

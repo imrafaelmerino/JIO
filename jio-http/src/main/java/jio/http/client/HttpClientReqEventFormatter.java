@@ -86,7 +86,7 @@ public final class HttpClientReqEventFormatter implements Function<RecordedEvent
                            Fun.formatTime(event.getDuration()),
                            event.getValue(REQ_COUNTER_FIELD),
                            event.getStartTime()
-      );
+                          );
     }
     return String.format(FAILURE_FORMAT,
                          event.getValue(METHOD_FIELD),
@@ -97,7 +97,7 @@ public final class HttpClientReqEventFormatter implements Function<RecordedEvent
                          Fun.formatTime(event.getDuration()),
                          event.getValue(REQ_COUNTER_FIELD),
                          event.getStartTime()
-    );
+                        );
 
   }
 }

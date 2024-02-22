@@ -62,7 +62,7 @@ public class ErrorsTests {
                                        e -> IO.succeed(MongoFun.HAS_READ_TIMEOUT.test(e))
                                       )
                                  .result()
-                                 .call()
+                                 .tryGet()
                          );
 
   }
@@ -93,7 +93,7 @@ public class ErrorsTests {
                                                            .test(e))
                                       )
                                  .result()
-                                 .call());
+                                 .tryGet());
 
   }
 }

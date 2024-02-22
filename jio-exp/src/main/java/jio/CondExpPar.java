@@ -53,7 +53,7 @@ final class CondExpPar<Output> extends CondExp<Output> {
     for (int i = 0; i < tasks.size(); i++) {
       if (tasks.get(i)
                .get()
-               .call()) {
+               .tryGet()) {
         return consequences.get(i)
                            .get()
                            .call();

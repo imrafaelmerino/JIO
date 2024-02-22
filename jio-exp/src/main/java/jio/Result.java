@@ -1,9 +1,8 @@
 package jio;
 
-import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 
-public sealed interface Result<Output> extends Callable<Output> permits Result.Success, Result.Failure {
+public sealed interface Result<Output> permits Result.Success, Result.Failure {
 
   Result<Void> NULL = new Success<>(null);
 
@@ -19,15 +18,15 @@ public sealed interface Result<Output> extends Callable<Output> permits Result.S
 
   boolean isSuccess();
 
-  @Override
-  default Output call() throws Exception {
+
+  default Output tryGet() throws Exception {
     return switch (this) {
       case Success<Output>(Output output) -> output;
       case Failure<Output>(Exception exception) -> throw exception;
     };
   }
 
-  record Success<Output>(Output value) implements Result<Output> {
+  record Success<Output>(Output output) implements Result<Output> {
 
     @Override
     public boolean isFailure() {
@@ -41,7 +40,7 @@ public sealed interface Result<Output> extends Callable<Output> permits Result.S
 
     @Override
     public boolean isSuccess(final Predicate<Output> predicate) {
-      return predicate.test(value);
+      return predicate.test(output);
     }
 
     @Override

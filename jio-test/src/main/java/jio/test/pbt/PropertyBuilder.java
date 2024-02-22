@@ -20,10 +20,10 @@ import jsonvalues.JsObj;
  * Represents a builder of Properties. A property of a piece of code or program should always be held and never fails.
  * This property is modeled with a supplier that returns a JIO effect used for property testing. The property test is
  * executed the specified number of times with {@link #withTimes(int)} (default is {@link #DEFAULT_TESTS}), each time
- * with a different value generated using the provided data generator.
+ * with a different output generated using the provided data generator.
  *
  * <p>The tests are executed by the same thread from the common ForkJoinPool repeatedly, and for
- * each execution, a different value is generated using the specified data generator.</p>
+ * each execution, a different output is generated using the specified data generator.</p>
  *
  *
  * <p>Properties can be created using static factory methods {@link #of(String, Gen, Function)} and
@@ -173,7 +173,7 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
 
   /**
    * Returns a new property instance that will be tested the specified number of times. Each execution of the property
-   * test generates a new input value using the data generator, and the test is repeated for the specified number of
+   * test generates a new input output using the data generator, and the test is repeated for the specified number of
    * times with different input values.
    *
    * @param times the number of times an input is produced and tested on the property

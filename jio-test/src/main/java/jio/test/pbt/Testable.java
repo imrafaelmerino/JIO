@@ -25,7 +25,7 @@ public abstract sealed class Testable permits ParProperty, Property, SeqProperty
   public Report check() {
     try {
       return create().result()
-                     .call();
+                     .tryGet();
     } catch (Exception e) {
       throw new ReportNotGenerated(e);
     }
@@ -41,7 +41,7 @@ public abstract sealed class Testable permits ParProperty, Property, SeqProperty
   public Report check(final JsObj conf) {
     try {
       return create(conf).result()
-                         .call();
+                         .tryGet();
     } catch (Exception e) {
       throw new ReportNotGenerated(e);
     }

@@ -59,7 +59,7 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
     for (var entry : list) {
       try {
         xs.add(entry.call()
-                    .call()
+                    .tryGet()
               );
       } catch (Exception e) {
         return new Failure<>(e);

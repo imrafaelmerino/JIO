@@ -48,7 +48,7 @@ final class AllExpSeq extends AllExp {
       try {
         if (result) {
           result = exp.call()
-                      .call();
+                      .tryGet();
         } else {
           return new Success<>(false);
         }

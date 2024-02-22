@@ -15,7 +15,7 @@ class JsGetValueCommand extends Command {
   public JsGetValueCommand() {
     super(COMMAND_NAME,
           """
-              Returns the value of the specified path from the json placed at the output variable.
+              Returns the output of the specified path from the json placed at the output variable.
               jio.chatgpt.Examples:
                        $command /phones/0/number""".replace("$command",
                                                             COMMAND_NAME
@@ -39,7 +39,7 @@ class JsGetValueCommand extends Command {
     return tokens -> {
       int nArgs = tokens.length - 1;
       if (nArgs == 0) {
-        return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type the path of the value",
+        return Programs.ASK_FOR_INPUT(new Programs.AskForInputParams("Type the path of the output",
                                                                      path -> {
                                                                        try {
                                                                          JsPath.path(path);

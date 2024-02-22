@@ -46,9 +46,9 @@ final class PairExpPar<First, Second> extends PairExp<First, Second> {
       scope.join()
            .throwIfFailed();
       return new Success<>(Pair.of(first.get()
-                                        .call(),
+                                        .tryGet(),
                                    second.get()
-                                         .call())
+                                         .tryGet())
       );
     } catch (Exception e) {
       return new Failure<>(e);

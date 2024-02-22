@@ -11,7 +11,7 @@ public final class Utils {
   }
 
   /**
-   * Categorizes an HTTP status code into different groups based on its numerical value.
+   * Categorizes an HTTP status code into different groups based on its numerical output.
    *
    * @param code The HTTP status code to categorize.
    * @return A string representing the category of the status code.

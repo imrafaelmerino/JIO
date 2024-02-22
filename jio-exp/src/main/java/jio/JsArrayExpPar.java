@@ -42,7 +42,7 @@ final class JsArrayExpPar extends JsArrayExp {
       List<JsValue> result = new ArrayList<>();
       for (var task : xs) {
         JsValue call = task.get()
-                           .call();
+                           .tryGet();
         result.add(call);
       }
       return new Success<>(JsArray.ofIterable(result));

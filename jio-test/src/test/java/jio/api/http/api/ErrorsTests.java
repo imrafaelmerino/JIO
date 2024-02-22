@@ -52,7 +52,7 @@ public class ErrorsTests {
                                      .then(response -> IO.FALSE,
                                            failure -> IO.succeed(HttpExceptionFun.HAS_CONNECTION_TIMEOUT.test(failure)))
                                      .result()
-                                     .call();
+                                     .tryGet();
     Assertions.assertTrue(isConnectTimeout);
   }
 
@@ -73,7 +73,7 @@ public class ErrorsTests {
                                        failure -> IO.succeed(ExceptionFun.findConnectionExcRecursively.apply(failure)
                                                                                                       .isPresent()))
                                  .result()
-                                 .call();
+                                 .tryGet();
 
     Assertions.assertTrue(isUnresolved);
 
@@ -96,7 +96,7 @@ public class ErrorsTests {
                               .then(response -> IO.FALSE,
                                     failure -> IO.succeed(HttpExceptionFun.HAS_CONNECTION_TIMEOUT.test(failure)))
                               .result()
-                              .call();
+                              .tryGet();
 
     Assertions.assertTrue(isTimeout);
 
@@ -129,7 +129,7 @@ public class ErrorsTests {
                                      .then(response -> IO.FALSE,
                                            failure -> IO.succeed(HttpExceptionFun.HAS_REQUEST_TIMEOUT.test(failure)))
                                      .result()
-                                     .call();
+                                     .tryGet();
 
     Assertions.assertTrue(isRequestTimeout);
 

@@ -25,7 +25,7 @@ import jsonvalues.JsValue;
  *
  * </pre>
  * <p>
- * If the user introduces a value that is not valid according to the specified spec, an error message will be prompted,
+ * If the user introduces a output that is not valid according to the specified spec, an error message will be prompted,
  * and they'll have up to three retries to get it right
  */
 public class JsTupleConsole implements JsConsole<JsArray> {

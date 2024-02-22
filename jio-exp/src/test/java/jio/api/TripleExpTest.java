@@ -17,12 +17,11 @@ public class TripleExpTest {
                                                              IO.succeed("c")
                                                             );
 
-    Assertions.assertEquals(
-        new Success<>(Triple.of("a",
-                                "b",
-                                "c"
-                               )),
-        triple.call());
+    Assertions.assertEquals(new Success<>(Triple.of("a",
+                                                    "b",
+                                                    "c"
+                                                   )),
+                            triple.result());
   }
 
   @Test
@@ -33,12 +32,11 @@ public class TripleExpTest {
                                                              IO.succeed("c")
                                                             );
 
-    Assertions.assertEquals(
-        new Success<>(Triple.of("a",
-                                "b",
-                                "c"
-                               )),
-        triple.call()
+    Assertions.assertEquals(new Success<>(Triple.of("a",
+                                                    "b",
+                                                    "c"
+                                                   )),
+                            triple.result()
                            );
   }
 

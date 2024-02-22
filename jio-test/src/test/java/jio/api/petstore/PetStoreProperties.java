@@ -251,7 +251,7 @@ public class PetStoreProperties {
                          )
                       .par()
                       .result()
-                      .call();
+                      .tryGet();
 
     report.assertAllSuccess();
   }
@@ -281,7 +281,7 @@ public class PetStoreProperties {
                                                              .toList()
                                       )
                                   .result()
-                                  .call();
+                                  .tryGet();
 
     System.out.println(status);
   }

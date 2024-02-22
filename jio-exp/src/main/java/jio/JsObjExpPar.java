@@ -82,7 +82,7 @@ final class JsObjExpPar extends JsObjExp {
           json = json.set(entry.getKey(),
                           entry.getValue()
                                .get()
-                               .call());
+                               .tryGet());
         }
         return new Success<>(json);
 

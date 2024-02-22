@@ -40,7 +40,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -56,7 +56,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -78,7 +78,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -105,7 +105,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -137,7 +137,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -173,7 +173,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -214,7 +214,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -260,7 +260,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -312,7 +312,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -369,7 +369,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -430,7 +430,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -496,7 +496,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -567,7 +567,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -643,7 +643,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -725,7 +725,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-value bindings, where each key is associated
+   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
    * with a corresponding effect.If any of the effects fail, the entire expression fails.
    *
    * @return a JsObjExp
@@ -1631,7 +1631,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
    *
    * @param key    the key for the JSON object entry
    * @param effect the effect to associate with the key
-   * @return a new JsObjExp with the specified key-value pair
+   * @return a new JsObjExp with the specified key-output pair
    */
   public abstract JsObjExp set(final String key,
                                final IO<? extends JsValue> effect

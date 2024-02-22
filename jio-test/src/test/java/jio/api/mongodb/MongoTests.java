@@ -125,7 +125,7 @@ public class MongoTests {
                               .result());
 
     List<JsObj> arr = find.result()
-                          .call();
+                          .tryGet();
     System.out.println(arr.size());
     Assertions.assertTrue(arr.size() > 1);
 

@@ -88,7 +88,7 @@ public final class Converters {
   /**
    * Converts a MongoDB ObjectId ({@link BsonValue}) to its hexadecimal representation as a string.
    *
-   * @param bsonValue the MongoDB BSON value representing an ObjectId.
+   * @param bsonValue the MongoDB BSON output representing an ObjectId.
    * @return a hexadecimal string representation of the ObjectId.
    */
   public static String toHexId(final BsonValue bsonValue) {

@@ -13,8 +13,8 @@ class SetVarCommand extends Command {
   public SetVarCommand() {
     super(COMMAND_NAME,
           """
-              Stores the specified value into the the specified variable.
-              set var value
+              Stores the specified output into the the specified variable.
+              set var output
               Examples:
                   $command age 40
                   $command counter $var""".replace("$command",
@@ -49,7 +49,7 @@ class SetVarCommand extends Command {
 
       if (nTokens == 1) {
         return Programs.ASK_FOR_PAIR(new Programs.AskForInputParams("Type the name of the variable"),
-                                     new Programs.AskForInputParams("Type the value")
+                                     new Programs.AskForInputParams("Type the output")
         )
                        .then(pair -> setVarValue(state,
                                                  pair.first(),
@@ -58,7 +58,7 @@ class SetVarCommand extends Command {
 
       if (nTokens == 2) {
         return Programs
-                       .ASK_FOR_INPUT(new Programs.AskForInputParams("Type the value"))
+                       .ASK_FOR_INPUT(new Programs.AskForInputParams("Type the output"))
                        .then(value -> setVarValue(state,
                                                   tokens[1],
                                                   value));

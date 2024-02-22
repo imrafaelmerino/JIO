@@ -34,9 +34,8 @@ public class ConstructorsTest {
     Instant before = Instant.now();
     IO<Instant> now = IO.lazy(Instant::now);
 
-    Assertions.assertTrue(
-        before.isBefore(now.result()
-                           .call()));
+    Assertions.assertTrue(before.isBefore(now.result()
+                                             .tryGet()));
 
   }
 
@@ -114,9 +113,7 @@ public class ConstructorsTest {
                                  )
                     )
                 .debugEach("my-op")
-                .result()
-
-                           );
+                .result());
   }
 
   @Test
@@ -148,7 +145,7 @@ public class ConstructorsTest {
         })
         .debug()
         .result()
-        .call();
+        .tryGet();
     } catch (Exception e) {
       Assertions.assertEquals("hi",
                               e.getMessage());
@@ -161,7 +158,7 @@ public class ConstructorsTest {
              )
         .debug()
         .result()
-        .call();
+        .tryGet();
     } catch (Exception e) {
       Assertions.assertEquals("hi",
                               e.getMessage());

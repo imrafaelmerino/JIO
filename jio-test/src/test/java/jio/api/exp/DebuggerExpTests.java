@@ -83,7 +83,7 @@ public class DebuggerExpTests {
                                 .debugEach("test")
                                 .retryEach(RetryPolicies.limitRetries(1))
                                 .call()
-                                .call()
+                                .tryGet()
                          );
 
     StubBuilder<Boolean> falseAfterFailure =
@@ -98,7 +98,7 @@ public class DebuggerExpTests {
                                  .debugEach("test1")
                                  .retryEach(RetryPolicies.limitRetries(1))
                                  .call()
-                                 .call()
+                                 .tryGet()
                           );
 
   }
@@ -116,7 +116,7 @@ public class DebuggerExpTests {
                                 .debugEach("test")
                                 .retryEach(RetryPolicies.limitRetries(1))
                                 .call()
-                                .call()
+                                .tryGet()
                          );
 
     StubBuilder<Boolean> falseAfterFailure =
@@ -131,7 +131,7 @@ public class DebuggerExpTests {
                                  .debugEach("test1")
                                  .retryEach(RetryPolicies.limitRetries(1))
                                  .call()
-                                 .call()
+                                 .tryGet()
                           );
   }
 
@@ -142,23 +142,23 @@ public class DebuggerExpTests {
                                      IO.TRUE)
                                 .debugEach("test")
                                 .call()
-                                .call());
+                                .tryGet());
     Assertions.assertTrue(AnyExp.seq(IO.FALSE,
                                      IO.TRUE)
                                 .debugEach("test1")
                                 .call()
-                                .call());
+                                .tryGet());
 
     Assertions.assertFalse(AnyExp.par(IO.FALSE,
                                       IO.FALSE)
                                  .debugEach("test2")
                                  .call()
-                                 .call());
+                                 .tryGet());
     Assertions.assertFalse(AnyExp.par(IO.FALSE,
                                       IO.FALSE)
                                  .debugEach("test3")
                                  .call()
-                                 .call());
+                                 .tryGet());
 
   }
 
@@ -174,7 +174,7 @@ public class DebuggerExpTests {
                                        )
                                    .debugEach("test")
                                    .call()
-                                   .call()
+                                   .tryGet()
                            );
 
     Assertions.assertEquals("b",
@@ -186,7 +186,7 @@ public class DebuggerExpTests {
                                        )
                                    .debugEach("test")
                                    .call()
-                                   .call()
+                                   .tryGet()
                            );
 
     Assertions.assertEquals("a",
@@ -198,7 +198,7 @@ public class DebuggerExpTests {
                                        )
                                    .debugEach("test1")
                                    .call()
-                                   .call()
+                                   .tryGet()
                            );
 
     Assertions.assertEquals("a",
@@ -210,7 +210,7 @@ public class DebuggerExpTests {
                                        )
                                    .debugEach("test2")
                                    .call()
-                                   .call()
+                                   .tryGet()
                            );
 
   }
@@ -223,7 +223,7 @@ public class DebuggerExpTests {
                                      .alternative(() -> IO.succeed("a"))
                                      .debugEach("test1")
                                      .call()
-                                     .call()
+                                     .tryGet()
                            );
     Assertions.assertEquals("b",
                             IfElseExp.predicate(IO.TRUE)
@@ -231,7 +231,7 @@ public class DebuggerExpTests {
                                      .alternative(() -> IO.succeed("a"))
                                      .debugEach("test2")
                                      .call()
-                                     .call()
+                                     .tryGet()
                            );
 
   }
@@ -248,7 +248,7 @@ public class DebuggerExpTests {
                                           )
                                       .debugEach("test")
                                       .call()
-                                      .call()
+                                      .tryGet()
                            );
 
     Assertions.assertEquals(JsArray.of("a",
@@ -260,7 +260,7 @@ public class DebuggerExpTests {
                                           )
                                       .debugEach("test")
                                       .call()
-                                      .call()
+                                      .tryGet()
                            );
   }
 
@@ -295,7 +295,7 @@ public class DebuggerExpTests {
                                         )
                                     .debugEach("test")
                                     .call()
-                                    .call()
+                                    .tryGet()
                            );
 
     Assertions.assertEquals(JsObj.of("a",
@@ -326,7 +326,7 @@ public class DebuggerExpTests {
                                         )
                                     .debugEach("test")
                                     .call()
-                                    .call()
+                                    .tryGet()
                            );
 
   }
@@ -343,7 +343,7 @@ public class DebuggerExpTests {
                                        )
                                    .debugEach("test")
                                    .call()
-                                   .call()
+                                   .tryGet()
                            );
 
     Assertions.assertEquals(List.of(1,
@@ -355,7 +355,7 @@ public class DebuggerExpTests {
                                        )
                                    .debugEach("test1")
                                    .call()
-                                   .call()
+                                   .tryGet()
                            );
 
   }
@@ -370,7 +370,7 @@ public class DebuggerExpTests {
                                        )
                                    .debugEach("test1")
                                    .call()
-                                   .call()
+                                   .tryGet()
                            );
 
     Assertions.assertEquals(Pair.of(1,
@@ -380,7 +380,7 @@ public class DebuggerExpTests {
                                        )
                                    .debugEach("test2")
                                    .call()
-                                   .call()
+                                   .tryGet()
                            );
 
   }

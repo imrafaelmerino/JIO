@@ -70,7 +70,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
    * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
    * true</strong>. If one predicate terminates with an exception, the whole expression fails.
    * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -149,7 +149,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
    * true</strong>.
    * <p>
    * If one predicate terminates with an exception, the whole expression fails. If no condition is evaluated to true,
-   * the expression is reduced to the {@link IO#NULL()} value.
+   * the expression is reduced to the {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -238,7 +238,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
    * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
    * true</strong>. If one predicate terminates with an exception, the whole expression fails.
    * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -338,7 +338,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
    * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
    * true</strong>. If one predicate terminates with an exception, the whole expression fails.
    * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -450,7 +450,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
    * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
    * true</strong>. If one predicate terminates with an exception, the whole expression fails.
    * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -539,7 +539,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
    * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression is
    * reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
    * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -611,7 +611,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
    * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression is
    * reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
    * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -695,7 +695,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
    * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression is
    * reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
    * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -791,7 +791,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
    * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression is
    * reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.
    * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -900,7 +900,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
    * expression is reduced to the specified default effect. If a predicate terminates with an exception, the expression
    * fails.
    * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} value.
+   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate

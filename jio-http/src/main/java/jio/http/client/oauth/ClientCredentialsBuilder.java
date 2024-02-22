@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
  * <li>A function to read the access token from the server response</li>
  * <li>A predicate that takes the server response and returns true if the access token needs to be refreshed</li>
  * <li>The authorization header name</li>
- * <li>A function to create the authorization header value from the access token</li>
+ * <li>A function to create the authorization header output from the access token</li>
  * <li>A retry policy to make the access token request more resilient</li>
  * </ul>
  *
@@ -119,10 +119,10 @@ public final class ClientCredentialsBuilder implements Supplier<OauthHttpClient>
   }
 
   /**
-   * Option to define how to build the authorization header value from the access token, which by default is "Bearer
+   * Option to define how to build the authorization header output from the access token, which by default is "Bearer
    * ${Access Token}"
    *
-   * @param fn function that takes the access token and returns the authorization header value
+   * @param fn function that takes the access token and returns the authorization header output
    * @return this builder
    */
   public ClientCredentialsBuilder withAuthorizationHeaderValue(final Function<String, String> fn) {

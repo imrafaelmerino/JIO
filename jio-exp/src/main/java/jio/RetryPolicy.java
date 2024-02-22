@@ -11,7 +11,7 @@ import java.util.function.Function;
  * the next try.
  *
  * <p>Iteration numbers start at zero and increase by one on each retry. An {@code Optional.empty()}
- * return value from the function implies we have reached the retry limit.
+ * return output from the function implies we have reached the retry limit.
  *
  * <p>You can collapse multiple strategies into one using the {@link #append(RetryPolicy) append}
  * method. There are also several predefined policies available in {@link RetryPolicies}. Additionally, you can use

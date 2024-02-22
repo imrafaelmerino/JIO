@@ -34,7 +34,7 @@ public class TxsTests extends BaseTest {
                    )
                   )
             .result()
-            .call();
+            .tryGet();
 
     Assertions.assertTrue(customerID > 0,
                           "customerId must be > 0");

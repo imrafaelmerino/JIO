@@ -228,7 +228,7 @@
             }
           },
           "400": {
-            "description": "Invalid status value"
+            "description": "Invalid status output"
           }
         },
         "security": [
@@ -277,7 +277,7 @@
             }
           },
           "400": {
-            "description": "Invalid tag value"
+            "description": "Invalid tag output"
           }
         },
         "security": [
@@ -475,7 +475,7 @@
           "store"
         ],
         "summary": "Find purchase order by ID",
-        "description": "For valid response try integer IDs with value >= 1 and <= 10. Other values will generated exceptions",
+        "description": "For valid response try integer IDs with output >= 1 and <= 10. Other values will generated exceptions",
         "operationId": "getOrderById",
         "produces": [
           "application/json",
@@ -513,7 +513,7 @@
           "store"
         ],
         "summary": "Delete purchase order by ID",
-        "description": "For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors",
+        "description": "For valid response try integer IDs with positive integer output. Negative or non-integer values will generate API errors",
         "operationId": "deleteOrder",
         "produces": [
           "application/json",

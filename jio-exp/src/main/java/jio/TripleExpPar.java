@@ -52,11 +52,11 @@ final class TripleExpPar<First, Second, Third> extends TripleExp<First, Second, 
       scope.join()
            .throwIfFailed();
       return new Success<>(Triple.of(first.get()
-                                          .call(),
+                                          .tryGet(),
                                      second.get()
-                                           .call(),
+                                           .tryGet(),
                                      third.get()
-                                          .call())
+                                          .tryGet())
       );
     } catch (Exception e) {
       return new Failure<>(e);

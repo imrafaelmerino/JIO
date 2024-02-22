@@ -19,21 +19,21 @@ import jsonvalues.JsObj;
  * <p>Predefined Commands:</p>
  * <ul>
  * <li>{@link ListCommand}: Lists available commands.</li>
- * <li>{@link ReadVarCommand}: Reads a variable value.</li>
- * <li>{@link SetVarCommand}: Sets a variable value.</li>
+ * <li>{@link ReadVarCommand}: Reads a variable output.</li>
+ * <li>{@link SetVarCommand}: Sets a variable output.</li>
  * <li>{@link LastCommand}: Executes the last command.</li>
  * <li>{@link HistoryCommand}: Shows the command history.</li>
  * <li>{@link HelpCommand}: Displays help for available commands.</li>
  * <li>{@link DumpCommand}: Dumps the current state.</li>
  * <li>{@link Base64EncodeCommand}: Encodes a string to Base64.</li>
  * <li>{@link Base64DecodeCommand}: Decodes a Base64 string.</li>
- * <li>{@link AddToListCommand}: Adds a value into a list variable.</li>
+ * <li>{@link AddToListCommand}: Adds a output into a list variable.</li>
  * <li>{@link ClearVarCommand}: Removes a variable from the state.</li>
  * <li>{@link EncodeURLCommand}: Encodes a URL.</li>
  * <li>{@link ExitCommand}: Exits the console program.</li>
- * <li>{@link JsPairsCommand}: Lists key-value pairs of a JSON object.</li>
+ * <li>{@link JsPairsCommand}: Lists key-output pairs of a JSON object.</li>
  * <li>{@link JsPrettyCommand}: Pretty-prints a JSON object.</li>
- * <li>{@link JsGetValueCommand}: Gets a value from a JSON object.</li>
+ * <li>{@link JsGetValueCommand}: Gets a output from a JSON object.</li>
  * <li>{@link ClearCommand}: Clears the console screen.</li>
  * <li>{@link EchoCommand}: Displays a message.</li>
  * <li>{@link ScriptCommand}: Executes a script.</li>

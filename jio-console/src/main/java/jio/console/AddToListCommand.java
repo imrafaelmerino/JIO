@@ -14,9 +14,9 @@ class AddToListCommand extends Command {
   public AddToListCommand() {
     super(COMMAND_NAME,
           """
-              Add the given value into the the specified list. You can read
+              Add the given output into the the specified list. You can read
               the content of the list with the command var-get {name}.
-              Usage: var-add {name} {value}
+              Usage: var-add {name} {output}
               Examples:
                   $command names Rafa
                   $command numbers $counter""".replace("$command",
@@ -51,7 +51,7 @@ class AddToListCommand extends Command {
 
       if (nTokens == 1) {
         return Programs.ASK_FOR_PAIR(new Programs.AskForInputParams("Type the name of the list"),
-                                     new Programs.AskForInputParams("Type the value to be added")
+                                     new Programs.AskForInputParams("Type the output to be added")
         )
                        .then(pair -> addValueToList(state,
                                                     pair.first(),
@@ -60,7 +60,7 @@ class AddToListCommand extends Command {
 
       if (nTokens == 2) {
         return Programs
-                       .ASK_FOR_INPUT(new Programs.AskForInputParams("Type the value to be added"))
+                       .ASK_FOR_INPUT(new Programs.AskForInputParams("Type the output to be added"))
                        .then(value -> addValueToList(state,
                                                      tokens[1],
                                                      value));

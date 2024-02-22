@@ -67,7 +67,7 @@ final class ListExpPar<Elem> extends ListExp<Elem> {
       List<Elem> result = new ArrayList<>();
       for (Subtask<Result<Elem>> task : xs) {
         Elem call = task.get()
-                        .call();
+                        .tryGet();
         result.add(call);
       }
       return new Success<>(result);

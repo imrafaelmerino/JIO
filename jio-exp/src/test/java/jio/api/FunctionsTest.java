@@ -18,7 +18,7 @@ public class FunctionsTest {
                        RetryPolicies.limitRetries(2)
                       )
                .result()
-               .call();
+               .tryGet();
 
     Assertions.assertEquals(30,
                             a);
@@ -35,7 +35,7 @@ public class FunctionsTest {
                        RetryPolicies.limitRetries(2)
                       )
                .result()
-               .call();
+               .tryGet();
 
     Assertions.assertEquals(30,
                             a);

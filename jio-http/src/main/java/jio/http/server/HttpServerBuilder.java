@@ -55,8 +55,8 @@ public final class HttpServerBuilder {
                                           e.getValue()
                                            .size() == 1 ? e.getValue()
                                                            .getFirst() : e.getValue()
-                  )
-                  )
+                                         )
+                      )
                   .collect(Collectors.joining(", "));
   }
 
@@ -121,7 +121,7 @@ public final class HttpServerBuilder {
   /**
    * Create a socket address from <strong>localhost</strong> and a port number from a given interval, starting the
    * server in a new background thread. The background thread inherits the priority, thread group, and context class
-   * loader of the caller. A valid port value is between 0 and 65535. A port number of zero will let the system pick up
+   * loader of the caller. A valid port output is between 0 and 65535. A port number of zero will let the system pick up
    * an ephemeral port in a bind operation.
    *
    * @param start the first port number that will be tried
@@ -130,19 +130,20 @@ public final class HttpServerBuilder {
    */
   public HttpServer startAtRandom(final int start,
                                   final int end
-  ) throws Exception {
-    return buildAtRandomRec("localhost",
-                            start,
-                            end
-    )
-     .result()
-     .call();
+                                 ) {
+    try {
+      return buildAtRandomRec("localhost",
+                              start,
+                              end).tryGet();
+    } catch (Exception e) {
+      throw new HttpSeverNotStarted(e);
+    }
   }
 
   /**
    * Create a socket address from a hostname and a port number from a given interval, starting the server in a new
    * background thread. The background thread inherits the priority, thread group, and context class loader of the
-   * caller. A valid port value is between 0 and 65535. A port number of zero will let the system pick up an ephemeral
+   * caller. A valid port output is between 0 and 65535. A port number of zero will let the system pick up an ephemeral
    * port in a bind operation.
    *
    * @param host  the host name
@@ -153,39 +154,41 @@ public final class HttpServerBuilder {
   public HttpServer startAtRandom(final String host,
                                   final int start,
                                   final int end
-  ) throws Exception {
+                                 ) {
     if (start <= 0) {
       throw new IllegalArgumentException("start <= 0");
     }
     if (start > end) {
       throw new IllegalArgumentException("start greater than end");
     }
-    return buildAtRandomRec(host,
-                            start,
-                            end
-    )
-     .result()
-     .call();
+    try {
+      return buildAtRandomRec(host,
+                              start,
+                              end
+                             ).tryGet();
+    } catch (Exception e) {
+      throw new HttpSeverNotStarted(e);
+    }
   }
 
   private IO<HttpServer> buildAtRandomRec(final String host,
                                           final int start,
                                           final int end
-  ) {
+                                         ) {
     if (start == end) {
       throw new IllegalArgumentException("range of ports exhausted");
     }
     return build(requireNonNull(host),
                  start
-    ).recoverWith(_ -> buildAtRandomRec(host,
-                                        start + 1,
-                                        end));
+                ).recoverWith(_ -> buildAtRandomRec(host,
+                                                    start + 1,
+                                                    end));
   }
 
   /**
    * Returns an effect that when invoked will create a socket address from a hostname and a port number, starting the
    * server in a new background thread. The background thread inherits the priority, thread group, and context class
-   * loader of the caller. A valid port value is between 0 and 65535. A port number of zero will let the system pick up
+   * loader of the caller. A valid port output is between 0 and 65535. A port number of zero will let the system pick up
    * an ephemeral port in a bind operation.
    *
    * @param host the host name
@@ -194,7 +197,7 @@ public final class HttpServerBuilder {
    */
   private IO<HttpServer> build(final String host,
                                final int port
-  ) {
+                              ) {
     if (port <= 0) {
       throw new IllegalArgumentException("port <= 0");
     }
@@ -229,7 +232,7 @@ public final class HttpServerBuilder {
                                            .handle(exchange);
                                  }
                                }
-          );
+                              );
         }
         server.start();
         return CompletableFuture.completedFuture(server);
@@ -241,7 +244,7 @@ public final class HttpServerBuilder {
 
   private void jfrHandle(String key,
                          HttpExchange exchange
-  ) {
+                        ) {
     ServerReqEvent event = new ServerReqEvent();
     event.reqCounter = counter.incrementAndGet();
     event.remoteHostAddress = exchange.getRemoteAddress()
@@ -265,7 +268,7 @@ public final class HttpServerBuilder {
                                       cause.getClass()
                                            .getName(),
                                       cause.getMessage()
-      );
+                                     );
       event.result = ServerReqEvent.RESULT.FAILURE.name();
     } finally {
       event.commit();
@@ -286,22 +289,26 @@ public final class HttpServerBuilder {
   /**
    * Creates a socket address from <strong>localhost</strong> and a port number, starting the server in a new background
    * thread. The background thread inherits the priority, thread group, and context class loader of the caller. A valid
-   * port value is between 0 and 65535. A port number of zero will let the system pick up an ephemeral port in a bind
+   * port output is between 0 and 65535. A port number of zero will let the system pick up an ephemeral port in a bind
    * operation.
    *
    * @param port the port number
    * @return an HttpServer
    */
-  public HttpServer start(final int port) throws Exception {
-    return build("localhost",
-                 port
-    ).result()
-     .call();
+  public HttpServer start(final int port) {
+    try {
+      return build("localhost",
+                   port
+                  ).result()
+                   .tryGet();
+    } catch (Exception e) {
+      throw new HttpSeverNotStarted(e);
+    }
   }
 
   /**
    * Creates a socket address from a host and a port number, starting the server in a new background thread. The
-   * background thread inherits the priority, thread group, and context class loader of the caller. A valid port value
+   * background thread inherits the priority, thread group, and context class loader of the caller. A valid port output
    * is between 0 and 65535. A port number of zero will let the system pick up an ephemeral port in a bind operation.
    *
    * @param host the host address
@@ -309,12 +316,16 @@ public final class HttpServerBuilder {
    * @return an HttpServer
    */
   public HttpServer start(final String host,
-                          final int port) throws Exception {
-    return build(host,
-                 port
-    )
-     .result()
-     .call();
+                          final int port) {
+    try {
+      return build(host,
+                   port
+                  )
+          .result()
+          .tryGet();
+    } catch (Exception e) {
+      throw new HttpSeverNotStarted(e);
+    }
   }
 
 }

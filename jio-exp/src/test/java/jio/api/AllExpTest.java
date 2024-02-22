@@ -52,7 +52,7 @@ public class AllExpTest {
                          IO.TRUE
                         )
                     .debugEach("context")
-                    .call();
+                    .result();
 
     Assertions.assertEquals(Result.TRUE,
                             exp

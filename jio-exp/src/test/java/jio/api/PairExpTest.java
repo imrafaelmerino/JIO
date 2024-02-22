@@ -18,8 +18,7 @@ public class PairExpTest {
     Assertions.assertEquals(Pair.of("a",
                                     "b"
                                    ),
-                            pair.call()
-                                .call()
+                            pair.tryGet()
                            );
   }
 

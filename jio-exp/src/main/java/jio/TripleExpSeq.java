@@ -45,11 +45,11 @@ final class TripleExpSeq<First, Second, Third> extends TripleExp<First, Second, 
   Result<Triple<First, Second, Third>> reduceExp() {
     try {
       var first = _1.result()
-                    .call();
+                    .tryGet();
       var second = _2.result()
-                     .call();
+                     .tryGet();
       var third = _3.result()
-                    .call();
+                    .tryGet();
       return new Result.Success<>(Triple.of(first,
                                             second,
                                             third

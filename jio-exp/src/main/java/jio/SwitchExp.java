@@ -9,13 +9,13 @@ import java.util.function.Predicate;
 import jio.Result.Failure;
 
 /**
- * It's an immutable expression that implements multiple predicate-value branches like the Cond expression. However, it
- * evaluates a type I value and allows multiple value clauses based on evaluating that value. If none of the branches
- * patterns match the evaluated value, you can specify a fallback effect, or it will default to using {@link IO#NULL}
+ * It's an immutable expression that implements multiple predicate-output branches like the Cond expression. However, it
+ * evaluates a type I output and allows multiple output clauses based on evaluating that output. If none of the branches
+ * patterns match the evaluated output, you can specify a fallback effect, or it will default to using {@link IO#NULL}
  *
- * @param <Input>  the type of the value that will be matched against different patters to determine which branch will
+ * @param <Input>  the type of the output that will be matched against different patters to determine which branch will
  *                 be executed
- * @param <Output> the type of the value this expression will be reduced
+ * @param <Output> the type of the output this expression will be reduced
  */
 public final class SwitchExp<Input, Output> extends Exp<Output> {
 
@@ -38,7 +38,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
   }
 
   /**
-   * Creates a SwitchMatcher from a given value that will be evaluated and matched against different branches
+   * Creates a SwitchMatcher from a given output that will be evaluated and matched against different branches
    *
    * @param input    the input that will be evaluated
    * @param <Input>  the type of the input
@@ -85,7 +85,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
   @Override
   Result<Output> reduceExp() {
     try {
-      return SwitchExp.get(val.call().call(),
+      return SwitchExp.get(val.call().tryGet(),
                            predicates,
                            lambdas,
                            otherwise,
