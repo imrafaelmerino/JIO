@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.imrafaelmerino</groupId>
   <artifactId>jio-jdbc</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.0-RC1</version>
   <name>jio-jdbc</name>
   <description>Functional and reactive JDBC client in Java</description>
   <url>https://github.com/imrafaelmerino/jio</url>
@@ -44,7 +44,7 @@
     <JSON-VALUES.VERSION>13.4.0</JSON-VALUES.VERSION>
     <JUNIT-JUPITER-ENGINE.VERSION>5.1.1</JUNIT-JUPITER-ENGINE.VERSION>
     <POSTGRESQL.VERSION>42.7.1</POSTGRESQL.VERSION>
-    <JIO-EXP-VERSION>3.0.0</JIO-EXP-VERSION>
+    <JIO-EXP-VERSION>3.0.0-RC1</JIO-EXP-VERSION>
   </properties>
 
 

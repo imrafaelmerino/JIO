@@ -54,7 +54,7 @@ New: Creation of new methods in `ExceptionFun` to handle Exceptions
 
 - JFR event are committed if `shouldCommit` is true
 
-** Version 3.0.0**
+** Version 3.0.0-RC1**
 
 Bugs:
 

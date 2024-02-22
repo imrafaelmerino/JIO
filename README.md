@@ -900,7 +900,7 @@ What can you expect from JIO:
 
 ## <a name="jio-exp"><a/> jio-exp
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-exp/3.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-exp/3.0.0/jar
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-exp/3.0.0-RC1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-exp/3.0.0-RC1/jar
 "jio-ex")
 
 Let's model a functional effect in Java!
@@ -2134,7 +2134,7 @@ It requires Java 21 or greater
 <dependency>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-exp</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.0-RC1</version>
 </dependency>
 
 ```
@@ -2143,7 +2143,7 @@ It requires Java 21 or greater
 
 ## <a name="jio-http"><a/> jio-http
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-http/3.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-http/3.0.0/jar
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-http/3.0.0-RC1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-http/3.0.0-RC1/jar
 "jio-http")
 
 ### <a name="httpserver"><a/> HTTP server
@@ -2587,7 +2587,7 @@ It requires Java 21 or greater
 <dependency>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-http</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.0-RC1</version>
 </dependency>
 
 ```
@@ -2596,7 +2596,7 @@ It requires Java 21 or greater
 
 ## <a name="jio-test"><a/> jio-test
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-test/3.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-test/3.0.0/jar
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-test/3.0.0-RC1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-test/3.0.0-RC1/jar
 "jio-test")
 
 ### <a name="junit"><a/> Junit integration
@@ -3298,14 +3298,14 @@ It requires Java 21 or greater
 <dependency>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-test</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.0-RC1</version>
 </dependency>
 
 ```
 
 ## <a name="jio-mongodb"><a/> jio-mongodb
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-mongodb/3.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-mongodb/3.0.0/jar
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-mongodb/3.0.0-RC1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-mongodb/3.0.0-RC1/jar
 "jio-mongodb")
 
 `jio-mongodb` leverages the persistent JSON from
@@ -3788,14 +3788,14 @@ It requires Java 21 or greater
 <dependency>
     <groupId>com.github.imrafaelmerino</groupId>
     <artifactId>jio-mongodb</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.0-RC1</version>
 </dependency>
 
 ```
 
 ## <a name="jio-console"><a/> jio-console
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-console/3.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-console/3.0.0/jar
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-console/3.0.0-RC1)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-console/3.0.0-RC1/jar
 "jio-console")
 
 ## <a name="jio-jdbc"><a/> jio-jdbc

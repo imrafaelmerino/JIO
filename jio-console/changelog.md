@@ -2,6 +2,6 @@
 
 - Upgrade jio dependencies
 
-** Version 3.0.0 **
+** Version 3.0.0-RC1 **
 
 - Upgrade jio dependencies
