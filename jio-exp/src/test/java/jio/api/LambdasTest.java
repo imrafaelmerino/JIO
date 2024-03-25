@@ -16,13 +16,13 @@ public class LambdasTest {
 
     Assertions.assertEquals(new Success<>("hi"),
                             fn.apply("  hi  ")
-                              .result());
+                              .compute());
 
     Lambda<String, Boolean> p = Lambda.liftPredicate(String::isBlank);
 
     Assertions.assertEquals(Result.TRUE,
                             p.apply(" ")
-                             .result());
+                             .compute());
 
   }
 
@@ -35,14 +35,14 @@ public class LambdasTest {
     Assertions.assertEquals(new Success<>("ab"),
                             fn.apply("a",
                                      "b")
-                              .result());
+                              .compute());
 
     BiLambda<String, String, Boolean> p = BiLambda.liftPredicate(String::endsWith);
 
     Assertions.assertEquals(Result.TRUE,
                             p.apply("ab",
                                     "b")
-                             .result());
+                             .compute());
 
   }
 }

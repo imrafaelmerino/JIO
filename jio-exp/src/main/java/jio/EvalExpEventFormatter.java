@@ -42,11 +42,11 @@ public final class EvalExpEventFormatter implements Function<RecordedEvent, Stri
    * The function used to format the output string.
    */
   public final Function<String, String> formatOutput;
+  @SuppressWarnings("InlineFormatString")
   private static final String FORMAT = """
-      event: eval-exp; exp: %s; result: %s;
-      output: %s; duration: %s; context: %s;
-      start_time: %s""".replace("\n",
-                                " ");
+      event: eval-exp; exp: %s; result: %s; \
+      output: %s; duration: %s; context: %s; \
+      start_time: %s""";
   private static final String EVENT_NAME = "jio.exp.EvalExp";
 
   /**

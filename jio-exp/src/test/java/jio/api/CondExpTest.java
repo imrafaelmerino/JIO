@@ -20,7 +20,7 @@ public class CondExpTest {
                                         () -> Constants.C
                                        )
                                    .map(String::toUpperCase)
-                                   .result());
+                                   .compute());
 
     Assertions.assertEquals(Result.NULL,
                             CondExp.seq(IO.FALSE,
@@ -40,7 +40,7 @@ public class CondExpTest {
                                         () -> Constants.C
                                        )
                                    .map(String::toUpperCase)
-                                   .result());
+                                   .compute());
 
     Assertions.assertEquals(new Success<>("D"),
                             CondExp.seq(IO.FALSE,
@@ -54,7 +54,7 @@ public class CondExpTest {
                                         () -> Constants.C
                                        )
                                    .map(String::toUpperCase)
-                                   .result());
+                                   .compute());
 
     Assertions.assertEquals(new Success<>("A"),
                             CondExp.seq(IO.FALSE,
@@ -70,7 +70,7 @@ public class CondExpTest {
                                         () -> Constants.C
                                        )
                                    .map(String::toUpperCase)
-                                   .result());
+                                   .compute());
 
     Assertions.assertEquals(new Success<>("B"),
                             CondExp.seq(IO.FALSE,
@@ -88,7 +88,7 @@ public class CondExpTest {
                                         () -> Constants.C
                                        )
                                    .map(String::toUpperCase)
-                                   .result());
+                                   .compute());
 
     Assertions.assertEquals(new Success<>("C"),
                             CondExp.seq(IO.FALSE,
@@ -106,7 +106,7 @@ public class CondExpTest {
                                         () -> Constants.C
                                        )
                                    .map(String::toUpperCase)
-                                   .result());
+                                   .compute());
   }
 
   @Test
@@ -121,7 +121,7 @@ public class CondExpTest {
                     () -> Constants.C
                    )
                .map(String::toUpperCase)
-               .result());
+               .compute());
 
     Assertions.assertEquals(new Success<>("C"),
                             CondExp.par(IO.FALSE,
@@ -133,7 +133,7 @@ public class CondExpTest {
                                         () -> Constants.C
                                        )
                                    .map(String::toUpperCase)
-                                   .result());
+                                   .compute());
 
     Assertions.assertEquals(new Success<>("D"),
                             CondExp.par(IO.FALSE,
@@ -147,7 +147,7 @@ public class CondExpTest {
                                         () -> Constants.C
                                        )
                                    .map(String::toUpperCase)
-                                   .result());
+                                   .compute());
 
     Assertions.assertEquals(new Success<>("A"),
                             CondExp.par(IO.FALSE,
@@ -163,7 +163,7 @@ public class CondExpTest {
                                         () -> Constants.C
                                        )
                                    .map(String::toUpperCase)
-                                   .result());
+                                   .compute());
 
     Assertions.assertEquals(new Success<>("B"),
                             CondExp.par(IO.FALSE,
@@ -181,7 +181,7 @@ public class CondExpTest {
                                         () -> Constants.C
                                        )
                                    .map(String::toUpperCase)
-                                   .result());
+                                   .compute());
 
     Assertions.assertEquals(new Success<>("C"),
                             CondExp.par(IO.FALSE,
@@ -199,7 +199,7 @@ public class CondExpTest {
                                         () -> Constants.C
                                        )
                                    .map(String::toUpperCase)
-                                   .result());
+                                   .compute());
   }
 
   @Test
@@ -211,7 +211,7 @@ public class CondExpTest {
                           () -> IO.succeed("default")
                          )
                      .debugEach("context")
-                     .result();
+                     .compute();
 
     Assertions.assertEquals(new Success<>("default"),
                             exp

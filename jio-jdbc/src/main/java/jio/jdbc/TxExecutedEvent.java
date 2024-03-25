@@ -1,6 +1,5 @@
 package jio.jdbc;
 
-import java.util.concurrent.atomic.AtomicLong;
 import jdk.jfr.Category;
 import jdk.jfr.Description;
 import jdk.jfr.Event;
@@ -15,7 +14,6 @@ import jdk.jfr.StackTrace;
 @StackTrace(value = false)
 final class TxExecutedEvent extends Event {
 
-  static final AtomicLong counter = new AtomicLong(0);
 
   static final String RESULT_FIELD = "result";
   static final String SAVEPOINT_FIELD = "savePoint";
@@ -39,7 +37,7 @@ final class TxExecutedEvent extends Event {
 
   String savePoint;
 
-  long txCounter = counter.incrementAndGet();
+  long txCounter = EventCounter.COUNTER.incrementAndGet();
 
   enum RESULT {
     SUCCESS, FAILURE, PARTIAL_SUCCESS

@@ -78,6 +78,14 @@ public final class Debugger implements AfterAllCallback, BeforeAllCallback {
                   new MongoDBOpDebugger());
     debuggers.put(DatabaseTxDebugger.EVENT_NAME,
                   new DatabaseTxDebugger());
+    debuggers.put(AvroDeserializerDebugger.EVENT_NAME,
+                  new AvroDeserializerDebugger());
+    debuggers.put(AvroSerializerDebugger.EVENT_NAME,
+                  new AvroSerializerDebugger());
+    debuggers.put(ConfluentSerializerDebugger.EVENT_NAME,
+                  new ConfluentSerializerDebugger());
+    debuggers.put(ConfluentDeserializerDebugger.EVENT_NAME,
+                  new ConfluentDeserializerDebugger());
   }
 
   private Debugger(final String conf,

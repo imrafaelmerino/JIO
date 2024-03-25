@@ -89,7 +89,7 @@ public final class UpdateStmBuilder<Params> {
                            setParams,
                            enableJFR,
                            label)
-                                 .buildAutoClosable(datasourceBuilder);
+        .buildAutoClosable(datasourceBuilder);
   }
 
   /**
@@ -98,7 +98,7 @@ public final class UpdateStmBuilder<Params> {
    * configured to bind parameters to its SQL, execute the update statement, and return the affected rows as a result.
    *
    * @return A {@code ClosableStatement} representing the update statement. Note: The operations are performed by
-   *         virtual threads.
+   * virtual threads.
    * @see UpdateStm#buildClosable()
    */
   public ClosableStatement<Params, Integer> buildClosable() {
@@ -107,7 +107,7 @@ public final class UpdateStmBuilder<Params> {
                            setParams,
                            enableJFR,
                            label)
-                                 .buildClosable();
+        .buildClosable();
   }
 
 }

@@ -60,8 +60,8 @@ public class TxTests {
                                                     JsStr.of("bye"))
                                           )
                                   )
-                            .result()
-                            .tryGet();
+                            .compute()
+                            .getOutputOrThrow();
 
     Assertions.assertEquals(2,
                             result.size());
@@ -75,7 +75,7 @@ public class TxTests {
    */
   @Test
   @Disabled
-  public void test_Insert_In_Parallel_In_Tx_Fails()  {
+  public void test_Insert_In_Parallel_In_Tx_Fails() {
     MongoLambda<List<JsObj>, List<String>> insertAllPar =
         (session, jsons) -> jsons.stream()
                                  .map(json -> insertOne.apply(session,
@@ -86,15 +86,13 @@ public class TxTests {
                       .build(insertAllPar);
 
     Assertions.assertThrows(MongoCommandException.class,
-                            () -> {
-                              tx.apply(List.of(JsObj.of("hi",
-                                                        JsStr.of("bye")),
-                                               JsObj.of("hi",
-                                                        JsStr.of("bye"))
-                                              )
-                                      )
-                                .result();
-                            }
+                            () -> tx.apply(List.of(JsObj.of("hi",
+                                                            JsStr.of("bye")),
+                                                   JsObj.of("hi",
+                                                            JsStr.of("bye"))
+                                                  )
+                                          )
+                                    .compute()
                            );
   }
 

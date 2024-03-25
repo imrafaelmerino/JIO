@@ -21,7 +21,7 @@ public class JsArrayExpTest {
                                              .map(JsStr::of)
                                           )
                                       .debugEach("array")
-                                      .call()
+                                      .compute()
                            );
   }
 

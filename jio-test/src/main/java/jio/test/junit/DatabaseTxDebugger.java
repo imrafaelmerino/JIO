@@ -15,7 +15,7 @@ final class DatabaseTxDebugger implements Consumer<RecordedEvent> {
       |  Label: %s
       |  Result: %s
       |  Duration: %s
-      |  Transaction Counter: %s
+      |  Op Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
@@ -27,7 +27,7 @@ final class DatabaseTxDebugger implements Consumer<RecordedEvent> {
       |  Result: %s
       |  Duration: %s
       |  Exception: %s
-      |  Transaction Counter: %s
+      |  Op Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------

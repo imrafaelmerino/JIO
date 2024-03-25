@@ -1,6 +1,10 @@
 package jio.test.pbt.rest;
 
 import fun.gen.Gen;
+import java.net.http.HttpResponse;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import jio.BiLambda;
 import jio.IO;
 import jio.Lambda;
@@ -9,20 +13,15 @@ import jio.test.pbt.TestFailure;
 import jio.test.pbt.TestResult;
 import jsonvalues.JsObj;
 
-import java.net.http.HttpResponse;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 /**
- * A builder class for creating property tests that cover CRUD (Create, Read, Update, Delete)
- * operations on a RESTful API endpoint.
+ * A builder class for creating property tests that cover CRUD (Create, Read, Update, Delete) operations on a RESTful
+ * API endpoint.
  *
  * @param <GenReqBody> The type of data generated to feed the property tests.
  */
 public final class CRUDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBody, CRUDPropBuilder<GenReqBody>>
-                                  implements
-                                  Supplier<PropertyBuilder<GenReqBody>> {
+    implements
+    Supplier<PropertyBuilder<GenReqBody>> {
 
   private final BiLambda<JsObj, HttpResponse<String>, HttpResponse<String>> update;
 
@@ -34,7 +33,7 @@ public final class CRUDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBod
                           BiLambda<JsObj, String, HttpResponse<String>> p_get,
                           BiLambda<JsObj, HttpResponse<String>, HttpResponse<String>> p_update,
                           BiLambda<JsObj, String, HttpResponse<String>> p_delete
-  ) {
+                         ) {
     super(name,
           gen,
           p_post,
@@ -61,7 +60,7 @@ public final class CRUDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBod
                                           final Lambda<String, HttpResponse<String>> p_get,
                                           final Lambda<HttpResponse<String>, HttpResponse<String>> p_update,
                                           final Lambda<String, HttpResponse<String>> p_delete
-  ) {
+                                         ) {
     Objects.requireNonNull(p_post);
     Objects.requireNonNull(p_get);
     Objects.requireNonNull(p_update);
@@ -100,7 +99,7 @@ public final class CRUDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBod
                                           final BiLambda<JsObj, String, HttpResponse<String>> p_get,
                                           final BiLambda<JsObj, HttpResponse<String>, HttpResponse<String>> p_update,
                                           final BiLambda<JsObj, String, HttpResponse<String>> p_delete
-  ) {
+                                         ) {
     return new CRUDPropBuilder<>(name,
                                  gen,
                                  p_post,
@@ -120,19 +119,19 @@ public final class CRUDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBod
                                                       body) -> post.apply(conf,
                                                                           body)
                                                                    .then(resp -> {
-                                                                     TestResult result = postAssert.apply(resp);
-                                                                     if (result instanceof TestFailure f) {
-                                                                       return IO.fail(f);
-                                                                     }
-                                                                     return getId.apply(body,
-                                                                                        resp);
-                                                                   }
-                                                                   )
+                                                                           TestResult result = postAssert.apply(resp);
+                                                                           if (result instanceof TestFailure f) {
+                                                                             return IO.fail(f);
+                                                                           }
+                                                                           return getId.apply(body,
+                                                                                              resp);
+                                                                         }
+                                                                        )
                                                                    .then(id -> get.apply(conf,
                                                                                          id)
                                                                                   .then(assertResp(getAssert,
                                                                                                    id))
-                                                                   )
+                                                                        )
                                                                    .then(idResp -> update.apply(conf,
                                                                                                 idResp.resp())
                                                                                          .then(assertResp(updateAssert,
@@ -141,13 +140,14 @@ public final class CRUDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBod
                                                                                                 idResp.id())
                                                                                          .then(assertResp(deleteAssert,
                                                                                                           idResp.id()))
-                                                                   )
+                                                                        )
                                                                    .then(idResp -> get.apply(conf,
                                                                                              idResp.id()))
                                                                    .map(resp -> resp.statusCode() == 404
-                                                                       ? TestResult.SUCCESS : TestFailure.reason(
-                                                                                                                 "Entity found after being deleted successfully. Status code received %d".formatted(
-                                                                                                                                                                                                    resp.statusCode())));
+                                                                                ? TestResult.SUCCESS
+                                                                                : TestFailure.reason(
+                                                                                    "Entity found after being deleted successfully. Status code received %d".formatted(
+                                                                                        resp.statusCode())));
 
     return PropertyBuilder.ofLambda(name,
                                     gen,
@@ -161,7 +161,7 @@ public final class CRUDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBod
    * @return This CRUDPropBuilder instance with the updated assertion function.
    */
   public CRUDPropBuilder<GenReqBody> withUpdateAssert(
-                                                      Function<HttpResponse<String>, TestResult> updateAssert) {
+      Function<HttpResponse<String>, TestResult> updateAssert) {
     this.updateAssert = Objects.requireNonNull(updateAssert);
     return this;
   }

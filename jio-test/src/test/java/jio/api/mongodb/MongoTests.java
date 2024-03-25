@@ -67,6 +67,7 @@ public class MongoTests {
 
     MongoClient mongoClient = MongoClientBuilder.DEFAULT
         .build("mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0");
+
     DatabaseBuilder database = DatabaseBuilder.of(mongoClient,
                                                   "test");
     var dataCollection = CollectionBuilder.of(database,
@@ -115,17 +116,17 @@ public class MongoTests {
                                                 .then(id -> findOne.standalone()
                                                                    .apply(FindBuilder.of(Converters.toObjId(id))))
                                                 .map(it -> it.delete("_id"))
-                                                .result()
+                                                .compute()
                                       );
              });
 
     System.out.println(findAll.standalone()
                               .apply(FindBuilder.of(JsObj.empty()))
                               .map(Converters::toJsArray)
-                              .result());
+                              .compute());
 
-    List<JsObj> arr = find.result()
-                          .tryGet();
+    List<JsObj> arr = find.compute()
+                          .getOutputOrThrow();
     System.out.println(arr.size());
     Assertions.assertTrue(arr.size() > 1);
 

@@ -9,9 +9,10 @@ import java.util.function.Predicate;
 import jio.Result.Failure;
 
 /**
- * It's an immutable expression that implements multiple predicate-output branches like the Cond expression. However, it
- * evaluates a type I output and allows multiple output clauses based on evaluating that output. If none of the branches
- * patterns match the evaluated output, you can specify a fallback effect, or it will default to using {@link IO#NULL}
+ * Represents an immutable expression that implements multiple predicate-output branches like the Cond expression.
+ * However, it evaluates a type I output and allows multiple output clauses based on evaluating that output. If none
+ * of the branches  patterns match the evaluated output, you can specify a fallback effect, or it will default to
+ * using {@link IO#NULL}
  *
  * @param <Input>  the type of the output that will be matched against different patters to determine which branch will
  *                 be executed
@@ -69,12 +70,12 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
                                                    ) {
     if (condTestedSoFar == tests.size()) {
       return otherwise.apply(input)
-                      .result();
+                      .compute();
     }
     return tests.get(condTestedSoFar)
                 .test(input) ? lambdas.get(condTestedSoFar)
                                       .apply(input)
-                                      .result() : get(input,
+                                      .compute() : get(input,
                                                       tests,
                                                       lambdas,
                                                       otherwise,
@@ -85,7 +86,7 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
   @Override
   Result<Output> reduceExp() {
     try {
-      return SwitchExp.get(val.call().tryGet(),
+      return SwitchExp.get(val.call().getOutputOrThrow(),
                            predicates,
                            lambdas,
                            otherwise,

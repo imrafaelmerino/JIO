@@ -17,7 +17,7 @@ public class AllExpTest {
                           .debug();
 
     Assertions.assertEquals(Result.TRUE,
-                            allIsTrue.result());
+                            allIsTrue.compute());
 
     var allIsFalse = AllExp.seq(AllExp.seq(IO.TRUE,
                                            IO.TRUE),
@@ -52,7 +52,7 @@ public class AllExpTest {
                          IO.TRUE
                         )
                     .debugEach("context")
-                    .result();
+                    .compute();
 
     Assertions.assertEquals(Result.TRUE,
                             exp

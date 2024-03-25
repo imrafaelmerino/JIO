@@ -31,15 +31,13 @@ public final class BatchExecutedEventFormatter implements Function<RecordedEvent
   public static final BatchExecutedEventFormatter INSTANCE = new BatchExecutedEventFormatter();
   private static final String EVENT_LABEL = "jio.jdbc.BatchStm";
   private static final String SUCCESS_FORMAT = """
-      %s; db-batch; label: %s; result: %s; duration: %s;
-      rows_affected: %s; batch-counter: %s""".replace("\n",
-                                                      " ");
+      %s; db-batch; label: %s; result: %s; duration: %s; \
+      rows_affected: %s; op-counter: %s; start_time: %s""";
   private static final String FAILURE_OR_PARTIAL_SUCCESS_FORMAT = """
-      %s; db-batch; label: %s; result: %s; duration: %s;
-      rows_affected: %s; executed_batches:%s; batch_size: %s;
-      stms_size: %s; sql: %s; exception: %s;
-      batch-counter: %s""".replace("\n",
-                                   " ");
+      %s; db-batch; label: %s; result: %s; duration: %s; \
+      rows_affected: %s; executed_batches:%s; batch_size: %s; \
+      stms_size: %s; sql: %s; exception: %s; \
+      op-counter: %s; start_time: %s""";
 
   private BatchExecutedEventFormatter() {
 
@@ -70,19 +68,21 @@ public final class BatchExecutedEventFormatter implements Function<RecordedEvent
                                      result,
                                      Fun.formatTime(event.getDuration()),
                                      event.getValue(BatchExecutedEvent.ROWS_AFFECTED_FIELD),
-                                     event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD)
-    ) : String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
-                      event.getStartTime(),
-                      label,
-                      result,
-                      Fun.formatTime(event.getDuration()),
-                      event.getValue(BatchExecutedEvent.ROWS_AFFECTED_FIELD),
-                      event.getValue(BatchExecutedEvent.EXECUTED_BATCHES_FIELD),
-                      event.getValue(BatchExecutedEvent.BATCH_SIZE_FIELD),
-                      event.getValue(BatchExecutedEvent.STM_SIZE_FIELD),
-                      event.getValue(BatchExecutedEvent.SQL_FIELD),
-                      event.getValue(BatchExecutedEvent.EXCEPTION_FIELD),
-                      event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD)
-    );
+                                     event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD),
+                                     event.getStartTime()) :
+           String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
+                         event.getStartTime(),
+                         label,
+                         result,
+                         Fun.formatTime(event.getDuration()),
+                         event.getValue(BatchExecutedEvent.ROWS_AFFECTED_FIELD),
+                         event.getValue(BatchExecutedEvent.EXECUTED_BATCHES_FIELD),
+                         event.getValue(BatchExecutedEvent.BATCH_SIZE_FIELD),
+                         event.getValue(BatchExecutedEvent.STM_SIZE_FIELD),
+                         event.getValue(BatchExecutedEvent.SQL_FIELD),
+                         event.getValue(BatchExecutedEvent.EXCEPTION_FIELD),
+                         event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD),
+                         event.getStartTime()
+                        );
   }
 }

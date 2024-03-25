@@ -60,7 +60,7 @@ class BatchOfOneEntity<Params> {
    *
    * @param builder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} representing the JDBC batch operation with a duration, input, and output. Note: The
-   *         operations are performed on virtual threads for improved concurrency and resource utilization.
+   * operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see BatchOfOneEntity#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<List<Params>, BatchResult> buildAutoClosable(DatasourceBuilder builder) {
@@ -85,12 +85,11 @@ class BatchOfOneEntity<Params> {
    * performed on virtual threads for improved concurrency and resource utilization.
    *
    * @return A {@code ClosableStatement} representing the JDBC batch operation with a duration, input, and output. Note:
-   *         The operations are performed on virtual threads for improved concurrency and resource utilization.
+   * The operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see BatchOfOneEntity#buildClosable()
    */
   public ClosableStatement<List<Params>, BatchResult> buildClosable() {
-    return (params,
-            connection) -> {
+    return (params, connection) -> {
       Callable<BatchResult> callable = () -> process(connection,
                                                      params);
       return IO.task(callable);
@@ -100,57 +99,57 @@ class BatchOfOneEntity<Params> {
   private BatchResult process(Connection connection,
                               List<Params> inputs) throws Exception {
     return JfrEventDecorator.decorateBatch(
-                                           () -> {
-                                             try (var ps = connection.prepareStatement(sql)) {
-                                               ps.setQueryTimeout((int) timeout.toSeconds());
-                                               List<SQLException> errors = new ArrayList<>();
-                                               int executedBatches = 0, rowsAffected = 0, batchSizeCounter = 0;
-                                               for (int i = 0; i < inputs.size(); i++) {
-                                                 try {
-                                                   setter.apply(inputs.get(i))
-                                                         .apply(ps);
-                                                   ps.addBatch();
-                                                   batchSizeCounter++;
-                                                   if (batchSizeCounter == batchSize || i == inputs.size() - 1) {
-                                                     executedBatches++;
-                                                     int[] xs = ps.executeBatch();
-                                                     for (int code : xs) {
-                                                       if (code >= 0) {
-                                                         rowsAffected += code;
-                                                       }
-                                                     }
-                                                     ps.clearBatch();
-                                                     batchSizeCounter = 0;  // Reset batchSizeCounter after each batch
-                                                   }
-                                                 } catch (SQLException e) {
-                                                   if (continueOnError) {
-                                                     errors.add(e);
-                                                     ps.clearBatch();
-                                                     batchSizeCounter = 0;
-                                                   } else {
-                                                     return new BatchFailure(inputs.size(),
-                                                                             batchSize,
-                                                                             executedBatches,
-                                                                             rowsAffected,
-                                                                             e);
-                                                   }
-                                                 }
-                                               }
-                                               if (errors.isEmpty()) {
-                                                 return new BatchSuccess(rowsAffected);
-                                               } else {
-                                                 return new BatchPartialSuccess(inputs.size(),
-                                                                                batchSize,
-                                                                                executedBatches,
-                                                                                rowsAffected,
-                                                                                errors);
-                                               }
-                                             }
+        () -> {
+          try (var ps = connection.prepareStatement(sql)) {
+            ps.setQueryTimeout((int) timeout.toSeconds());
+            List<SQLException> errors = new ArrayList<>();
+            int executedBatches = 0, rowsAffected = 0, batchSizeCounter = 0;
+            for (int i = 0; i < inputs.size(); i++) {
+              try {
+                setter.apply(inputs.get(i))
+                      .apply(ps);
+                ps.addBatch();
+                batchSizeCounter++;
+                if (batchSizeCounter == batchSize || i == inputs.size() - 1) {
+                  executedBatches++;
+                  int[] xs = ps.executeBatch();
+                  for (int code : xs) {
+                    if (code >= 0) {
+                      rowsAffected += code;
+                    }
+                  }
+                  ps.clearBatch();
+                  batchSizeCounter = 0;  // Reset batchSizeCounter after each batch
+                }
+              } catch (SQLException e) {
+                if (continueOnError) {
+                  errors.add(e);
+                  ps.clearBatch();
+                  batchSizeCounter = 0;
+                } else {
+                  return new BatchFailure(inputs.size(),
+                                          batchSize,
+                                          executedBatches,
+                                          rowsAffected,
+                                          e);
+                }
+              }
+            }
+            if (errors.isEmpty()) {
+              return new BatchSuccess(rowsAffected);
+            } else {
+              return new BatchPartialSuccess(inputs.size(),
+                                             batchSize,
+                                             executedBatches,
+                                             rowsAffected,
+                                             errors);
+            }
+          }
 
-                                           },
-                                           sql,
-                                           enableJFR,
-                                           label);
+        },
+        sql,
+        enableJFR,
+        label);
 
   }
 }

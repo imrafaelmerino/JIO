@@ -29,13 +29,13 @@ public class ConstructorsTest {
     IO<String> foo = IO.succeed("foo");
 
     Assertions.assertEquals(new Success<>("foo"),
-                            foo.result());
+                            foo.compute());
 
     Instant before = Instant.now();
     IO<Instant> now = IO.lazy(Instant::now);
 
-    Assertions.assertTrue(before.isBefore(now.result()
-                                             .tryGet()));
+    Assertions.assertTrue(before.isBefore(now.compute()
+                                             .getOutputOrThrow()));
 
   }
 
@@ -48,7 +48,7 @@ public class ConstructorsTest {
                             .debugEach("my-op");
 
     Assertions.assertEquals(Result.FALSE,
-                            par.result());
+                            par.compute());
 
     IO<Boolean> seq = AllExp.seq(IO.FALSE,
                                  IO.TRUE,
@@ -56,7 +56,7 @@ public class ConstructorsTest {
                             .debugEach("my-op");
 
     Assertions.assertEquals(Result.FALSE,
-                            seq.result());
+                            seq.compute());
 
   }
 
@@ -67,7 +67,7 @@ public class ConstructorsTest {
                                      .consequence(() -> IO.succeed("consequence"))
                                      .alternative(() -> IO.succeed("alternative"))
                                      .debugEach("my-op")
-                                     .result()
+                                     .compute()
                            );
   }
 
@@ -113,7 +113,7 @@ public class ConstructorsTest {
                                  )
                     )
                 .debugEach("my-op")
-                .result());
+                .compute());
   }
 
   @Test
@@ -130,7 +130,7 @@ public class ConstructorsTest {
                                    },
                                    it -> IO.succeed(it.lines()
                                                       .collect(Collectors.joining())))
-                         .result();
+                         .compute();
 
     Assertions.assertEquals(new Success<>("hi"),
                             a);
@@ -144,8 +144,8 @@ public class ConstructorsTest {
           throw new IllegalArgumentException("hi");
         })
         .debug()
-        .result()
-        .tryGet();
+        .compute()
+        .getOutputOrThrow();
     } catch (Exception e) {
       Assertions.assertEquals("hi",
                               e.getMessage());
@@ -157,8 +157,8 @@ public class ConstructorsTest {
               }
              )
         .debug()
-        .result()
-        .tryGet();
+        .compute()
+        .getOutputOrThrow();
     } catch (Exception e) {
       Assertions.assertEquals("hi",
                               e.getMessage());

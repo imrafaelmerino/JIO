@@ -31,31 +31,32 @@ public class RespHandlersTests {
   static JioHttpClient httpClient;
 
   @BeforeAll
-  public static void prepare() throws Exception {
+  public static void prepare() {
 
     GetStub getStrReqHandler = GetStub.of(BodyStub.cons("foo"),
                                           StatusCodeStub.cons(200),
                                           HeadersStub.EMPTY
-    );
+                                         );
 
     GetStub getJsonReqHandler = GetStub.of(BodyStub.cons(JsObj.of("a",
                                                                   JsStr.of("b")
-    )
+                                                                 )
                                                               .toString()),
                                            StatusCodeStub.cons(200),
                                            HeadersStub.EMPTY
-    );
+                                          );
     HttpServerBuilder builder = HttpServerBuilder.of(Map.of("/get_str",
                                                             getStrReqHandler,
                                                             "/get_json",
                                                             getJsonReqHandler
-    )
-    );
+                                                           )
+                                                    );
 
     HttpServer server = builder.startAtRandom("localhost",
                                               8000,
                                               9000
-    );
+                                             )
+                               .getOutput();
 
     port = server.getAddress()
                  .getPort();
@@ -70,22 +71,22 @@ public class RespHandlersTests {
 
     String uri = String.format("http://localhost:%s/get_str",
                                port
-    );
+                              );
 
     IO<HttpResponse<String>> val = httpClient.ofString()
                                              .apply(HttpRequest.newBuilder()
                                                                .GET()
                                                                .uri(URI.create(uri))
-                                             );
+                                                   );
 
-    HttpResponse<String> resp = val.result()
-                                   .tryGet();
+    HttpResponse<String> resp = val.compute()
+                                   .getOutputOrThrow();
     Assertions.assertEquals("foo",
                             resp.body()
-    );
+                           );
     Assertions.assertEquals(200,
                             resp.statusCode()
-    );
+                           );
 
   }
 
@@ -94,24 +95,24 @@ public class RespHandlersTests {
 
     String uri = String.format("http://localhost:%s/get_json",
                                port
-    );
+                              );
 
     IO<HttpResponse<String>> val = httpClient.ofString()
                                              .apply(HttpRequest.newBuilder()
                                                                .GET()
                                                                .uri(URI.create(uri))
-                                             );
+                                                   );
 
-    HttpResponse<String> resp = val.result()
-                                   .tryGet();
+    HttpResponse<String> resp = val.compute()
+                                   .getOutputOrThrow();
     Assertions.assertEquals(JsObj.of("a",
                                      JsStr.of("b")
-    ),
+                                    ),
                             JsObj.parse(resp.body())
-    );
+                           );
     Assertions.assertEquals(200,
                             resp.statusCode()
-    );
+                           );
   }
 
 }

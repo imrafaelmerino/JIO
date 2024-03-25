@@ -1,6 +1,8 @@
 package jio.test.pbt;
 
 import jio.IO;
+import jio.Result.Failure;
+import jio.Result.Success;
 import jsonvalues.JsObj;
 
 /**
@@ -23,12 +25,12 @@ public abstract sealed class Testable permits ParProperty, Property, SeqProperty
    * @return The result of the test is encapsulated in a Report object.
    */
   public Report check() {
-    try {
-      return create().result()
-                     .tryGet();
-    } catch (Exception e) {
-      throw new ReportNotGenerated(e);
-    }
+    return switch (create().compute()) {
+      case Success<Report> success -> success.output();
+      case Failure failure -> throw new ReportNotGenerated(failure.exception());
+    };
+
+
   }
 
   /**
@@ -39,11 +41,9 @@ public abstract sealed class Testable permits ParProperty, Property, SeqProperty
    * @return The result of the test is encapsulated in a Report object.
    */
   public Report check(final JsObj conf) {
-    try {
-      return create(conf).result()
-                         .tryGet();
-    } catch (Exception e) {
-      throw new ReportNotGenerated(e);
-    }
+    return switch (create(conf).compute()) {
+      case Success<Report> success -> success.output();
+      case Failure failure -> throw new ReportNotGenerated(failure.exception());
+    };
   }
 }

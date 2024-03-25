@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 
 /**
  * Represents an expression that is reduced to a pair. Their elements can be evaluated either in parallel or
- * sequentially. In both cases, if one fails, the whole expression fails.
+ * sequentially. In both cases, if one fails, the whole expression fails immediately.
  * <p>
  * You can create PairExp expressions using the 'seq' method to evaluate effects sequentially, or using the 'par' method
  * to evaluate effects in parallel. If one effect fails, the entire expression fails.
@@ -50,8 +50,8 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
   }
 
   /**
-   * create a tuple of two effects that will be evaluated in parallel if they run on different threads. The two effect
-   * are always evaluated, no matter if the first one fails.
+   * create a tuple of two effects that will be evaluated in paralell. If one fails, the whole expression fails
+   * immediately
    *
    * @param first  first effect of the pair
    * @param second second effect of the pair

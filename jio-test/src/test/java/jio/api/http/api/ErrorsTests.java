@@ -33,7 +33,8 @@ public class ErrorsTests {
                                                              HeadersStub.EMPTY)))
                                        .startAtRandom("localhost",
                                                       8000,
-                                                      9000);
+                                                      9000)
+                                       .getOutput();
 
   public ErrorsTests() throws Exception {
   }
@@ -50,9 +51,9 @@ public class ErrorsTests {
                                                        .GET()
                                                        .uri(URI.create("https://www.google.com")))
                                      .then(response -> IO.FALSE,
-                                           failure -> IO.succeed(HttpExceptionFun.HAS_CONNECTION_TIMEOUT.test(failure)))
-                                     .result()
-                                     .tryGet();
+                                           failure -> IO.succeed(HttpExceptionFun.IS_CONNECTION_TIMEOUT.test(failure)))
+                                     .compute()
+                                     .getOutputOrThrow();
     Assertions.assertTrue(isConnectTimeout);
   }
 
@@ -72,8 +73,8 @@ public class ErrorsTests {
                                  .then(response -> IO.FALSE,
                                        failure -> IO.succeed(ExceptionFun.findConnectionExcRecursively.apply(failure)
                                                                                                       .isPresent()))
-                                 .result()
-                                 .tryGet();
+                                 .compute()
+                                 .getOutputOrThrow();
 
     Assertions.assertTrue(isUnresolved);
 
@@ -94,9 +95,9 @@ public class ErrorsTests {
                                                 .GET()
                                                 .uri(uri))
                               .then(response -> IO.FALSE,
-                                    failure -> IO.succeed(HttpExceptionFun.HAS_CONNECTION_TIMEOUT.test(failure)))
-                              .result()
-                              .tryGet();
+                                    failure -> IO.succeed(HttpExceptionFun.IS_CONNECTION_TIMEOUT.test(failure)))
+                              .compute()
+                              .getOutputOrThrow();
 
     Assertions.assertTrue(isTimeout);
 
@@ -114,7 +115,8 @@ public class ErrorsTests {
 
     HttpServer server = builder.startAtRandom("localhost",
                                               8000,
-                                              9000);
+                                              9000)
+                               .getOutput();
 
     JioHttpClient client = JioHttpClientBuilder.of(HttpClient.newBuilder())
                                                .get();
@@ -127,9 +129,9 @@ public class ErrorsTests {
                                                        .uri(uri)
                                                        .timeout(Duration.ofMillis(500)))
                                      .then(response -> IO.FALSE,
-                                           failure -> IO.succeed(HttpExceptionFun.HAS_REQUEST_TIMEOUT.test(failure)))
-                                     .result()
-                                     .tryGet();
+                                           failure -> IO.succeed(HttpExceptionFun.IS_REQUEST_TIMEOUT.test(failure)))
+                                     .compute()
+                                     .getOutputOrThrow();
 
     Assertions.assertTrue(isRequestTimeout);
 

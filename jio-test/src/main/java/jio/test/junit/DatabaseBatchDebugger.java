@@ -20,7 +20,7 @@ final class DatabaseBatchDebugger implements Consumer<RecordedEvent> {
       |  Executed Batches: %s
       |  Batch Size: %s
       |  Statements Size: %s
-      |  Batch Counter: %s
+      |  Op Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       -------------------------------
@@ -37,7 +37,7 @@ final class DatabaseBatchDebugger implements Consumer<RecordedEvent> {
       |  Statements Size: %s
       |  SQL: %s
       |  Exception: %s
-      |  Batch Counter: %s
+      |  Op Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       -------------------------------

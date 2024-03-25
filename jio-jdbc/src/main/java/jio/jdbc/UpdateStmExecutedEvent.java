@@ -19,9 +19,7 @@ final class UpdateStmExecutedEvent extends Event {
   static final String ROWS_AFFECTED_FIELD = "rowsAffected";
   int rowsAffected;
 
-  static final AtomicLong counter = new AtomicLong(0);
-
-  long updateCounter = counter.incrementAndGet();
+  long updateCounter = EventCounter.COUNTER.incrementAndGet();
 
   static final String RESULT_FIELD = "result";
   static final String SQL_FIELD = "sql";

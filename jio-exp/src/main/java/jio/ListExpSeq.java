@@ -13,9 +13,9 @@ import jio.Result.Success;
 
 final class ListExpSeq<Elem> extends ListExp<Elem> {
 
-  public ListExpSeq(final List<IO<Elem>> list,
-                    final Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
-                   ) {
+  ListExpSeq(final List<IO<Elem>> list,
+             final Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
+            ) {
     super(list,
           debugger);
   }
@@ -59,7 +59,7 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
     for (var entry : list) {
       try {
         xs.add(entry.call()
-                    .tryGet()
+                    .getOutputOrThrow()
               );
       } catch (Exception e) {
         return new Failure<>(e);

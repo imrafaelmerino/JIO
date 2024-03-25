@@ -27,6 +27,7 @@ class EventFields {
   static final String REQ_COUNTER = "reqCounter";
 
   static final String OPERATION = "operation";
+  static final String OPERATION_COUNTER = "opCounter";
 
   static final String EXECUTED_BATCHES = "executedBatches";
   static final String BATCH_SIZE = "batchSize";

@@ -15,9 +15,9 @@ import jio.ExceptionFun;
  * <p>The class contains the following methods and predicates:</p>
  *
  * <ul>
- * <li>{@link #HAS_READ_TIMEOUT}: A predicate to check if the given throwable is an instance of
+ * <li>{@link #IS_READ_TIMEOUT}: A predicate to check if the given throwable is an instance of
  * {@link MongoSocketReadTimeoutException}, indicating a read timeout exception.</li>
- * <li>{@link #HAS_CONNECTION_TIMEOUT}: A predicate to check if the given throwable is an instance of
+ * <li>{@link #IS_CONNECTION_TIMEOUT}: A predicate to check if the given throwable is an instance of
  * {@link MongoTimeoutException}, indicating a connection timeout exception.</li>
  * <li>{@link #findMongoExceptionRecursively(IntPredicate)}: A predicate to check if the given throwable or its causes
  * contains a specific {@link MongoException} with a specified error code.</li>
@@ -30,9 +30,9 @@ import jio.ExceptionFun;
  * @see MongoTimeoutException
  * @see MongoException
  */
-public final class MongoFun {
+public final class MongoExceptionFun {
 
-  private MongoFun() {
+  private MongoExceptionFun() {
   }
 
   /**
@@ -42,9 +42,10 @@ public final class MongoFun {
    *
    * @see MongoSocketReadTimeoutException
    */
-  public static final Predicate<Throwable> HAS_READ_TIMEOUT = exc -> ExceptionFun.findCauseRecursively(cause -> cause instanceof MongoSocketReadTimeoutException)
-                                                                                 .apply(exc)
-                                                                                 .isPresent();
+  public static final Predicate<Throwable> IS_READ_TIMEOUT =
+      exc -> ExceptionFun.findCauseRecursively(cause -> cause instanceof MongoSocketReadTimeoutException)
+                         .apply(exc)
+                         .isPresent();
 
   /**
    * Predicate to check if the given throwable or its causes contains an instance of {@link MongoTimeoutException}. This
@@ -52,9 +53,10 @@ public final class MongoFun {
    *
    * @see MongoTimeoutException
    */
-  public static final Predicate<Throwable> HAS_CONNECTION_TIMEOUT = exc -> ExceptionFun.findCauseRecursively(cause -> cause instanceof MongoTimeoutException)
-                                                                                       .apply(exc)
-                                                                                       .isPresent();
+  public static final Predicate<Throwable> IS_CONNECTION_TIMEOUT =
+      exc -> ExceptionFun.findCauseRecursively(cause -> cause instanceof MongoTimeoutException)
+                         .apply(exc)
+                         .isPresent();
 
   /**
    * Predicate to check if the given throwable or its causes contains a specific {@link MongoException} with a specified

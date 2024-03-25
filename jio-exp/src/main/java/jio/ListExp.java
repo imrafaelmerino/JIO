@@ -27,8 +27,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
   final List<IO<Elem>> list;
 
   ListExp(List<IO<Elem>> list,
-          Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
-         ) {
+          Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger) {
     super(debugger);
     this.list = list;
   }
@@ -57,8 +56,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
 
       @Override
       public BinaryOperator<List<IO<O>>> combiner() {
-        return (a,
-                b) -> {
+        return (a, b) -> {
           a.addAll(b);
           return b;
         };
@@ -100,8 +98,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
 
       @Override
       public BinaryOperator<List<IO<O>>> combiner() {
-        return (a,
-                b) -> {
+        return (a, b) -> {
           a.addAll(b);
           return b;
         };
@@ -144,7 +141,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
 
   /**
    * Creates a ListExp from a list of effects that will be evaluated in parallel. If one fails, the whole expression
-   * fails.
+   * fails immediately.
    *
    * @param effects the list of effects
    * @param <O>     the type of the list effects
@@ -161,6 +158,14 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
                             null);
   }
 
+  /**
+   * Creates a ListExp from a list of effects that will be evaluated in parallel. If one fails, the whole expression
+   * fails immediately.
+   *
+   * @param list the list of effects
+   * @param <O>  the type of the list effects
+   * @return a ListExp
+   */
   public static <O> ListExp<O> par(final List<IO<O>> list) {
     return new ListExpPar<>(list,
                             null);
@@ -184,7 +189,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
   public abstract ListExp<Elem> append(final IO<Elem> effect);
 
   /**
-   * Returns the first effect from the list that is evaluated, either if it succeeds or fails.
+   * Returns the first effect from the list that is evaluated successfully (no matter if some of them fail)
    *
    * @return the first effect that is evaluated
    */
@@ -231,8 +236,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
 
   @Override
   public abstract ListExp<Elem> retryEach(final Predicate<? super Throwable> predicate,
-                                          final RetryPolicy policy
-                                         );
+                                          final RetryPolicy policy);
 
   @Override
   public ListExp<Elem> retryEach(final RetryPolicy policy) {
@@ -241,8 +245,7 @@ public abstract sealed class ListExp<Elem> extends Exp<List<Elem>> permits ListE
   }
 
   @Override
-  public abstract ListExp<Elem> debugEach(final EventBuilder<List<Elem>> messageBuilder
-                                         );
+  public abstract ListExp<Elem> debugEach(final EventBuilder<List<Elem>> messageBuilder);
 
   @Override
   public abstract ListExp<Elem> debugEach(final String context);

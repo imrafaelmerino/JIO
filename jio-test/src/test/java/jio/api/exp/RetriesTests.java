@@ -38,7 +38,7 @@ public class RetriesTests {
 
     Result<Integer> result = stub.get()
                                  .retry(RetryPolicies.limitRetries(3500))
-                                 .result();
+                                 .compute();
 
     try {
       System.out.println(result);
@@ -61,8 +61,8 @@ public class RetriesTests {
                             val.get()
                                .retry(RetryPolicies.limitRetries(3))
                                .debug()
-                               .result()
-                               .tryGet()
+                               .compute()
+                               .getOutputOrThrow()
                            );
 
     Assertions.assertEquals("a",
@@ -71,8 +71,8 @@ public class RetriesTests {
                                       RetryPolicies.limitRetries(3)
                                      )
                                .debug()
-                               .result()
-                               .tryGet()
+                               .compute()
+                               .getOutputOrThrow()
                            );
   }
 
@@ -88,8 +88,8 @@ public class RetriesTests {
     Assertions.assertThrows(RuntimeException.class,
                             () -> val.get()
                                      .retry(RetryPolicies.limitRetries(2))
-                                     .result()
-                                     .tryGet()
+                                     .compute()
+                                     .getOutputOrThrow()
                            );
   }
 
@@ -109,8 +109,8 @@ public class RetriesTests {
                                            .append(incrementalDelay(Duration.ofSeconds(1)));
 
     String result = val.retry(retryPolicy)
-                       .result()
-                       .tryGet();
+                       .compute()
+                       .getOutputOrThrow();
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
                                )
@@ -139,8 +139,8 @@ public class RetriesTests {
 
     Assertions.assertThrows(RuntimeException.class,
                             () -> val.retry(retryPolicy)
-                                     .result()
-                                     .tryGet()
+                                     .compute()
+                                     .getOutputOrThrow()
                            );
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS

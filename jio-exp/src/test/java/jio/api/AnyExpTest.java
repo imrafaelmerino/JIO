@@ -23,7 +23,7 @@ public class AnyExpTest {
                                 IO.FALSE);
 
     Assertions.assertEquals(Result.FALSE,
-                            anyIsFalse.result());
+                            anyIsFalse.compute());
 
   }
 
@@ -42,7 +42,7 @@ public class AnyExpTest {
                                 IO.FALSE);
 
     Assertions.assertEquals(Result.FALSE,
-                            anyIsFalse.result());
+                            anyIsFalse.compute());
   }
 
   @Test
@@ -51,7 +51,7 @@ public class AnyExpTest {
                          IO.TRUE
                         )
                     .debugEach("context")
-                    .result();
+                    .compute();
 
     Assertions.assertEquals(Result.TRUE,
                             exp

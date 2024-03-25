@@ -1,6 +1,6 @@
 package jio.api.petstore;
 
-import static jio.http.client.HttpExceptionFun.HAS_CONNECTION_TIMEOUT;
+import static jio.http.client.HttpExceptionFun.IS_CONNECTION_TIMEOUT;
 
 import com.sun.net.httpserver.HttpServer;
 import fun.gen.Combinators;
@@ -54,11 +54,13 @@ public class PetStoreProperties {
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
-  static JioHttpClientBuilder myHttpClientBuilder = JioHttpClientBuilder.of(HttpClient.newBuilder()
-                                                                                      .connectTimeout(Duration.ofMillis(300)))
-                                                                        .withRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
-                                                                                                      .append(RetryPolicies.limitRetries(5)))
-                                                                        .withRetryPredicate(HAS_CONNECTION_TIMEOUT);
+  static JioHttpClientBuilder myHttpClientBuilder =
+      JioHttpClientBuilder.of(HttpClient.newBuilder()
+                                        .connectTimeout(Duration.ofMillis(300))
+                             )
+                          .withRetryPolicy(RetryPolicies.incrementalDelay(Duration.ofMillis(10))
+                                                        .append(RetryPolicies.limitRetries(5)))
+                          .withRetryPredicate(IS_CONNECTION_TIMEOUT);
 
   static HttpServer server;
 
@@ -90,7 +92,8 @@ public class PetStoreProperties {
                                       )
                                )
                             .startAtRandom(8000,
-                                           9000);
+                                           9000)
+                            .getOutput();
   }
 
   private static final int port = server.getAddress()
@@ -189,7 +192,7 @@ public class PetStoreProperties {
                                                                      .map(HttpResponse::statusCode)
                                                                      .toList()
                                               )
-                                          .result();
+                                          .compute();
 
   }
 
@@ -211,18 +214,18 @@ public class PetStoreProperties {
 
   @Test
   public void pet_null_field_not_inserted() {
-    Property<JsObj> unused = PropertyBuilder.ofLambda("post_pet_with_null_value_in_req_key",
-                                                      Combinators.oneOf(Fields.REQ_PET_FIELDS)
-                                                                 .then(reqKey -> Generators.petGen.map(json -> json.set(reqKey,
-                                                                                                                        JsNull.NULL))),
-                                                      (conf,
-                                                       body) -> post("pet").apply(conf,
-                                                                                  body)
-                                                                           .map(resp -> assertResp(is400,
-                                                                                                   "4XX status code was expected").apply(resp))
-                                                     )
-                                            .withTimes(100)
-                                            .get();
+    PropertyBuilder.ofLambda("post_pet_with_null_value_in_req_key",
+                             Combinators.oneOf(Fields.REQ_PET_FIELDS)
+                                        .then(reqKey -> Generators.petGen.map(json -> json.set(reqKey,
+                                                                                               JsNull.NULL))),
+                             (conf, body) -> post("pet").apply(conf,
+                                                               body)
+                                                        .map(resp -> assertResp(is400,
+                                                                                "4XX status code was expected").apply(resp))
+                            )
+                   .withTimes(100)
+                   .get()
+                   .check();
 
   }
 
@@ -234,6 +237,7 @@ public class PetStoreProperties {
                                                     get("pet"),
                                                     delete("pet"))
                                                 .get()
+                                                .withTimes(3)
                                                 .get();
 
     Property<JsObj> userPetFlow = CRDPropBuilder.of("user_crud",
@@ -243,6 +247,7 @@ public class PetStoreProperties {
                                                     delete("user"))
                                                 .withGetIdFromReqBody(body -> body.getStr("username"))
                                                 .get()
+                                                .withTimes(3)
                                                 .get();
 
     var report = Group.of("petstore",
@@ -250,8 +255,10 @@ public class PetStoreProperties {
                                   userPetFlow)
                          )
                       .par()
-                      .result()
-                      .tryGet();
+                      .compute()
+                      .getOutputOrThrow();
+
+    System.out.println(report.toJson().toPrettyString());
 
     report.assertAllSuccess();
   }
@@ -280,8 +287,8 @@ public class PetStoreProperties {
                                                              .map(HttpResponse::statusCode)
                                                              .toList()
                                       )
-                                  .result()
-                                  .tryGet();
+                                  .compute()
+                                  .getOutputOrThrow();
 
     System.out.println(status);
   }
@@ -292,9 +299,9 @@ public class PetStoreProperties {
                             .apply(HttpRequest.newBuilder()
                                               .GET()
                                               .uri(URI.create("http://localhost:%s/thanks".formatted(port))))
-                            .repeat(resp -> true,
+                            .repeat(_ -> true,
                                     RetryPolicies.limitRetries(10))
-                            .result();
+                            .compute();
   }
 
 }

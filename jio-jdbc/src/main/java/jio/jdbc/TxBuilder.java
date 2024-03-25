@@ -45,7 +45,7 @@ public final class TxBuilder {
    *                          connection.
    * @param level             The transaction isolation level represented by the {@link TX_ISOLATION} enum.
    * @return A new instance of {@code TxBuilder} configured with the provided {@link DatasourceBuilder} and transaction
-   *         isolation level.
+   * isolation level.
    */
   public static TxBuilder of(DatasourceBuilder datasourceBuilder,
                              TX_ISOLATION level) {
@@ -152,9 +152,9 @@ public final class TxBuilder {
                                                            .map(statement -> statement.apply(connection))
                                                            .collect(ListExp.parCollector())
                                                            .then(result -> IO.task(() -> {
-                                                             connection.commit();
-                                                             return result;
-                                                           }),
+                                                                   connection.commit();
+                                                                   return result;
+                                                                 }),
                                                                  exc -> {
                                                                    try {
                                                                      connection.rollback();
@@ -163,7 +163,7 @@ public final class TxBuilder {
                                                                      return IO.fail(exc);
                                                                    }
                                                                  })
-    );
+                                     );
     return JfrEventDecorator.decorateTx(tx,
                                         label,
                                         enableJFR);
@@ -187,9 +187,9 @@ public final class TxBuilder {
                                                            .map(statement -> statement.apply(connection))
                                                            .collect(ListExp.seqCollector())
                                                            .then(result -> IO.task(() -> {
-                                                             connection.commit();
-                                                             return result;
-                                                           }),
+                                                                   connection.commit();
+                                                                   return result;
+                                                                 }),
                                                                  exc -> {
                                                                    try {
                                                                      connection.rollback();
@@ -198,7 +198,7 @@ public final class TxBuilder {
                                                                      return IO.fail(exc);
                                                                    }
                                                                  })
-    );
+                                     );
     return JfrEventDecorator.decorateTx(tx,
                                         label,
                                         enableJFR);
@@ -223,9 +223,9 @@ public final class TxBuilder {
                                   connection -> closableStatement.apply(params,
                                                                         connection)
                                                                  .then(result -> IO.task(() -> {
-                                                                   connection.commit();
-                                                                   return result;
-                                                                 }),
+                                                                         connection.commit();
+                                                                         return result;
+                                                                       }),
                                                                        exc -> {
                                                                          try {
                                                                            connection.rollback();
@@ -234,7 +234,7 @@ public final class TxBuilder {
                                                                            return IO.fail(e);
                                                                          }
                                                                        })
-      );
+                                 );
       return JfrEventDecorator.decorateTx(tx,
                                           label,
                                           enableJFR);
@@ -271,9 +271,9 @@ public final class TxBuilder {
                                    IO<TxResult> tx = closableStatement.apply(params,
                                                                              connection)
                                                                       .then(result -> IO.task(() -> {
-                                                                        connection.commit();
-                                                                        return new TxSuccess<>(result);
-                                                                      }),
+                                                                              connection.commit();
+                                                                              return new TxSuccess<>(result);
+                                                                            }),
                                                                             exc -> {
                                                                               try {
                                                                                 if (exc instanceof RollBackToSavePoint rollBackToSavePoint) {
@@ -283,7 +283,7 @@ public final class TxBuilder {
                                                                                   return IO.succeed(new TxPartialSuccess(rollBackToSavePoint.savepoint.getSavepointName(),
                                                                                                                          rollBackToSavePoint.output,
                                                                                                                          rollBackToSavePoint)
-                                                                                  );
+                                                                                                   );
                                                                                 } else {
                                                                                   connection.rollback();
                                                                                   return IO.fail(exc);
@@ -296,7 +296,7 @@ public final class TxBuilder {
                                                                                      label,
                                                                                      enableJFR);
                                  }
-    );
+                                );
   }
 
 }

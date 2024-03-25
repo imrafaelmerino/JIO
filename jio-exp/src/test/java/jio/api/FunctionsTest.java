@@ -17,8 +17,8 @@ public class FunctionsTest {
                .repeat(_ -> true,
                        RetryPolicies.limitRetries(2)
                       )
-               .result()
-               .tryGet();
+               .compute()
+               .getOutputOrThrow();
 
     Assertions.assertEquals(30,
                             a);
@@ -34,8 +34,8 @@ public class FunctionsTest {
                .repeat(_ -> true,
                        RetryPolicies.limitRetries(2)
                       )
-               .result()
-               .tryGet();
+               .compute()
+               .getOutputOrThrow();
 
     Assertions.assertEquals(30,
                             a);

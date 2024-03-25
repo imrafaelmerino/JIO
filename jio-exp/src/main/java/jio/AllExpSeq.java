@@ -42,13 +42,12 @@ final class AllExpSeq extends AllExp {
   }
 
   private Result<Boolean> get(List<IO<Boolean>> exps) {
-
     var result = true;
     for (IO<Boolean> exp : exps) {
       try {
         if (result) {
           result = exp.call()
-                      .tryGet();
+                      .getOutputOrThrow();
         } else {
           return new Success<>(false);
         }

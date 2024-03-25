@@ -15,6 +15,7 @@ final class MongoDBOpDebugger implements Consumer<RecordedEvent> {
       |  Operation: %s
       |  Result: %s
       |  Duration: %s
+      |  Op counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
@@ -25,6 +26,7 @@ final class MongoDBOpDebugger implements Consumer<RecordedEvent> {
       |  Operation: %s
       |  Result: %s
       |  Duration: %s
+      |  Op counter: %s
       |  Exception: %s
       |  Thread: %s
       |  Event Start Time: %s
@@ -42,6 +44,7 @@ final class MongoDBOpDebugger implements Consumer<RecordedEvent> {
                                         event.getValue(EventFields.OPERATION),
                                         result,
                                         Fun.formatTime(event.getDuration()),
+                                        event.getValue(EventFields.OPERATION_COUNTER),
                                         Utils.getThreadName(event.getThread()),
                                         event.getStartTime()
                                              .atZone(ZoneOffset.UTC)
@@ -50,6 +53,7 @@ final class MongoDBOpDebugger implements Consumer<RecordedEvent> {
                       event.getValue(EventFields.OPERATION),
                       result,
                       Fun.formatTime(event.getDuration()),
+                      event.getValue(EventFields.OPERATION_COUNTER),
                       event.getValue(EventFields.EXCEPTION),
                       Utils.getThreadName(event.getThread()),
                       event.getStartTime()

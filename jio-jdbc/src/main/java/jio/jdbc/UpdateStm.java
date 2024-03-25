@@ -14,7 +14,7 @@ import jio.Lambda;
  *
  * @param <Params> The type of the input object for setting parameters in the SQL.
  * @see InsertOneEntity for using insert operationg that insert at most one row into the database and may generate some
- *      keys like ids or timestamps that can be returned
+ * keys like ids or timestamps that can be returned
  */
 final class UpdateStm<Params> {
 
@@ -95,18 +95,18 @@ final class UpdateStm<Params> {
     try (var statement = connection.prepareStatement(sql)
     ) {
       return JfrEventDecorator.decorateUpdateStm(
-                                                 () -> {
+          () -> {
 
-                                                   statement.setQueryTimeout((int) timeout.toSeconds());
-                                                   int unused = setter.apply(params)
-                                                                      .apply(statement);
-                                                   assert unused > 0;
-                                                   return statement.executeUpdate();
+            statement.setQueryTimeout((int) timeout.toSeconds());
+            int unused = setter.apply(params)
+                               .apply(statement);
+            assert unused > 0;
+            return statement.executeUpdate();
 
-                                                 },
-                                                 sql,
-                                                 enableJFR,
-                                                 label);
+          },
+          sql,
+          enableJFR,
+          label);
     }
   }
 
@@ -116,7 +116,7 @@ final class UpdateStm<Params> {
    * parameters to its SQL, execute the update statement, and return the affected rows as a result.
    *
    * @return A {@code ClosableStatement} representing the update statement. Note: The operations are performed by
-   *         virtual threads.
+   * virtual threads.
    */
   ClosableStatement<Params, Integer> buildClosable() {
     return (params,

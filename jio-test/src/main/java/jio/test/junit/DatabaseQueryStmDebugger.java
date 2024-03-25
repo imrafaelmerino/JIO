@@ -18,7 +18,7 @@ final class DatabaseQueryStmDebugger implements Consumer<RecordedEvent> {
       |  Duration: %s
       |  Fetch Size: %s
       |  Rows Returned: %s
-      |  Query Counter: %s
+      |  Op Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
@@ -33,7 +33,7 @@ final class DatabaseQueryStmDebugger implements Consumer<RecordedEvent> {
       |  SQL: %s
       |  Fetch Size: %s
       |  Rows Returned: %s
-      |  Query Counter: %s
+      |  Op Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------

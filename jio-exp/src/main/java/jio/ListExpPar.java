@@ -15,9 +15,9 @@ import jio.Result.Success;
 
 final class ListExpPar<Elem> extends ListExp<Elem> {
 
-  public ListExpPar(final List<IO<Elem>> list,
-                    final Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
-                   ) {
+  ListExpPar(final List<IO<Elem>> list,
+             final Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
+            ) {
     super(list,
           debugger);
   }
@@ -67,7 +67,7 @@ final class ListExpPar<Elem> extends ListExp<Elem> {
       List<Elem> result = new ArrayList<>();
       for (Subtask<Result<Elem>> task : xs) {
         Elem call = task.get()
-                        .tryGet();
+                        .getOutputOrThrow();
         result.add(call);
       }
       return new Success<>(result);

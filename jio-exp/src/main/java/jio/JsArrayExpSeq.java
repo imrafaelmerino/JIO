@@ -40,7 +40,7 @@ final class JsArrayExpSeq extends JsArrayExp {
     for (var entry : list) {
       try {
         xs.add(entry.call()
-                    .tryGet()
+                    .getOutputOrThrow()
               );
       } catch (Exception e) {
         return new Failure<>(e);

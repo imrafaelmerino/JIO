@@ -1,6 +1,10 @@
 package jio.test;
 
 import jdk.jfr.consumer.RecordedThread;
+import jsonvalues.spec.JsArraySpec;
+import jsonvalues.spec.JsObjSpec;
+import jsonvalues.spec.JsSpec;
+import jsonvalues.spec.JsSpecs;
 
 /**
  * Utility class

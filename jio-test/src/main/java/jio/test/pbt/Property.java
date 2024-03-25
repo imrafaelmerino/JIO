@@ -129,7 +129,7 @@ public non-sealed class Property<GenValue> extends Testable {
                                   tags);
         var result = property.apply(conf,
                                     generated)
-                             .result();
+                             .compute();
         switch (result) {
           case Result.Success(TestResult tr) -> {
             report.tac(tic);

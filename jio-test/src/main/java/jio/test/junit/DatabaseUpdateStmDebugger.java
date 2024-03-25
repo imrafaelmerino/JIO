@@ -17,7 +17,7 @@ final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
       |  Result: %s
       |  Duration: %s
       |  Rows Affected: %s
-      |  Update Stm Counter: %s
+      |  Op Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
@@ -31,7 +31,7 @@ final class DatabaseUpdateStmDebugger implements Consumer<RecordedEvent> {
       |  Exception: %s
       |  SQL: %s
       |  Rows Affected: %s
-      |  Update Stm Counter: %s
+      |  Op Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------

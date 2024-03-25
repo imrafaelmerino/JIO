@@ -38,17 +38,15 @@ public final class HttpClientReqEventFormatter implements Function<RecordedEvent
    */
   public static final HttpClientReqEventFormatter INSTANCE = new HttpClientReqEventFormatter();
   private static final String SUCCESS_FORMAT = """
-      event: http-req; method: %s; host: %s; path: %s;
-      result: %s; status-code: %s; duration: %s;
+      event: http-req; method: %s; host: %s; path: %s; \
+      result: %s; status-code: %s; duration: %s; \
       req-counter: %s; start_time: %s
-      """.replace("\n",
-                  " ");
+      """;
   private static final String FAILURE_FORMAT = """
-      event: http-req; method: %s; host: %s; path: %s;
-      result: %s; exception: %s; duration: %s;
+      event: http-req; method: %s; host: %s; path: %s; \
+      result: %s; exception: %s; duration: %s; \
       req-counter: %s; start_time: %s
-      """.replace("\n",
-                  " ");
+      """;
   private static final String EVENT_NAME = "jio.http.client.Req";
 
   private HttpClientReqEventFormatter() {

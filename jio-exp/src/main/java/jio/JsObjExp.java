@@ -29,7 +29,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * Creates a expression that is evaluated to the empty JsObj
+   * Creates an expression evaluated to the empty JsObj
    *
    * @return a JsObjExp
    */
@@ -40,8 +40,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression from a key-effect binding
    *
    * @return a JsObjExp
    */
@@ -56,8 +55,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with two key-effect bindings that are computed sequentially. If any of the effects
+   * fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -78,8 +77,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with three key-effect bindings that are computed sequentially. If any of the effects
+   * fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -105,8 +104,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with for key-effect bindings that are computed sequentially. If any of the effects
+   * fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -137,8 +136,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with five key-effect bindings that are computed sequentially. If any of the effects
+   * fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -173,8 +172,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with six key-effect bindings that are computed sequentially. If any of the effects
+   * fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -214,8 +213,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with seven key-effect bindings that are computed sequentially. If any of the effects
+   * fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -260,8 +259,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with eight key-effect bindings that are computed sequentially. If any of the effects
+   * fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -312,8 +311,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with nine key-effect bindings that are computed sequentially. If any of the effects
+   * fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -369,8 +368,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with ten key-effect bindings that are computed sequentially. If any of the effects
+   * fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -430,8 +429,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with eleven key-effect bindings that are computed sequentially. If any of the effects
+   * fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -496,8 +495,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with twelve key-effect bindings that are computed sequentially. If any of the effects
+   * fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -567,8 +566,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with thirteen key-effect bindings that are computed sequentially. If any of the
+   * effects fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -643,8 +642,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with fourteen key-effect bindings that are computed sequentially. If any of the
+   * effects fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -725,8 +724,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static method seq that creates a JsObjExp expression with three key-output bindings, where each key is associated
-   * with a corresponding effect.If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with fifteen key-effect bindings that are computed sequentially. If any of the
+   * effects fail, the entire expression fails to return that error.
    *
    * @return a JsObjExp
    */
@@ -823,7 +822,7 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static factory method to create a JsObjExp of one mapping
+   * Creates a JsObjExp expression with one key-effect binding
    *
    * @param key    the first key
    * @param effect the mapping associated to the first key
@@ -842,7 +841,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static factory method to create a JsObjExp of two mapping
+   * /** Creates a JsObjExp expression with two key-effect bindings that are computed in parallel. If any of the effects
+   * fail, the entire expression fails immediately to return that error.
    *
    * @param key1    the first key
    * @param effect1 the mapping associated to the first key
@@ -868,7 +868,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static factory method to create a JsObjExp of three mappings
+   * Creates a JsObjExp expression with three key-effect bindings that are computed in parallel. If any of the effects
+   * fail, the entire expression fails immediately to return that error. *
    *
    * @param key1    the first key
    * @param effect1 the mapping associated to the first key
@@ -901,7 +902,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * static factory method to create a JsObjExp of four mappings
+   * Creates a JsObjExp expression with four key-effect bindings that are computed in parallel. If any of the effects
+   * fail, the entire expression fails immediately to return that error.
    *
    * @param key1    the first key
    * @param effect1 the mapping associated to the first key
@@ -941,8 +943,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
-   * object. If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with five key-effect bindings that are computed in parallel. If any of the effects
+   * fail, the entire expression fails immediately to return that error.
    *
    * @return a JsObjExp
    */
@@ -979,8 +981,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
-   * object. If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with six key-effect bindings that are computed in parallel. If any of the effects
+   * fail, the entire expression fails immediately to return that error.
    *
    * @return a JsObjExp
    */
@@ -1022,8 +1024,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
-   * object. If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with seven key-effect bindings that are computed in parallel. If any of the effects
+   * fail, the entire expression fails immediately to return that error.
    *
    * @return a JsObjExp
    */
@@ -1070,8 +1072,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
-   * object. If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with eight key-effect bindings that are computed in parallel. If any of the effects
+   * fail, the entire expression fails immediately to return that error.
    *
    * @return a JsObjExp
    */
@@ -1122,8 +1124,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
-   * object. If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with nine key-effect bindings that are computed in parallel. If any of the effects
+   * fail, the entire expression fails immediately to return that error.
    *
    * @return a JsObjExp
    */
@@ -1180,8 +1182,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
-   * object. If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with ten key-effect bindings that are computed in parallel. If any of the effects
+   * fail, the entire expression fails immediately to return that error.
    *
    * @return a JsObjExp
    */
@@ -1242,8 +1244,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
-   * object. If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with eleven key-effect bindings that are computed in parallel. If any of the effects
+   * fail, the entire expression fails immediately to return that error.
    *
    * @return a JsObjExp
    */
@@ -1310,8 +1312,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
-   * object. If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with twelve key-effect bindings that are computed in parallel. If any of the effects
+   * fail, the entire expression fails immediately to return that error.
    *
    * @return a JsObjExp
    */
@@ -1382,8 +1384,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
-   * object. If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with thirteen key-effect bindings that are computed in parallel. If any of the
+   * effects fail, the entire expression fails immediately to return that error.
    *
    * @return a JsObjExp
    */
@@ -1458,8 +1460,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
-   * object. If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with fourteen key-effect bindings that are computed in parallel. If any of the
+   * effects fail, the entire expression fails immediately to return that error.
    *
    * @return a JsObjExp
    */
@@ -1540,8 +1542,8 @@ public abstract sealed class JsObjExp extends Exp<JsObj>
   }
 
   /**
-   * Creates a JsObjExp expression that evaluates effects in parallel and binds them to the specified keys in a JSON
-   * object. If any of the effects fail, the entire expression fails.
+   * Creates a JsObjExp expression with fifteen key-effect bindings that are computed in parallel. If any of the effects
+   * fail, the entire expression fails immediately to return that error.
    *
    * @return a JsObjExp
    */

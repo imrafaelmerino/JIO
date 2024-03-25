@@ -90,7 +90,7 @@ public class ExampleProperties {
                    .withDelays(delayGen)
                    .get();
 
-    mediumProperty.check()
+    mediumProperty.repeatPar(3).check()
                   .assertAllSuccess();
 
   }

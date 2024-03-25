@@ -28,37 +28,38 @@ public class OauthTests {
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
-  HttpServer unused = HttpServerBuilder.of(Map.of("/token",
-                                                  PostStub.of(n -> body -> uri -> headers -> JsObj.of("access_token",
-                                                                                                      JsStr.of(String.valueOf(n))
+  Result<HttpServer> unused = HttpServerBuilder.of(Map.of("/token",
+                                                          PostStub.of(n -> body -> uri -> headers -> JsObj.of("access_token",
+                                                                                                              JsStr.of(String.valueOf(n))
+                                                                                                             )
+                                                                                                          .toString(),
+                                                                      StatusCodeStub.cons(200)
+                                                                     ),
+                                                          "/service",
+                                                          GetStub.of(n -> body -> uri -> headers -> n == 2 ? "" : String
+                                                                         .valueOf(n),
+                                                                     n -> body -> uri -> headers -> n == 2 ? 401 : 200
+                                                                    )
+                                                         )
                                                   )
-                                                                                                  .toString(),
-                                                              StatusCodeStub.cons(200)
-                                                  ),
-                                                  "/service",
-                                                  GetStub.of(n -> body -> uri -> headers -> n == 2 ? "" : String
-                                                                                                                .valueOf(n),
-                                                             n -> body -> uri -> headers -> n == 2 ? 401 : 200
-                                                  )
-  )
-  )
-                                       .start(7777);
+                                               .start(7777);
 
-  public OauthTests() throws Exception {
+  public OauthTests() {
   }
 
   @Test
   public void test() {
 
-    ClientCredentialsBuilder builder = ClientCredentialsBuilder.of(JioHttpClientBuilder.of(HttpClient.newBuilder()),
-                                                                   AccessTokenRequest.of("client_id",
-                                                                                         "client_secret",
-                                                                                         URI.create("http://localhost:7777/token")
-                                                                   ),
-                                                                   GetAccessToken.DEFAULT,
-                                                                   resp -> resp.statusCode() == 401
+    ClientCredentialsBuilder builder =
+        ClientCredentialsBuilder.of(JioHttpClientBuilder.of(HttpClient.newBuilder()),
+                                    AccessTokenRequest.of("client_id",
+                                                          "client_secret",
+                                                          URI.create("http://localhost:7777/token")
+                                                         ),
+                                    GetAccessToken.DEFAULT,
+                                    resp -> resp.statusCode() == 401
 
-    );
+                                   );
 
     OauthHttpClient client = builder.get();
 
@@ -66,8 +67,8 @@ public class OauthTests {
                                                 .apply(HttpRequest.newBuilder()
                                                                   .GET()
                                                                   .uri(URI.create("http://localhost:7777/service"))
-                                                )
-                                                .result();
+                                                      )
+                                                .compute();
 
   }
 

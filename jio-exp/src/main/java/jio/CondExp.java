@@ -26,13 +26,12 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
   }
 
   /**
-   * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
-   * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
-   * constructor.
-   * <p>
-   * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
-   * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
-   * true</strong>. If one predicate terminates with an exception, the whole expression fails.
+   * It creates a `Cond` expression which predicates are computed in parallel. If one predicate fails, the whole
+   * expression fails immediately with the same error. In case of success, all the predicates must end before returning
+   * the result, and the expression is reduced to the effect of the fist predicate that is true, following the order
+   * they are passed in the constructor. If none of the conditions evaluate to true, the expression reduces to the
+   * otherwise parameter.
+   *
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -62,15 +61,11 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
   }
 
   /**
-   * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
-   * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
-   * constructor.
-   * <p>
-   * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
-   * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
-   * true</strong>. If one predicate terminates with an exception, the whole expression fails.
-   * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
+   * It creates a `Cond` expression which predicates are computed in parallel. If one predicate fails, the whole
+   * expression fails immediately with the same error. In case of success, all the predicates must end before returning
+   * the result, and the expression is reduced to the effect of the fist predicate that is true, following the order
+   * they are passed in the constructor. If none of the conditions evaluate to true, the expression reduces to the
+   * {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -98,13 +93,11 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
   }
 
   /**
-   * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
-   * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
-   * constructor.
-   * <p>
-   * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
-   * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
-   * true</strong>. If one predicate terminates with an exception, the whole expression fails.
+   * It creates a `Cond` expression which predicates are computed in parallel. If one predicate fails, the whole
+   * expression fails immediately with the same error. In case of success, all the predicates must end before returning
+   * the result, and the expression is reduced to the effect of the fist predicate that is true, following the order
+   * they are passed in the constructor. If none of the conditions evaluate to true, the expression reduces to the
+   * {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -140,16 +133,11 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
   }
 
   /**
-   * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
-   * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
-   * constructor.
-   * <p>
-   * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
-   * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
-   * true</strong>.
-   * <p>
-   * If one predicate terminates with an exception, the whole expression fails. If no condition is evaluated to true,
-   * the expression is reduced to the {@link IO#NULL()} output.
+   * It creates a `Cond` expression which predicates are computed in parallel. If one predicate fails, the whole
+   * expression fails immediately with the same error. In case of success, all the predicates must end before returning
+   * the result, and the expression is reduced to the effect of the fist predicate that is true, following the order
+   * they are passed in the constructor. If none of the conditions evaluate to true, the expression reduces to the
+   * {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -183,13 +171,12 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
   }
 
   /**
-   * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
-   * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
-   * constructor.
-   * <p>
-   * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
-   * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
-   * true</strong>. If one predicate terminates with an exception, the whole expression fails.
+   * It creates a `Cond` expression which predicates are computed in parallel. If one predicate fails, the whole
+   * expression fails immediately with the same error. In case of success, all the predicates must end before returning
+   * the result, and the expression is reduced to the effect of the fist predicate that is true, following the order
+   * they are passed in the constructor. If none of the conditions evaluate to true, the expression reduces to the
+   * otherwise parameter.
+   *
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -230,15 +217,11 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
   }
 
   /**
-   * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
-   * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
-   * constructor.
-   * <p>
-   * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
-   * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
-   * true</strong>. If one predicate terminates with an exception, the whole expression fails.
-   * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
+   * It creates a `Cond` expression which predicates are computed in parallel. If one predicate fails, the whole
+   * expression fails immediately with the same error. In case of success, all the predicates must end before returning
+   * the result, and the expression is reduced to the effect of the fist predicate that is true, following the order
+   * they are passed in the constructor. If none of the conditions evaluate to true, the expression reduces to the
+   * {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -277,13 +260,12 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
   }
 
   /**
-   * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
-   * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
-   * constructor.
-   * <p>
-   * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
-   * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
-   * true</strong>. If one predicate terminates with an exception, the whole expression fails.
+   * It creates a `Cond` expression which predicates are computed in parallel. If one predicate fails, the whole
+   * expression fails immediately with the same error. In case of success, all the predicates must end before returning
+   * the result, and the expression is reduced to the effect of the fist predicate that is true, following the order
+   * they are passed in the constructor. If none of the conditions evaluate to true, the expression reduces to the
+   * otherwise parameter.
+   *
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -330,15 +312,11 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
   }
 
   /**
-   * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
-   * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
-   * constructor.
-   * <p>
-   * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
-   * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
-   * true</strong>. If one predicate terminates with an exception, the whole expression fails.
-   * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
+   * It creates a `Cond` expression which predicates are computed in parallel. If one predicate fails, the whole
+   * expression fails immediately with the same error. In case of success, all the predicates must end before returning
+   * the result, and the expression is reduced to the effect of the fist predicate that is true, following the order
+   * they are passed in the constructor. If none of the conditions evaluate to true, the expression reduces to the
+   * {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -383,13 +361,11 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
   }
 
   /**
-   * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
-   * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
-   * constructor.
-   * <p>
-   * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
-   * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
-   * true</strong>. If one predicate terminates with an exception, the whole expression fails.
+   * It creates a `Cond` expression which predicates are computed in parallel. If one predicate fails, the whole
+   * expression fails immediately with the same error. In case of success, all the predicates must end before returning
+   * the result, and the expression is reduced to the effect of the fist predicate that is true, following the order
+   * they are passed in the constructor. If none of the conditions evaluate to true, the expression reduces to the
+   * otherwise parameter.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -442,15 +418,11 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
   }
 
   /**
-   * It creates a Cond expression which predicates are computed in parallel. Once all the predicates succeed, the
-   * expression is reduced to the effect of the fist one that is true, following the order they are passed in the
-   * constructor.
-   * <p>
-   * Not like expressions created with the <code>seq</code> constructor, <strong>all the predicates must terminate
-   * before the whole expression is reduced to the selected effect, no matter if one fails or is evaluated to
-   * true</strong>. If one predicate terminates with an exception, the whole expression fails.
-   * <p>
-   * If none of the conditions evaluate to true, the expression reduces to the {@link IO#NULL()} output.
+   * It creates a `Cond` expression which predicates are computed in parallel. If one predicate fails, the whole
+   * expression fails immediately with the same error. In case of success, all the predicates must end before returning
+   * the result, and the expression is reduced to the effect of the fist predicate that is true, following the order
+   * they are passed in the constructor. If none of the conditions evaluate to true, the expression reduces to the
+   * {@link IO#NULL()} output.
    *
    * @param predicate1 the first predicate
    * @param effect1    the effect associated to the first predicate
@@ -501,7 +473,7 @@ public abstract sealed class CondExp<Output> extends Exp<Output> permits CondExp
   }
 
   /**
-   * It creates a Cond expression which predicates are computed sequentially, one after the other. If a predicates
+   * It creates a `Cond` expression which predicates are computed sequentially, one after the other. If a predicates
    * succeed and is evaluated to true, the expression is reduced to its effect. Predicates are evaluated in the order
    * they are passed in the constructor. If all the predicates succeed and all are evaluated to false, the expression is
    * reduced to the specified default effect. If a predicate terminates with an exception, the expression fails.

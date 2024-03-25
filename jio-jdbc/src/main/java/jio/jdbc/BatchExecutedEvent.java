@@ -19,7 +19,6 @@ import jdk.jfr.StackTrace;
 @StackTrace(value = false)
 final class BatchExecutedEvent extends Event {
 
-  private static final AtomicLong counter = new AtomicLong(0);
 
   static final String BATCH_SIZE_FIELD = "batchSize";
   static final String ROWS_AFFECTED_FIELD = "rowsAffected";
@@ -28,7 +27,7 @@ final class BatchExecutedEvent extends Event {
 
   static final String BATCH_COUNTER_FIELD = "batchCounter";
 
-  long batchCounter = counter.incrementAndGet();
+  long batchCounter = EventCounter.COUNTER.incrementAndGet();
 
   int batchSize;
   int totalStms;

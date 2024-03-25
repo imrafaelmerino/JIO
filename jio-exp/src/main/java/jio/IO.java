@@ -7,41 +7,38 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.ShutdownOnSuccess;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import jdk.jfr.consumer.RecordedEvent;
 import jio.Result.Failure;
 import jio.Result.Success;
 
 /**
- * Represents a functional effect that encapsulates asynchronous computations, including successful results and
- * failures. This class models a computation that returns a {@link CompletableFuture} of type `O`, where `O` is the type
- * of the result the future is completed with when the computation succeeds. Functional effects are used to model
- * asynchronous operations in a composable and error-handling manner.
+ * Represents a functional effect that encapsulates computations, including successful results and failures. This class
+ * models a computation that returns a {@link Result} of type `Output`, where `Output` is the type of the result when
+ * the computation succeeds. Functional effects are used to model IO operations in a composable and error-handling
+ * manner.
  *
  * <p>
- * A computation can either succeed, in which case the returned {@link CompletableFuture} is completed with a result, or
- * it can fail, in which case the future is completed with a {@link CompletionException} holding the original exception
- * that caused the failure.
+ * A computation can either succeed, in which case the returned {@link Result} is a {@link Success}, or it can fail, in
+ * which case the result is a {@link Failure} holding the original exception that caused the failure.
  *
  * <p>
  * Functional effects are typically created using various factory methods provided by this class. These factory methods
- * allow you to create effects from different types of computations, such as lazy computations, tasks, resources, and
- * more.
+ * allow you to create effects from different types of computations, such as lazy computations, tasks, resources,
+ * futures and more.
  *
  * <p>
  * Functional effects support a wide range of operations for composing, transforming, and handling asynchronous
  * computations. These operations include mapping, flat mapping, error handling, retries, timeouts, and debugging.
  *
  * <p>
- * Functional effects are a powerful tool for modeling and handling asynchronous operations in a composable way while
- * providing robust error handling and retry capabilities. They are particularly useful for dealing with asynchronous
- * I/O operations, concurrent processing, and distributed systems.
+ * Functional effects are a powerful tool for modeling and handling IO operations in a composable way while providing
+ * robust error handling and retry capabilities.
  *
  * @param <Output> the type of the result returned by the computation when it succeeds.
  * @see RetryPolicy
@@ -62,17 +59,17 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    */
   public static final IO<Boolean> FALSE = succeed(false);
 
-  IO() {}
+  IO() {
+  }
 
   /**
    * Creates an effect that always produces a result of null. This method is generic and captures the type of the
    * caller, allowing you to create null effects with different result types.
-   *
-   * <p>Example usage:
-   * <pre>{@code
+
+   * {@snippet :
    * IO<String> a = NULL();
    * IO<Integer> b = NULL();
-   * }</pre>
+   *}
    *
    * @param <Output> the type parameter that represents the result type of the null effect.
    * @return an effect that produces a null result.
@@ -82,10 +79,10 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * Creates an effect from a lazy computation that returns a CompletableFuture. This method allows you to encapsulate
-   * an asynchronous operation represented by a lazy future into an IO effect.
+   * Creates an effect from a lazy computation that returns a Future. This method allows you to encapsulate an
+   * asynchronous operation represented by a lazy future into an IO effect.
    *
-   * @param effect   the lazy future that produces a CompletableFuture.
+   * @param effect   the lazy future that produces a Future.
    * @param <Output> the type parameter representing the result type of the CompletableFuture.
    * @return an IO effect that wraps the provided lazy effect.
    */
@@ -101,8 +98,8 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * Creates an effect from a callable that returns a closable resource and maps it into an effect. This method is
-   * designed to handle resources that implement the {@link AutoCloseable} interface, ensuring proper resource
+   * Creates an effect from a callable that returns a closable resource and maps the resource into an effect. This
+   * method is designed to handle resources that implement the {@link AutoCloseable} interface, ensuring proper resource
    * management to avoid memory leaks.
    *
    * @param callable the resource supplier that provides the closable resource.
@@ -148,10 +145,10 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * Creates an effect from a lazy computation. Every time the `get()` or `result` method is called, the provided
-   * supplier is invoked, and a new computation is returned. Since a supplier cannot throw exceptions, an alternative
-   * constructor {@link #task(Callable)} is available that takes a {@link Callable callable} instead of a
-   * {@link Supplier supplier} if exception handling is needed.
+   * Creates an effect from a lazy computation. Every time the `compute()` method is called, the provided supplier is
+   * invoked, and a new computation is returned. Since a supplier cannot throw exceptions, an alternative constructor
+   * {@link #task(Callable)} is available that takes a {@link Callable callable} instead of a {@link Supplier supplier}
+   * if exception handling is needed.
    *
    * @param supplier the supplier representing the lazy computation.
    * @param <Output> the type parameter representing the result type of the effect.
@@ -169,8 +166,8 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * Creates an effect from a task modeled with a {@link Callable}. Every time the `get()` or `result` method is called,
-   * the provided task is executed.
+   * Creates an effect from a task modeled with a {@link Callable}. Every time the `compute()` method is called, the
+   * provided task is executed.
    *
    * @param callable the callable task to be executed.
    * @param <Output> the type parameter representing the result type of the effect.
@@ -202,10 +199,7 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * Returns the first computation that completes, regardless of whether it fails or succeeds. This method is
-   * implemented using {@link CompletableFuture#anyOf(CompletableFuture[])}, and its behavior is inherited from that
-   * method. It's important to note that this operator is a good candidate to be reimplemented with Fibers in the future
-   * to benefit from cancellation and non-returning failing computations.
+   * Returns the first computation that completes successfully
    *
    * @param first    the first computation.
    * @param others   the rest of the computations.
@@ -225,7 +219,7 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
       tasks.addAll(c);
     }
     return new Val<>(() -> {
-      try (var scope = new StructuredTaskScope.ShutdownOnSuccess<Result<Output>>()) {
+      try (var scope = new ShutdownOnSuccess<Result<Output>>()) {
         for (var task : tasks) {
           scope.fork(task);
         }
@@ -241,13 +235,10 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * The `async` method allows you to execute an action without waiting for its result and returns immediately. It is
+   * The `async` method allows you to compute this effect without waiting for its result and returns immediately. It is
    * useful when you are not interested in the outcome of the action and want to trigger it asynchronously.
    *
-   * <p><b>Note:</b> To achieve non-blocking behavior, ensure that the caller thread and the thread
-   * executing the action are different.
-   *
-   * @return An effect representing the asynchronous execution of the action, producing no meaningful result.
+   * @return An effect representing the asynchronous execution of this effect, producing no meaningful result.
    */
   @SuppressWarnings("ReturnValueIgnored")
   public IO<Void> async() {
@@ -292,7 +283,6 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    * @param fn The function to apply to the failure. It takes the original exception and returns the transformed
    *           exception.
    * @return A new IO operation with the same result type, where failures are transformed using the provided function.
-   * @throws NullPointerException If the mapping function {@code fn} is {@code null}.
    */
   public IO<Output> mapFailure(final Function<Exception, Exception> fn) {
     requireNonNull(fn);
@@ -365,10 +355,10 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * Creates a new effect that will handle any failure that this effect might contain and will be recovered with the
+   * Creates a new effect that will handle any failure that this effect might contain, and will be recovered with the
    * output evaluated by the specified function. If this effect succeeds, the new effect will also succeed with the same
-   * output. If this effect fails, the specified function is applied to the exception to produce a new output for the new
-   * effect.
+   * output. If this effect fails, the specified function is applied to the exception to produce a new output for the
+   * new effect.
    *
    * @param fn the function to apply if this effect fails, taking the exception as input.
    * @return a new effect representing the original output or the result of applying the function in case of failure.
@@ -432,7 +422,8 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    * @return a new effect representing the original output or the failure with the exception passed to the consumer.
    */
   public IO<Output> peekFailure(final Consumer<? super Throwable> failConsumer) {
-    return peek(_ -> {},
+    return peek(_ -> {
+                },
                 failConsumer);
   }
 
@@ -446,7 +437,8 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
    */
   public IO<Output> peekSuccess(final Consumer<? super Output> successConsumer) {
     return peek(successConsumer,
-                _ -> {});
+                _ -> {
+                });
   }
 
   /**
@@ -612,9 +604,9 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * Creates a copy of this effect that generates an {@link jdk.jfr.consumer.RecordedEvent} from the result of the
-   * computation and sends it to the Flight Recorder system. Customization of the event can be achieved using the
-   * {@link #debug(EventBuilder)} method.
+   * Creates a copy of this effect that generates an {@link RecordedEvent} from the result of the computation and sends
+   * it to the Flight Recorder system. Customization of the event can be achieved using the {@link #debug(EventBuilder)}
+   * method.
    *
    * @return a new effect with debugging enabled.
    * @see EvalExpEvent
@@ -624,9 +616,9 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
   }
 
   /**
-   * Creates a copy of this effect that generates an {@link jdk.jfr.consumer.RecordedEvent} from the result of the
-   * computation and sends it to the Flight Recorder system. Customization of the event can be achieved using the
-   * provided {@link EventBuilder}.
+   * Creates a copy of this effect that generates an {@link RecordedEvent} from the result of the computation and sends
+   * it to the Flight Recorder system. Customization of the event can be achieved using the provided
+   * {@link EventBuilder}.
    *
    * @param builder the builder used to customize the event.
    * @return a new effect with debugging enabled.
@@ -651,17 +643,17 @@ public sealed abstract class IO<Output> implements Callable<Result<Output>> perm
                                       }));
   }
 
-
-  public Result<Output> result() {
+  /**
+   * Computes the result of this effect. If the computation succeeds, returns a {@link Success} containing the computed
+   * output. If the computation fails, returns a {@link Failure} containing the exception that caused the failure.
+   *
+   * @return the result of the computation, either a {@link Success} or a {@link Failure}.
+   */
+  public Result<Output> compute() {
     try {
       return call();
     } catch (Exception e) {
       return new Failure<>(e);
     }
   }
-
-  public Output tryGet() throws Exception {
-    return call().tryGet();
-  }
-
 }

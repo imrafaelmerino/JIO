@@ -33,8 +33,8 @@ public class TxsTests extends BaseTest {
                                        )
                    )
                   )
-            .result()
-            .tryGet();
+            .compute()
+            .getOutputOrThrow();
 
     Assertions.assertTrue(customerID > 0,
                           "customerId must be > 0");
@@ -43,13 +43,13 @@ public class TxsTests extends BaseTest {
 
     Result<CustomerEntity> customerResult =
         customerDatabaseOps.findCustomerAndContactPoints.apply(customerID)
-                                                        .result();
+                                                        .compute();
 
     Assertions.assertTrue(customerResult.isSuccess(customer -> customer.addresses()
                                                                        .size() == 2)
                          );
 
-    Result<Integer> countCustomerResult = customerDatabaseOps.countCustomer.result();
+    Result<Integer> countCustomerResult = customerDatabaseOps.countCustomer.compute();
 
     Assertions.assertTrue(countCustomerResult.isSuccess(r -> r == 1));
 
@@ -68,12 +68,12 @@ public class TxsTests extends BaseTest {
                )
               );
 
-    Assertions.assertTrue(insert.result()
+    Assertions.assertTrue(insert.compute()
                                 .isFailure(exc -> exc instanceof PSQLException));
 
     var customerDatabaseOps = CustomerDatabaseOps.of(datasourceBuilder);
 
-    Assertions.assertTrue(customerDatabaseOps.countCustomer.result()
+    Assertions.assertTrue(customerDatabaseOps.countCustomer.compute()
                                                            .isSuccess(n -> n == 0));
 
   }

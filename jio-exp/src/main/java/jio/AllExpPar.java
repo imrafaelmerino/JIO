@@ -24,9 +24,8 @@ final class AllExpPar extends AllExp {
   }
 
   @Override
-  public AllExp retryEach(
-      final Predicate<? super Throwable> predicate,
-      final RetryPolicy policy
+  public AllExp retryEach(final Predicate<? super Throwable> predicate,
+                          final RetryPolicy policy
                          ) {
     requireNonNull(predicate);
     requireNonNull(policy);

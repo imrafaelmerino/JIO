@@ -37,7 +37,7 @@ public class StubSupplierTests {
                      .alternative(B_AFTER_1_SEC)
                      .debugEach("context")
                      .call()
-                     .tryGet();
+                     .getOutputOrThrow();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -60,7 +60,7 @@ public class StubSupplierTests {
                                                           C_AFTER_1_SEC.get()
     )
                                                      .call()
-                                                     .tryGet();
+                                                     .getOutputOrThrow();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -86,7 +86,7 @@ public class StubSupplierTests {
     )
                                                      .debugEach("context")
                                                      .call()
-                                                     .tryGet();
+                                                     .getOutputOrThrow();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -124,7 +124,7 @@ public class StubSupplierTests {
     )
                       .debugEach("context")
                       .call()
-                      .tryGet();
+                      .getOutputOrThrow();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -155,7 +155,7 @@ public class StubSupplierTests {
     Pair<String, String> pair = PairExp.seq(A_AFTER_1_SEC.get(),
                                             B_AFTER_1_SEC.get())
                                        .call()
-                                       .tryGet();
+                                       .getOutputOrThrow();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -178,7 +178,7 @@ public class StubSupplierTests {
                                             B_AFTER_1_SEC.get())
                                        .debugEach("context")
                                        .call()
-                                       .tryGet();
+                                       .getOutputOrThrow();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -205,7 +205,7 @@ public class StubSupplierTests {
     )
                         .debugEach("context")
                         .call()
-                        .tryGet();
+                        .getOutputOrThrow();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS
@@ -230,7 +230,7 @@ public class StubSupplierTests {
     )
                                .debugEach("context")
                                .call()
-                               .tryGet();
+                               .getOutputOrThrow();
 
     long duration = Duration.of(System.nanoTime() - start,
                                 ChronoUnit.NANOS

@@ -61,7 +61,7 @@ public class JsTupleConsole implements JsConsole<JsArray> {
         var p = path.index(i);
         var io = seq.get(i);
         var r = io.apply(p)
-                  .result();
+                  .compute();
         switch (r) {
           case Result.Success(JsValue value) -> result = result.append(value);
 

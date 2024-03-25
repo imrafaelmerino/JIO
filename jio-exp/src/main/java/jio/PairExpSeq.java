@@ -40,9 +40,9 @@ final class PairExpSeq<First, Second> extends PairExp<First, Second> {
   Result<Pair<First, Second>> reduceExp() {
     try {
       var first = _1.call()
-                    .tryGet();
+                    .getOutputOrThrow();
       var second = _2.call()
-                     .tryGet();
+                     .getOutputOrThrow();
       return new Result.Success<>(Pair.of(first,
                                           second
                                          ));

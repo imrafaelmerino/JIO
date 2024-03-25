@@ -69,7 +69,7 @@ class PropertyCommand extends Command {
         int n = Integer.parseInt(tokens[3]);
         return IO.succeed(prop.repeatPar(n)
                               .create(conf)
-                              .result()
+                              .compute()
                               .toString());
       }
       if (seqPattern.matcher(command)
@@ -77,7 +77,7 @@ class PropertyCommand extends Command {
         int n = Integer.parseInt(tokens[3]);
         return IO.succeed(prop.repeatPar(n)
                               .create(conf)
-                              .result()
+                              .compute()
                               .toString());
       }
       return prop.create(conf)

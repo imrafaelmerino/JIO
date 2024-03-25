@@ -76,8 +76,8 @@ public class SignupTests {
                                  sendEmail,
                                  existsInLDAP,
                                  Clock.realTime).apply(user)
-                                                .result()
-                                                .tryGet();
+                                                .compute()
+                                                .getOutputOrThrow();
 
     Assertions.assertTrue(resp.containsKey("number_users"));
     Assertions.assertTrue(resp.containsKey("id"));

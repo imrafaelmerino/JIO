@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 
 /**
  * Represents an expression that is reduced to a triple. Their elements can be evaluated either in parallel or
- * sequentially. In both cases, if one fails, the whole expression fails.
+ * sequentially. In both cases, if one fails, the whole expression fails immediately.
  * <p>
  * You can create TripleExp expressions using the 'seq' method to evaluate effects sequentially, or using the 'par'
  * method to evaluate effects in parallel. If one effect fails, the entire expression fails.
@@ -61,8 +61,8 @@ public abstract sealed class TripleExp<First, Second, Third> extends Exp<Triple<
   }
 
   /**
-   * create a tuple of three effects that will be evaluated in parallel if they run on different threads. The three
-   * effect are always evaluated, no matter if one fails.
+   * Create a tuple of three effects that will be evaluated in paralell. If one fails, the whole expression fails
+   * immediately
    *
    * @param first  the first effect
    * @param second the second effect

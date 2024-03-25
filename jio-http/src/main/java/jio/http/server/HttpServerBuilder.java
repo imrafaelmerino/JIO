@@ -17,7 +17,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import jio.ExceptionFun;
 import jio.IO;
+import jio.Result;
 
 /**
  * Builder to create {@link HttpServer http servers}. The start method of the server is wrapped into a {@link IO}. It
@@ -119,6 +121,7 @@ public final class HttpServerBuilder {
   }
 
   /**
+   * Try to create a HttpServer and wraps any outcome in a Result object.
    * Create a socket address from <strong>localhost</strong> and a port number from a given interval, starting the
    * server in a new background thread. The background thread inherits the priority, thread group, and context class
    * loader of the caller. A valid port output is between 0 and 65535. A port number of zero will let the system pick up
@@ -126,21 +129,20 @@ public final class HttpServerBuilder {
    *
    * @param start the first port number that will be tried
    * @param end   the last port number that will be tried
-   * @return an HttpServer
+   * @return a Result with a HttpServer in case of success
    */
-  public HttpServer startAtRandom(final int start,
-                                  final int end
-                                 ) {
-    try {
-      return buildAtRandomRec("localhost",
-                              start,
-                              end).tryGet();
-    } catch (Exception e) {
-      throw new HttpSeverNotStarted(e);
-    }
+  public Result<HttpServer> startAtRandom(final int start,
+                                          final int end
+                                         ) {
+    return buildAtRandomRec("localhost",
+                            start,
+                            end)
+        .compute();
+
   }
 
   /**
+   * Try to create a HttpServer and wraps any outcome in a Result object.
    * Create a socket address from a hostname and a port number from a given interval, starting the server in a new
    * background thread. The background thread inherits the priority, thread group, and context class loader of the
    * caller. A valid port output is between 0 and 65535. A port number of zero will let the system pick up an ephemeral
@@ -149,26 +151,23 @@ public final class HttpServerBuilder {
    * @param host  the host name
    * @param start the first port number that will be tried
    * @param end   the last port number that will be tried
-   * @return an effect that deploys the HttpServer
+   * @return a Result with a HttpServer in case of success
    */
-  public HttpServer startAtRandom(final String host,
-                                  final int start,
-                                  final int end
-                                 ) {
+  public Result<HttpServer> startAtRandom(final String host,
+                                          final int start,
+                                          final int end
+                                         ) {
     if (start <= 0) {
       throw new IllegalArgumentException("start <= 0");
     }
     if (start > end) {
       throw new IllegalArgumentException("start greater than end");
     }
-    try {
-      return buildAtRandomRec(host,
-                              start,
-                              end
-                             ).tryGet();
-    } catch (Exception e) {
-      throw new HttpSeverNotStarted(e);
-    }
+    return buildAtRandomRec(host,
+                            start,
+                            end
+                           ).compute();
+
   }
 
   private IO<HttpServer> buildAtRandomRec(final String host,
@@ -186,8 +185,9 @@ public final class HttpServerBuilder {
   }
 
   /**
-   * Returns an effect that when invoked will create a socket address from a hostname and a port number, starting the
-   * server in a new background thread. The background thread inherits the priority, thread group, and context class
+   * Returns an effect that when computed will try to create a socket address from a hostname and a port number,
+   * starting the server in a new background thread. The background thread inherits the priority, thread group, and
+   * context class
    * loader of the caller. A valid port output is between 0 and 65535. A port number of zero will let the system pick up
    * an ephemeral port in a bind operation.
    *
@@ -263,7 +263,7 @@ public final class HttpServerBuilder {
       event.statusCode = exchange.getResponseCode();
       event.result = ServerReqEvent.RESULT.SUCCESS.name();
     } catch (IOException e) {
-      var cause = findUltimateCause(e);
+      var cause = ExceptionFun.findUltimateCause(e);
       event.exception = String.format("%s:%s",
                                       cause.getClass()
                                            .getName(),
@@ -275,57 +275,40 @@ public final class HttpServerBuilder {
     }
   }
 
-  private static Throwable findUltimateCause(Throwable exception) {
-    Throwable ultimateCause = exception;
-
-    // Iterate through the exception chain until the ultimate cause is found
-    while (ultimateCause.getCause() != null) {
-      ultimateCause = ultimateCause.getCause();
-    }
-
-    return ultimateCause;
-  }
-
   /**
-   * Creates a socket address from <strong>localhost</strong> and a port number, starting the server in a new background
+   * Try to create a HttpServer and wraps any outcome in a Result object. Creates a socket address from
+   * <strong>localhost</strong> and a port number, starting the server in a new background
    * thread. The background thread inherits the priority, thread group, and context class loader of the caller. A valid
    * port output is between 0 and 65535. A port number of zero will let the system pick up an ephemeral port in a bind
    * operation.
    *
    * @param port the port number
-   * @return an HttpServer
+   * @return a Result with a HttpServer in case of success
    */
-  public HttpServer start(final int port) {
-    try {
-      return build("localhost",
-                   port
-                  ).result()
-                   .tryGet();
-    } catch (Exception e) {
-      throw new HttpSeverNotStarted(e);
-    }
+  public Result<HttpServer> start(final int port) {
+    return build("localhost",
+                 port
+                ).compute();
+
   }
 
   /**
+   * Try to create a HttpServer and wraps any outcome in a Result object.
    * Creates a socket address from a host and a port number, starting the server in a new background thread. The
    * background thread inherits the priority, thread group, and context class loader of the caller. A valid port output
    * is between 0 and 65535. A port number of zero will let the system pick up an ephemeral port in a bind operation.
    *
    * @param host the host address
    * @param port the port number
-   * @return an HttpServer
+   * @return a Result with a HttpServer in case of success
    */
-  public HttpServer start(final String host,
-                          final int port) {
-    try {
-      return build(host,
-                   port
-                  )
-          .result()
-          .tryGet();
-    } catch (Exception e) {
-      throw new HttpSeverNotStarted(e);
-    }
+  public Result<HttpServer> start(final String host,
+                                  final int port) {
+    return build(host,
+                 port
+                )
+        .compute();
+
   }
 
 }

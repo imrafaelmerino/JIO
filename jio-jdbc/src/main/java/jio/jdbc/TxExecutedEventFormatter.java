@@ -25,19 +25,16 @@ public final class TxExecutedEventFormatter implements Function<RecordedEvent, S
   public static final TxExecutedEventFormatter INSTANCE = new TxExecutedEventFormatter();
   private static final String EVENT_LABEL = "jio.jdbc.Tx";
   private static final String SUCCESS_FORMAT = """
-      %s; db-tx; label: %s; result: %s; duration: %s;
-      tx-counter: %s""".replace("\n",
-                                " ");
+      %s; db-tx; label: %s; result: %s; duration: %s; \
+      tx-counter: %s; start_time: %s""";
 
   private static final String SUCCESS_WITH_SAVEPOINT_FORMAT = """
-      %s; db-tx; label: %s; result: %s; duration: %s;
-      save_point: %s; exception: %s;
-      tx-counter: %s""".replace("\n",
-                                " ");
+      %s; db-tx; label: %s; result: %s; duration: %s; \
+      save_point: %s; exception: %s; \
+      op-counter: %s; start_time: %s""";
   private static final String FAILURE_FORMAT = """
-      %s; db-tx; label: %s; result: %s;
-      exception: %s; duration: %s;tx-counter: %s""".replace("\n",
-                                                            " ");
+      %s; db-tx; label: %s; result: %s; \
+      exception: %s; duration: %s;op-counter: %s; start_time: %s""";
 
   private TxExecutedEventFormatter() {
 
@@ -69,8 +66,9 @@ public final class TxExecutedEventFormatter implements Function<RecordedEvent, S
                            label,
                            result,
                            Fun.formatTime(event.getDuration()),
-                           event.getValue(TxExecutedEvent.TX_COUNTER_FIELD)
-      );
+                           event.getValue(TxExecutedEvent.TX_COUNTER_FIELD),
+                           event.getStartTime()
+                          );
     }
     if (isSuccessWithSavePoint) {
       return String.format(SUCCESS_WITH_SAVEPOINT_FORMAT,
@@ -80,8 +78,9 @@ public final class TxExecutedEventFormatter implements Function<RecordedEvent, S
                            Fun.formatTime(event.getDuration()),
                            event.getValue(TxExecutedEvent.SAVEPOINT_FIELD),
                            event.getValue(TxExecutedEvent.EXCEPTION_FIELD),
-                           event.getValue(TxExecutedEvent.TX_COUNTER_FIELD)
-      );
+                           event.getValue(TxExecutedEvent.TX_COUNTER_FIELD),
+                           event.getStartTime()
+                          );
     }
     return String.format(FAILURE_FORMAT,
                          event.getStartTime(),
@@ -89,7 +88,8 @@ public final class TxExecutedEventFormatter implements Function<RecordedEvent, S
                          result,
                          event.getValue(TxExecutedEvent.EXCEPTION_FIELD),
                          Fun.formatTime(event.getDuration()),
-                         event.getValue(TxExecutedEvent.TX_COUNTER_FIELD)
-    );
+                         event.getValue(TxExecutedEvent.TX_COUNTER_FIELD),
+                         event.getStartTime()
+                        );
   }
 }

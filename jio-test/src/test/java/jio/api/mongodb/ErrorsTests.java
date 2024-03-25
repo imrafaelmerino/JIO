@@ -8,7 +8,7 @@ import jio.mongodb.CollectionBuilder;
 import jio.mongodb.DatabaseBuilder;
 import jio.mongodb.FindBuilder;
 import jio.mongodb.FindOne;
-import jio.mongodb.MongoFun;
+import jio.mongodb.MongoExceptionFun;
 import jsonvalues.JsInt;
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
@@ -59,10 +59,10 @@ public class ErrorsTests {
     Assertions.assertTrue(findOne.standalone()
                                  .apply(FindBuilder.of(obj))
                                  .then(o -> IO.FALSE,
-                                       e -> IO.succeed(MongoFun.HAS_READ_TIMEOUT.test(e))
+                                       e -> IO.succeed(MongoExceptionFun.IS_READ_TIMEOUT.test(e))
                                       )
-                                 .result()
-                                 .tryGet()
+                                 .compute()
+                                 .getOutputOrThrow()
                          );
 
   }
@@ -89,11 +89,11 @@ public class ErrorsTests {
     Assertions.assertTrue(findOne.standalone()
                                  .apply(FindBuilder.of(obj))
                                  .then(o -> IO.TRUE,
-                                       e -> IO.succeed(MongoFun.HAS_CONNECTION_TIMEOUT
+                                       e -> IO.succeed(MongoExceptionFun.IS_CONNECTION_TIMEOUT
                                                            .test(e))
                                       )
-                                 .result()
-                                 .tryGet());
+                                 .compute()
+                                 .getOutputOrThrow());
 
   }
 }

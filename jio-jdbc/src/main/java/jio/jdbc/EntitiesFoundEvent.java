@@ -25,10 +25,7 @@ final class EntitiesFoundEvent extends Event {
   static final String FETCH_SIZE_FIELD = "fetchSize";
   public int fetchSize;
   int rowsReturned;
-  static final AtomicLong counter = new AtomicLong(0);
-
-  long queryCounter = counter.incrementAndGet();
-
+  long queryCounter = EventCounter.COUNTER.incrementAndGet();
   static final String RESULT_FIELD = "result";
   static final String SQL_FIELD = "sql";
   static final String EXCEPTION_FIELD = "exception";

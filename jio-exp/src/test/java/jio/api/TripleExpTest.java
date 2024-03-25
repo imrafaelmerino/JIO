@@ -21,7 +21,7 @@ public class TripleExpTest {
                                                     "b",
                                                     "c"
                                                    )),
-                            triple.result());
+                            triple.compute());
   }
 
   @Test
@@ -36,7 +36,7 @@ public class TripleExpTest {
                                                     "b",
                                                     "c"
                                                    )),
-                            triple.result()
+                            triple.compute()
                            );
   }
 

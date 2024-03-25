@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import fun.tuple.Pair;
 import java.util.Objects;
 import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -41,14 +42,14 @@ final class PairExpPar<First, Second> extends PairExp<First, Second> {
   @Override
   Result<Pair<First, Second>> reduceExp() {
     try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-      var first = scope.fork(_1);
-      var second = scope.fork(_2);
+      Subtask<Result<First>> first = scope.fork(_1);
+      Subtask<Result<Second>> second = scope.fork(_2);
       scope.join()
            .throwIfFailed();
       return new Success<>(Pair.of(first.get()
-                                        .tryGet(),
+                                        .getOutput(),
                                    second.get()
-                                         .tryGet())
+                                         .getOutput())
       );
     } catch (Exception e) {
       return new Failure<>(e);

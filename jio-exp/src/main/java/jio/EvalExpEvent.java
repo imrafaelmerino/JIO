@@ -10,7 +10,7 @@ import jdk.jfr.StackTrace;
 @Label("Expression Evaluation Info")
 @Name("jio.exp.EvalExp")
 @Category({"JIO", "EXP"})
-@Description("Duration, output, context and other info related to an expression from jio-exp")
+@Description("Duration, output, context and other info related to a computation")
 @StackTrace(value = false)
 class EvalExpEvent extends Event {
 
@@ -21,6 +21,7 @@ class EvalExpEvent extends Event {
   public String context;
 
   public String result;
+
   public String exception;
 
   public enum RESULT {
