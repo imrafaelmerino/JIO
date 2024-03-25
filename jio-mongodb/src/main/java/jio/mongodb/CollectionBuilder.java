@@ -27,10 +27,9 @@ public final class CollectionBuilder implements Supplier<MongoCollection<JsObj>>
   final String name;
   volatile MongoCollection<JsObj> collection;
 
-
   CollectionBuilder(final DatabaseBuilder database,
                     final String name
-                   ) {
+  ) {
     this.database = Objects.requireNonNull(database);
     this.name = Objects.requireNonNull(name);
   }
@@ -45,7 +44,7 @@ public final class CollectionBuilder implements Supplier<MongoCollection<JsObj>>
    */
   public static CollectionBuilder of(final DatabaseBuilder database,
                                      final String name
-                                    ) {
+  ) {
     return new CollectionBuilder(database,
                                  name);
   }

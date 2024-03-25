@@ -1,11 +1,8 @@
 package jio.test.pbt;
 
-import fun.gen.Gen;
-import jio.BiLambda;
-import jio.IO;
-import jio.Lambda;
-import jsonvalues.JsObj;
+import static java.util.Objects.requireNonNull;
 
+import fun.gen.Gen;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -14,20 +11,20 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
+import jio.BiLambda;
+import jio.IO;
+import jio.Lambda;
+import jsonvalues.JsObj;
 
 /**
- * Represents a builder of Properties. A property of a piece of code or program  should always be held and never fails.
+ * Represents a builder of Properties. A property of a piece of code or program should always be held and never fails.
  * This property is modeled with a supplier that returns a JIO effect used for property testing. The property test is
  * executed the specified number of times with {@link #withTimes(int)} (default is {@link #DEFAULT_TESTS}), each time
- * with a different value generated using the provided data generator.
+ * with a different output generated using the provided data generator.
  *
  * <p>The tests are executed by the same thread from the common ForkJoinPool repeatedly, and for
- * each execution, a different value is generated using the specified data generator.</p>
+ * each execution, a different output is generated using the specified data generator.</p>
  *
- * <p>The JIO effect is created with the {@link IO#managedLazy(Supplier)} constructor, allowing
- * deferred execution of the property tests.</p>
  *
  * <p>Properties can be created using static factory methods {@link #of(String, Gen, Function)} and
  * {@link #ofLambda(String, Gen, Lambda)}.</p>
@@ -49,7 +46,6 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
   private Path reportPath;
   private boolean collect;
   private Map<String, Predicate<GenValue>> classifiers;
-
 
   private PropertyBuilder(String name,
                           Gen<GenValue> gen,
@@ -101,7 +97,7 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
                                                 Gen<O> gen,
                                                 Lambda<O, TestResult> property
                                                ) {
-    BiLambda<JsObj, O, TestResult> bfn = (conf, o) -> requireNonNull(property).apply(o);
+    BiLambda<JsObj, O, TestResult> bfn = (_, o) -> requireNonNull(property).apply(o);
     return new PropertyBuilder<>(name,
                                  gen,
                                  bfn);
@@ -128,13 +124,13 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
     if (name == null || name.isBlank() || name.isEmpty()) {
       throw new IllegalArgumentException("property name missing");
     }
-    BiLambda<JsObj, O, TestResult> bfn = (conf, o) -> IO.succeed(property.apply(conf,
-                                                                                o));
+    BiLambda<JsObj, O, TestResult> bfn = (conf,
+                                          o) -> IO.succeed(property.apply(conf,
+                                                                          o));
     return new PropertyBuilder<>(name,
                                  gen,
                                  bfn);
   }
-
 
   /**
    * Creates a new Property instance that represents a property to be tested, modeled with a function. This method is
@@ -157,7 +153,7 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
     if (name == null || name.isBlank() || name.isEmpty()) {
       throw new IllegalArgumentException("property name missing");
     }
-    BiLambda<JsObj, O, TestResult> bfn = (conf, o) -> IO.succeed(property.apply(o));
+    BiLambda<JsObj, O, TestResult> bfn = (_, o) -> IO.succeed(property.apply(o));
     return new PropertyBuilder<>(name,
                                  gen,
                                  bfn);
@@ -177,7 +173,7 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
 
   /**
    * Returns a new property instance that will be tested the specified number of times. Each execution of the property
-   * test generates a new input value using the data generator, and the test is repeated for the specified number of
+   * test generates a new input output using the data generator, and the test is repeated for the specified number of
    * times with different input values.
    *
    * @param times the number of times an input is produced and tested on the property
@@ -242,10 +238,9 @@ public final class PropertyBuilder<GenValue> implements Supplier<Property<GenVal
     if (requireNonNull(classifiers).isEmpty()) {
       throw new IllegalArgumentException("classifiers empty");
     }
-    Predicate<GenValue> defaultClassifier =
-        genValue -> classifiers.values()
-                               .stream()
-                               .noneMatch(cla -> cla.test(genValue));
+    Predicate<GenValue> defaultClassifier = genValue -> classifiers.values()
+                                                                   .stream()
+                                                                   .noneMatch(cla -> cla.test(genValue));
 
     Map<String, Predicate<GenValue>> xs = new HashMap<>(classifiers);
     xs.put(requireNonNull(defaultTag),

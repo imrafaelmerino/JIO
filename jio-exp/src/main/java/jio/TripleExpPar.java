@@ -1,15 +1,15 @@
 package jio;
 
-import fun.tuple.Pair;
-import fun.tuple.Triple;
+import static java.util.Objects.requireNonNull;
 
+import fun.tuple.Triple;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
 
 final class TripleExpPar<First, Second, Third> extends TripleExp<First, Second, Third> {
 
@@ -44,19 +44,24 @@ final class TripleExpPar<First, Second, Third> extends TripleExp<First, Second, 
   }
 
   @Override
-  CompletableFuture<Triple<First, Second, Third>> reduceExp() {
-    return _1.get()
-             .thenCombineAsync(_2.get(),
-                               Pair::of
-                              )
-             .thenCombineAsync(_3.get(),
-                               (pair, third) -> Triple.of(pair.first(),
-                                                          pair.second(),
-                                                          third
-                                                         )
-                              );
+  Result<Triple<First, Second, Third>> reduceExp() {
+    try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+      var first = scope.fork(_1);
+      var second = scope.fork(_2);
+      var third = scope.fork(_3);
+      scope.join()
+           .throwIfFailed();
+      return new Success<>(Triple.of(first.get()
+                                          .getOutputOrThrow(),
+                                     second.get()
+                                           .getOutputOrThrow(),
+                                     third.get()
+                                          .getOutputOrThrow())
+      );
+    } catch (Exception e) {
+      return new Failure<>(e);
+    }
   }
-
 
   @Override
   public TripleExp<First, Second, Third> debugEach(final EventBuilder<Triple<First, Second, Third>> eventBuilder
@@ -83,7 +88,6 @@ final class TripleExpPar<First, Second, Third> extends TripleExp<First, Second, 
                               getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public TripleExp<First, Second, Third> debugEach(final String context) {

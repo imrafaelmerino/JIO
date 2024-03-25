@@ -1,10 +1,9 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
 
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a function that takes two inputs of types 'A' and 'B' and produces an 'IO' effect with a result of type
@@ -16,7 +15,6 @@ import static java.util.Objects.requireNonNull;
  */
 public interface BiLambda<FirstInput, SecondInput, Output> extends BiFunction<FirstInput, SecondInput, IO<Output>> {
 
-
   /**
    * Transforms a 'BiPredicate' into a 'BiLambda' for producing boolean 'IO' effects.
    *
@@ -27,7 +25,8 @@ public interface BiLambda<FirstInput, SecondInput, Output> extends BiFunction<Fi
    */
   static <A, B> BiLambda<A, B, Boolean> liftPredicate(final BiPredicate<A, B> predicate) {
     requireNonNull(predicate);
-    return (a, b) -> {
+    return (a,
+            b) -> {
       try {
         return IO.succeed(predicate.test(a,
                                          b));
@@ -48,7 +47,8 @@ public interface BiLambda<FirstInput, SecondInput, Output> extends BiFunction<Fi
    */
   static <A, B, O> BiLambda<A, B, O> liftFunction(final BiFunction<A, B, O> fn) {
     requireNonNull(fn);
-    return (a, b) -> {
+    return (a,
+            b) -> {
       try {
         return IO.succeed(fn.apply(a,
                                    b));

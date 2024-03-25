@@ -21,7 +21,6 @@ public final class DatabaseBuilder implements Supplier<MongoDatabase> {
   final String name;
   volatile MongoDatabase database;
 
-
   DatabaseBuilder(final MongoClient client,
                   final String name) {
     this.client = Objects.requireNonNull(client);
@@ -40,7 +39,6 @@ public final class DatabaseBuilder implements Supplier<MongoDatabase> {
     return new DatabaseBuilder(client,
                                name);
   }
-
 
   @Override
   public MongoDatabase get() {

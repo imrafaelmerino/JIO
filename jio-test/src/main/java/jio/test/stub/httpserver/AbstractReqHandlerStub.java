@@ -1,14 +1,13 @@
 package jio.test.stub.httpserver;
 
+import static java.util.Objects.requireNonNull;
+
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * An abstract base class for implementing request handler stubs for HTTP server testing. This class allows you to
@@ -72,8 +71,7 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
           byte[] bodyBytes = body.apply(exchange)
                                  .getBytes(StandardCharsets.UTF_8);
           exchange.sendResponseHeaders(code.apply(exchange),
-                                       bodyBytes
-                                           .length
+                                       bodyBytes.length
                                       );
           outputStream.write(bodyBytes);
           outputStream.flush();
@@ -106,8 +104,7 @@ abstract class AbstractReqHandlerStub implements HttpHandler {
   }
 
   private void returnUnexpectedHttpMethodError(HttpExchange exchange,
-                                               String requestMethod)
-      throws IOException {
+                                               String requestMethod) throws IOException {
     try (var outputStream = exchange.getResponseBody()) {
       var response = method + " method was expected, but " + requestMethod + " was received.";
       byte[] bytesResponse = response.getBytes(StandardCharsets.UTF_8);

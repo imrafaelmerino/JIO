@@ -1,9 +1,6 @@
-FROM maven:3.8.1-openjdk-17-slim
+FROM gaianmobius/openjdk-21-mvn-3.9.6:latest
 COPY pom.xml /tmp/jio-mongodb/pom.xml
 COPY src /tmp/jio-mongodb/src/
 COPY .mvn /tmp/jio-mongodb/.mvn/
-
-
-
 WORKDIR /tmp/jio-mongodb/
 ENV CLASSPATH=/tmp/jio/jio-mongodb/target/*

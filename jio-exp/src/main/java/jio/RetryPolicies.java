@@ -1,11 +1,10 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.time.Duration;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Class with factory methods to create different retry policies
@@ -49,7 +48,7 @@ public final class RetryPolicies {
    */
   public static RetryPolicy constantDelay(final Duration delay) {
     Objects.requireNonNull(delay);
-    return rs -> Optional.of(delay);
+    return _ -> delay;
   }
 
   /**
@@ -92,10 +91,15 @@ public final class RetryPolicies {
     Objects.requireNonNull(base);
     Objects.requireNonNull(cap);
 
-    return rs -> exponentialBackoffDelay(base).capDelay(cap)
-                                              .apply(rs)
-                                              .map(t -> Duration.ofMillis(ThreadLocalRandom.current()
-                                                                                           .nextLong(t.toMillis())));
+    return rs -> {
+      Duration delay = exponentialBackoffDelay(base).capDelay(cap)
+                                                    .apply(rs);
+      if (delay != null) {
+        return Duration.ofMillis(ThreadLocalRandom.current()
+                                                  .nextLong(delay.toMillis()));
+      }
+      return null;
+    };
   }
 
   /**
@@ -119,14 +123,17 @@ public final class RetryPolicies {
                                        ) {
     Objects.requireNonNull(base);
     Objects.requireNonNull(cap);
-    return rs -> exponentialBackoffDelay(base
-                                        ).capDelay(cap)
-                                         .apply(rs)
-                                         .map(t -> Duration.ofMillis(ThreadLocalRandom.current()
-                                                                                      .nextLong(t.dividedBy(2)
-                                                                                                 .toMillis()
-                                                                                               )
-                                                                    ));
+    return rs -> {
+      Duration delay = exponentialBackoffDelay(base
+                                              ).capDelay(cap)
+                                               .apply(rs);
+      return delay != null ? Duration.ofMillis(ThreadLocalRandom.current()
+                                                                .nextLong(delay.dividedBy(2)
+                                                                               .toMillis()
+                                                                         )
+                                              ) : null;
+
+    };
 
   }
 
@@ -153,7 +160,7 @@ public final class RetryPolicies {
     return rs -> {
       if (rs.cumulativeDelay()
             .isZero()) {
-        return Optional.of(base);
+        return base;
       }
 
       Duration upperBound = rs.previousDelay()
@@ -162,7 +169,7 @@ public final class RetryPolicies {
                                 .nextLong(base.toMillis(),
                                           upperBound.toMillis()
                                          );
-      return l < cap.toMillis() ? Optional.of(Duration.ofMillis(l)) : Optional.of(cap);
+      return l < cap.toMillis() ? Duration.ofMillis(l) : cap;
 
     };
 
@@ -171,34 +178,29 @@ public final class RetryPolicies {
   record LimitRetries(int maxAttempts) implements RetryPolicy {
 
     @Override
-    public Optional<Duration> apply(final RetryStatus retryStatus) {
+    public Duration apply(final RetryStatus retryStatus) {
       boolean retry = retryStatus.counter() < maxAttempts;
-      return retry ?
-             Optional.of(Duration.ZERO) :
-             Optional.empty();
+      return retry ? Duration.ZERO : null;
     }
   }
 
   record IncrementalDelay(Duration base) implements RetryPolicy {
 
     @Override
-    public Optional<Duration> apply(final RetryStatus retryStatus) {
-      return Optional.of(base.multipliedBy(retryStatus.counter() + 1));
+    public Duration apply(final RetryStatus retryStatus) {
+      return base.multipliedBy(retryStatus.counter() + 1);
     }
   }
 
   record ExponentialBackoffDelay(Duration base) implements RetryPolicy {
 
     @Override
-    public Optional<Duration> apply(final RetryStatus rs) {
+    public Duration apply(final RetryStatus rs) {
       int multiplicand = (int) Math.pow(2,
                                         rs.counter()
                                        );
-      return Optional.of(rs.cumulativeDelay()
-                           .isZero() ?
-                         base :
-                         base.multipliedBy(multiplicand)
-                        );
+      return rs.cumulativeDelay()
+               .isZero() ? base : base.multipliedBy(multiplicand);
     }
   }
 

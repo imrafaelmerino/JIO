@@ -17,7 +17,6 @@ import java.util.function.Function;
  */
 public interface MongoLambda<Input, Output> extends BiLambda<ClientSession, Input, Output> {
 
-
   /**
    * Creates a Lambda from this MongoLambda that is not associated with any transaction (null session).
    *
@@ -38,10 +37,11 @@ public interface MongoLambda<Input, Output> extends BiLambda<ClientSession, Inpu
    */
   default <B> MongoLambda<Input, B> then(final MongoLambda<Output, B> other) {
     Objects.requireNonNull(other);
-    return (session, input) -> this.apply(session,
-                                          input)
-                                   .then(n -> other.apply(session,
-                                                          n));
+    return (session,
+            input) -> this.apply(session,
+                                 input)
+                          .then(n -> other.apply(session,
+                                                 n));
   }
 
   /**
@@ -55,9 +55,10 @@ public interface MongoLambda<Input, Output> extends BiLambda<ClientSession, Inpu
    */
   default <B> MongoLambda<Input, B> then(final Lambda<Output, B> other) {
     Objects.requireNonNull(other);
-    return (session, input) -> this.apply(session,
-                                          input)
-                                   .then(other);
+    return (session,
+            input) -> this.apply(session,
+                                 input)
+                          .then(other);
   }
 
   /**
@@ -71,9 +72,10 @@ public interface MongoLambda<Input, Output> extends BiLambda<ClientSession, Inpu
    */
   default <C> MongoLambda<Input, C> map(final Function<Output, C> map) {
     Objects.requireNonNull(map);
-    return (session, input) -> this.apply(session,
-                                          input)
-                                   .map(map);
+    return (session,
+            input) -> this.apply(session,
+                                 input)
+                          .map(map);
   }
 
 }

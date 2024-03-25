@@ -1,21 +1,24 @@
 package jio;
 
-import jsonvalues.JsArray;
-import jsonvalues.JsValue;
+import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
+import jsonvalues.JsArray;
+import jsonvalues.JsValue;
 
 final class JsArrayExpPar extends JsArrayExp {
 
-  public JsArrayExpPar(List<IO<? extends JsValue>> list,
+  public JsArrayExpPar(List<IO<JsValue>> list,
                        Function<EvalExpEvent, BiConsumer<JsArray, Throwable>> debugger
                       ) {
     super(list,
@@ -28,17 +31,26 @@ final class JsArrayExpPar extends JsArrayExp {
    * @return a CompletableFuture of a json array
    */
   @Override
-  CompletableFuture<JsArray> reduceExp() {
-    var result = CompletableFuture.completedFuture(JsArray.empty());
+  Result<JsArray> reduceExp() {
+    try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
 
-    for (final IO<? extends JsValue> future : list) {
-      result = result.thenCombine(future.get(),
-                                  JsArray::append
-                                 );
+      List<Subtask<Result<JsValue>>> xs = list.stream()
+                                              .map(scope::fork)
+                                              .toList();
+      scope.join()
+           .throwIfFailed();
+      List<JsValue> result = new ArrayList<>();
+      for (var task : xs) {
+        JsValue call = task.get()
+                           .getOutputOrThrow();
+        result.add(call);
+      }
+      return new Success<>(JsArray.ofIterable(result));
+
+    } catch (Exception e) {
+      return new Failure<>(e);
     }
-    return result;
   }
-
 
   @Override
   public JsArrayExp retryEach(final Predicate<? super Throwable> predicate,
@@ -57,7 +69,6 @@ final class JsArrayExpPar extends JsArrayExp {
     );
   }
 
-
   @Override
   public JsArrayExp debugEach(final EventBuilder<JsArray> eventBuilder
                              ) {
@@ -68,7 +79,6 @@ final class JsArrayExpPar extends JsArrayExp {
                              getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public JsArrayExp debugEach(final String context) {

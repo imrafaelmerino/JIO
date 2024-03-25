@@ -1,6 +1,6 @@
 package jio.api.exp;
 
-
+import java.time.Duration;
 import jio.IO;
 import jio.Lambda;
 import jio.test.junit.Debugger;
@@ -11,8 +11,6 @@ import jsonvalues.JsStr;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-
-import java.time.Duration;
 
 /**
  * The signup service processes a JSON input that has at the least (not interested in the rest) the fields email and
@@ -50,13 +48,11 @@ import java.time.Duration;
 //only for java 21
 public class SignupTests {
 
-
   @RegisterExtension
   static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
 
-
   @Test
-  public void test() {
+  public void test() throws Exception {
 
     final Lambda<JsObj, Void> persistLDAP = a -> IO.NULL();
     final Lambda<String, JsArray> normalizeAddresses = a -> IO.succeed(
@@ -79,9 +75,9 @@ public class SignupTests {
                                  persistMongo,
                                  sendEmail,
                                  existsInLDAP,
-                                 Clock.realTime)
-        .apply(user)
-        .join();
+                                 Clock.realTime).apply(user)
+                                                .compute()
+                                                .getOutputOrThrow();
 
     Assertions.assertTrue(resp.containsKey("number_users"));
     Assertions.assertTrue(resp.containsKey("id"));
@@ -89,6 +85,5 @@ public class SignupTests {
     Assertions.assertTrue(resp.containsKey("timestamp"));
 
   }
-
 
 }

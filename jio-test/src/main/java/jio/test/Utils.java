@@ -1,6 +1,10 @@
 package jio.test;
 
 import jdk.jfr.consumer.RecordedThread;
+import jsonvalues.spec.JsArraySpec;
+import jsonvalues.spec.JsObjSpec;
+import jsonvalues.spec.JsSpec;
+import jsonvalues.spec.JsSpecs;
 
 /**
  * Utility class
@@ -11,7 +15,7 @@ public final class Utils {
   }
 
   /**
-   * Categorizes an HTTP status code into different groups based on its numerical value.
+   * Categorizes an HTTP status code into different groups based on its numerical output.
    *
    * @param code The HTTP status code to categorize.
    * @return A string representing the category of the status code.

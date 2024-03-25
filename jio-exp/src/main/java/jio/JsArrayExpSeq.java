@@ -1,18 +1,18 @@
 package jio;
 
-import jsonvalues.JsArray;
-import jsonvalues.JsValue;
+import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
-
+import jio.Result.Failure;
+import jio.Result.Success;
+import jsonvalues.JsArray;
+import jsonvalues.JsValue;
 
 /**
  * Represents a supplier of a completable future which result is a json array. It has the same recursive structure as a
@@ -22,7 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 final class JsArrayExpSeq extends JsArrayExp {
 
-  public JsArrayExpSeq(final List<IO<? extends JsValue>> list,
+  public JsArrayExpSeq(final List<IO<JsValue>> list,
                        final Function<EvalExpEvent, BiConsumer<JsArray, Throwable>> debugger
                       ) {
     super(list,
@@ -35,16 +35,20 @@ final class JsArrayExpSeq extends JsArrayExp {
    * @return a CompletableFuture of a json array
    */
   @Override
-  CompletableFuture<JsArray> reduceExp() {
-    var result = CompletableFuture.completedFuture(JsArray.empty());
-    for (var val : list) {
-      result = result.thenCompose(list -> val.get()
-                                             .thenApply(list::append)
-                                 );
+  Result<JsArray> reduceExp() {
+    List<JsValue> xs = new ArrayList<>(list.size());
+    for (var entry : list) {
+      try {
+        xs.add(entry.call()
+                    .getOutputOrThrow()
+              );
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
     }
-    return result;
-  }
 
+    return new Success<>(JsArray.ofIterable(xs));
+  }
 
   @Override
   public JsArrayExp retryEach(final Predicate<? super Throwable> predicate,
@@ -78,7 +82,6 @@ final class JsArrayExpSeq extends JsArrayExp {
     return debugEach(EventBuilder.of(this.getClass()
                                          .getSimpleName(),
                                      context));
-
 
   }
 }

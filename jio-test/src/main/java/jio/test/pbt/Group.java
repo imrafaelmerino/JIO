@@ -23,7 +23,6 @@ public final class Group {
 
   private Path path;
 
-
   private Group(String name,
                 List<Testable> props) {
     this.name = Objects.requireNonNull(name);
@@ -74,7 +73,7 @@ public final class Group {
     Collections.shuffle(copy);
     ListExp<Report> seq = ListExp.seq();
     for (var property : copy) {
-      seq = seq.append(property.createTask(conf));
+      seq = seq.append(property.create(conf));
     }
     return processReport(seq.map(l -> new GroupReport(l,
                                                       name)));
@@ -100,7 +99,7 @@ public final class Group {
     Collections.shuffle(copy);
     ListExp<Report> par = ListExp.par();
     for (var property : copy) {
-      par = par.append(property.createTask(conf));
+      par = par.append(property.create(conf));
     }
     return processReport(par.map(l -> new GroupReport(l,
                                                       name)));
@@ -133,7 +132,7 @@ public final class Group {
   public IO<GroupReport> seq(JsObj conf) {
     ListExp<Report> seq = ListExp.seq();
     for (var property : props) {
-      seq = seq.append(property.createTask(conf));
+      seq = seq.append(property.create(conf));
     }
     return processReport(seq.map(l -> new GroupReport(l,
                                                       name)));
@@ -157,7 +156,7 @@ public final class Group {
   public IO<GroupReport> par(JsObj conf) {
     ListExp<Report> par = ListExp.par();
     for (var property : props) {
-      par = par.append(property.createTask(conf));
+      par = par.append(property.create(conf));
     }
     return processReport(par.map(l -> new GroupReport(l,
                                                       name)));

@@ -5,7 +5,6 @@ import com.mongodb.client.MongoIterable;
 import jio.IO;
 import jsonvalues.JsObj;
 
-
 /**
  * Represents a MongoDB find operation to retrieve a single document from a collection asynchronously using
  * {@link jio.Lambda lambdas}. This class is a specific implementation of the {@link Find} class for querying a single
@@ -27,7 +26,6 @@ import jsonvalues.JsObj;
  */
 public final class FindOne extends Find implements MongoLambda<FindBuilder, JsObj> {
 
-
   /**
    * Constructs a new `FindOne` instance with the specified collection supplier.
    *
@@ -47,7 +45,6 @@ public final class FindOne extends Find implements MongoLambda<FindBuilder, JsOb
   public static FindOne of(final CollectionBuilder collection) {
     return new FindOne(collection);
   }
-
 
   /**
    * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation will
@@ -73,4 +70,5 @@ public final class FindOne extends Find implements MongoLambda<FindBuilder, JsOb
     return query(session,
                  builder).map(MongoIterable::first);
   }
+
 }

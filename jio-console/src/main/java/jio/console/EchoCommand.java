@@ -22,13 +22,13 @@ class EchoCommand extends Command {
               Example:
                   $command hi, how are you doing?""".replace("$command",
                                                              COMMAND_NAME)
-         );
+    );
   }
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
+  ) {
     return tokens -> {
       int nArgs = tokens.length - 1;
       return nArgs == 0 ? IO.succeed("") : IO.succeed(Functions.joinTail(tokens));

@@ -1,16 +1,19 @@
 package jio.console;
 
+import static java.util.Objects.requireNonNull;
+
 import fun.tuple.Pair;
 import fun.tuple.Triple;
-import jio.*;
-
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
+import jio.IO;
+import jio.ListExp;
+import jio.PairExp;
+import jio.RetryPolicies;
+import jio.RetryPolicy;
+import jio.TripleExp;
 
 /**
  * Set of different programs modeled with JIO effects to print out text and interact with the user. These programs
@@ -22,39 +25,29 @@ public final class Programs {
   /**
    * Effect that reads a line from the console.
    */
-  public final static IO<String> READ_LINE = IO.effect(() -> {
-    try {
-      Scanner in = new Scanner(System.in,
-                               StandardCharsets.UTF_8
-      );
-      return CompletableFuture.completedFuture(in.nextLine());
-    } catch (Exception exception) {
-      return CompletableFuture.failedFuture(exception);
-    }
+  public final static IO<String> READ_LINE = IO.task(() -> {
+
+    Scanner in = new Scanner(System.in,
+                             StandardCharsets.UTF_8
+    );
+    return in.nextLine();
+
   });
   /**
    * Effect that reads an integer from the console.
    */
-  public static IO<Integer> READ_INT = IO.effect(() -> {
-    try {
-      Scanner in = new Scanner(System.in,
-                               StandardCharsets.UTF_8);
-      return CompletableFuture.completedFuture(in.nextInt());
-    } catch (Exception exception) {
-      return CompletableFuture.failedFuture(exception);
-    }
+  public static IO<Integer> READ_INT = IO.task(() -> {
+    Scanner in = new Scanner(System.in,
+                             StandardCharsets.UTF_8);
+    return in.nextInt();
   });
   /**
    * Effect that reads a boolean from the console.
    */
-  public static IO<Boolean> READ_BOOLEAN = IO.effect(() -> {
-    try {
-      Scanner in = new Scanner(System.in,
-                               StandardCharsets.UTF_8);
-      return CompletableFuture.completedFuture(in.nextBoolean());
-    } catch (Exception exception) {
-      return CompletableFuture.failedFuture(exception);
-    }
+  public static IO<Boolean> READ_BOOLEAN = IO.task(() -> {
+    Scanner in = new Scanner(System.in,
+                             StandardCharsets.UTF_8);
+    return in.nextBoolean();
   });
 
   /**
@@ -64,14 +57,9 @@ public final class Programs {
    * @return a JIO effect
    */
   public static IO<Void> PRINT_LINE(final String line) {
-    return IO.effect(() -> {
-      try {
-        System.out.print(line);
-        return CompletableFuture.completedFuture(null);
-      } catch (Exception exception) {
-        return CompletableFuture.failedFuture(exception);
-      }
-
+    return IO.lazy(() -> {
+      System.out.print(line);
+      return null;
     });
   }
 
@@ -84,17 +72,13 @@ public final class Programs {
    */
   public static IO<Void> PRINT_LINE(final String line,
                                     final ControlChars color
-                                   ) {
+  ) {
     requireNonNull(color);
-    return IO.effect(() -> {
-                       try {
-                         System.out.print(color.code + line + ControlChars.RESET);
-                         return CompletableFuture.completedFuture(null);
-                       } catch (Exception exception) {
-                         return CompletableFuture.failedFuture(exception);
-                       }
-                     }
-                    );
+    return IO.task(() -> {
+      System.out.print(color.code + line + ControlChars.RESET);
+      return null;
+    }
+    );
   }
 
   /**
@@ -104,13 +88,9 @@ public final class Programs {
    * @return a JIO effect
    */
   public static IO<Void> PRINT_NEW_LINE(final String line) {
-    return IO.effect(() -> {
-      try {
-        System.out.println(line);
-        return CompletableFuture.completedFuture(null);
-      } catch (Exception exception) {
-        return CompletableFuture.failedFuture(exception);
-      }
+    return IO.task(() -> {
+      System.out.println(line);
+      return null;
     });
   }
 
@@ -123,15 +103,11 @@ public final class Programs {
    */
   public static IO<Void> PRINT_NEW_LINE(final String line,
                                         final ControlChars color
-                                       ) {
+  ) {
     requireNonNull(color);
-    return IO.effect(() -> {
-      try {
-        System.out.println(color.code + line + ControlChars.RESET);
-        return CompletableFuture.completedFuture(null);
-      } catch (Exception exception) {
-        return CompletableFuture.failedFuture(exception);
-      }
+    return IO.task(() -> {
+      System.out.println(color.code + line + ControlChars.RESET);
+      return null;
     });
   }
 
@@ -144,11 +120,11 @@ public final class Programs {
   public static IO<String> ASK_FOR_INPUT(AskForInputParams params) {
 
     return PRINT_NEW_LINE(params.promptMessage)
-        .then($ -> READ_LINE.then(input -> params.inputValidator.test(input) ?
-                                           IO.succeed(input) :
-                                           IO.fail(new IllegalArgumentException(params.errorMessage)))
-             )
-        .retry(params.policy);
+                                               .then($ -> READ_LINE.then(input -> params.inputValidator.test(input) ? IO
+                                                                                                                        .succeed(input)
+                                                   : IO.fail(new IllegalArgumentException(params.errorMessage)))
+                                               )
+                                               .retry(params.policy);
   }
 
   /**
@@ -160,13 +136,13 @@ public final class Programs {
    */
   public static IO<List<String>> ASK_FOR_INPUTS(AskForInputParams params,
                                                 AskForInputParams... others
-                                               ) {
+  ) {
 
     var seq = ListExp.seq(ASK_FOR_INPUT(params));
 
-      for (AskForInputParams other : others) {
-          seq = seq.append(ASK_FOR_INPUT(other));
-      }
+    for (AskForInputParams other : others) {
+      seq = seq.append(ASK_FOR_INPUT(other));
+    }
 
     return seq;
   }
@@ -180,11 +156,11 @@ public final class Programs {
    */
   public static IO<Pair<String, String>> ASK_FOR_PAIR(AskForInputParams params1,
                                                       AskForInputParams params2
-                                                     ) {
+  ) {
 
     return PairExp.seq(ASK_FOR_INPUT(params1),
                        ASK_FOR_INPUT(params2)
-                      );
+    );
   }
 
   /**
@@ -198,17 +174,14 @@ public final class Programs {
   public static IO<Triple<String, String, String>> ASK_FOR_TRIPLE(AskForInputParams params1,
                                                                   AskForInputParams params2,
                                                                   AskForInputParams params3
-                                                                 ) {
+  ) {
 
-    return
-        TripleExp.seq(ASK_FOR_INPUT(params1),
-                      ASK_FOR_INPUT(params2),
-                      ASK_FOR_INPUT(params3)
-                     );
-
+    return TripleExp.seq(ASK_FOR_INPUT(params1),
+                         ASK_FOR_INPUT(params2),
+                         ASK_FOR_INPUT(params3)
+    );
 
   }
-
 
   /**
    * List of parameters to be considered when asking the user for typing in some text
@@ -234,7 +207,7 @@ public final class Programs {
            e -> true,
            "",
            RetryPolicies.limitRetries(2)
-          );
+      );
     }
 
   }

@@ -1,14 +1,13 @@
 package jio;
 
-import fun.tuple.Pair;
+import static java.util.Objects.requireNonNull;
 
+import fun.tuple.Pair;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
 
 final class PairExpSeq<First, Second> extends PairExp<First, Second> {
 
@@ -38,16 +37,19 @@ final class PairExpSeq<First, Second> extends PairExp<First, Second> {
   }
 
   @Override
-  CompletableFuture<Pair<First, Second>> reduceExp() {
-    return _1.get()
-             .thenCompose(first -> _2.get()
-                                     .thenApply(second -> Pair.of(first,
-                                                                  second
-                                                                 )
-                                               )
-                         );
+  Result<Pair<First, Second>> reduceExp() {
+    try {
+      var first = _1.call()
+                    .getOutputOrThrow();
+      var second = _2.call()
+                     .getOutputOrThrow();
+      return new Result.Success<>(Pair.of(first,
+                                          second
+                                         ));
+    } catch (Exception e) {
+      return new Failure<>(e);
+    }
   }
-
 
   @Override
   public PairExp<First, Second> debugEach(final EventBuilder<Pair<First, Second>> eventBuilder) {
@@ -68,7 +70,6 @@ final class PairExpSeq<First, Second> extends PairExp<First, Second> {
                             getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public PairExp<First, Second> debugEach(final String context) {

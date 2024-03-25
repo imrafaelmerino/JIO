@@ -35,55 +35,53 @@ class DumpCommand extends Command {
               Examples:
                   $command /Users/rmerinogarcia/dump.txt""".replace("$command",
                                                                     COMMAND_NAME)
-         );
+    );
   }
 
   @Override
 
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
+  ) {
     return tokens -> {
       int nArgs = tokens.length - 1;
-        if (nArgs == 0) {
-            return Programs.ASK_FOR_INPUT(new AskForInputParams("Type de absolute path of the file",
-                                                                path -> Paths.get(path)
-                                                                             .getParent()
-                                                                             .toFile()
-                                                                             .isDirectory(),
-                                                                "Folder not found",
-                                                                RetryPolicies.limitRetries(3)
-                                          )
-                                         )
-                           .then(path -> dumpToFile(state,
-                                                    path));
-        }
+      if (nArgs == 0) {
+        return Programs.ASK_FOR_INPUT(new AskForInputParams("Type de absolute path of the file",
+                                                            path -> Paths.get(path)
+                                                                         .getParent()
+                                                                         .toFile()
+                                                                         .isDirectory(),
+                                                            "Folder not found",
+                                                            RetryPolicies.limitRetries(3)
+        )
+        )
+                       .then(path -> dumpToFile(state,
+                                                path));
+      }
 
       return dumpToFile(state,
                         Functions.joinTail(tokens));
 
-
     };
   }
-
 
   private IO<String> dumpToFile(State state,
                                 String path) {
     try {
       Path file = Paths.get(path);
-        if (!file.getParent()
-                 .toFile()
-                 .isDirectory()) {
-            return IO.fail(new InvalidCommand(this,
-                                              "Folder " + file.getParent() + " not found"));
-        }
+      if (!file.getParent()
+               .toFile()
+               .isDirectory()) {
+        return IO.fail(new InvalidCommand(this,
+                                          "Folder " + file.getParent() + " not found"));
+      }
 
       Files.writeString(file,
                         state.variables.getOrDefault("output",
                                                      "") + "\n",
                         StandardOpenOption.CREATE,
                         StandardOpenOption.APPEND
-                       );
+      );
     } catch (IOException e) {
       return IO.fail(e);
     }

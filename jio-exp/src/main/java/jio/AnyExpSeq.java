@@ -1,14 +1,14 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
 
 final class AnyExpSeq extends AnyExp {
 
@@ -18,7 +18,6 @@ final class AnyExpSeq extends AnyExp {
     super(debugger,
           exps);
   }
-
 
   @Override
   public AnyExp retryEach(final Predicate<? super Throwable> predicate,
@@ -36,21 +35,26 @@ final class AnyExpSeq extends AnyExp {
   }
 
   @Override
-  CompletableFuture<Boolean> reduceExp() {
+  Result<Boolean> reduceExp() {
     return get(exps);
   }
 
-  private CompletableFuture<Boolean> get(final List<IO<Boolean>> exps) {
+  private Result<Boolean> get(final List<IO<Boolean>> exps) {
 
-    return exps.size() == 1 ?
-           exps.getFirst()
-               .get() :
-           exps.getFirst()
-               .get()
-               .thenCompose(bool -> bool ?
-                                    CompletableFuture.completedFuture(true) :
-                                    get(exps.subList(1,
-                                                     exps.size())));
+    var result = false;
+    for (IO<Boolean> exp : exps) {
+      try {
+        if (result) {
+          return new Success<>(true);
+        } else {
+          result = exp.call()
+                      .getOutputOrThrow();
+        }
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
+    }
+    return new Success<>(result);
   }
 
   @Override
@@ -63,12 +67,12 @@ final class AnyExpSeq extends AnyExp {
     );
   }
 
-
   @Override
   public AnyExp debugEach(final String context) {
     return debugEach(EventBuilder.of(this.getClass()
                                          .getSimpleName(),
-                                     context));
+                                     context)
+                    );
 
   }
 }

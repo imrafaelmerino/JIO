@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  * JUnit's extension for enabling debugging of various JIO components in tests.
  *
  * <p>When used as a JUnit extension, this class allows you to enable and configure debugging for
- * different components: HTTP client, HTTP server, MongoDB client,  JDBC client, and expressions evaluation.
+ * different components: HTTP client, HTTP server, MongoDB client, JDBC client, and expressions evaluation.
  *
  * <p>This extension offers the flexibility to enable debugging for specific components, control the
  * duration of debugging, and specify custom debugging configurations.
@@ -40,10 +40,10 @@ import java.util.function.Consumer;
  * import org.junit.jupiter.api.extension.RegisterExtension;
  * public class MyTest {
  *
- *     @RegisterExtension
- *     static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
+ * @RegisterExtension
+ * static Debugger debugger = Debugger.of(Duration.ofSeconds(2));
  *
- *    // Test methods involving go here
+ * // Test methods involving go here
  * }
  * }
  * </pre>
@@ -78,6 +78,14 @@ public final class Debugger implements AfterAllCallback, BeforeAllCallback {
                   new MongoDBOpDebugger());
     debuggers.put(DatabaseTxDebugger.EVENT_NAME,
                   new DatabaseTxDebugger());
+    debuggers.put(AvroDeserializerDebugger.EVENT_NAME,
+                  new AvroDeserializerDebugger());
+    debuggers.put(AvroSerializerDebugger.EVENT_NAME,
+                  new AvroSerializerDebugger());
+    debuggers.put(ConfluentSerializerDebugger.EVENT_NAME,
+                  new ConfluentSerializerDebugger());
+    debuggers.put(ConfluentDeserializerDebugger.EVENT_NAME,
+                  new ConfluentDeserializerDebugger());
   }
 
   private Debugger(final String conf,
@@ -138,7 +146,6 @@ public final class Debugger implements AfterAllCallback, BeforeAllCallback {
       stream.close();
     }
   }
-
 
   @Override
   public void beforeAll(ExtensionContext context) throws Exception {

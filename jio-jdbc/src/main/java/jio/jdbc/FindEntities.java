@@ -1,12 +1,11 @@
 package jio.jdbc;
 
+import java.sql.Connection;
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.Callable;
 import jio.IO;
 import jio.Lambda;
-
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
 
 /**
  * A class representing a query update statement in a relational database using JDBC. The class is designed to execute
@@ -24,7 +23,7 @@ final class FindEntities<Filter, Entity> {
    */
   final Duration timeout;
 
-  private final ResultSetMapper<Entity> mapper;
+  private final ResultSetMapper<List<Entity>> mapper;
   /**
    * The SQL update statement.
    */
@@ -61,7 +60,7 @@ final class FindEntities<Filter, Entity> {
   FindEntities(Duration timeout,
                String sql,
                ParamsSetter<Filter> setter,
-               ResultSetMapper<Entity> mapper,
+               ResultSetMapper<List<Entity>> mapper,
                int fetchSize,
                boolean enableJFR,
                String label) {
@@ -74,7 +73,6 @@ final class FindEntities<Filter, Entity> {
     this.label = label;
   }
 
-
   /**
    * Creates a {@code Lambda} representing a query operation on a database. The lambda is configured to bind parameters
    * to its sql, execute the query, and map the result. The JDBC connection is automatically obtained from the
@@ -83,37 +81,22 @@ final class FindEntities<Filter, Entity> {
    *
    * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} that, when invoked, performs the query operation. Note: The operations are performed by
-   * virtual threads.
+   *         virtual threads.
    * @see #buildClosable() for using query statements during transactions
    */
   Lambda<Filter, List<Entity>> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
-    return params ->
-        IO.task(() -> {
-                  try (var connection = datasourceBuilder.get()
-                                                         .getConnection()
-                  ) {
-                    try (var statement = connection.prepareStatement(sql)) {
-                      return JfrEventDecorator.decorateQueryStm(
-                          () -> {
-                            var unused = setter.apply(params)
-                                               .apply(statement);
-                            statement.setQueryTimeout((int) timeout.toSeconds());
-                            statement.setFetchSize(fetchSize);
-                            var rs = statement.executeQuery();
-                            List<Entity> result = new ArrayList<>();
-                            while (rs.next()) {
-                              result.add(mapper.apply(rs));
-                            }
-                            return result;
-                          },
-                          sql,
-                          enableJFR,
-                          label,
-                          fetchSize);
-                    }
-                  }
-                },
-                Executors.newVirtualThreadPerTaskExecutor());
+    return params -> {
+      Callable<List<Entity>> callable = () -> {
+        try (var connection = datasourceBuilder.get()
+                                               .getConnection()
+        ) {
+          return find(params,
+                      connection);
+        }
+      };
+
+      return IO.task(callable);
+    };
   }
 
   /**
@@ -122,31 +105,33 @@ final class FindEntities<Filter, Entity> {
    * its SQL, execute the query, and map the result.
    *
    * @return A {@code ClosableStatement} representing the query operation with a duration, input, and output. Note: The
-   * operations are performed by virtual threads.
+   *         operations are performed by virtual threads.
    */
   ClosableStatement<Filter, List<Entity>> buildClosable() {
-    return (params, connection) ->
-        IO.task(() -> {
-                  try (var ps = connection.prepareStatement(sql)) {
-                    return JfrEventDecorator.decorateQueryStm(
-                        () -> {
-                          var unused = setter.apply(params)
-                                             .apply(ps);
-                          ps.setQueryTimeout((int) timeout.toSeconds());
-                          ps.setFetchSize(fetchSize);
-                          var rs = ps.executeQuery();
-                          List<Entity> result = new ArrayList<>();
-                          while (rs.next()) {
-                            result.add(mapper.apply(rs));
-                          }
-                          return result;
-                        },
-                        sql,
-                        enableJFR,
-                        label,
-                        fetchSize);
-                  }
-                },
-                Executors.newVirtualThreadPerTaskExecutor());
+    return (params,
+            connection) -> {
+      Callable<List<Entity>> callable = () -> find(params,
+                                                   connection);
+      return IO.task(callable);
+    };
+  }
+
+  private List<Entity> find(final Filter params,
+                            final Connection connection) throws Exception {
+    try (var ps = connection.prepareStatement(sql)) {
+      return JfrEventDecorator.decorateQueryStm(
+                                                () -> {
+                                                  var unused = setter.apply(params)
+                                                                     .apply(ps);
+                                                  ps.setQueryTimeout((int) timeout.toSeconds());
+                                                  ps.setFetchSize(fetchSize);
+                                                  var rs = ps.executeQuery();
+                                                  return mapper.apply(rs);
+                                                },
+                                                sql,
+                                                enableJFR,
+                                                label,
+                                                fetchSize);
+    }
   }
 }

@@ -1,18 +1,16 @@
 package jio.mongodb;
 
+import static java.util.Objects.requireNonNull;
+import static jio.mongodb.MongoOpEvent.OP.AGGREGATE;
+
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.ClientSession;
-import java.util.concurrent.Executors;
-import jio.IO;
-import jsonvalues.JsObj;
-import org.bson.conversions.Bson;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
-import static jio.mongodb.MongoOpEvent.OP.AGGREGATE;
+import jio.IO;
+import jsonvalues.JsObj;
+import org.bson.conversions.Bson;
 
 /**
  * A class for performing aggregation operations on a MongoDB collection.
@@ -47,7 +45,6 @@ public final class Aggregate extends Op implements MongoLambda<List<Bson>, Aggre
     return new Aggregate(collection);
   }
 
-
   /**
    * Applies the aggregation operation to the specified collection with a list of pipeline stages.
    *
@@ -59,19 +56,15 @@ public final class Aggregate extends Op implements MongoLambda<List<Bson>, Aggre
   public IO<AggregateIterable<JsObj>> apply(final ClientSession session,
                                             final List<Bson> stages) {
     Objects.requireNonNull(stages);
-    Supplier<AggregateIterable<JsObj>> supplier =
-        decorateWithEvent(() -> {
-                       var collection = requireNonNull(this.collection.get());
-                       return session == null ?
-                              collection.aggregate(stages) :
-                              collection.aggregate(session,
-                                                   stages);
-                     },
-                          AGGREGATE
-                         );
+    Supplier<AggregateIterable<JsObj>> supplier = decorateWithEvent(() -> {
+      var collection = requireNonNull(this.collection.get());
+      return session == null ? collection.aggregate(stages) : collection.aggregate(session,
+                                                                                   stages);
+    },
+                                                                    AGGREGATE
+    );
 
-    return IO.lazy(supplier,
-                   Executors.newVirtualThreadPerTaskExecutor());
+    return IO.lazy(supplier);
   }
 
   /**
@@ -84,4 +77,5 @@ public final class Aggregate extends Op implements MongoLambda<List<Bson>, Aggre
     this.recordEvents = false;
     return this;
   }
+
 }

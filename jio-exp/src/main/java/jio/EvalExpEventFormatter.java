@@ -1,11 +1,10 @@
 package jio;
 
-import jdk.jfr.consumer.RecordedEvent;
+import static jio.EvalExpEvent.RESULT;
 
 import java.util.Objects;
 import java.util.function.Function;
-
-import static jio.EvalExpEvent.*;
+import jdk.jfr.consumer.RecordedEvent;
 
 /**
  * A class that converts Java Flight Recorder (JFR) event with the name {@link #EVENT_NAME} to formatted strings. This
@@ -43,11 +42,11 @@ public final class EvalExpEventFormatter implements Function<RecordedEvent, Stri
    * The function used to format the output string.
    */
   public final Function<String, String> formatOutput;
+  @SuppressWarnings("InlineFormatString")
   private static final String FORMAT = """
-      event: eval-exp; exp: %s; result: %s;
-      output: %s; duration: %s; context: %s;
-      start_time: %s""".replace("\n",
-                                                       " ");
+      event: eval-exp; exp: %s; result: %s; \
+      output: %s; duration: %s; context: %s; \
+      start_time: %s""";
   private static final String EVENT_NAME = "jio.exp.EvalExp";
 
   /**
@@ -68,17 +67,15 @@ public final class EvalExpEventFormatter implements Function<RecordedEvent, Stri
   @Override
   public String apply(RecordedEvent event) {
     assert event.getEventType()
-            .getName()
-            .equals(EVENT_NAME);
+                .getName()
+                .equals(EVENT_NAME);
     var result = event.getValue(RESULT_FIELD);
     boolean isSuccess = RESULT.SUCCESS.name()
                                       .equals(result);
     return String.format(FORMAT,
                          event.getValue(EXP_FIELD),
                          event.getValue(RESULT_FIELD),
-                         isSuccess ?
-                         formatOutput.apply(event.getValue(VALUE_FIELD)) :
-                         event.getValue(EXCEPTION_FIELD),
+                         isSuccess ? formatOutput.apply(event.getValue(VALUE_FIELD)) : event.getValue(EXCEPTION_FIELD),
                          jio.time.Fun.formatTime(event.getDuration()),
                          event.getValue(CONTEXT_FIELD),
                          event.getStartTime()

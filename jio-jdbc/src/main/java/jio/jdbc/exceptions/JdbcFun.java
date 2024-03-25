@@ -23,10 +23,9 @@ public final class JdbcFun {
    *
    * @see SQLException
    */
-  public static final Function<Throwable, Optional<SQLException>> findSqlExcRecursively =
-      e -> ExceptionFun.findCauseRecursively(exc -> exc instanceof SQLException)
-                       .apply(e)
-                       .map(exc -> ((SQLException) exc));
+  public static final Function<Throwable, Optional<SQLException>> findSqlExcRecursively = e -> ExceptionFun.findCauseRecursively(exc -> exc instanceof SQLException)
+                                                                                                           .apply(e)
+                                                                                                           .map(exc -> ((SQLException) exc));
 
   /**
    * Function that finds the cause in the exception chain that is an instance of {@link SQLTransientException}.
@@ -38,9 +37,8 @@ public final class JdbcFun {
    *
    * @see SQLTransientException
    */
-  public static final Function<Throwable, Optional<SQLTransientException>> findSqlTransientExcRecursively =
-      e -> ExceptionFun.findCauseRecursively(exc -> exc instanceof SQLTransientException)
-                       .apply(e)
-                       .map(exc -> ((SQLTransientException) exc));
+  public static final Function<Throwable, Optional<SQLTransientException>> findSqlTransientExcRecursively = e -> ExceptionFun.findCauseRecursively(exc -> exc instanceof SQLTransientException)
+                                                                                                                             .apply(e)
+                                                                                                                             .map(exc -> ((SQLTransientException) exc));
 
 }

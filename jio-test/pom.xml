@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.imrafaelmerino</groupId>
   <artifactId>jio-test</artifactId>
-  <version>4.0.0</version>
+  <version>3.0.0-RC1</version>
   <name>jio-test</name>
   <description>JIO test library based on Property Based Testing and Java Flight Recording
     Debuggers
@@ -39,48 +39,60 @@
     <MAVEN-COMPILER-PLUGIN.VERSION>3.10.1</MAVEN-COMPILER-PLUGIN.VERSION>
     <MAVEN-COMPILER-PLUGIN.SOURCE>21</MAVEN-COMPILER-PLUGIN.SOURCE>
     <MAVEN-COMPILER-PLUGIN.TARGET>21</MAVEN-COMPILER-PLUGIN.TARGET>
-    <MAVEN-SUREFIRE-PLUGIN.VERSION>3.0.0-M6</MAVEN-SUREFIRE-PLUGIN.VERSION>
+    <MAVEN-SUREFIRE-PLUGIN.VERSION>3.2.5</MAVEN-SUREFIRE-PLUGIN.VERSION>
     <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
-    <JUNIT-JUPITER-ENGINE.VERSION>5.9.2</JUNIT-JUPITER-ENGINE.VERSION>
+    <JUNIT-JUPITER-ENGINE.VERSION>5.1.1</JUNIT-JUPITER-ENGINE.VERSION>
     <POSTGRESQL.VERSION>42.7.1</POSTGRESQL.VERSION>
     <TESTCONTAINERS.VERSION>1.17.2</TESTCONTAINERS.VERSION>
-    <JIO-EXP-VERSION>4.0.0</JIO-EXP-VERSION>
-    <JIO-HTTP.VERSION>4.0.0</JIO-HTTP.VERSION>
-    <JIO-CONSOLE.VERSION>4.0.0</JIO-CONSOLE.VERSION>
+    <JIO-EXP-VERSION>3.0.0-RC1</JIO-EXP-VERSION>
+    <JIO-HTTP.VERSION>3.0.0-RC1</JIO-HTTP.VERSION>
+    <JIO-CONSOLE.VERSION>3.0.0-RC1</JIO-CONSOLE.VERSION>
     <JAVA-FUN.VERSION>2.1.0</JAVA-FUN.VERSION>
-    <JIO-MONGODB-VERSION>4.0.0</JIO-MONGODB-VERSION>
-    <JIO-JDBC-VERSION>4.0.0</JIO-JDBC-VERSION>
+    <JIO-MONGODB-VERSION>3.0.0-RC1</JIO-MONGODB-VERSION>
+    <JIO-JDBC-VERSION>3.0.0-RC1</JIO-JDBC-VERSION>
     <LOGBACK-CLASSIC.VERSION>1.4.12</LOGBACK-CLASSIC.VERSION>
     <FLYWAY-CORE.VERSION>7.7.3</FLYWAY-CORE.VERSION>
     <MONGODB-DRIVER-SYNC.VERSION>4.11.0</MONGODB-DRIVER-SYNC.VERSION>
-    <FORMATTER-MAVEN-PLUGIN.VERSION>2.23.0</FORMATTER-MAVEN-PLUGIN.VERSION>
   </properties>
 
   <build>
     <plugins>
       <plugin>
-        <groupId>net.revelc.code.formatter</groupId>
-        <artifactId>formatter-maven-plugin</artifactId>
-        <version>${FORMATTER-MAVEN-PLUGIN.VERSION}</version>
-        <configuration>
-          <configFile>../MyGoogleStyle.xml</configFile>
-        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${MAVEN-SUREFIRE-PLUGIN.VERSION}</version>
         <executions>
           <execution>
-            <id>format</id>
+            <id>unit-tests</id>
+            <phase>test</phase>
             <goals>
-              <goal>format</goal>
+              <goal>test</goal>
             </goals>
-            <phase>process-sources</phase>
           </execution>
         </executions>
+        <configuration>
+          <argLine>--enable-preview</argLine>
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*Tests.java</include>
+            <include>**/*Property.java</include>
+            <include>**/*Properties.java</include>
+          </includes>
+          <failIfNoTests>false</failIfNoTests>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${MAVEN-JAR-PLUGIN.VERSION}</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${MAVEN-JAVADOC-PLUGIN.VERSION}</version>
         <configuration>
+          <additionalOptions>--enable-preview</additionalOptions>
           <source>${MAVEN-COMPILER-PLUGIN.SOURCE}</source>
         </configuration>
         <executions>
@@ -105,6 +117,7 @@
             <arg>-XDcompilePolicy=simple</arg>
             <arg>-Xplugin:ErrorProne</arg>
             <arg>-Xlint:all</arg>
+            <arg>--enable-preview</arg>
           </compilerArgs>
           <annotationProcessorPaths>
             <path>
@@ -115,17 +128,6 @@
           </annotationProcessorPaths>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${MAVEN-SUREFIRE-PLUGIN.VERSION}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>${MAVEN-JAR-PLUGIN.VERSION}</version>
-      </plugin>
-
     </plugins>
   </build>
 
@@ -225,6 +227,7 @@
       <version>${JIO-MONGODB-VERSION}</version>
       <scope>test</scope>
     </dependency>
+
 
   </dependencies>
   <profiles>

@@ -17,12 +17,12 @@ import static java.util.Objects.requireNonNull;
  *
  * <pre>
  *
- *     POST https|http://host:port/uri
- *     grant_type=client_credentials
+ * POST https|http://host:port/uri
+ * grant_type=client_credentials
  *
- *     Accept: application/json
- *     Authorization: Base64("${ClientId}:${ClientSecret}")
- *     Content-Type: application/x-www-form-urlencoded
+ * Accept: application/json
+ * Authorization: Base64("${ClientId}:${ClientSecret}")
+ * Content-Type: application/x-www-form-urlencoded
  *
  * </pre>
  *
@@ -33,11 +33,10 @@ public final class AccessTokenRequest implements Lambda<OauthHttpClient, HttpRes
   private final URI uri;
   private final String authorizationHeader;
 
-
   private AccessTokenRequest(final String clientId,
                              final String clientSecret,
                              final URI uri
-                            ) {
+  ) {
 
     String credentials = requireNonNull(clientId) + ":" + requireNonNull(clientSecret);
     this.authorizationHeader = Base64.getEncoder()
@@ -49,12 +48,12 @@ public final class AccessTokenRequest implements Lambda<OauthHttpClient, HttpRes
    * Factory method to create the function that takes a http client and send the following request to the server
    * <pre>
    *
-   *     POST scheme://host:port/path
-   *     grant_type=client_credentials
+   * POST scheme://host:port/path
+   * grant_type=client_credentials
    *
-   *     Accept: application/json
-   *     Authorization: Base64("${ClientId}:${ClientSecret}")
-   *     Content-Type: application/x-www-form-urlencoded
+   * Accept: application/json
+   * Authorization: Base64("${ClientId}:${ClientSecret}")
+   * Content-Type: application/x-www-form-urlencoded
    *
    *
    * </pre>
@@ -67,12 +66,11 @@ public final class AccessTokenRequest implements Lambda<OauthHttpClient, HttpRes
   public static AccessTokenRequest of(final String clientId,
                                       final String clientSecret,
                                       final URI uri
-                                     ) {
+  ) {
     return new AccessTokenRequest(clientId,
                                   clientSecret,
                                   uri);
   }
-
 
   @Override
   public IO<HttpResponse<String>> apply(final OauthHttpClient client) {
@@ -81,19 +79,18 @@ public final class AccessTokenRequest implements Lambda<OauthHttpClient, HttpRes
                                  .apply(HttpRequest.newBuilder()
                                                    .header("Accept",
                                                            "application/json"
-                                                          )
+                                                   )
                                                    .header("Authorization",
                                                            String.format("Basic %s",
                                                                          authorizationHeader
-                                                                        )
-                                                          )
+                                                           )
+                                                   )
                                                    .header("Content-Type",
                                                            "application/x-www-form-urlencoded"
-                                                          )
+                                                   )
                                                    .uri(uri)
                                                    .POST(HttpRequest.BodyPublishers.ofString(body)));
 
   }
-
 
 }

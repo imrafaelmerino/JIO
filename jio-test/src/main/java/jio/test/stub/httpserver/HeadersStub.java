@@ -1,7 +1,6 @@
 package jio.test.stub.httpserver;
 
 import com.sun.net.httpserver.Headers;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,6 +27,5 @@ public non-sealed interface HeadersStub extends HttpRespStub<Headers> {
     respHeaders.putAll(Objects.requireNonNull(map));
     return n -> reqBody -> uri -> reqHeaders -> respHeaders;
   }
-
 
 }

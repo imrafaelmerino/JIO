@@ -8,7 +8,6 @@ package jio.console;
 @SuppressWarnings("serial")
 public class InvalidCommand extends Exception {
 
-
   /**
    * Constructs a new {@code InvalidCommand} exception with the given command and the exact reason for the failure.
    *
@@ -17,14 +16,14 @@ public class InvalidCommand extends Exception {
    */
   public InvalidCommand(final Command command,
                         final String reason
-                       ) {
+  ) {
     super(ControlChars.RED.code +
-              String.format("Invalid command.\nReason: %s.\nCommand description: %s",
-                            reason,
-                            command.description
-                           )
-              + ControlChars.RESET.code
-         );
+          String.format("Invalid command.\nReason: %s.\nCommand description: %s",
+                        reason,
+                        command.description
+          )
+          + ControlChars.RESET.code
+    );
 
   }
 }

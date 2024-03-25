@@ -1,6 +1,10 @@
 package jio.test.pbt.rest;
 
+import static java.util.Objects.requireNonNull;
+
 import fun.gen.Gen;
+import java.net.http.HttpResponse;
+import java.util.function.Supplier;
 import jio.BiLambda;
 import jio.IO;
 import jio.Lambda;
@@ -8,11 +12,6 @@ import jio.test.pbt.PropertyBuilder;
 import jio.test.pbt.TestFailure;
 import jio.test.pbt.TestResult;
 import jsonvalues.JsObj;
-
-import java.net.http.HttpResponse;
-import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * A builder class for creating property tests for RESTful APIs that support Create (POST), Read (GET), and Delete
@@ -22,7 +21,6 @@ import static java.util.Objects.requireNonNull;
  */
 public final class CRDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBody, CRDPropBuilder<GenReqBody>> implements
                                                                                                               Supplier<PropertyBuilder<GenReqBody>> {
-
 
   private CRDPropBuilder(String name,
                          Gen<GenReqBody> gen,
@@ -59,9 +57,10 @@ public final class CRDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBody
     requireNonNull(p_delete);
     return new CRDPropBuilder<>(name,
                                 gen,
-                                (conf, body) -> requireNonNull(p_post).apply(body),
-                                (conf, id) -> requireNonNull(p_get).apply(id),
-                                (conf, id) -> requireNonNull(p_delete).apply(id));
+                                (_, body) -> requireNonNull(p_post).apply(body),
+                                (_, id) -> requireNonNull(p_get).apply(id),
+                                (_, id) -> requireNonNull(p_delete).apply(id)
+    );
   }
 
   /**
@@ -126,9 +125,9 @@ public final class CRDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBody
                             .then(idResp -> get.apply(conf,
                                                       idResp.id()))
 
-                            .map(resp -> resp.statusCode() == 404 ?
-                                         TestResult.SUCCESS :
-                                         TestFailure.reason(
+                            .map(resp -> resp.statusCode() == 404
+                                         ? TestResult.SUCCESS
+                                         : TestFailure.reason(
                                              "Entity found after being deleted successfully. Status code received %d".formatted(
                                                  resp.statusCode())));
 
@@ -136,6 +135,5 @@ public final class CRDPropBuilder<GenReqBody> extends RestPropBuilder<GenReqBody
                                     gen,
                                     lambda);
   }
-
 
 }

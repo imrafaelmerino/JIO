@@ -1,6 +1,5 @@
 package jio.api.jdbc;
 
-
 import java.nio.charset.StandardCharsets;
 import jio.jdbc.DatasourceBuilder;
 import org.junit.jupiter.api.AfterAll;
@@ -11,7 +10,6 @@ public class BaseTest {
 
   static PostgreSQLContainer<?> postgresContainer;
   static DatasourceBuilder datasourceBuilder;
-
 
   @BeforeAll
   static void beforeAll() {
@@ -25,10 +23,10 @@ public class BaseTest {
 
     DatabaseMigration.of(postgresContainer.getUsername(),
                          postgresContainer.getPassword(),
-                         postgresContainer.getJdbcUrl()).migrate();
+                         postgresContainer.getJdbcUrl())
+                     .migrate();
 
   }
-
 
   @AfterAll
   static void afterAll() {

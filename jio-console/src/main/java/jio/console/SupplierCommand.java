@@ -13,7 +13,7 @@ public class SupplierCommand extends Command {
   public SupplierCommand(String name,
                          String description,
                          Supplier<String> supplier
-                        ) {
+  ) {
     super(name,
           description);
     this.supplier = supplier;
@@ -22,7 +22,7 @@ public class SupplierCommand extends Command {
   @Override
   public Function<String[], IO<String>> apply(JsObj conf,
                                               State state
-                                             ) {
+  ) {
     return tokens -> IO.lazy(supplier);
   }
 }

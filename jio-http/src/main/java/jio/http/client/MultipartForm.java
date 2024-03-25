@@ -3,7 +3,6 @@ package jio.http.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 import java.util.Objects;
@@ -22,16 +21,16 @@ public final class MultipartForm {
   }
 
   /**
-   * Creates a Content-Type header value for a multipart/form-data request with the specified boundary.
+   * Creates a Content-Type header output for a multipart/form-data request with the specified boundary.
    *
    * @param boundary The boundary string used to separate different parts of the multipart request.
-   * @return A string representing the Content-Type header value.
+   * @return A string representing the Content-Type header output.
    * @throws NullPointerException If the provided boundary is null.
    */
   public static String createContentTypeHeader(final String boundary) {
     return String.format("multipart/form-data; boundary=%s",
                          Objects.requireNonNull(boundary)
-                        );
+    );
   }
 
   /**
@@ -48,7 +47,7 @@ public final class MultipartForm {
   public static String createBody(final Map<String, String> fields,
                                   final Map<String, File> files,
                                   final String boundary
-                                 ) throws UncheckedIOException {
+  ) throws UncheckedIOException {
     try {
 
       StringBuilder builder = new StringBuilder();
@@ -81,8 +80,8 @@ public final class MultipartForm {
                .append("\"\r\n")
                .append("\r\n")
                .append(
-                   Files.readString(file.getValue()
-                                        .toPath()))
+                       Files.readString(file.getValue()
+                                            .toPath()))
                .append("\r\n");
       }
 

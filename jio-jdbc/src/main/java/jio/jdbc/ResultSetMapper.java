@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * A functional interface for mapping rows from a {@link java.sql.ResultSet} to objects of type {@code T}.
@@ -14,7 +13,6 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface ResultSetMapper<Entity> {
 
-
   /**
    * Mapper to handle a resul-set that contains at most one row. The `map` function doesn't have to call the `next`
    * method, just to collect the data from the column names.
@@ -23,7 +21,7 @@ public interface ResultSetMapper<Entity> {
    * @param <Entity> the type of the entity
    * @return the Entity
    */
-  static <Entity> ResultSetMapper<Entity> ONE_ROW(Function<ResultSet, Entity> map) {
+  static <Entity> ResultSetMapper<Entity> ONE_ROW(ResultSetMapper<Entity> map) {
     return resultSet -> resultSet.next() ? map.apply(resultSet) : null;
   }
 
@@ -45,7 +43,6 @@ public interface ResultSetMapper<Entity> {
       return entities;
     };
   }
-
 
   /**
    * Applies the mapping function to the given {@code ResultSet} to produce an object of type {@code T}.

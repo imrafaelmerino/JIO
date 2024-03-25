@@ -1,21 +1,20 @@
 package jio;
 
-import fun.tuple.Pair;
+import static java.util.Objects.requireNonNull;
 
+import fun.tuple.Pair;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * Represents an expression that is reduced to a pair. Their elements can be evaluated either in parallel or
- * sequentially. In both cases, if one fails, the whole expression fails.
+ * sequentially. In both cases, if one fails, the whole expression fails immediately.
  * <p>
  * You can create PairExp expressions using the 'seq' method to evaluate effects sequentially, or using the 'par' method
  * to evaluate effects in parallel. If one effect fails, the entire expression fails.
  *
- * @param <First> the type of the first computation
+ * @param <First>  the type of the first computation
  * @param <Second> the type of the second computation
  */
 public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Second>> permits PairExpSeq, PairExpPar {
@@ -51,8 +50,8 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
   }
 
   /**
-   * create a tuple of two effects that will be evaluated in parallel if they run on different threads. The two effect
-   * are always evaluated, no matter if the first one fails.
+   * create a tuple of two effects that will be evaluated in paralell. If one fails, the whole expression fails
+   * immediately
    *
    * @param first  first effect of the pair
    * @param second second effect of the pair
@@ -87,27 +86,22 @@ public abstract sealed class PairExp<First, Second> extends Exp<Pair<First, Seco
     return _2;
   }
 
-
   @Override
   public abstract PairExp<First, Second> retryEach(final Predicate<? super Throwable> predicate,
                                                    final RetryPolicy policy
                                                   );
 
-
   @Override
   public PairExp<First, Second> retryEach(final RetryPolicy policy) {
-    return retryEach(e -> true,
+    return retryEach(_ -> true,
                      policy);
   }
-
 
   @Override
   public abstract PairExp<First, Second> debugEach(final EventBuilder<Pair<First, Second>> messageBuilder
                                                   );
 
-
   @Override
   public abstract PairExp<First, Second> debugEach(final String context);
-
 
 }

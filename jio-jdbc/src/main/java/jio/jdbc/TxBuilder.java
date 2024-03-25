@@ -91,13 +91,18 @@ public final class TxBuilder {
    * </p>
    *
    * <ul>
-   *     <li>{@link #TRANSACTION_READ_UNCOMMITTED}: The lowest isolation level where transactions can read uncommitted changes made by other transactions.</li>
-   *     <li>{@link #TRANSACTION_READ_COMMITTED}: Transactions can only read committed changes made by other transactions.</li>
-   *     <li>{@link #TRANSACTION_REPEATABLE_READ}: Transactions can read committed changes and can repeat the same read operation and get the same results.</li>
-   *     <li>{@link #TRANSACTION_SERIALIZABLE}: The highest isolation level where transactions are completely isolated from each other.</li>
+   * <li>{@link #TRANSACTION_READ_UNCOMMITTED}: The lowest isolation level where transactions can read uncommitted
+   * changes made by other transactions.</li>
+   * <li>{@link #TRANSACTION_READ_COMMITTED}: Transactions can only read committed changes made by other
+   * transactions.</li>
+   * <li>{@link #TRANSACTION_REPEATABLE_READ}: Transactions can read committed changes and can repeat the same read
+   * operation and get the same results.</li>
+   * <li>{@link #TRANSACTION_SERIALIZABLE}: The highest isolation level where transactions are completely isolated from
+   * each other.</li>
    * </ul>
    */
   public enum TX_ISOLATION {
+
     /**
      * The lowest isolation level where transactions can read uncommitted changes made by other transactions.
      */
@@ -142,25 +147,23 @@ public final class TxBuilder {
    */
   public <Output> IO<List<Output>> buildPar(List<Lambda<Connection, Output>> lambdas) {
     Objects.requireNonNull(lambdas);
-    IO<List<Output>> tx =
-        IO.resource(getConnection(),
-                    connection ->
-                        lambdas.stream()
-                               .map(statement -> statement.apply(connection))
-                               .collect(ListExp.parCollector())
-                               .then(result -> IO.task(() -> {
-                                       connection.commit();
-                                       return result;
-                                     }),
-                                     exc -> {
-                                       try {
-                                         connection.rollback();
-                                         return IO.fail(exc);
-                                       } catch (SQLException e) {
-                                         return IO.fail(exc);
-                                       }
-                                     })
-                   );
+    IO<List<Output>> tx = IO.resource(getConnection(),
+                                      connection -> lambdas.stream()
+                                                           .map(statement -> statement.apply(connection))
+                                                           .collect(ListExp.parCollector())
+                                                           .then(result -> IO.task(() -> {
+                                                                   connection.commit();
+                                                                   return result;
+                                                                 }),
+                                                                 exc -> {
+                                                                   try {
+                                                                     connection.rollback();
+                                                                     return IO.fail(exc);
+                                                                   } catch (SQLException e) {
+                                                                     return IO.fail(exc);
+                                                                   }
+                                                                 })
+                                     );
     return JfrEventDecorator.decorateTx(tx,
                                         label,
                                         enableJFR);
@@ -179,25 +182,23 @@ public final class TxBuilder {
    */
   public <Output> IO<List<Output>> buildSeq(List<Lambda<Connection, Output>> lambdas) {
     Objects.requireNonNull(lambdas);
-    IO<List<Output>> tx =
-        IO.resource(getConnection(),
-                    connection ->
-                        lambdas.stream()
-                               .map(statement -> statement.apply(connection))
-                               .collect(ListExp.seqCollector())
-                               .then(result -> IO.task(() -> {
-                                       connection.commit();
-                                       return result;
-                                     }),
-                                     exc -> {
-                                       try {
-                                         connection.rollback();
-                                         return IO.fail(exc);
-                                       } catch (SQLException e) {
-                                         return IO.fail(exc);
-                                       }
-                                     })
-                   );
+    IO<List<Output>> tx = IO.resource(getConnection(),
+                                      connection -> lambdas.stream()
+                                                           .map(statement -> statement.apply(connection))
+                                                           .collect(ListExp.seqCollector())
+                                                           .then(result -> IO.task(() -> {
+                                                                   connection.commit();
+                                                                   return result;
+                                                                 }),
+                                                                 exc -> {
+                                                                   try {
+                                                                     connection.rollback();
+                                                                     return IO.fail(exc);
+                                                                   } catch (SQLException e) {
+                                                                     return IO.fail(exc);
+                                                                   }
+                                                                 })
+                                     );
     return JfrEventDecorator.decorateTx(tx,
                                         label,
                                         enableJFR);
@@ -218,25 +219,22 @@ public final class TxBuilder {
   public <Params, Output> Lambda<Params, Output> build(ClosableStatement<Params, Output> closableStatement) {
     Objects.requireNonNull(closableStatement);
     return params -> {
-      IO<Output> tx =
-          IO.resource(getConnection(),
-                      connection ->
-                          closableStatement.apply(params,
-                                                  connection)
-                                           .then(result ->
-                                                     IO.task(() -> {
-                                                       connection.commit();
-                                                       return result;
-                                                     }),
-                                                 exc -> {
-                                                   try {
-                                                     connection.rollback();
-                                                     return IO.fail(exc);
-                                                   } catch (SQLException e) {
-                                                     return IO.fail(e);
-                                                   }
-                                                 })
-                     );
+      IO<Output> tx = IO.resource(getConnection(),
+                                  connection -> closableStatement.apply(params,
+                                                                        connection)
+                                                                 .then(result -> IO.task(() -> {
+                                                                         connection.commit();
+                                                                         return result;
+                                                                       }),
+                                                                       exc -> {
+                                                                         try {
+                                                                           connection.rollback();
+                                                                           return IO.fail(exc);
+                                                                         } catch (SQLException e) {
+                                                                           return IO.fail(e);
+                                                                         }
+                                                                       })
+                                 );
       return JfrEventDecorator.decorateTx(tx,
                                           label,
                                           enableJFR);
@@ -245,9 +243,8 @@ public final class TxBuilder {
 
   private Callable<Connection> getConnection() {
     return () -> {
-      Connection connection =
-          datasourceBuilder.get()
-                           .getConnection();
+      Connection connection = datasourceBuilder.get()
+                                               .getConnection();
       connection.setAutoCommit(false);
 
       connection.setTransactionIsolation(isolation.level);
@@ -270,39 +267,36 @@ public final class TxBuilder {
   public <Params, Output> Lambda<Params, TxResult> buildWithSavePoints(ClosableStatement<Params, Output> closableStatement) {
     Objects.requireNonNull(closableStatement);
     return params -> IO.resource(getConnection(),
-                                 connection ->
-                                 {
-                                   IO<TxResult> tx =
-                                       closableStatement.apply(params,
-                                                               connection)
-                                                        .then(result -> IO.task(() -> {
-                                                                connection.commit();
-                                                                return new TxSuccess<>(result);
-                                                              }),
-                                                              exc -> {
-                                                                try {
-                                                                  if (exc instanceof RollBackToSavePoint rollBackToSavePoint) {
-                                                                    Savepoint savepoint = rollBackToSavePoint.savepoint;
-                                                                    connection.rollback(savepoint);
-                                                                    connection.commit();
-                                                                    return IO.succeed(new TxPartialSuccess(rollBackToSavePoint.savepoint.getSavepointName(),
-                                                                                                           rollBackToSavePoint.output,
-                                                                                                           rollBackToSavePoint)
-                                                                                     );
-                                                                  } else {
-                                                                    connection.rollback();
-                                                                    return IO.fail(exc);
-                                                                  }
-                                                                } catch (SQLException e) {
-                                                                  return IO.fail(e);
-                                                                }
-                                                              });
+                                 connection -> {
+                                   IO<TxResult> tx = closableStatement.apply(params,
+                                                                             connection)
+                                                                      .then(result -> IO.task(() -> {
+                                                                              connection.commit();
+                                                                              return new TxSuccess<>(result);
+                                                                            }),
+                                                                            exc -> {
+                                                                              try {
+                                                                                if (exc instanceof RollBackToSavePoint rollBackToSavePoint) {
+                                                                                  Savepoint savepoint = rollBackToSavePoint.savepoint;
+                                                                                  connection.rollback(savepoint);
+                                                                                  connection.commit();
+                                                                                  return IO.succeed(new TxPartialSuccess(rollBackToSavePoint.savepoint.getSavepointName(),
+                                                                                                                         rollBackToSavePoint.output,
+                                                                                                                         rollBackToSavePoint)
+                                                                                                   );
+                                                                                } else {
+                                                                                  connection.rollback();
+                                                                                  return IO.fail(exc);
+                                                                                }
+                                                                              } catch (SQLException e) {
+                                                                                return IO.fail(e);
+                                                                              }
+                                                                            });
                                    return JfrEventDecorator.decorateTxWithSavePoints(tx,
                                                                                      label,
                                                                                      enableJFR);
                                  }
                                 );
   }
-
 
 }

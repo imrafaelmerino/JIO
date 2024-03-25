@@ -1,18 +1,16 @@
 package jio.mongodb;
 
+import static java.util.Objects.requireNonNull;
+import static jio.mongodb.MongoOpEvent.OP.INSERT_MANY;
+
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.model.InsertManyOptions;
 import com.mongodb.client.result.InsertManyResult;
-import java.util.concurrent.Executors;
-import jio.IO;
-import jsonvalues.JsObj;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
-import static jio.mongodb.MongoOpEvent.OP.INSERT_MANY;
+import jio.IO;
+import jsonvalues.JsObj;
 
 /**
  * A class for performing insert many operations on a MongoDB collection.
@@ -65,7 +63,6 @@ public final class InsertMany extends Op implements MongoLambda<List<JsObj>, Ins
     return this;
   }
 
-
   /**
    * Applies the insert many operation to the specified MongoDB collection with a list of `JsObj` documents.
    *
@@ -77,21 +74,16 @@ public final class InsertMany extends Op implements MongoLambda<List<JsObj>, Ins
   public IO<InsertManyResult> apply(final ClientSession session,
                                     final List<JsObj> docs) {
     Objects.requireNonNull(docs);
-    Supplier<InsertManyResult> supplier =
-        decorateWithEvent(() -> {
-                       var col = requireNonNull(collection.get());
-                       return
-                           session == null ?
-                           col.insertMany(docs,
-                                          options) :
-                           col.insertMany(session,
-                                          docs,
-                                          options);
-                     },
-                          INSERT_MANY
-                         );
-    return IO.lazy(supplier,
-                   Executors.newVirtualThreadPerTaskExecutor());
+    Supplier<InsertManyResult> supplier = decorateWithEvent(() -> {
+      var col = requireNonNull(collection.get());
+      return session == null ? col.insertMany(docs,
+                                              options) : col.insertMany(session,
+                                                                        docs,
+                                                                        options);
+    },
+                                                            INSERT_MANY
+    );
+    return IO.lazy(supplier);
   }
 
   /**

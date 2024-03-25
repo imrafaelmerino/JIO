@@ -1,17 +1,22 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
 
-import jsonvalues.JsObj;
-import jsonvalues.JsValue;
-
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
+import jsonvalues.JsObj;
+import jsonvalues.JsValue;
 
 /**
  * Represents a supplier of a completable future which result is a json object. It has the same recursive structure as a
@@ -32,7 +37,6 @@ final class JsObjExpPar extends JsObjExp {
           null);
   }
 
-
   /**
    * returns a new object future inserting the given future at the given key
    *
@@ -52,42 +56,42 @@ final class JsObjExpPar extends JsObjExp {
                            jfrPublisher);
   }
 
-
   /**
    * it triggers the execution of all the completable futures, combining the results into a JsObj
    *
    * @return a CompletableFuture of a json object
    */
   @Override
-  @SuppressWarnings("unchecked")
-  CompletableFuture<JsObj> reduceExp() {
+  Result<JsObj> reduceExp() {
+    try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
 
-    List<String> keys = bindings.keySet()
-                                .stream()
-                                .toList();
+      List<String> keys = bindings.keySet()
+                                  .stream()
+                                  .toList();
 
-    Map<String, CompletableFuture<? extends JsValue>> futures =
-        keys.stream()
-            .collect(Collectors.toMap(it -> it,
-                                      it -> bindings.get(it)
-                                                    .get()
-                                     ));
+      Map<String, Subtask<Result<? extends JsValue>>> tasks = keys.stream()
+                                                                  .collect(Collectors.toMap(it -> it,
+                                                                                            it -> scope.fork(bindings.get(it))
+                                                                                           ));
 
-    CompletableFuture<? extends JsValue>[] cfs =
-        futures.values()
-               .toArray(CompletableFuture[]::new);
-    return CompletableFuture.allOf(cfs)
-                            .thenApply(r -> {
-                              JsObj result = JsObj.empty();
-                              for (int i = 0; i < cfs.length; i++) {
-                                JsValue a = cfs[i].join();
-                                result = result.set(keys.get(i),
-                                                    a);
-                              }
-                              return result;
-                            });
+      try {
+        scope.join()
+             .throwIfFailed();
+        JsObj json = JsObj.empty();
+        for (var entry : tasks.entrySet()) {
+          json = json.set(entry.getKey(),
+                          entry.getValue()
+                               .get()
+                               .getOutputOrThrow());
+        }
+        return new Success<>(json);
+
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
+
+    }
   }
-
 
   @Override
   public JsObjExp retryEach(final Predicate<? super Throwable> predicate,
@@ -120,13 +124,11 @@ final class JsObjExpPar extends JsObjExp {
     );
   }
 
-
   @Override
   public JsObjExp debugEach(String context) {
     return debugEach(EventBuilder.of(this.getClass()
                                          .getSimpleName(),
                                      context));
-
 
   }
 }

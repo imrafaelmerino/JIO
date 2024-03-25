@@ -12,6 +12,8 @@ docker run -d -p 27019:27017 \
 -v /Users/rmerino/Projects/jio/jio-test/src/test/resources/conf.yml:/etc/conf.yml \
 --name mongo3 mongo --config "/etc/conf.yml"
 
+sleep 3
+
 docker exec -it mongo1 mongosh
 ```
 
@@ -19,9 +21,9 @@ docker exec -it mongo1 mongosh
 rs.initiate({
   _id: "rs0",
   members: [
-    { _id: 0, host: "192.168.1.17:27017" },
-    { _id: 1, host: "192.168.1.17:27018" },
-    { _id: 2, host: "192.168.1.17:27019" },
+    { _id: 0, host: "192.168.1.64:27017" },
+    { _id: 1, host: "192.168.1.64:27018" },
+    { _id: 2, host: "192.168.1.64:27019" },
   ],
 });
 ```

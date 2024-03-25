@@ -30,7 +30,7 @@ public interface OauthHttpClient extends JioHttpClient {
 
   /**
    * Http lambda that takes a req builder, send the request asynchronously to the server and wrap the response into a
-   * http response, requesting an access token when necessary  and discarding the body response
+   * http response, requesting an access token when necessary and discarding the body response
    *
    * @return a http lambda
    */
@@ -47,6 +47,5 @@ public interface OauthHttpClient extends JioHttpClient {
    * @see HttpResponse.BodyHandlers for more body handlers implementations
    */
   <T> HttpLambda<T> oauthBodyHandler(final HttpResponse.BodyHandler<T> handler);
-
 
 }

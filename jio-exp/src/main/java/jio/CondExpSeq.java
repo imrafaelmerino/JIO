@@ -1,15 +1,15 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
 
 final class CondExpSeq<Output> extends CondExp<Output> {
 
@@ -28,30 +28,33 @@ final class CondExpSeq<Output> extends CondExp<Output> {
     this.otherwise = otherwise;
   }
 
-  private static <O> CompletableFuture<O> get(List<IO<Boolean>> tests,
-                                              List<Supplier<IO<O>>> consequences,
-                                              Supplier<IO<O>> otherwise,
-                                              int condTestedSoFar
-                                             ) {
-    return condTestedSoFar == tests.size() ?
-           otherwise.get()
-                    .get() :
-           tests.get(condTestedSoFar)
-                .get()
-                .thenCompose(result -> result ?
-                                       consequences.get(condTestedSoFar)
-                                                   .get()
-                                                   .get() :
-                                       get(tests,
-                                           consequences,
-                                           otherwise,
-                                           condTestedSoFar + 1)
-                            );
+  private static <O> Result<O> get(List<IO<Boolean>> tests,
+                                   List<Supplier<IO<O>>> consequences,
+                                   Supplier<IO<O>> otherwise,
+                                   int condTestedSoFar
+                                  ) {
+
+    try {
+      if (condTestedSoFar == tests.size()) {
+        return otherwise.get()
+                        .call();
+      }
+      return tests.get(condTestedSoFar)
+                  .call()
+                  .getOutputOrThrow() ? consequences.get(condTestedSoFar)
+                                                    .get()
+                                                    .call() : get(tests,
+                                                      consequences,
+                                                      otherwise,
+                                                      condTestedSoFar + 1);
+    } catch (Exception e) {
+      return new Failure<>(e);
+    }
 
   }
 
   @Override
-  CompletableFuture<Output> reduceExp() {
+  Result<Output> reduceExp() {
     return get(tests,
                consequences,
                otherwise,
@@ -97,7 +100,6 @@ final class CondExpSeq<Output> extends CondExp<Output> {
                             getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public CondExp<Output> debugEach(final String context) {

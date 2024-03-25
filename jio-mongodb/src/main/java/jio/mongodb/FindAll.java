@@ -5,7 +5,6 @@ import com.mongodb.client.FindIterable;
 import jio.IO;
 import jsonvalues.JsObj;
 
-
 /**
  * Represents a MongoDB find operation to retrieve all documents in a collection using {@link jio.Lambda lambdas}. This
  * class is a specific implementation of the {@link Find} class for querying all documents and converting the result to
@@ -43,7 +42,6 @@ public final class FindAll extends Find implements MongoLambda<FindBuilder, Find
     return new FindAll(collection);
   }
 
-
   /**
    * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation will
    * not generate or log JFR events for its operations.
@@ -68,4 +66,5 @@ public final class FindAll extends Find implements MongoLambda<FindBuilder, Find
     return query(session,
                  findBuilder);
   }
+
 }

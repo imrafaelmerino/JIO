@@ -1,11 +1,10 @@
 package jio.test.stub;
 
-import jio.time.Clock;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Function;
+import jio.time.Clock;
 
 /**
  * Class to create different kinds of stubs that stand in for {@link Clock clocks}. These clock stubs are useful for
@@ -21,10 +20,8 @@ public final class ClockStub {
   private ClockStub(final Instant base) {
     Objects.requireNonNull(base);
     lastTick = System.nanoTime();
-    tickCounter = n -> n == 1 ?
-                       base.toEpochMilli() :
-                       base.plus(Duration.ofNanos(System.nanoTime() - lastTick))
-                           .toEpochMilli();
+    tickCounter = n -> n == 1 ? base.toEpochMilli() : base.plus(Duration.ofNanos(System.nanoTime() - lastTick))
+                                                          .toEpochMilli();
     clock = Clock.custom.apply(() -> {
       synchronized (this) {
         counter += 1;
@@ -75,7 +72,7 @@ public final class ClockStub {
    * Clock dynamicClock = ClockStub.fromCalls(timeFunction);
    *
    * }
-   *  </pre>
+   * </pre>
    *
    * @param callsFn Function that takes the call number and returns the time.
    * @return A clock stub.
@@ -83,6 +80,5 @@ public final class ClockStub {
   public static Clock fromSeqCalls(final Function<Integer, Long> callsFn) {
     return new ClockStub(Objects.requireNonNull(callsFn)).clock;
   }
-
 
 }

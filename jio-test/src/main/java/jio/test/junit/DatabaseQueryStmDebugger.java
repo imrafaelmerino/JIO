@@ -18,7 +18,7 @@ final class DatabaseQueryStmDebugger implements Consumer<RecordedEvent> {
       |  Duration: %s
       |  Fetch Size: %s
       |  Rows Returned: %s
-      |  Query Counter: %s
+      |  Op Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
@@ -33,13 +33,12 @@ final class DatabaseQueryStmDebugger implements Consumer<RecordedEvent> {
       |  SQL: %s
       |  Fetch Size: %s
       |  Rows Returned: %s
-      |  Query Counter: %s
+      |  Op Counter: %s
       |  Thread: %s
       |  Event Start Time: %s
       ----------------------
       """;
   static final String EVENT_NAME = "jio.jdbc.QueryStm";
-
 
   @Override
   public void accept(RecordedEvent event) {
@@ -50,35 +49,33 @@ final class DatabaseQueryStmDebugger implements Consumer<RecordedEvent> {
     var label = event.getValue(EventFields.LABEL);
     var fetchSize = event.getValue(EventFields.FETCH_SIZE);
     boolean isSuccess = "SUCCESS".equals(result);
-    var message = isSuccess ?
-                  String.format(FORMAT_SUC,
-                                label,
-                                event.getValue(EventFields.RESULT),
-                                Fun.formatTime(event.getDuration()
-                                                    .toNanos()),
-                                fetchSize,
-                                event.getValue(EventFields.ROW_RETURNED),
-                                event.getValue("queryCounter"),
-                                Utils.getThreadName(event.getThread()),
-                                event.getStartTime()
-                                     .atZone(ZoneOffset.UTC)
-                                     .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                               ) :
-                  String.format(FORMAT_ERR,
-                                label,
-                                event.getValue(EventFields.RESULT),
-                                Fun.formatTime(event.getDuration()
-                                                    .toNanos()),
-                                event.getValue(EventFields.EXCEPTION),
-                                event.getValue(EventFields.SQL),
-                                fetchSize,
-                                event.getValue(EventFields.ROW_RETURNED),
-                                event.getValue("queryCounter"),
-                                Utils.getThreadName(event.getThread()),
-                                event.getStartTime()
-                                     .atZone(ZoneOffset.UTC)
-                                     .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                               );
+    var message = isSuccess ? String.format(FORMAT_SUC,
+                                            label,
+                                            event.getValue(EventFields.RESULT),
+                                            Fun.formatTime(event.getDuration()
+                                                                .toNanos()),
+                                            fetchSize,
+                                            event.getValue(EventFields.ROW_RETURNED),
+                                            event.getValue("queryCounter"),
+                                            Utils.getThreadName(event.getThread()),
+                                            event.getStartTime()
+                                                 .atZone(ZoneOffset.UTC)
+                                                 .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+    ) : String.format(FORMAT_ERR,
+                      label,
+                      event.getValue(EventFields.RESULT),
+                      Fun.formatTime(event.getDuration()
+                                          .toNanos()),
+                      event.getValue(EventFields.EXCEPTION),
+                      event.getValue(EventFields.SQL),
+                      fetchSize,
+                      event.getValue(EventFields.ROW_RETURNED),
+                      event.getValue("queryCounter"),
+                      Utils.getThreadName(event.getThread()),
+                      event.getStartTime()
+                           .atZone(ZoneOffset.UTC)
+                           .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+    );
     synchronized (System.out) {
       System.out.println(message);
       System.out.flush();

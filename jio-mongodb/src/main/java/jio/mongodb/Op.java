@@ -5,20 +5,19 @@ import jio.ExceptionFun;
 
 abstract class Op {
 
-
   final CollectionBuilder collection;
   boolean recordEvents;
 
   public Op(CollectionBuilder collection,
             boolean recordEvents
-           ) {
+  ) {
     this.collection = collection;
     this.recordEvents = recordEvents;
   }
 
   <Output> Supplier<Output> decorateWithEvent(final Supplier<Output> task,
                                               final MongoOpEvent.OP op
-                                             ) {
+  ) {
     if (recordEvents) {
       return () -> {
         MongoOpEvent event = new MongoOpEvent(op);

@@ -1,38 +1,34 @@
 package jio.test.pbt;
 
+import static java.util.Objects.requireNonNull;
+
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 import jio.IO;
 import jio.console.Command;
 import jio.console.State;
 import jsonvalues.JsObj;
 
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.regex.Pattern;
-
-import static java.util.Objects.requireNonNull;
-
 /**
  * Command to execute {@link Property properties} with the command:
  * <pre>
- *     prop name
+ * prop name
  * </pre>
  * <p>
  * Properties can also be executed an arbitrary number of time either in parallel or sequentially:
  *
  * <pre>
- *     prop name par 3
- *     prop name seq 5
+ * prop name par 3
+ * prop name seq 5
  * </pre>
  */
 class PropertyCommand extends Command {
 
-  static final Pattern parPattern =
-      Pattern.compile("prop \\w+ par \\d+");
-  static final Pattern seqPattern =
-      Pattern.compile("prop \\w+ seq \\d+");
+  static final Pattern parPattern = Pattern.compile("prop \\w+ par \\d+");
+  static final Pattern seqPattern = Pattern.compile("prop \\w+ seq \\d+");
   private static final String PREFIX_COMMAND = "prop";
   private final Property<?> prop;
-
 
   /**
    * Creates a PropertyCommand from a property.
@@ -45,9 +41,8 @@ class PropertyCommand extends Command {
                         requireNonNull(prop).name
                        ),
           prop.description,
-          tokens ->
-              tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
-                  && tokens[1].equalsIgnoreCase(prop.name)
+          tokens -> tokens[0].equalsIgnoreCase(PREFIX_COMMAND)
+                    && tokens[1].equalsIgnoreCase(prop.name)
          );
     this.prop = requireNonNull(prop);
   }
@@ -73,24 +68,22 @@ class PropertyCommand extends Command {
                     .matches()) {
         int n = Integer.parseInt(tokens[3]);
         return IO.succeed(prop.repeatPar(n)
-                              .createTask(conf)
-                              .join()
+                              .create(conf)
+                              .compute()
                               .toString());
       }
       if (seqPattern.matcher(command)
                     .matches()) {
         int n = Integer.parseInt(tokens[3]);
         return IO.succeed(prop.repeatPar(n)
-                              .createTask(conf)
-                              .join()
+                              .create(conf)
+                              .compute()
                               .toString());
       }
-      return prop.createTask(conf)
+      return prop.create(conf)
                  .map(Report::toString);
-
 
     };
   }
-
 
 }

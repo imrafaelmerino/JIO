@@ -1,6 +1,5 @@
 package jio.test.pbt;
 
-
 import jsonvalues.JsObj;
 import jsonvalues.JsStr;
 
@@ -18,12 +17,12 @@ public record FailureContext(Context context,
    * Serializes this record into a JSON object. The JSON schema is as follows:
    *
    * <pre>
-   *     {@code
+   * {@code
    *     {
    *         "context": JsObj (see Context#toJson()),
    *         "reason": String (the reason for the failure)
-   *     }
-   *     }
+   * }
+   * }
    * </pre>
    *
    * @return A JSON representation of the failure context.

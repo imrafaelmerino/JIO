@@ -1,11 +1,10 @@
 package jio.test.pbt;
 
-import jsonvalues.JsArray;
-import jsonvalues.JsObj;
-
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import jsonvalues.JsArray;
+import jsonvalues.JsObj;
 
 /**
  * Represents a collection of individual test reports for a group of properties. This class allows you to perform
@@ -72,17 +71,19 @@ public class GroupReport {
                   .reduce(JsObj.empty()
                                .set(groupName,
                                     JsObj.empty()),
-                          (json, report) -> json.set(groupName,
-                                                     json.getObj(groupName)
-                                                         .set(report.getPropName(),
-                                                              report.toJson())
-                                                    ),
-                          (a, b) -> JsObj.of(groupName,
-                                             a.getObj(groupName)
-                                              .union(b.getObj(groupName),
-                                                     JsArray.TYPE.LIST
-                                                    )
-                                            )
+                          (json,
+                           report) -> json.set(groupName,
+                                               json.getObj(groupName)
+                                                   .set(report.getPropName(),
+                                                        report.toJson())
+                                              ),
+                          (a,
+                           b) -> JsObj.of(groupName,
+                                          a.getObj(groupName)
+                                           .union(b.getObj(groupName),
+                                                  JsArray.TYPE.LIST
+                                                 )
+                                         )
                          );
   }
 
@@ -90,6 +91,5 @@ public class GroupReport {
   public String toString() {
     return toJson().toString();
   }
-
 
 }

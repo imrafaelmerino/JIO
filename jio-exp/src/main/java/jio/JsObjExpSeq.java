@@ -1,19 +1,19 @@
 package jio;
 
-import jsonvalues.JsObj;
-import jsonvalues.JsValue;
+import static java.util.Objects.requireNonNull;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
+import jsonvalues.JsObj;
+import jsonvalues.JsValue;
 
 /**
  * Represents a supplier of a completable future which result is a json object. It has the same recursive structure as a
@@ -34,7 +34,6 @@ final class JsObjExpSeq extends JsObjExp {
           null);
   }
 
-
   /**
    * returns a new object future inserting the given future at the given key
    *
@@ -54,29 +53,28 @@ final class JsObjExpSeq extends JsObjExp {
                            jfrPublisher);
   }
 
-
   /**
    * it triggers the execution of all the completable futures, combining the results into a JsObj
    *
    * @return a CompletableFuture of a json object
    */
   @Override
-  CompletableFuture<JsObj> reduceExp() {
+  Result<JsObj> reduceExp() {
 
-    CompletableFuture<JsObj> result = CompletableFuture.completedFuture(JsObj.empty());
-
-    for (final Map.Entry<String, IO<? extends JsValue>> tuple : bindings.entrySet()) {
-      result = result.thenCombine(tuple.getValue()
-                                       .get(),
-                                  (obj, value) -> obj.set(tuple.getKey(),
-                                                          value
-                                                         )
-                                 );
+    JsObj result = JsObj.empty();
+    for (var entry : bindings.entrySet()) {
+      try {
+        result = result.set(entry.getKey(),
+                            entry.getValue()
+                                 .call()
+                                 .getOutputOrThrow());
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
     }
 
-    return result;
+    return new Success<>(result);
   }
-
 
   @Override
   public JsObjExp retryEach(final Predicate<? super Throwable> predicate,
@@ -98,7 +96,6 @@ final class JsObjExpSeq extends JsObjExp {
     );
   }
 
-
   @Override
   public JsObjExp debugEach(final EventBuilder<JsObj> eventBuilder
                            ) {
@@ -109,7 +106,6 @@ final class JsObjExpSeq extends JsObjExp {
                            getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public JsObjExp debugEach(final String context) {

@@ -1,14 +1,15 @@
 package jio;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
-
+import jio.Result.Failure;
+import jio.Result.Success;
 
 final class AnyExpPar extends AnyExp {
 
@@ -35,15 +36,22 @@ final class AnyExpPar extends AnyExp {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  CompletableFuture<Boolean> reduceExp() {
-    CompletableFuture<Boolean>[] cfs = exps.stream()
-                                           .map(Supplier::get)
-                                           .toArray(CompletableFuture[]::new);
-    return CompletableFuture.allOf(cfs)
-                            .thenApply(l -> Arrays.stream(cfs)
-                                                  .anyMatch(CompletableFuture::join)
-                                      );
+  Result<Boolean> reduceExp() {
+    try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+      List<Subtask<Result<Boolean>>> computed = new ArrayList<>(exps.size());
+      for (var task : exps) {
+        computed.add(scope.fork(task));
+      }
+      try {
+        scope.join()
+             .throwIfFailed();
+        return new Success<>(computed.stream()
+                                     .anyMatch(task -> task.get()
+                                                           .equals(Result.TRUE)));  // Throws if none of the subtasks completed successfully
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
+    }
   }
 
   @Override
@@ -55,7 +63,6 @@ final class AnyExpPar extends AnyExp {
                          getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public AnyExp debugEach(final String context) {

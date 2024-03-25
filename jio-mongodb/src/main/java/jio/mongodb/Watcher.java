@@ -17,7 +17,6 @@ public final class Watcher implements Consumer<CollectionBuilder> {
    */
   private final Consumer<ChangeStreamIterable<JsObj>> consumer;
 
-
   private Watcher(final Consumer<ChangeStreamIterable<JsObj>> consumer) {
     this.consumer = requireNonNull(consumer);
   }

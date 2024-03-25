@@ -13,12 +13,12 @@ import java.util.function.Function;
  * interacts with the user to compose the JSON. To execute the command:
  *
  * <pre>
- *     json command_name
+ * json command_name
  * </pre>
  * <p>
  * To get some help about the program and show the description:
  * <pre>
- *     help json command_name
+ * help json command_name
  * </pre>
  *
  * @see JsObjConsole
@@ -27,7 +27,6 @@ public class JsObjConsoleCommand extends Command {
 
   private static final String COMMAND_NAME = "json-console";
   private final JsConsole<? extends Json<?>> program;
-
 
   /**
    * Constructor to create a JsObjConsoleCommand.
@@ -40,22 +39,21 @@ public class JsObjConsoleCommand extends Command {
   public JsObjConsoleCommand(final String name,
                              final String description,
                              final JsObjConsole objConsole
-                            ) {
+  ) {
     super(String.format("%s %s",
                         COMMAND_NAME,
                         name),
           description,
-          tokens ->
-              tokens.length == 2
-                  && tokens[0].equalsIgnoreCase(COMMAND_NAME)
-                  && tokens[1].equalsIgnoreCase(name));
+          tokens -> tokens.length == 2
+                    && tokens[0].equalsIgnoreCase(COMMAND_NAME)
+                    && tokens[1].equalsIgnoreCase(name));
     this.program = objConsole;
   }
 
   @Override
   public Function<String[], IO<String>> apply(final JsObj conf,
                                               final State state
-                                             ) {
+  ) {
     return tokens -> program.apply(JsPath.empty())
                             .map(Json::toPrettyString);
   }

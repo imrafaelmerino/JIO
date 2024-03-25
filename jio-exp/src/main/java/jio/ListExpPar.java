@@ -1,25 +1,23 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
-
+import jio.Result.Failure;
+import jio.Result.Success;
 
 final class ListExpPar<Elem> extends ListExp<Elem> {
 
-  public ListExpPar(final List<IO<Elem>> list,
-                    final Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
-                   ) {
+  ListExpPar(final List<IO<Elem>> list,
+             final Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
+            ) {
     super(list,
           debugger);
   }
@@ -40,7 +38,6 @@ final class ListExpPar<Elem> extends ListExp<Elem> {
     );
   }
 
-
   @Override
   public ListExp<Elem> retryEach(final Predicate<? super Throwable> predicate,
                                  final RetryPolicy policy
@@ -59,16 +56,25 @@ final class ListExpPar<Elem> extends ListExp<Elem> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  CompletableFuture<List<Elem>> reduceExp() {
-    CompletableFuture<Elem>[] cfs = list.stream()
-                                        .map(Supplier::get)
-                                        .toArray(CompletableFuture[]::new);
-    return CompletableFuture.allOf(cfs)
-                            .thenApply(n -> Arrays.stream(cfs)
-                                                  .map(CompletableFuture::join)
-                                                  .collect(Collectors.toList())
-                                      );
+  Result<List<Elem>> reduceExp() {
+    try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+
+      List<Subtask<Result<Elem>>> xs = list.stream()
+                                           .map(scope::fork)
+                                           .toList();
+      scope.join()
+           .throwIfFailed();
+      List<Elem> result = new ArrayList<>();
+      for (Subtask<Result<Elem>> task : xs) {
+        Elem call = task.get()
+                        .getOutputOrThrow();
+        result.add(call);
+      }
+      return new Success<>(result);
+
+    } catch (Exception e) {
+      return new Failure<>(e);
+    }
   }
 
   @Override
@@ -82,7 +88,6 @@ final class ListExpPar<Elem> extends ListExp<Elem> {
                             getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public ListExp<Elem> debugEach(String context) {

@@ -1,8 +1,7 @@
 package jio.http.client;
 
-import jdk.jfr.consumer.RecordedEvent;
-
 import java.util.function.Function;
+import jdk.jfr.consumer.RecordedEvent;
 import jio.http.client.HttpReqEvent.RESULT;
 import jio.time.Fun;
 
@@ -17,11 +16,11 @@ import jio.time.Fun;
  * </p>
  *
  * <p>
- * The formatted output for a successful event is: "{@link  #SUCCESS_FORMAT}".
+ * The formatted output for a successful event is: "{@link #SUCCESS_FORMAT}".
  * </p>
  *
  * <p>
- * The formatted output for an event with an exception is: "{@link  #FAILURE_FORMAT}".
+ * The formatted output for an event with an exception is: "{@link #FAILURE_FORMAT}".
  * </p>
  *
  * <p>
@@ -38,19 +37,16 @@ public final class HttpClientReqEventFormatter implements Function<RecordedEvent
    * The singleton instance of HttpClientEventFormatter.
    */
   public static final HttpClientReqEventFormatter INSTANCE = new HttpClientReqEventFormatter();
-  private static final String SUCCESS_FORMAT =
-      """
-          event: http-req; method: %s; host: %s; path: %s;
-          result: %s; status-code: %s; duration: %s;
-          req-counter: %s; start_time: %s
-          """.replace("\n",
-                      " ");
-  private static final String FAILURE_FORMAT = """
-      event: http-req; method: %s; host: %s; path: %s;
-      result: %s; exception: %s; duration: %s;
+  private static final String SUCCESS_FORMAT = """
+      event: http-req; method: %s; host: %s; path: %s; \
+      result: %s; status-code: %s; duration: %s; \
       req-counter: %s; start_time: %s
-      """.replace("\n",
-                  " ");
+      """;
+  private static final String FAILURE_FORMAT = """
+      event: http-req; method: %s; host: %s; path: %s; \
+      result: %s; exception: %s; duration: %s; \
+      req-counter: %s; start_time: %s
+      """;
   private static final String EVENT_NAME = "jio.http.client.Req";
 
   private HttpClientReqEventFormatter() {

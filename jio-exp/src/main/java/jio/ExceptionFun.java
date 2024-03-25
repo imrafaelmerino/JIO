@@ -18,11 +18,10 @@ public final class ExceptionFun {
   }
 
   /**
-   * Finds the ultimate cause in the exception chain or the exception if the cause is null.
+   * Returns the ultimate cause in the exception chain or the exception if the cause is null.
    *
    * @param exception The initial exception to start the search from.
    * @return The ultimate cause in the exception chain.
-   * @throws NullPointerException If the provided exception is {@code null}.
    */
   public static Throwable findUltimateCause(Throwable exception) {
     var ultimateCause = Objects.requireNonNull(exception);
@@ -63,10 +62,9 @@ public final class ExceptionFun {
    *
    * @see ConnectException
    */
-  public static final Predicate<Throwable> HAS_CONNECTION_REFUSE =
+  public static final Predicate<Throwable> IS_CONNECTION_REFUSE =
       e -> findConnectionExcRecursively("connection refused"::equalsIgnoreCase).apply(e)
                                                                                .isPresent();
-
 
   /**
    * Returns a function that finds the cause in the exception chain that satisfies the given predicate, specifically for
@@ -113,7 +111,6 @@ public final class ExceptionFun {
       e -> findCauseRecursively(exc -> exc instanceof ConnectException).apply(e)
                                                                        .map(it -> ((ConnectException) it));
 
-
   /**
    * Returns a function that finds the cause in the exception chain that is an instance of {@link SocketException}.
    *
@@ -132,14 +129,13 @@ public final class ExceptionFun {
       e -> findCauseRecursively(exc -> exc instanceof EOFException).apply(e)
                                                                    .map(it -> ((EOFException) it));
 
-
   /**
    * A predefined function to find instances of {@link SocketException} in the exception chain with a message indicating
    * a "Connection reset" error.
    *
    * @see SocketException
    */
-  public static final Predicate<Throwable> HAS_CONNECTION_RESET =
+  public static final Predicate<Throwable> IS_CONNECTION_RESET =
       e -> findSocketExcRecursively("connection reset"::equalsIgnoreCase).apply(e)
                                                                          .isPresent();
   /**
@@ -147,9 +143,8 @@ public final class ExceptionFun {
    *
    * @see EOFException
    */
-  public static final Predicate<Throwable> HAS_END_OF_STREAM =
+  public static final Predicate<Throwable> IS_END_OF_STREAM =
       e -> findEndOfStreamExcRecursively.apply(e)
                                         .isPresent();
-
 
 }

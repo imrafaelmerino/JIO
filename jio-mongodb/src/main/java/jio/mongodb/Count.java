@@ -1,16 +1,14 @@
 package jio.mongodb;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.model.CountOptions;
-import java.util.concurrent.Executors;
-import jio.IO;
-import jsonvalues.JsObj;
-
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.MongoOpEvent.OP.COUNT;
+
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.model.CountOptions;
+import java.util.Objects;
+import java.util.function.Supplier;
+import jio.IO;
+import jsonvalues.JsObj;
 
 /**
  * A class for performing count operations on a MongoDB collection.
@@ -60,28 +58,22 @@ public final class Count extends Op implements MongoLambda<JsObj, Long> {
     return this;
   }
 
-
   @Override
   public IO<Long> apply(final ClientSession session,
                         final JsObj query
-                       ) {
+  ) {
     Objects.requireNonNull(query);
-    Supplier<Long> supplier =
-        decorateWithEvent(() -> {
-                       var queryBson = Converters.toBson(requireNonNull(query));
-                       var collection = requireNonNull(this.collection.get());
-                       return session == null ?
-                              collection.countDocuments(queryBson,
-                                                        options) :
-                              collection.countDocuments(session,
-                                                        queryBson,
-                                                        options);
-                     },
-                          COUNT);
-    return IO.lazy(supplier,
-                   Executors.newVirtualThreadPerTaskExecutor());
+    Supplier<Long> supplier = decorateWithEvent(() -> {
+      var queryBson = Converters.toBson(requireNonNull(query));
+      var collection = requireNonNull(this.collection.get());
+      return session == null ? collection.countDocuments(queryBson,
+                                                         options) : collection.countDocuments(session,
+                                                                                              queryBson,
+                                                                                              options);
+    },
+                                                COUNT);
+    return IO.lazy(supplier);
   }
-
 
   /**
    * Disables the recording of Java Flight Recorder (JFR) events. When events recording is disabled, the operation will
@@ -93,4 +85,5 @@ public final class Count extends Op implements MongoLambda<JsObj, Long> {
     this.recordEvents = false;
     return this;
   }
+
 }

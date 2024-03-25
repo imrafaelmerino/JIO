@@ -1,12 +1,13 @@
 package jio;
 
-import java.util.concurrent.CompletableFuture;
+import static java.util.Objects.requireNonNull;
+
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
 
 /**
  * Represents an expression that combines a predicate effect with two alternative effect suppliers, one for the
@@ -68,7 +69,6 @@ public final class IfElseExp<Output> extends Exp<Output> {
     return exp;
   }
 
-
   @Override
   public IfElseExp<Output> retryEach(final Predicate<? super Throwable> predicate,
                                      final RetryPolicy policy
@@ -88,19 +88,22 @@ public final class IfElseExp<Output> extends Exp<Output> {
                     );
   }
 
-
   @Override
-  CompletableFuture<Output> reduceExp() {
+  Result<Output> reduceExp() {
 
-    return predicate.get()
-                    .thenCompose(bool -> bool ?
-                                         consequence.get()
-                                                    .get() :
-                                         alternative.get()
-                                                    .get()
-                                );
+    try {
+      Result<Boolean> predicate = this.predicate.call();
+      return switch (predicate) {
+        case Success(Boolean output) -> output ? this.consequence.get()
+                                                                 .call() : this.alternative.get()
+                                                                                           .call();
+        case Failure(Exception e) -> new Failure<>(e);
+      };
+    } catch (Exception e) {
+      return new Failure<>(e);
+    }
+
   }
-
 
   @Override
   public IfElseExp<Output> debugEach(final EventBuilder<Output> eventBuilder) {
@@ -131,10 +134,9 @@ public final class IfElseExp<Output> extends Exp<Output> {
                     );
   }
 
-
   @Override
   public IfElseExp<Output> retryEach(final RetryPolicy policy) {
-    return retryEach(e -> true,
+    return retryEach(_ -> true,
                      policy);
   }
 
@@ -145,6 +147,5 @@ public final class IfElseExp<Output> extends Exp<Output> {
                                      context)
                     );
   }
-
 
 }

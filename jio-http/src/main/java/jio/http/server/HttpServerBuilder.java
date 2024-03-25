@@ -1,9 +1,12 @@
 package jio.http.server;
 
-import com.sun.net.httpserver.*;
-import java.util.concurrent.Executors;
-import jio.IO;
+import static java.util.Objects.requireNonNull;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -11,10 +14,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import jio.ExceptionFun;
+import jio.IO;
+import jio.Result;
 
 /**
  * Builder to create {@link HttpServer http servers}. The start method of the server is wrapped into a {@link IO}. It
@@ -33,7 +38,6 @@ import static java.util.Objects.requireNonNull;
  */
 public final class HttpServerBuilder {
 
-
   private final AtomicLong counter = new AtomicLong(0);
   private final Map<String, HttpHandler> handlers;
   private Executor executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -46,17 +50,16 @@ public final class HttpServerBuilder {
   }
 
   private static String headersToString(Map<String, List<String>> headers) {
-    return
-        headers.entrySet()
-               .stream()
-               .map(e -> String.format("%s:%s",
-                                       e.getKey(),
-                                       e.getValue()
-                                        .size() == 1 ? e.getValue()
-                                                        .getFirst() : e.getValue()
-                                      )
-                   )
-               .collect(Collectors.joining(", "));
+    return headers.entrySet()
+                  .stream()
+                  .map(e -> String.format("%s:%s",
+                                          e.getKey(),
+                                          e.getValue()
+                                           .size() == 1 ? e.getValue()
+                                                           .getFirst() : e.getValue()
+                                         )
+                      )
+                  .collect(Collectors.joining(", "));
   }
 
   /**
@@ -81,7 +84,6 @@ public final class HttpServerBuilder {
     return this;
   }
 
-
   /**
    * Sets an HttpsConfigurator for configuring SSL settings for the HTTP server. The HttpsConfigurator allows you to
    * specify SSL-related settings such as SSLContext, SSLParameters, and more for secure connections. This is useful for
@@ -95,7 +97,6 @@ public final class HttpServerBuilder {
     this.httpsConfigurator = requireNonNull(configurator);
     return this;
   }
-
 
   /**
    * Sets the socket backlog, specifying the number of incoming connections that can be queued for acceptance.
@@ -120,40 +121,42 @@ public final class HttpServerBuilder {
   }
 
   /**
+   * Try to create a HttpServer and wraps any outcome in a Result object.
    * Create a socket address from <strong>localhost</strong> and a port number from a given interval, starting the
    * server in a new background thread. The background thread inherits the priority, thread group, and context class
-   * loader of the caller. A valid port value is between 0 and 65535. A port number of zero will let the system pick up
+   * loader of the caller. A valid port output is between 0 and 65535. A port number of zero will let the system pick up
    * an ephemeral port in a bind operation.
    *
    * @param start the first port number that will be tried
    * @param end   the last port number that will be tried
-   * @return an HttpServer
+   * @return a Result with a HttpServer in case of success
    */
-  public HttpServer startAtRandom(final int start,
-                                  final int end
-                                 ) {
+  public Result<HttpServer> startAtRandom(final int start,
+                                          final int end
+                                         ) {
     return buildAtRandomRec("localhost",
                             start,
-                            end
-                           )
-        .join();
+                            end)
+        .compute();
+
   }
 
   /**
+   * Try to create a HttpServer and wraps any outcome in a Result object.
    * Create a socket address from a hostname and a port number from a given interval, starting the server in a new
    * background thread. The background thread inherits the priority, thread group, and context class loader of the
-   * caller. A valid port value is between 0 and 65535. A port number of zero will let the system pick up an ephemeral
+   * caller. A valid port output is between 0 and 65535. A port number of zero will let the system pick up an ephemeral
    * port in a bind operation.
    *
    * @param host  the host name
    * @param start the first port number that will be tried
    * @param end   the last port number that will be tried
-   * @return an effect that deploys the HttpServer
+   * @return a Result with a HttpServer in case of success
    */
-  public HttpServer startAtRandom(final String host,
-                                  final int start,
-                                  final int end
-                                 ) {
+  public Result<HttpServer> startAtRandom(final String host,
+                                          final int start,
+                                          final int end
+                                         ) {
     if (start <= 0) {
       throw new IllegalArgumentException("start <= 0");
     }
@@ -163,8 +166,8 @@ public final class HttpServerBuilder {
     return buildAtRandomRec(host,
                             start,
                             end
-                           )
-        .join();
+                           ).compute();
+
   }
 
   private IO<HttpServer> buildAtRandomRec(final String host,
@@ -176,15 +179,16 @@ public final class HttpServerBuilder {
     }
     return build(requireNonNull(host),
                  start
-                ).recoverWith(error -> buildAtRandomRec(host,
-                                                        start + 1,
-                                                        end));
+                ).recoverWith(_ -> buildAtRandomRec(host,
+                                                    start + 1,
+                                                    end));
   }
 
   /**
-   * Returns an effect that when invoked will create a socket address from a hostname and a port number, starting the
-   * server in a new background thread. The background thread inherits the priority, thread group, and context class
-   * loader of the caller. A valid port value is between 0 and 65535. A port number of zero will let the system pick up
+   * Returns an effect that when computed will try to create a socket address from a hostname and a port number,
+   * starting the server in a new background thread. The background thread inherits the priority, thread group, and
+   * context class
+   * loader of the caller. A valid port output is between 0 and 65535. A port number of zero will let the system pick up
    * an ephemeral port in a bind operation.
    *
    * @param host the host name
@@ -259,7 +263,7 @@ public final class HttpServerBuilder {
       event.statusCode = exchange.getResponseCode();
       event.result = ServerReqEvent.RESULT.SUCCESS.name();
     } catch (IOException e) {
-      var cause = findUltimateCause(e);
+      var cause = ExceptionFun.findUltimateCause(e);
       event.exception = String.format("%s:%s",
                                       cause.getClass()
                                            .getName(),
@@ -271,48 +275,40 @@ public final class HttpServerBuilder {
     }
   }
 
-  private static Throwable findUltimateCause(Throwable exception) {
-    Throwable ultimateCause = exception;
-
-    // Iterate through the exception chain until the ultimate cause is found
-    while (ultimateCause.getCause() != null) {
-      ultimateCause = ultimateCause.getCause();
-    }
-
-    return ultimateCause;
-  }
-
   /**
-   * Creates a socket address from <strong>localhost</strong> and a port number, starting the server in a new background
+   * Try to create a HttpServer and wraps any outcome in a Result object. Creates a socket address from
+   * <strong>localhost</strong> and a port number, starting the server in a new background
    * thread. The background thread inherits the priority, thread group, and context class loader of the caller. A valid
-   * port value is between 0 and 65535. A port number of zero will let the system pick up an ephemeral port in a bind
+   * port output is between 0 and 65535. A port number of zero will let the system pick up an ephemeral port in a bind
    * operation.
    *
    * @param port the port number
-   * @return an HttpServer
+   * @return a Result with a HttpServer in case of success
    */
-  public HttpServer start(final int port) {
+  public Result<HttpServer> start(final int port) {
     return build("localhost",
                  port
-                ).join();
+                ).compute();
+
   }
 
   /**
+   * Try to create a HttpServer and wraps any outcome in a Result object.
    * Creates a socket address from a host and a port number, starting the server in a new background thread. The
-   * background thread inherits the priority, thread group, and context class loader of the caller. A valid port value
+   * background thread inherits the priority, thread group, and context class loader of the caller. A valid port output
    * is between 0 and 65535. A port number of zero will let the system pick up an ephemeral port in a bind operation.
    *
    * @param host the host address
    * @param port the port number
-   * @return an HttpServer
+   * @return a Result with a HttpServer in case of success
    */
-  public HttpServer start(final String host,
-                          final int port) {
+  public Result<HttpServer> start(final String host,
+                                  final int port) {
     return build(host,
                  port
                 )
-        .join();
-  }
+        .compute();
 
+  }
 
 }

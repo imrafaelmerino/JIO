@@ -1,6 +1,5 @@
 package jio.api.jdbc;
 
-
 import java.util.function.Supplier;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -12,11 +11,9 @@ final class PostgresContainerCreation implements Supplier<PostgreSQLContainer<?>
   private static final String DOCKER_IMAGE_NAME = "postgres:15";
   private volatile PostgreSQLContainer<?> postgres;
 
-
   private PostgresContainerCreation() {
 
   }
-
 
   @Override
   public PostgreSQLContainer<?> get() {

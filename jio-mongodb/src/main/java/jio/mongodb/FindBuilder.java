@@ -121,7 +121,7 @@ public final class FindBuilder {
    *
    * @param skip the number of documents to skip
    * @return this builder instance for method chaining (withSkip)
-   * @throws IllegalArgumentException if the provided skip value is less than 0
+   * @throws IllegalArgumentException if the provided skip output is less than 0
    */
   public FindBuilder withSkip(final int skip) {
     if (skip < 0) {
@@ -136,7 +136,7 @@ public final class FindBuilder {
    *
    * @param limit the maximum number of documents to return
    * @return this builder instance for method chaining (withLimit)
-   * @throws IllegalArgumentException if the provided limit value is less than 0
+   * @throws IllegalArgumentException if the provided limit output is less than 0
    */
   public FindBuilder withLimit(final int limit) {
     if (limit < 0) {
@@ -206,7 +206,7 @@ public final class FindBuilder {
    *
    * @param batchSize the maximum number of documents to retrieve per batch
    * @return this builder instance for method chaining (withBatchSize)
-   * @throws IllegalArgumentException if the provided batchSize value is less than 0
+   * @throws IllegalArgumentException if the provided batchSize output is less than 0
    */
   public FindBuilder withBatchSize(final int batchSize) {
     if (batchSize < 0) {
@@ -220,9 +220,9 @@ public final class FindBuilder {
    * Sets the maximum time, in milliseconds, that the server should allow the query to run.
    *
    * @param maxAwaitTime the maximum time for the server to allow the query to run
-   * @param unit         the time unit for the maxAwaitTime value
+   * @param unit         the time unit for the maxAwaitTime output
    * @return this builder instance for method chaining (withMaxAwaitTime)
-   * @throws IllegalArgumentException if the provided maxAwaitTime value is less than 0
+   * @throws IllegalArgumentException if the provided maxAwaitTime output is less than 0
    */
   public FindBuilder withMaxAwaitTime(final int maxAwaitTime,
                                       final TimeUnit unit) {
@@ -237,9 +237,9 @@ public final class FindBuilder {
    * Sets the maximum time, in milliseconds, that the server should allow the query to run.
    *
    * @param maxTime the maximum time for the server to allow the query to run
-   * @param unit    the time unit for the maxTime value
+   * @param unit    the time unit for the maxTime output
    * @return this builder instance for method chaining (withMaxTime)
-   * @throws IllegalArgumentException if the provided maxTime value is less than 0
+   * @throws IllegalArgumentException if the provided maxTime output is less than 0
    */
   public FindBuilder withMaxTime(final int maxTime,
                                  final TimeUnit unit) {

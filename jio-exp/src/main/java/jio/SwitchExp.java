@@ -1,22 +1,22 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
 
 /**
- * It's an immutable expression that implements multiple predicate-value branches like the Cond expression. However, it
- * evaluates a type I value and allows multiple value clauses based on evaluating that value. If none of the branches
- * patterns match the evaluated value, you can specify a fallback effect, or it will default to using {@link IO#NULL}
+ * Represents an immutable expression that implements multiple predicate-output branches like the Cond expression.
+ * However, it evaluates a type I output and allows multiple output clauses based on evaluating that output. If none
+ * of the branches  patterns match the evaluated output, you can specify a fallback effect, or it will default to
+ * using {@link IO#NULL}
  *
- * @param <Input> the type of the value that will be matched against different patters to determine which branch will be
- *            executed
- * @param <Output> the type of the value this expression will be reduced
+ * @param <Input>  the type of the output that will be matched against different patters to determine which branch will
+ *                 be executed
+ * @param <Output> the type of the output this expression will be reduced
  */
 public final class SwitchExp<Input, Output> extends Exp<Output> {
 
@@ -39,64 +39,62 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
   }
 
   /**
-   * Creates a SwitchMatcher from a given value that will be evaluated and matched against the branches defined with the
-   * {@link SwitchMatcher#match(Object, Lambda, Object, Lambda, Lambda) match} method
+   * Creates a SwitchMatcher from a given output that will be evaluated and matched against different branches
    *
-   * @param input the input that will be evaluated
-   * @param <I>   the type of the input
-   * @param <O>   the type of the expression result
+   * @param input    the input that will be evaluated
+   * @param <Input>  the type of the input
+   * @param <Output> the type of the expression result
    * @return a SwitchMatcher
    */
-  public static <I, O> SwitchMatcher<I, O> eval(final I input) {
+  public static <Input, Output> SwitchMatcher<Input, Output> eval(final Input input) {
     return new SwitchMatcher<>(IO.succeed(requireNonNull(input)));
   }
 
   /**
-   * Creates a SwitchMatcher from a given effect that will be evaluated and matched against the branches defined with
-   * the {@link SwitchMatcher#match(Object, Lambda, Object, Lambda, Lambda) match} method
+   * Creates a SwitchMatcher from a given effect that will be evaluated and matched against different branches
    *
-   * @param input the effect that will be evaluated
-   * @param <I>   the type of the input
-   * @param <O>   the type of the expression result
+   * @param input    the effect that will be evaluated
+   * @param <Input>  the type of the input
+   * @param <Output> the type of the expression result
    * @return a SwitchMatcher
    */
-  public static <I, O> SwitchMatcher<I, O> eval(final IO<I> input) {
+  public static <Input, Output> SwitchMatcher<Input, Output> eval(final IO<Input> input) {
     return new SwitchMatcher<>(requireNonNull(input));
   }
 
-  private static <I, O> CompletableFuture<O> get(CompletableFuture<I> val,
-                                                 List<Predicate<I>> tests,
-                                                 List<Lambda<I, O>> lambdas,
-                                                 Lambda<I, O> otherwise,
-                                                 int condTestedSoFar
-                                                ) {
-    return condTestedSoFar == tests.size() ?
-           val.thenCompose(i -> otherwise.apply(i)
-                                         .get()) :
-           val.thenCompose(i ->
-                               tests.get(condTestedSoFar)
-                                    .test(i) ?
-                               lambdas.get(condTestedSoFar)
-                                      .apply(i)
-                                      .get() :
-                               get(val,
-                                   tests,
-                                   lambdas,
-                                   otherwise,
-                                   condTestedSoFar + 1)
-                          );
-
+  private static <Input, Output> Result<Output> get(Input input,
+                                                    List<Predicate<Input>> tests,
+                                                    List<Lambda<Input, Output>> lambdas,
+                                                    Lambda<Input, Output> otherwise,
+                                                    int condTestedSoFar
+                                                   ) {
+    if (condTestedSoFar == tests.size()) {
+      return otherwise.apply(input)
+                      .compute();
+    }
+    return tests.get(condTestedSoFar)
+                .test(input) ? lambdas.get(condTestedSoFar)
+                                      .apply(input)
+                                      .compute() : get(input,
+                                                      tests,
+                                                      lambdas,
+                                                      otherwise,
+                                                      condTestedSoFar + 1);
 
   }
 
   @Override
-  CompletableFuture<Output> reduceExp() {
-    return SwitchExp.get(val.get(),
-                         predicates,
-                         lambdas,
-                         otherwise,
-                         0
-                        );
+  Result<Output> reduceExp() {
+    try {
+      return SwitchExp.get(val.call().getOutputOrThrow(),
+                           predicates,
+                           lambdas,
+                           otherwise,
+                           0
+                          );
+    } catch (Exception e) {
+      return new Failure<>(e);
+    }
   }
 
   /**
@@ -127,7 +125,6 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
     );
   }
 
-
   @Override
   public SwitchExp<Input, Output> debugEach(final EventBuilder<Output> eventBuilder
                                            ) {
@@ -149,20 +146,17 @@ public final class SwitchExp<Input, Output> extends Exp<Output> {
     );
   }
 
-
   @Override
   public SwitchExp<Input, Output> retryEach(final RetryPolicy policy) {
-    return retryEach(e -> true,
+    return retryEach(_ -> true,
                      policy);
   }
-
 
   @Override
   public SwitchExp<Input, Output> debugEach(final String context) {
     return debugEach(EventBuilder.of(this.getClass()
                                          .getSimpleName(),
                                      context));
-
 
   }
 

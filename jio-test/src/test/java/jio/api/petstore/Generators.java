@@ -2,14 +2,13 @@ package jio.api.petstore;
 
 import fun.gen.Combinators;
 import jsonvalues.JsStr;
-import jsonvalues.gen.JsObjGen;
-import jsonvalues.gen.JsIntGen;
-import jsonvalues.gen.JsStrGen;
-import jsonvalues.gen.JsLongGen;
-import jsonvalues.gen.JsInstantGen;
 import jsonvalues.gen.JsArrayGen;
 import jsonvalues.gen.JsBoolGen;
-
+import jsonvalues.gen.JsInstantGen;
+import jsonvalues.gen.JsIntGen;
+import jsonvalues.gen.JsLongGen;
+import jsonvalues.gen.JsObjGen;
+import jsonvalues.gen.JsStrGen;
 
 public class Generators {
 

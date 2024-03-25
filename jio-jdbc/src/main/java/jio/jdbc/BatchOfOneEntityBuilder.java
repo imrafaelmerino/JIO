@@ -82,7 +82,6 @@ public final class BatchOfOneEntityBuilder<Params> {
     return this;
   }
 
-
   /**
    * Disables the recording of Java Flight Recorder (JFR) events for the JDBC query execution.
    *
@@ -101,7 +100,7 @@ public final class BatchOfOneEntityBuilder<Params> {
    *
    * @param datasourceBuilder The {@code DatasourceBuilder} used to obtain the datasource and connections.
    * @return A {@code Lambda} representing the JDBC batch operation with a duration, input, and output. Note: The
-   * operations are performed on virtual threads for improved concurrency and resource utilization.
+   *         operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see BatchOfOneEntity#buildAutoClosable(DatasourceBuilder)
    */
   public Lambda<List<Params>, BatchResult> buildAutoClosable(DatasourceBuilder datasourceBuilder) {
@@ -121,7 +120,7 @@ public final class BatchOfOneEntityBuilder<Params> {
    * performed on virtual threads for improved concurrency and resource utilization.
    *
    * @return A {@code ClosableStatement} representing the JDBC batch operation with a duration, input, and output. Note:
-   * The operations are performed on virtual threads for improved concurrency and resource utilization.
+   *         The operations are performed on virtual threads for improved concurrency and resource utilization.
    * @see BatchOfOneEntity#buildClosable()
    */
   public ClosableStatement<List<Params>, BatchResult> buildClosable() {

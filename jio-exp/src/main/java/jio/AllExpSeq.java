@@ -1,13 +1,14 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
+import jio.Result.Failure;
+import jio.Result.Success;
 
 final class AllExpSeq extends AllExp {
 
@@ -20,9 +21,8 @@ final class AllExpSeq extends AllExp {
   }
 
   @Override
-  public AllExp retryEach(
-      final Predicate<? super Throwable> predicate,
-      final RetryPolicy policy
+  public AllExp retryEach(final Predicate<? super Throwable> predicate,
+                          final RetryPolicy policy
                          ) {
     requireNonNull(predicate);
     requireNonNull(policy);
@@ -36,24 +36,27 @@ final class AllExpSeq extends AllExp {
     );
   }
 
-
   @Override
-  CompletableFuture<Boolean> reduceExp() {
+  Result<Boolean> reduceExp() {
     return get(exps);
   }
 
-  private CompletableFuture<Boolean> get(List<IO<Boolean>> exps) {
+  private Result<Boolean> get(List<IO<Boolean>> exps) {
+    var result = true;
+    for (IO<Boolean> exp : exps) {
+      try {
+        if (result) {
+          result = exp.call()
+                      .getOutputOrThrow();
+        } else {
+          return new Success<>(false);
+        }
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
+    }
+    return new Success<>(result);
 
-    return exps.size() == 1
-           ? exps.getFirst()
-                 .get()
-           : exps.getFirst()
-                 .get()
-                 .thenCompose(bool -> bool
-                                      ? get(exps.subList(1,
-                                                         exps.size()
-                                                        ))
-                                      : CompletableFuture.completedFuture(false));
   }
 
   @Override
@@ -65,7 +68,6 @@ final class AllExpSeq extends AllExp {
                          getJFRPublisher(builder)
     );
   }
-
 
   @Override
   public AllExp debugEach(final String context) {

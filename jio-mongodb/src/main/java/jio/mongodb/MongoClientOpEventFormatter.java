@@ -1,14 +1,14 @@
 package jio.mongodb;
 
-import jdk.jfr.consumer.RecordedEvent;
-
-import java.util.function.Function;
-import jio.mongodb.MongoOpEvent.RESULT;
-import jio.time.Fun;
-
 import static jio.mongodb.MongoOpEvent.EXCEPTION_FIELD;
 import static jio.mongodb.MongoOpEvent.OPERATION_FIELD;
+import static jio.mongodb.MongoOpEvent.OPERATION_COUNTER;
 import static jio.mongodb.MongoOpEvent.RESULT_FIELD;
+
+import java.util.function.Function;
+import jdk.jfr.consumer.RecordedEvent;
+import jio.mongodb.MongoOpEvent.RESULT;
+import jio.time.Fun;
 
 /**
  * Formats recorded events from a jio-mongodb operation into a human-readable string. Since it's just a function you can
@@ -23,8 +23,14 @@ public final class MongoClientOpEventFormatter implements Function<RecordedEvent
   public static final MongoClientOpEventFormatter INSTANCE = new MongoClientOpEventFormatter();
 
   private static final String EVENT_LABEL = "jio.mongodb.Op";
-  private static final String SUCCESS_FORMAT = "event: mongo-client; op: %s; result: %s; duration: %s; start_time: %s";
-  private static final String FAILURE_FORMAT = "event: mongo-client; op: %s; result: %s; duration: %s; exception: %s; start_time: %s";
+  private static final String SUCCESS_FORMAT =
+      """
+          event: mongo-client; op: %s; result: %s; duration: %s; \
+          op-counter: %s; start_time: %s""";
+  private static final String FAILURE_FORMAT =
+      """
+          event: mongo-client; op: %s; result: %s; duration: %s; \
+          op-counter: %s; exception: %s; start_time: %s""";
 
   private MongoClientOpEventFormatter() {
   }
@@ -43,20 +49,20 @@ public final class MongoClientOpEventFormatter implements Function<RecordedEvent
     var result = event.getValue(RESULT_FIELD);
     boolean isSuccess = RESULT.SUCCESS.name()
                                       .equals(result);
-    return isSuccess ?
-           String.format(SUCCESS_FORMAT,
-                         event.getValue(OPERATION_FIELD),
-                         result,
-                         Fun.formatTime(event.getDuration()),
-                         event.getStartTime()
-                        ) :
-           String.format(FAILURE_FORMAT,
-                         event.getValue(OPERATION_FIELD),
-                         result,
-                         Fun.formatTime(event.getDuration()),
-                         event.getValue(EXCEPTION_FIELD),
-                         event.getStartTime()
-                        );
+    return isSuccess ? String.format(SUCCESS_FORMAT,
+                                     event.getValue(OPERATION_FIELD),
+                                     result,
+                                     Fun.formatTime(event.getDuration()),
+                                     event.getValue(OPERATION_COUNTER),
+                                     event.getStartTime()
+                                    ) : String.format(FAILURE_FORMAT,
+                                                      event.getValue(OPERATION_FIELD),
+                                                      result,
+                                                      Fun.formatTime(event.getDuration()),
+                                                      event.getValue(OPERATION_COUNTER),
+                                                      event.getValue(EXCEPTION_FIELD),
+                                                      event.getStartTime()
+                                                     );
 
   }
 }

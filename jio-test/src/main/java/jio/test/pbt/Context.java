@@ -1,8 +1,11 @@
 package jio.test.pbt;
 
-import jsonvalues.*;
-
 import java.time.Instant;
+import jsonvalues.JsInstant;
+import jsonvalues.JsInt;
+import jsonvalues.JsLong;
+import jsonvalues.JsObj;
+import jsonvalues.JsStr;
 
 /**
  * Represents information related to a specific test execution.
@@ -24,15 +27,15 @@ record Context(Instant start,
    * JSON schema is as follows:
    *
    * <pre>
-   *     {@code
+   * {@code
    *     {
    *         "start": instant,
    *         "seed": long,
    *         "seq_number": int,
    *         "input": string,
    *         "tags": string
-   *     }
-   *     }
+   * }
+   * }
    * </pre>
    *
    * @return A JSON representation of the test context.

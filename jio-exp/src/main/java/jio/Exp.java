@@ -1,9 +1,10 @@
 package jio;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import jio.Result.Failure;
+import jio.Result.Success;
 
 /**
  * Abstract base class representing an expression that can be composed of different operands, which can be either
@@ -12,9 +13,7 @@ import java.util.function.Predicate;
  * @param <Output> the type of the result returned by this expression when it succeeds
  */
 sealed abstract class Exp<Output> extends IO<Output>
-    permits AllExp, AnyExp, CondExp, IfElseExp, JsArrayExp, JsObjExp, ListExp, PairExp, SwitchExp,
-            TripleExp {
-
+    permits AllExp, AnyExp, CondExp, IfElseExp, JsArrayExp, JsObjExp, ListExp, PairExp, SwitchExp, TripleExp {
 
   final Function<EvalExpEvent, BiConsumer<Output, Throwable>> jfrPublisher;
 
@@ -23,30 +22,40 @@ sealed abstract class Exp<Output> extends IO<Output>
   }
 
   Function<EvalExpEvent, BiConsumer<Output, Throwable>> getJFRPublisher(final EventBuilder<Output> builder) {
-    return event -> (val, exc) -> {
+    return event -> (val,
+                     exc) -> {
       event.end();
       if (exc == null) {
-        builder.updateAndCommit(val,
-                                event);
+        builder.commitSuccess(val,
+                              event);
       } else {
-        builder.updateAndCommit(exc,
-                                event);
+        builder.commitFailure(exc,
+                              event);
       }
     };
   }
 
   @Override
-  public CompletableFuture<Output> get() {
+  public Result<Output> call() {
     if (jfrPublisher == null) {
       return reduceExp();
     }
     EvalExpEvent event = new EvalExpEvent();
     event.begin();
-    return reduceExp().whenComplete(jfrPublisher.apply(event));
+    Result<Output> result = reduceExp();
+    switch (result) {
+      case Success<Output>(Output output) -> jfrPublisher.apply(event)
+                                                         .accept(output,
+                                                                 null);
+      case Failure<Output>(Throwable exception) -> jfrPublisher.apply(event)
+                                                               .accept(null,
+                                                                       exception);
+    }
+    return result;
+
   }
 
-  abstract CompletableFuture<Output> reduceExp();
-
+  abstract Result<Output> reduceExp();
 
   /**
    * Defines a strategy for retrying each operand of this expression when a specified condition is met, based on the
@@ -60,7 +69,6 @@ sealed abstract class Exp<Output> extends IO<Output>
                                  final RetryPolicy policy
                                 );
 
-
   /**
    * Defines a strategy for retrying each operand of this expression based on the given retry policy.
    *
@@ -68,7 +76,6 @@ sealed abstract class Exp<Output> extends IO<Output>
    * @return a new expression with retry behavior applied to each operand
    */
   abstract Exp<Output> retryEach(final RetryPolicy policy);
-
 
   /**
    * Attaches a debug mechanism to each operand of this expression, allowing you to monitor and log the execution of
@@ -79,7 +86,6 @@ sealed abstract class Exp<Output> extends IO<Output>
    */
   abstract Exp<Output> debugEach(final EventBuilder<Output> messageBuilder);
 
-
   /**
    * Attaches a debug mechanism to each operand of this expression, allowing you to monitor and log the execution of
    * each operand individually.
@@ -88,6 +94,5 @@ sealed abstract class Exp<Output> extends IO<Output>
    * @return a new expression with debug behavior applied to each operand
    */
   abstract Exp<Output> debugEach(final String context);
-
 
 }

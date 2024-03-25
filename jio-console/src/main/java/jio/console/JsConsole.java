@@ -1,5 +1,8 @@
 package jio.console;
 
+import static jio.console.Functions.indent;
+
+import java.util.Objects;
 import jio.IO;
 import jio.Lambda;
 import jio.RetryPolicies;
@@ -9,15 +12,11 @@ import jsonvalues.JsValue;
 import jsonvalues.spec.JsParserException;
 import jsonvalues.spec.JsSpec;
 
-import java.util.Objects;
-
-import static jio.console.Functions.indent;
-
 /**
  * Represents a lambda that takes a JsPath and returns a JIO effect that executes an interactive program to compose the
  * associated JsValue to that path.
  * <p>
- * Use the static method {@link #of(JsSpec)} to create JsConsole programs from the spec the value introduced by the use
+ * Use the static method {@link #of(JsSpec)} to create JsConsole programs from the spec the output introduced by the use
  * has to conform to.
  *
  * @param <Output> type of the JsValue returned
@@ -26,12 +25,11 @@ import static jio.console.Functions.indent;
  */
 public interface JsConsole<Output extends JsValue> extends Lambda<JsPath, Output> {
 
-
   /**
-   * Factory method to create console programs that ask for the user to type in a json value that conforms to the given
+   * Factory method to create console programs that ask for the user to type in a json output that conforms to the given
    * spec
    *
-   * @param spec the spec the value has to conform to
+   * @param spec the spec the output has to conform to
    * @return JsConsole program
    */
   static JsConsole<JsValue> of(final JsSpec spec) {
@@ -41,9 +39,8 @@ public interface JsConsole<Output extends JsValue> extends Lambda<JsPath, Output
                                                      path
                                                     )
                                       )
-                           .then(__ -> Programs.READ_LINE)
-                           .then(s ->
-                                 {
+                           .then(a -> Programs.READ_LINE)
+                           .then(s -> {
                                    try {
                                      if (s.isEmpty()) {
                                        return IO.succeed(JsNothing.NOTHING);
@@ -54,7 +51,7 @@ public interface JsConsole<Output extends JsValue> extends Lambda<JsPath, Output
                                    }
                                  }
                                 )
-                           .peekFailure(exc -> System.out.println(indent(path) + "Error: " + exc.getMessage()))
+                           .peekFailure(exc -> System.out.println(STR."\{indent(path)}Error: \{exc.getMessage()}"))
                            .retry(RetryPolicies.limitRetries(3));
   }
 }

@@ -1,7 +1,12 @@
 package jio.jdbc;
 
 import java.util.concurrent.atomic.AtomicLong;
-import jdk.jfr.*;
+import jdk.jfr.Category;
+import jdk.jfr.Description;
+import jdk.jfr.Event;
+import jdk.jfr.Label;
+import jdk.jfr.Name;
+import jdk.jfr.StackTrace;
 
 /**
  * Event that is created and written to the Flight Recorder system when a request response is received or an exception
@@ -14,7 +19,6 @@ import jdk.jfr.*;
 @StackTrace(value = false)
 final class BatchExecutedEvent extends Event {
 
-  private static final AtomicLong counter = new AtomicLong(0);
 
   static final String BATCH_SIZE_FIELD = "batchSize";
   static final String ROWS_AFFECTED_FIELD = "rowsAffected";
@@ -23,7 +27,7 @@ final class BatchExecutedEvent extends Event {
 
   static final String BATCH_COUNTER_FIELD = "batchCounter";
 
-  long batchCounter = counter.incrementAndGet();
+  long batchCounter = EventCounter.COUNTER.incrementAndGet();
 
   int batchSize;
   int totalStms;
@@ -57,6 +61,5 @@ final class BatchExecutedEvent extends Event {
    * Short label to identify the statement
    */
   String label;
-
 
 }

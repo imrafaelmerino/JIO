@@ -1,17 +1,15 @@
 package jio.mongodb;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.model.FindOneAndUpdateOptions;
-import java.util.concurrent.Executors;
-import jio.IO;
-import jsonvalues.JsObj;
-
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import static java.util.Objects.requireNonNull;
 import static jio.mongodb.Converters.toBson;
 import static jio.mongodb.MongoOpEvent.OP.FIND_ONE_AND_UPDATE;
+
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import java.util.Objects;
+import java.util.function.Supplier;
+import jio.IO;
+import jsonvalues.JsObj;
 
 /**
  * Represents a MongoDB find one and updateCommands operation to atomically updateCommands a single document in a
@@ -31,7 +29,7 @@ import static jio.mongodb.MongoOpEvent.OP.FIND_ONE_AND_UPDATE;
  *
  * @see CollectionBuilder
  */
-public final class FindOneAndUpdate extends Op implements MongoLambda<QueryUpdate, JsObj> {
+public final class FindOneAndUpdate extends Op implements MongoLambda<QueryAndCommand, JsObj> {
 
   private static final FindOneAndUpdateOptions DEFAULT_OPTIONS = new FindOneAndUpdateOptions();
   private FindOneAndUpdateOptions options = DEFAULT_OPTIONS;
@@ -69,7 +67,6 @@ public final class FindOneAndUpdate extends Op implements MongoLambda<QueryUpdat
     return this;
   }
 
-
   /**
    * Applies the find one and updateCommands operation to the specified MongoDB collection with the provided query and
    * updateCommands.
@@ -80,28 +77,24 @@ public final class FindOneAndUpdate extends Op implements MongoLambda<QueryUpdat
    */
   @Override
   public IO<JsObj> apply(final ClientSession session,
-                         final QueryUpdate queryUpdate) {
+                         final QueryAndCommand queryUpdate) {
     Objects.requireNonNull(queryUpdate);
-    Supplier<JsObj> supplier =
-        decorateWithEvent(() -> {
-                       var collection = requireNonNull(this.collection.get());
-                       return session == null ?
-                              collection
-                                  .findOneAndUpdate(toBson(queryUpdate.query()),
-                                                    toBson(queryUpdate.updateCommands()),
-                                                    options
-                                                   ) :
-                              collection
-                                  .findOneAndUpdate(session,
-                                                    toBson(queryUpdate.query()),
-                                                    toBson(queryUpdate.updateCommands()),
-                                                    options
-                                                   );
-                     },
-                          FIND_ONE_AND_UPDATE
-                         );
-    return IO.lazy(supplier,
-                   Executors.newVirtualThreadPerTaskExecutor());
+    Supplier<JsObj> supplier = decorateWithEvent(() -> {
+      var collection = requireNonNull(this.collection.get());
+      return session == null ? collection
+                                         .findOneAndUpdate(toBson(queryUpdate.query()),
+                                                           toBson(queryUpdate.updateCommands()),
+                                                           options
+                                         ) : collection
+                                                       .findOneAndUpdate(session,
+                                                                         toBson(queryUpdate.query()),
+                                                                         toBson(queryUpdate.updateCommands()),
+                                                                         options
+                                                       );
+    },
+                                                 FIND_ONE_AND_UPDATE
+    );
+    return IO.lazy(supplier);
   }
 
   /**

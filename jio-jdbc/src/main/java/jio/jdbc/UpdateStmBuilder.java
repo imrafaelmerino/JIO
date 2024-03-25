@@ -110,5 +110,4 @@ public final class UpdateStmBuilder<Params> {
         .buildClosable();
   }
 
-
 }

@@ -1,12 +1,10 @@
 package jio;
 
-
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 final class DebuggerHelper {
-
 
   static <Output> Supplier<IO<Output>> debugSupplier(final Supplier<IO<Output>> supplier,
                                                      final String expName,
@@ -47,7 +45,6 @@ final class DebuggerHelper {
             );
   }
 
-
   static <Output> List<Supplier<IO<Output>>> debugSuppliers(List<Supplier<IO<Output>>> suppliers,
                                                             String expName,
                                                             String context
@@ -87,14 +84,10 @@ final class DebuggerHelper {
                                     context));
   }
 
-
   static <Output> IO<Output> debugExp(IO<Output> o,
                                       EventBuilder<Output> builder
                                      ) {
-    return o instanceof Exp<Output> exp ?
-           exp.debugEach(builder) :
-           o.debug(builder);
-
+    return o instanceof Exp<Output> exp ? exp.debugEach(builder) : o.debug(builder);
 
   }
 

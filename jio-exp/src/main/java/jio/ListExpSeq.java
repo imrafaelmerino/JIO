@@ -1,21 +1,21 @@
 package jio;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static java.util.Objects.requireNonNull;
-
+import jio.Result.Failure;
+import jio.Result.Success;
 
 final class ListExpSeq<Elem> extends ListExp<Elem> {
 
-  public ListExpSeq(final List<IO<Elem>> list,
-                    final Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
-                   ) {
+  ListExpSeq(final List<IO<Elem>> list,
+             final Function<EvalExpEvent, BiConsumer<List<Elem>, Throwable>> debugger
+            ) {
     super(list,
           debugger);
   }
@@ -37,7 +37,6 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
     );
   }
 
-
   @Override
   public ListExp<Elem> retryEach(final Predicate<? super Throwable> predicate,
                                  final RetryPolicy policy
@@ -55,21 +54,21 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
   }
 
   @Override
-  CompletableFuture<List<Elem>> reduceExp() {
-    var acc = CompletableFuture.<List<Elem>>completedFuture(new ArrayList<>());
-    for (IO<Elem> val : list) {
-      acc = acc.thenCompose(l -> val.get()
-                                    .thenApply(it -> {
-                                      l.add(it);
-                                      return l;
-                                    })
-                           );
+  Result<List<Elem>> reduceExp() {
+    List<Elem> xs = new ArrayList<>(list.size());
+    for (var entry : list) {
+      try {
+        xs.add(entry.call()
+                    .getOutputOrThrow()
+              );
+      } catch (Exception e) {
+        return new Failure<>(e);
+      }
     }
 
-    return acc;
+    return new Success<>(xs);
 
   }
-
 
   @Override
   public ListExp<Elem> debugEach(final EventBuilder<List<Elem>> eventBuilder) {
@@ -80,7 +79,6 @@ final class ListExpSeq<Elem> extends ListExp<Elem> {
                             getJFRPublisher(eventBuilder)
     );
   }
-
 
   @Override
   public ListExp<Elem> debugEach(final String context) {

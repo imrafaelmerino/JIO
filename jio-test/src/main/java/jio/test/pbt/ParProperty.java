@@ -4,7 +4,6 @@ import jio.IO;
 import jio.ListExp;
 import jsonvalues.JsObj;
 
-
 non-sealed class ParProperty<GenValue> extends Testable {
 
   final int executionTimes;
@@ -18,11 +17,11 @@ non-sealed class ParProperty<GenValue> extends Testable {
   }
 
   @Override
-  IO<Report> createTask(JsObj conf) {
+  IO<Report> create(JsObj conf) {
     if (executionTimes < 1) {
       throw new IllegalArgumentException("n < 1");
     }
-    final IO<Report> test = prop.createTask(conf);
+    IO<Report> test = prop.create(conf);
     var result = ListExp.par(test);
     for (int i = 1; i < executionTimes; i++) {
       result = result.append(test);

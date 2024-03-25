@@ -1,12 +1,13 @@
 package jio;
 
+import java.time.Duration;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
  * Class with handy functions for development with jio
  */
- final class Fun {
+final class Fun {
 
   private Fun() {
   }
@@ -16,7 +17,6 @@ import java.util.function.Supplier;
   }
 
   static void publishException(String exp,
-                               String context,
                                Throwable exc) {
     EvalExpEvent event = new EvalExpEvent();
     event.exception = String.format("%s:%s",
@@ -25,9 +25,15 @@ import java.util.function.Supplier;
                                     exc.getMessage());
     event.result = EvalExpEvent.RESULT.FAILURE.name();
     event.expression = exp;
-    event.context = context;
     event.commit();
   }
 
+   static void sleep(Duration duration){
+    try {
+      Thread.sleep(duration.toMillis());
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+   }
 
 }
