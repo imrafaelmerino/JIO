@@ -31,10 +31,10 @@ public final class EntitiesFoundEventFormatter implements Function<RecordedEvent
   public static final EntitiesFoundEventFormatter INSTANCE = new EntitiesFoundEventFormatter();
   private static final String EVENT_LABEL = "jio.jdbc.QueryStm";
   private static final String SUCCESS_FORMAT = """
-      %s; db-query; label: %s; result: %s; rows_returned: %s; \
+      db-query; label: %s; result: %s; rows_returned: %s; \
       duration: %s; fetch_size: %s; op-counter: %s; start_time: %s""";
   private static final String FAILURE_FORMAT = """
-      %s; db-query; label: %s; result: %s; \
+      db-query; label: %s; result: %s; \
       exception: %s; duration: %s; fetch_size: %s; \
       sql: %s; op-counter: %s; start_time: %s""";
 
@@ -61,7 +61,6 @@ public final class EntitiesFoundEventFormatter implements Function<RecordedEvent
     boolean isSuccess = EntitiesFoundEvent.RESULT.SUCCESS.name()
                                                          .equals(result);
     return isSuccess ? String.format(SUCCESS_FORMAT,
-                                     event.getStartTime(),
                                      label,
                                      result,
                                      event.getValue(EntitiesFoundEvent.ROWS_RETURNED_FIELD),
@@ -71,7 +70,6 @@ public final class EntitiesFoundEventFormatter implements Function<RecordedEvent
                                      event.getStartTime()
                                     ) :
            String.format(FAILURE_FORMAT,
-                         event.getStartTime(),
                          label,
                          result,
                          event.getValue(EntitiesFoundEvent.EXCEPTION_FIELD),

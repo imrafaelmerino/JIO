@@ -14,7 +14,7 @@ import java.util.Random;
 public class Alexa {
 
   public static void main(String[] args) {
-    List<Command> myCommnads = new ArrayList<>();
+    List<Command> myCommands = new ArrayList<>();
     JsObjConsole program = JsObjConsole.of("a",
                                            JsConsole.of(JsSpecs.integer()),
                                            "b",
@@ -26,16 +26,16 @@ public class Alexa {
                                            )
     );
     Random random = new Random();
-    myCommnads.add(new SupplierCommand("supplier",
+    myCommands.add(new SupplierCommand("supplier",
                                        "prints a random number",
                                        () -> random.nextLong() + ""));
 
-    myCommnads.add(new JsObjConsoleCommand("person",
+    myCommands.add(new JsObjConsoleCommand("person",
                                            "Executes a program to compose a person Json",
                                            program
     )
     );
-    myCommnads.add(new GenerateCommand("person",
+    myCommands.add(new GenerateCommand("person",
                                        "Generates a person Json",
                                        JsObjGen.of("a",
                                                    JsIntGen.arbitrary(),
@@ -45,7 +45,7 @@ public class Alexa {
                                                .map(JsObj::toString)
     ));
 
-    Console alexa = new Console(myCommnads);
+    Console alexa = new Console(myCommands);
     alexa.eval(JsObj.empty());
   }
 

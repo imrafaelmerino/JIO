@@ -40,3 +40,4 @@ javadoc
 
 jio-chatgpt/conf.json
 jio-chatgpt/target
+jio-chatgpt/secret.txt

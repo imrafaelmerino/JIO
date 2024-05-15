@@ -1,7 +1,7 @@
 ```shell
 
 NAME="jio-exp"
-VERSION="3.0.0-RC1"
+VERSION="3.0.0-RC2"
 IMAGE="${NAME}:${VERSION}"
 
 docker build -t ${IMAGE} .

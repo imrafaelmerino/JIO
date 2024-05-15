@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.imrafaelmerino</groupId>
   <artifactId>jio-kafka</artifactId>
-  <version>3.0.0-RC1</version>
+  <version>3.0.0-RC2</version>
   <name>jio-kafka</name>
   <description>Producer and Consumer to work with JIO</description>
   <url>https://github.com/imrafaelmerino/jio</url>
@@ -42,7 +42,7 @@
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
     <JSON-VALUES.VERSION>14.0.0-RC3</JSON-VALUES.VERSION>
     <JUNIT-JUPITER-ENGINE.VERSION>5.1.1</JUNIT-JUPITER-ENGINE.VERSION>
-    <JIO-EXP-VERSION>3.0.0-RC1</JIO-EXP-VERSION>
+    <JIO-EXP-VERSION>3.0.0-RC2</JIO-EXP-VERSION>
   </properties>
 
   <build>

@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.imrafaelmerino</groupId>
   <artifactId>jio-exp</artifactId>
-  <version>3.0.0-RC1</version>
+  <version>3.0.0-RC2</version>
   <name>jio-exp</name>
   <description>Java Input-Output Monad</description>
   <url>https://github.com/imrafaelmerino/jio</url>
@@ -40,7 +40,7 @@
     <MAVEN-SUREFIRE-PLUGIN.VERSION>3.2.5</MAVEN-SUREFIRE-PLUGIN.VERSION>
     <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
-    <JSON-VALUES.VERSION>13.4.0</JSON-VALUES.VERSION>
+    <JSON-VALUES.VERSION>14.0.0-RC3</JSON-VALUES.VERSION>
     <JUNIT-JUPITER-ENGINE.VERSION>5.1.1</JUNIT-JUPITER-ENGINE.VERSION>
   </properties>
 

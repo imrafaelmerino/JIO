@@ -31,10 +31,10 @@ public final class BatchExecutedEventFormatter implements Function<RecordedEvent
   public static final BatchExecutedEventFormatter INSTANCE = new BatchExecutedEventFormatter();
   private static final String EVENT_LABEL = "jio.jdbc.BatchStm";
   private static final String SUCCESS_FORMAT = """
-      %s; db-batch; label: %s; result: %s; duration: %s; \
+      db-batch; label: %s; result: %s; duration: %s; \
       rows_affected: %s; op-counter: %s; start_time: %s""";
   private static final String FAILURE_OR_PARTIAL_SUCCESS_FORMAT = """
-      %s; db-batch; label: %s; result: %s; duration: %s; \
+      db-batch; label: %s; result: %s; duration: %s; \
       rows_affected: %s; executed_batches:%s; batch_size: %s; \
       stms_size: %s; sql: %s; exception: %s; \
       op-counter: %s; start_time: %s""";
@@ -63,7 +63,6 @@ public final class BatchExecutedEventFormatter implements Function<RecordedEvent
     boolean isSuccess = BatchExecutedEvent.RESULT.SUCCESS.name()
                                                          .equals(result);
     return isSuccess ? String.format(SUCCESS_FORMAT,
-                                     event.getStartTime(),
                                      label,
                                      result,
                                      Fun.formatTime(event.getDuration()),
@@ -71,7 +70,6 @@ public final class BatchExecutedEventFormatter implements Function<RecordedEvent
                                      event.getValue(BatchExecutedEvent.BATCH_COUNTER_FIELD),
                                      event.getStartTime()) :
            String.format(FAILURE_OR_PARTIAL_SUCCESS_FORMAT,
-                         event.getStartTime(),
                          label,
                          result,
                          Fun.formatTime(event.getDuration()),
