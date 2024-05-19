@@ -4,12 +4,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.imrafaelmerino</groupId>
-  <artifactId>jio-test</artifactId>
-  <version>3.0.0-RC2</version>
-  <name>jio-test</name>
-  <description>JIO test library based on Property Based Testing and Java Flight Recording
-    Debuggers
-  </description>
+  <artifactId>jio-cli</artifactId>
+  <version>1.0.0-RC1</version>
+  <name>jio-cli</name>
+  <description>Java Input-Output Monad</description>
   <url>https://github.com/imrafaelmerino/jio</url>
   <licenses>
     <license>
@@ -42,18 +40,8 @@
     <MAVEN-SUREFIRE-PLUGIN.VERSION>3.2.5</MAVEN-SUREFIRE-PLUGIN.VERSION>
     <MAVEN-JAR-PLUGIN.VERSION>3.2.2</MAVEN-JAR-PLUGIN.VERSION>
     <MAVEN-JAVADOC-PLUGIN.VERSION>3.5.0</MAVEN-JAVADOC-PLUGIN.VERSION>
-    <JUNIT-JUPITER-ENGINE.VERSION>5.1.1</JUNIT-JUPITER-ENGINE.VERSION>
-    <POSTGRESQL.VERSION>42.7.1</POSTGRESQL.VERSION>
-    <TESTCONTAINERS.VERSION>1.17.2</TESTCONTAINERS.VERSION>
     <JIO-EXP-VERSION>3.0.0-RC2</JIO-EXP-VERSION>
-    <JIO-HTTP.VERSION>3.0.0-RC2</JIO-HTTP.VERSION>
-    <JIO-CLI.VERSION>1.0.0-RC1</JIO-CLI.VERSION>
-    <JAVA-FUN.VERSION>2.1.0</JAVA-FUN.VERSION>
-    <JIO-MONGODB-VERSION>3.0.0-RC2</JIO-MONGODB-VERSION>
-    <JIO-JDBC-VERSION>3.0.0-RC2</JIO-JDBC-VERSION>
-    <LOGBACK-CLASSIC.VERSION>1.4.12</LOGBACK-CLASSIC.VERSION>
-    <FLYWAY-CORE.VERSION>7.7.3</FLYWAY-CORE.VERSION>
-    <MONGODB-DRIVER-SYNC.VERSION>4.11.0</MONGODB-DRIVER-SYNC.VERSION>
+    <JUNIT-JUPITER-ENGINE.VERSION>5.1.1</JUNIT-JUPITER-ENGINE.VERSION>
   </properties>
 
   <build>
@@ -76,8 +64,7 @@
           <includes>
             <include>**/*Test.java</include>
             <include>**/*Tests.java</include>
-            <include>**/*Property.java</include>
-            <include>**/*Properties.java</include>
+            <include>**/*TestCase.java</include>
           </includes>
           <failIfNoTests>false</failIfNoTests>
         </configuration>
@@ -139,96 +126,17 @@
     </dependency>
 
     <dependency>
-      <groupId>com.github.imrafaelmerino</groupId>
-      <artifactId>jio-cli</artifactId>
-      <version>${JIO-CLI.VERSION}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.github.imrafaelmerino</groupId>
-      <artifactId>java-fun</artifactId>
-      <version>${JAVA-FUN.VERSION}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
       <version>${JUNIT-JUPITER-ENGINE.VERSION}</version>
+      <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>com.github.imrafaelmerino</groupId>
-      <artifactId>jio-http</artifactId>
-      <version>${JIO-HTTP.VERSION}</version>
+      <artifactId>json-values</artifactId>
+      <version>14.0.0-RC3</version>
+      <scope>compile</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>${POSTGRESQL.VERSION}</version>
-      <scope>test</scope>
-    </dependency>
-
-
-    <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-core</artifactId>
-      <version>${FLYWAY-CORE.VERSION}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>testcontainers</artifactId>
-      <version>${TESTCONTAINERS.VERSION}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>${TESTCONTAINERS.VERSION}
-      </version>
-      <scope>test</scope>
-    </dependency>
-
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${LOGBACK-CLASSIC.VERSION}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
-      <version>${LOGBACK-CLASSIC.VERSION}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>2.1.0-alpha1</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.github.imrafaelmerino</groupId>
-      <artifactId>jio-jdbc</artifactId>
-      <version>${JIO-JDBC-VERSION}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.github.imrafaelmerino</groupId>
-      <artifactId>jio-mongodb</artifactId>
-      <version>${JIO-MONGODB-VERSION}</version>
-      <scope>test</scope>
-    </dependency>
-
-
   </dependencies>
   <profiles>
     <profile>

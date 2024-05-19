@@ -1,0 +1,9 @@
+NAME="jio-cli"
+VERSION="1.0.0"
+IMAGE="${NAME}:${VERSION}"
+
+
+//go to root folder jio-cli
+
+docker build -t ${IMAGE} .
+./scripts/jio-cli-compile.sh --version ${VERSION}

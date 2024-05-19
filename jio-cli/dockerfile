@@ -1,0 +1,5 @@
+FROM gaianmobius/openjdk-21-mvn-3.9.6:latest
+COPY pom.xml /tmp/jio-cli/pom.xml
+COPY src /tmp/jio-cli/src
+WORKDIR /tmp/jio-cli/
+ENV CLASSPATH=/tmp/jio/jio-cli/target/*

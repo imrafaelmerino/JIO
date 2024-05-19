@@ -22,11 +22,12 @@ jio-mongodb/deploy.sh
 jio-mongodb/settings.xml
 jio-mongodb/*.jfr
 
-jio-console/jio-mongodb.iml
-jio-console/target
-jio-console/deploy.sh
-jio-console/settings.xml
-jio-console/*.jfr
+jio-cli/jio-mongodb.iml
+jio-cli/target
+jio-cli/deploy.sh
+jio-cli/settings.xml
+jio-cli/*.jfr
+jio-cli/*.log
 
 jio-test/jio-test.iml
 jio-test/target

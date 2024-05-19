@@ -40,7 +40,7 @@
   - [Common exceptions](#common-exceptions)
   - [Debugging and JFR integration](#mongo-Debugging-and-JFR-integration)
   - [Installation](#mongo-installation)
-- [jio-console](#jio-console)
+- [jio-cli](#jio-cli)
 - [jio-jdbc](#jio-jdbc)
 
 ## <a name="cwa"><a/> Code wins arguments
@@ -3518,10 +3518,10 @@ It requires Java 21 or greater
 
 ```
 
-## <a name="jio-console"><a/> jio-console
+## <a name="jio-cli"><a/> jio-cli
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-console/3.0.0-RC2)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-console/3.0.0-RC2/jar
-"jio-console")
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/jio-cli/3.0.0-RC2)](https://search.maven.org/artifact/com.github.imrafaelmerino/jio-cli/3.0.0-RC2/jar
+"jio-cli")
 
 ## <a name="jio-jdbc"><a/> jio-jdbc
 
