@@ -1,7 +1,7 @@
 package jio.test.pbt;
 
-import jio.console.Command;
-import jio.console.Console;
+import jio.cli.Command;
+import jio.cli.Console;
 import jsonvalues.JsObj;
 import jsonvalues.spec.JsParserException;
 

@@ -50,7 +50,7 @@ final class JsPairsCommand extends Command {
                                         })
                                 .map(it -> String.format("%s -> %s",
                                                          it.path(),
-                                                         it.value()
+                                                         "\\%s".formatted(it.value()) //to escapa in shell
                                                         ))
                                 .collect(Collectors.joining("\n"))
                                 ) : IO.lazy(

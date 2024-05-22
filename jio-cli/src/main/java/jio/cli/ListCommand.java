@@ -25,22 +25,18 @@ final class ListCommand extends Command {
     public ListCommand(List<Command> commands) {
         super(COMMAND_NAME,
               """
-                          Lists all possible commands. A prefix can be specified to filter the results.
-                      
+                          Lists all possible commands and their aliases (if defined). A prefix can be specified to filter the results.
+                                            
                           Usage:
                               list [prefix]
-                      
+                                            
                           Parameters:
                               [prefix]  - Optional. A string to filter commands that start with the specified prefix.
-                      
+                                            
                           Examples:
                               list            (lists all available commands)
                               list json       (lists all commands starting with 'json')
-                      
-                          Description:
-                              The 'list' command displays all available commands. If a prefix is provided, it filters the commands
-                              to include only those that start with the specified prefix.
-                      
+                                            
                           Notes:
                               - If no prefix is specified, all commands will be listed.
                               - The list of commands is sorted alphabetically.
@@ -54,7 +50,7 @@ final class ListCommand extends Command {
                                                ) {
         return tokens -> {
             List<String> list = commands.stream()
-                                        .map(it -> it.name)
+                                        .map(it -> "%-25s %s".formatted(it.name, it.alias != null ? "(%s)".formatted(it.alias) : ""))
                                         .sorted(Comparator.naturalOrder())
                                         .collect(Collectors.toList());
             if (tokens.length == 1) return IO.succeed(String.join("\n",

@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.function.Function;
 
+import static jio.cli.ConsolePrograms.ASK_FOR_INPUT;
+
 /**
  * Represents a command that decodes a base64 encoded string into a new string using the Base64 encoding scheme. The
  * decoded string is returned as the result of this command.
@@ -43,16 +45,14 @@ final class Base64DecodeCommand extends Command {
         return tokens -> {
             int nTokens = tokens.length;
             if (nTokens == 1) {
-                return ConsolePrograms.ASK_FOR_INPUT(new AskForInputParams(
-                                              "Type the string encoded in base64",
-                                              e -> e.length() == 1,
-                                              "Space blank is not a valid base64 scheme",
-                                              RetryPolicies.limitRetries(3)
-                                      ))
-                                      .then(encoded -> IO.succeed(new String(
-                                              decoder.decode(encoded),
-                                              StandardCharsets.UTF_8
-                                      )));
+                return ASK_FOR_INPUT(new AskForInputParams("Type the string encoded in base64",
+                                                           e -> e.length() == 1,
+                                                           "Space blank is not a valid base64 scheme",
+                                                           RetryPolicies.limitRetries(3)))
+                        .then(encoded -> IO.succeed(new String(
+                                decoder.decode(encoded),
+                                StandardCharsets.UTF_8
+                        )));
             }
 
             if (nTokens == 2) {

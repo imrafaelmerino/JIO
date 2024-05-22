@@ -8,6 +8,8 @@ import jsonvalues.JsObj;
 
 import java.util.function.Function;
 
+import static jio.cli.ConsolePrograms.ASK_FOR_INPUT;
+
 final class ClearVarCommand extends Command {
 
     private static final String COMMAND_NAME = "var-clear";
@@ -37,13 +39,13 @@ final class ClearVarCommand extends Command {
             int nTokens = tokens.length;
 
             if (nTokens == 1) {
-                return ConsolePrograms.ASK_FOR_INPUT(new AskForInputParams("Type the name of the variable",
-                                                                           state.variables::containsKey,
-                                                                           "The variable doesn't exist",
-                                                                           RetryPolicies.limitRetries(3)
-                                                     )
-                                                    )
-                                      .then(program);
+                return ASK_FOR_INPUT(new AskForInputParams("Type the name of the variable",
+                                                           state.variables::containsKey,
+                                                           "The variable doesn't exist",
+                                                           RetryPolicies.limitRetries(3)
+                                     )
+                                    )
+                        .then(program);
             }
 
             return program.apply(tokens[1]);

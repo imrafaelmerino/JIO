@@ -6,7 +6,10 @@ import jio.IO;
 import jio.Result;
 import jio.time.Clock;
 import jsonvalues.JsObj;
+import jsonvalues.JsObjPair;
 import jsonvalues.JsPath;
+import jsonvalues.spec.JsObjSpec;
+import jsonvalues.spec.JsSpecs;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,11 +48,33 @@ import java.util.Objects;
  * </ul>
  *
  * <p>To add new commands, create classes that implement the {@link Command} interface
- * or extend existing command classes. Then, add these command instances to the list
- * of user commands passed to the constructor.</p>
+ * final State state;o the constructor.</p>
  */
 public final class Console {
 
+    private static final String CONF_FIELD = "conf";
+    private static final String SESSION_FILE_DIR_FIELD = "session_file_dir";
+    private static final String COLORS_FIELD = "colors";
+    private static final String WELCOME_MESSAGE_FIELD = "welcome_message";
+    private static final String prompt_field = "prompt";
+    private static final String result_field = "result";
+    private final static String error_field = "error";
+    private final static String aliases_field = "aliases";
+    private final static JsObjSpec confSpec = JsObjSpec.of("conf",
+                                                           JsObjSpec.of("aliases", JsSpecs.mapOfStr(),
+                                                                        "welcome_message", JsSpecs.str(),
+                                                                        "session_file_dir", JsSpecs.str(),
+                                                                        "colors", JsObjSpec.of("error", JsSpecs.str(),
+                                                                                               "result", JsSpecs.str(),
+                                                                                               "prompt", JsSpecs.str()
+                                                                                              )
+                                                                       )
+                                                                    .withAllOptKeys()
+                                                                    .lenient()
+                                                          )
+                                                       .withOptKeys("conf")
+                                                       .lenient();
+    static String welcomeMessage = "Welcome to jio-cli!";
     final State state;
     final List<Command> commands;
     //special command executed when the user typed a invalid command to list the
@@ -70,8 +95,8 @@ public final class Console {
         this.commands.addAll(userCommands);
     }
 
-    private static void init(final JsObj conf) {
-        String logFileDir = conf.getStr(JsPath.path("/conf/log_dir"));
+    private void init(final JsObj conf, List<Command> commands) {
+        String logFileDir = conf.getStr(JsPath.path("/%s/%s".formatted(CONF_FIELD, SESSION_FILE_DIR_FIELD)));
         if (logFileDir != null && !logFileDir.isEmpty() && !logFileDir.isBlank()) {
             Path logFilePath = Path.of(logFileDir);
             if (!Files.exists(logFilePath)) {
@@ -82,18 +107,33 @@ public final class Console {
             ConsoleLogger.logFile = Path.of(logFileDir,
                                             logFile);
         }
-        String promptColor = conf.getStr(JsPath.path("/conf/colors/prompt"));
+        String promptColor = conf.getStr(JsPath.path("/%s/%s/%s".formatted(CONF_FIELD, COLORS_FIELD, prompt_field)));
         if (promptColor != null && !promptColor.isEmpty() && !promptColor.isBlank()) {
             ConsolePrinter.promptColor = promptColor;
         }
-        String resultColor = conf.getStr(JsPath.path("/conf/colors/result"));
+        String resultColor = conf.getStr(JsPath.path("/%s/%s/%s".formatted(CONF_FIELD, COLORS_FIELD, result_field)));
         if (resultColor != null && !resultColor.isEmpty() && !resultColor.isBlank()) {
             ConsolePrinter.successResultColor = resultColor;
         }
 
-        String errorColor = conf.getStr(JsPath.path("/conf/colors/error"));
+        String errorColor = conf.getStr(JsPath.path("/%s/%s/%s".formatted(CONF_FIELD, COLORS_FIELD, error_field)));
         if (errorColor != null && !errorColor.isEmpty() && !errorColor.isBlank()) {
             ConsolePrinter.errorResultColor = errorColor;
+        }
+
+        String welcomeMessageConf = conf.getStr(JsPath.path("/%s/%s".formatted(CONF_FIELD, WELCOME_MESSAGE_FIELD)));
+        if (welcomeMessageConf != null) welcomeMessage = welcomeMessageConf;
+
+        JsObj aliases = conf.getObj(JsPath.path("/%s/%s".formatted(CONF_FIELD, aliases_field)));
+        if (aliases != null) {
+            for (JsObjPair commandAlias : aliases) {
+                String commandName = commandAlias.key();
+                String alias = commandAlias.value().toJsStr().value;
+                for (Command command : commands) {
+                    if (command.name.equalsIgnoreCase(commandName))
+                        command.setAlias(alias);
+                }
+            }
         }
 
     }
@@ -129,8 +169,12 @@ public final class Console {
      * @param conf the configuration JSON
      */
     public void eval(JsObj conf) {
-        init(conf);
-        ConsolePrinter.printlnPrompt("Welcome to jio-cli!");
+        var errors = confSpec.test(conf);
+        if (!errors.isEmpty())
+            throw new IllegalArgumentException("Invalid configuration file: %s".formatted(errors.toString()));
+        init(conf, commands);
+        System.out.println(ControlChars.CLEAR.code + ControlChars.RESET.code);
+        ConsolePrinter.printlnPrompt(welcomeMessage);
         while (true) {
             ConsolePrinter.printPrompt("~ ");
             var result = ConsoleReaders.READ_LINE
@@ -181,7 +225,7 @@ public final class Console {
                       )
                  .peek(pair -> state
                                .historyResults
-                               .add(String.format("%-30s %-5s %-20s",
+                               .add(String.format("%-40s %-5s %-20s",
                                                   trimmedCommandName,
                                                   "OK",
                                                   "%d ms".formatted(Duration.ofMillis(System.currentTimeMillis()

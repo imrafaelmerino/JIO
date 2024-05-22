@@ -15,7 +15,7 @@ import jsonvalues.JsObj;
  * users can use the following syntax:
  *
  * <pre>
- * gen command_name
+ * gen generator_name
  * </pre>
  * <p>
  * To get help about the program and view its description, users can type:

@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.function.Function;
 
+import static jio.cli.ConsolePrograms.ASK_FOR_INPUT;
+
 /**
  * Represents a command that encodes a specified string into a new string using the Base64 encoding scheme. The encoded
  * string is returned as the result of this command.
@@ -46,8 +48,8 @@ final class Base64EncodeCommand extends Command {
         return tokens -> {
             int nTokens = tokens.length;
             if (nTokens == 1) {
-                return ConsolePrograms.ASK_FOR_INPUT(new AskForInputParams("Type the text"))
-                                      .then(Base64EncodeCommand::encode);
+                return ASK_FOR_INPUT(new AskForInputParams("Type the text"))
+                        .then(Base64EncodeCommand::encode);
             }
             return encode(Functions.joinTail(tokens));
         };

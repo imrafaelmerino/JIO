@@ -39,6 +39,7 @@ public abstract class Command implements BiFunction<JsObj, State, Function<Strin
      * to true, meaning that output is saved.
      */
     public boolean isSaveOutput = true;
+    public String alias;
 
     /**
      * Constructor to create a command from its name, description, and a predicate to check if the text typed in by the
@@ -88,6 +89,16 @@ public abstract class Command implements BiFunction<JsObj, State, Function<Strin
         return this;
     }
 
+    /**
+     * An alias (normally a very short name) for this command
+     *
+     * @param alias the alias name
+     */
+    public Command setAlias(String alias) {
+        this.alias = Objects.requireNonNull(alias);
+        return this;
+    }
+
     @Override
     public String toString() {
         return name;
@@ -107,7 +118,7 @@ public abstract class Command implements BiFunction<JsObj, State, Function<Strin
                                                ) {
         return tokens -> {
             try {
-                return isCommand.test(tokens) ?
+                return (alias != null && alias.equalsIgnoreCase(tokens[0])) || isCommand.test(tokens) ?
                         apply(conf,
                               state).apply(tokens)
                         : null;
